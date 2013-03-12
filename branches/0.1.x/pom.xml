@@ -227,8 +227,8 @@
 	</modules>
 	<scm>
 		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/branches/0.1.x</developerConnection>
-	  <connection>scm:svn:http://dkpro-core-asl.googlecode.com/svn/dkpro-parent-pom/branches/0.1.x</connection>
-    <url>http://code.google.com/p/dkpro-core-asl/source/browse/dkpro-parent-pom/branches/0.1.x</url>
+	  <connection>scm:svn:https://webanno.googlecode.com/svn/branches/0.1.x</connection>
+    <url>https://webanno.googlecode.com/svn/branches/0.1.x</url>
   </scm>
 	<build>
 		<extensions>
