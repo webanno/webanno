@@ -20,9 +20,11 @@ import static org.apache.commons.io.IOUtils.copyLarge;
 import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.uimafit.pipeline.SimplePipeline.runPipeline;
 
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,6 +58,8 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,13 +116,16 @@ public class RepositoryServiceDbData
     private static final String PROJECT = "/project/";
     private static final String DOCUMENT = "/document/";
     private static final String SOURCE = "/source";
-
     private static final String ANNOTATION = "/annotation";
+    private static final String SETTINGS = "/settings/";
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private static File dir;
+
+    // The annotation preference properties File name
+    String annotationPreferencePropertiesFileName;
 
     /*
      * @Resource(name = "formats") private Properties readWriteFileFormats;
@@ -348,30 +355,34 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
-    public boolean existsAnnotationDocument(SourceDocument aDocument, User aUser){
-        try{
-            entityManager.createQuery("FROM AnnotationDocument WHERE project = :project " +
-            		" AND document = :document AND user = :user", AnnotationDocument.class)
+    public boolean existsAnnotationDocument(SourceDocument aDocument, User aUser)
+    {
+        try {
+            entityManager
+                    .createQuery(
+                            "FROM AnnotationDocument WHERE project = :project "
+                                    + " AND document = :document AND user = :user",
+                            AnnotationDocument.class)
                     .setParameter("project", aDocument.getProject())
-                    .setParameter("document", aDocument)
-                    .setParameter("user", aUser).getSingleResult();
+                    .setParameter("document", aDocument).setParameter("user", aUser)
+                    .getSingleResult();
             return true;
         }
-        catch(NoResultException ex){
+        catch (NoResultException ex) {
             return false;
         }
     }
 
-
     @Override
     @Transactional
-    public boolean existsProject(String aName){
-        try{
+    public boolean existsProject(String aName)
+    {
+        try {
             entityManager.createQuery("FROM Project WHERE name = :name", Project.class)
                     .setParameter("name", aName).getSingleResult();
             return true;
         }
-        catch(NoResultException ex){
+        catch (NoResultException ex) {
             return false;
         }
     }
@@ -434,13 +445,10 @@ public class RepositoryServiceDbData
 
         return entityManager
                 .createQuery(
-                        "FROM AnnotationDocument WHERE document = :document AND " + "user =:user" +
-                        		" AND project = :project",
-                        AnnotationDocument.class)
-                        .setParameter("document", aDocument)
-                        .setParameter("user", aUser)
-                        .setParameter("project", aDocument.getProject())
-                        .getSingleResult();
+                        "FROM AnnotationDocument WHERE document = :document AND " + "user =:user"
+                                + " AND project = :project", AnnotationDocument.class)
+                .setParameter("document", aDocument).setParameter("user", aUser)
+                .setParameter("project", aDocument.getProject()).getSingleResult();
     }
 
     @Override
@@ -644,6 +652,17 @@ public class RepositoryServiceDbData
     }
 
     @Override
+    public Properties loadUserSettings(String aUsername, Project aProject, String aSubject)
+        throws FileNotFoundException, IOException
+    {
+        Properties property = new Properties();
+        property.load(new FileInputStream(new File(dir.getAbsolutePath() + PROJECT
+                + aProject.getId() + SETTINGS + aUsername + "/"
+                + annotationPreferencePropertiesFileName)));
+        return property;
+    }
+
+    @Override
     @Transactional
     public void removeProject(Project aProject, User aUser)
         throws IOException
@@ -699,10 +718,10 @@ public class RepositoryServiceDbData
     {
 
         // remove metadata from DB
-    if(existsAnnotationDocument(aDocument, aUser)) {
-        entityManager.remove(getAnnotationDocument(aDocument, aUser));
-    }
-    entityManager.remove(aDocument);
+        if (existsAnnotationDocument(aDocument, aUser)) {
+            entityManager.remove(getAnnotationDocument(aDocument, aUser));
+        }
+        entityManager.remove(aDocument);
 
         String path = dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + DOCUMENT
                 + aDocument.getId();
@@ -718,6 +737,24 @@ public class RepositoryServiceDbData
     public void setDir(File aDir)
     {
         dir = aDir;
+    }
+
+    @Override
+    public <T> void saveUserSettings(String aUsername, Project aProject, String aSubject,
+            T aConfigurationObject)
+        throws IOException
+    {
+        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(aConfigurationObject);
+        Properties property = new Properties();
+        for (PropertyDescriptor value : wrapper.getPropertyDescriptors()) {
+            property.setProperty(aSubject + "." + value.getName(),
+                    wrapper.getPropertyValue(value.getName()).toString());
+        }
+        String propertiesPath = dir.getAbsolutePath() + PROJECT + aProject.getId() + SETTINGS
+                + aUsername;
+        FileUtils.forceMkdir(new File(propertiesPath));
+        property.save(new FileOutputStream(new File(propertiesPath,
+                annotationPreferencePropertiesFileName)), null);
     }
 
     @Override
@@ -812,6 +849,17 @@ public class RepositoryServiceDbData
             }
         }
         return writableFormats;
+    }
+
+    public String getAnnotationPreferencePropertiesFileName()
+    {
+        return annotationPreferencePropertiesFileName;
+    }
+
+    public void setAnnotationPreferencePropertiesFileName(
+            String aAnnotationPreferencePropertiesFileName)
+    {
+        annotationPreferencePropertiesFileName = aAnnotationPreferencePropertiesFileName;
     }
 
 }
