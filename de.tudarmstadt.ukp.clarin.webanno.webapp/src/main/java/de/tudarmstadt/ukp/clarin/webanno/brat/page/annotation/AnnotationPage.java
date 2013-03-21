@@ -22,8 +22,10 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.NumberTextField;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -60,6 +62,9 @@ public class AnnotationPage
     private DownloadLink export;
     private int windowSize;
 
+    private NumberTextField<Integer> gotoPageTextField;
+    private int gotoPageAddress = -1;
+
     public AnnotationPage()
     {
 
@@ -94,8 +99,8 @@ public class AnnotationPage
                 else {
 
                     annotationLayerSelectionModal.setContent(new AnnotationLayerSelectionModalPage(
-                            annotationLayerSelectionModal.getContentId(), annotationLayerSelectionModal,
-                            annotator));
+                            annotationLayerSelectionModal.getContentId(),
+                            annotationLayerSelectionModal, annotator));
 
                     annotationLayerSelectionModal
                             .setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
@@ -104,7 +109,7 @@ public class AnnotationPage
 
                                 public void onClose(AjaxRequestTarget target)
                                 {
-                                  //  target.add(annotator);
+                                    // target.add(annotator);
                                     target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                                 }
                             });
@@ -171,7 +176,7 @@ public class AnnotationPage
                                     annotator.getSentenceAddress(), annotator.getWindowSize());
                     if (annotator.getSentenceAddress() != nextSentenceAddress) {
                         annotator.setSentenceAddress(nextSentenceAddress);
-                      // target.add(annotator);
+                        // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
 
@@ -199,7 +204,7 @@ public class AnnotationPage
                                     annotator.getSentenceAddress(), annotator.getWindowSize());
                     if (annotator.getSentenceAddress() != previousSentenceAddress) {
                         annotator.setSentenceAddress(previousSentenceAddress);
-                        //target.add(annotator);
+                        // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
                     else {
@@ -222,7 +227,7 @@ public class AnnotationPage
                 if (annotator.getDocument() != null) {
                     if (annotator.getFirstSentenceAddress() != annotator.getSentenceAddress()) {
                         annotator.setSentenceAddress(annotator.getFirstSentenceAddress());
-                      //  target.add(annotator);
+                        // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
                     else {
@@ -249,7 +254,7 @@ public class AnnotationPage
                                     annotator.getWindowSize());
                     if (lastDisplayWindowBeginingSentenceAddress != annotator.getSentenceAddress()) {
                         annotator.setSentenceAddress(lastDisplayWindowBeginingSentenceAddress);
-                       //  target.add(annotator);
+                        // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
                     else {
@@ -261,6 +266,55 @@ public class AnnotationPage
                 }
             }
         });
+        gotoPageTextField = (NumberTextField<Integer>) new NumberTextField<Integer>("gotoPageText",
+                new Model<Integer>(10));
+        gotoPageTextField.setType(Integer.class);
+        add(gotoPageTextField);
+        gotoPageTextField.add(new AjaxFormComponentUpdatingBehavior("onchange")
+        {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target)
+            {
+                gotoPageAddress = BratAjaxCasUtil.getSentenceAddress(
+                        getJCas(annotator.getProject(), annotator.getDocument()),
+                        gotoPageTextField.getModelObject());
+
+            }
+        });
+
+        add(new AjaxLink<Void>("gotoPageLink")
+        {
+            private static final long serialVersionUID = 7496156015186497496L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target)
+            {
+                if (gotoPageAddress == -2) {
+                    target.appendJavaScript("alert('This sentence number is either negative or beyond the last sentence number!')");
+                }
+                else if (annotator.getDocument() != null) {
+
+                    if (gotoPageAddress == -1) {
+                        // Not Updated, default used
+                        gotoPageAddress = BratAjaxCasUtil.getSentenceAddress(
+                                getJCas(annotator.getProject(), annotator.getDocument()), 10);
+                    }
+                    if (annotator.getSentenceAddress() != gotoPageAddress) {
+                        annotator.setSentenceAddress(gotoPageAddress);
+                        // target.add(annotator);
+                        target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
+                    }
+                    else {
+                        target.appendJavaScript("alert('This sentence is on the same page!')");
+                    }
+                }
+                else {
+                    target.appendJavaScript("alert('Please open a document first!')");
+                }
+            }
+        });
+
     }
 
     private JCas getJCas(Project aProject, SourceDocument aDocument)
@@ -281,8 +335,8 @@ public class AnnotationPage
             error("CAS object not found :" + ExceptionUtils.getRootCauseMessage(e));
         }
         catch (ClassNotFoundException e) {
-         error("The Class name in the properties is not found " + ":"
-                        + ExceptionUtils.getRootCauseMessage(e));
+            error("The Class name in the properties is not found " + ":"
+                    + ExceptionUtils.getRootCauseMessage(e));
         }
         return jCas;
 
