@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -70,7 +71,7 @@ public class CasToBratJson
     }
 
     public CasToBratJson(int aFirstSentenceAddress, int aLastSentenceAddress, int awindowSize,
-            ArrayList<TagSet> aAnnotationLayers)
+            HashSet<TagSet> aAnnotationLayers)
     {
 
         for (TagSet tag : aAnnotationLayers) {
