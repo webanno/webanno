@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -96,7 +97,7 @@ public class BratAnnotator
     private int firstSentenceAddress;
 
     // Annotation preferences
-    private ArrayList<TagSet> annotationLayers = new ArrayList<TagSet>();
+    private HashSet<TagSet> annotationLayers = new HashSet <TagSet>();
     private int windowSize;
     private boolean isDisplayLemmaSelected;
     private boolean scrollPage;
@@ -535,7 +536,7 @@ public class BratAnnotator
                 catch (Exception e) {
                     setWindowSize(10);
                     setDisplayLemmaSelected(true);
-                    setAnnotationLayers((ArrayList<TagSet>) annotationService.listTagSets(project));
+                    setAnnotationLayers( new HashSet<TagSet> (annotationService.listTagSets(project)));
 
                 }
             }
@@ -563,7 +564,7 @@ public class BratAnnotator
             setProject(repository.getProject(aProjectName.replace("/", "")));
 
             if (project.getId() != currentprojectId) {
-                setAnnotationLayers((ArrayList<TagSet>) annotationService.listTagSets(project));
+                setAnnotationLayers( new HashSet<TagSet> (annotationService.listTagSets(project)));
             }
             currentprojectId = project.getId();
         }
@@ -655,12 +656,12 @@ public class BratAnnotator
         firstSentenceAddress = aFirstSentenceAddress;
     }
 
-    public ArrayList<TagSet> getAnnotationLayers()
+    public HashSet<TagSet> getAnnotationLayers()
     {
         return annotationLayers;
     }
 
-    public void setAnnotationLayers(ArrayList<TagSet> aAnnotationLayers)
+    public void setAnnotationLayers(HashSet<TagSet> aAnnotationLayers)
     {
         annotationLayers = aAnnotationLayers;
     }

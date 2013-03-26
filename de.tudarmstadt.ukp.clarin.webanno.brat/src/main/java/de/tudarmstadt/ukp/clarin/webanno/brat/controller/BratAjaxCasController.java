@@ -17,6 +17,7 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -211,7 +212,7 @@ public class BratAjaxCasController
      */
 
     public GetCollectionInformationResponse getCollectionInformation(String aCollection,
-            ArrayList<TagSet> aAnnotationLayers)
+            HashSet<TagSet> aAnnotationLayers)
 
     {
         LOG.info("AJAX-RPC: getCollectionInformation");
@@ -284,7 +285,7 @@ public class BratAjaxCasController
 
     public GetDocumentResponse getDocument(int windowSize, Project aProject,
             SourceDocument aDocument, User aUser, int aSentenceAddress, int aLastSentenceAddress,
-            boolean aIsDisplayLemmaSelected, ArrayList<TagSet> aAnnotationLayers)
+            boolean aIsDisplayLemmaSelected, HashSet<TagSet> aAnnotationLayers)
         throws UIMAException, IOException, ClassNotFoundException
     {
 
@@ -308,7 +309,7 @@ public class BratAjaxCasController
     public CreateSpanResponse createSpan(int windowSize, Project aProject,
             SourceDocument aDocument, User aUser, int aSentenceAddress, int aLastSentenceAddress,
             int aAnnotationStartOffset, int aAnnotationEndOffset, String aType,
-            boolean aIsDisplayLemmaSelected, ArrayList<TagSet> aAnnotationLayers, JCas aJCas,
+            boolean aIsDisplayLemmaSelected, HashSet<TagSet> aAnnotationLayers, JCas aJCas,
             boolean aMovePage)
         throws JsonParseException, JsonMappingException, IOException, UIMAException
     {
@@ -351,7 +352,7 @@ public class BratAjaxCasController
     public CreateArcResponse createArc(int windowSize, Project aProject, SourceDocument aDocument,
             User aUser, int aSentenceAddress, int aLastSentenceAddress, int aAnnotationOffsetStart,
             String origin, String target, String aType, boolean aIsDisplayLemmaSelected,
-            ArrayList<TagSet> aAnnotationLayers, int aWindowSize, JCas aJCas, boolean aMovePage)
+            HashSet<TagSet> aAnnotationLayers, int aWindowSize, JCas aJCas, boolean aMovePage)
         throws UIMAException, IOException
     {
 
@@ -389,7 +390,7 @@ public class BratAjaxCasController
     public ReverseArcResponse reverseArc(int windowSize, Project aProject,
             SourceDocument aDocument, User aUser, int aSentenceAddress, int aLastSentenceAddress,
             int aAnnotationOffsetStart, String origin, String target, String aType,
-            boolean aIsDisplayLemmaSelected, ArrayList<TagSet> aAnnotationLayers, int aWindowSize,
+            boolean aIsDisplayLemmaSelected, HashSet<TagSet> aAnnotationLayers, int aWindowSize,
             JCas aJCas, boolean aMovePage)
         throws UIMAException, IOException
     {
@@ -425,7 +426,7 @@ public class BratAjaxCasController
     public DeleteSpanResponse deleteSpan(int windowSize, Project aProject,
             SourceDocument aDocument, User aUser, int aSentenceAddress, int aLastSentenceAddress,
             int aAnnotationStartOffset, int aAnnotationEndOffset, String aType, String aId,
-            boolean aIsDisplayLemmaSelected, ArrayList<TagSet> aAnnotationLayers, int aWindowSize,
+            boolean aIsDisplayLemmaSelected, HashSet<TagSet> aAnnotationLayers, int aWindowSize,
             JCas aJCas, boolean aMovePage)
         throws JsonParseException, JsonMappingException, IOException, UIMAException
     {
@@ -463,7 +464,7 @@ public class BratAjaxCasController
     public DeleteArcResponse deleteArc(int windowSize, Project aProject, SourceDocument aDocument,
             User aUser, int aSentenceAddress, int aLastSentenceAddress, int aAnnotationOffsetStart,
             String origin, String target, String aType, boolean aIsDisplayLemmaSelected,
-            ArrayList<TagSet> aAnnotationLayers, int aWindowSize, JCas aJCas, boolean aMovePage)
+            HashSet<TagSet> aAnnotationLayers, int aWindowSize, JCas aJCas, boolean aMovePage)
         throws UIMAException, IOException
     {
 
@@ -500,7 +501,7 @@ public class BratAjaxCasController
     private void addBratResponses(JCas aJCas, GetDocumentResponse aResponse, int aStrat,
             int aWindowSize, Project aProject, SourceDocument aDocument, User aUser,
             int aSentenceAddress, int aLastSentenceAddress, boolean aIsDisplayLemmaSelected,
-            boolean aMovePage, ArrayList<TagSet> aAnnotationLayers)
+            boolean aMovePage, HashSet<TagSet> aAnnotationLayers)
     {
         if (aMovePage) {
             aSentenceAddress = BratAjaxCasUtil.getSentenceBeginAddress(aJCas, aSentenceAddress,
