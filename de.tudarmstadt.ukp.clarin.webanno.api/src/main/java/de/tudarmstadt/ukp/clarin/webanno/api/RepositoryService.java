@@ -184,13 +184,6 @@ public interface RepositoryService
     File getDir();
 
     /**
-     * get the annotation guideline document from the file system
-     * @param project
-     * @return
-     */
-    File getGuideline(Project project, String fileName);
-
-    /**
      * For a given project, get the permission level of the user if it is granted
      *
      * @param aUser
@@ -218,18 +211,6 @@ public interface RepositoryService
      */
     Project getProject(String name);
 
-    /**
-     * Get a project by its id.
-     */
-
-    Project getProject(long id);
-    /**
-     * Write this {@code content} of the guideline file in the project;
-     * @param project
-     * @return
-     * @throws IOException
-     */
-    void writeGuideline(Project project, File content, String fileName) throws IOException;
     /**
      * Get a {@link ProjectPermissions }objects where a project is member of. We need to get them,
      * for example if the associated {@link Project} is deleted, the {@link ProjectPermissions }
@@ -282,13 +263,6 @@ public interface RepositoryService
      */
     List<AnnotationDocument> listAnnotationDocument();
 
-
-    /**
-     * List all annotation documents in a project.
-     * @return
-     */
-    List<AnnotationDocument> listAnnotationDocument(Project project);
-
     /**
      * List all the {@link AnnotationDocument}s, if available for a given {@link SourceDocument}.
      * Returns list of {@link AnnotationDocument}s for all {@link User}s in the {@link Project} that
@@ -301,35 +275,21 @@ public interface RepositoryService
     List<AnnotationDocument> listAnnotationDocument(SourceDocument document);
 
     /**
-     * List annotation guideline document already uploaded
-     * @param project
-     * @return
-     */
-    List<String> listAnnotationGuidelineDocument(Project project);
-
-    /**
      * List all Projects. If the user logged have a ROLE_ADMIN, he can see all the projects.
      * Otherwise, a user will see projects only he is member of.
      *
      * @return
      */
-
     List<Project> listProjects();
 
     /**
-     * list user names in a project. Hence, only users in a project can annotate documents
+     * list users in a project. Hence, only users in a project can annotate documents
      *
      * @param project
      *            The project where users are member of
      * @return returns list of {@link User}s in a project
      */
-    List<String> listProjectUserNames(Project project);
-    /**
-     * List {@link User} objects in a project
-     * @param project
-     * @return
-     */
-    List<User> listProjectUsers(Project project);
+    List<String> listProjectUsers(Project project);
 
     /**
      * List all source documents in a project. The source documents are the original TCF documents
@@ -358,13 +318,6 @@ public interface RepositoryService
      */
     Properties loadUserSettings(String username, Project project, String subject) throws FileNotFoundException, IOException;
 
-    /**
-     * Remove an annotation guideline document from the file system
-     * @param project
-     * @param fileName
-     * @throws IOException
-     */
-    void removeAnnotationGuideline(Project project, String fileName) throws IOException;
     /**
      * remove a user permission from the project
      *
@@ -442,7 +395,7 @@ public interface RepositoryService
     <T> void saveUserSettings(String username, Project project, String subject, T configurationObject) throws FileNotFoundException, IOException;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    public void uploadSourceDocument(File file, SourceDocument document, long projectId, User user)
+    public void uploadSourceDocument(String text, SourceDocument document, long projectId, User user)
         throws IOException, UIMAException, WLFormatException;
 
     /**

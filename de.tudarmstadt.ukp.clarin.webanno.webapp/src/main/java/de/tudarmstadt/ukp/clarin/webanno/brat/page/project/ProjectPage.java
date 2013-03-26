@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.NoResultException;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -56,6 +57,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -78,7 +81,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.User;
 
 /**
  * This is the main page for Project Settings. The Page has Four Panels. The
- * {@link AnnotationGuideLinePanel} is used to update documents to a project. The
+ * {@link ProjectDocumentsPanel} is used to update documents to a project. The
  * {@link ProjectDetailsPanel} used for updating Project deatils such as descriptions of a project
  * and name of the Project The {@link ProjectTagSetsPanel} is used to add {@link TagSet} and
  * {@link Tag} details to a Project as well as updating them The {@link ProjectUsersPanel} is used
@@ -266,17 +269,6 @@ public class ProjectPage
                 }
             });
 
-            tabs.add(new AbstractTab(new Model<String>("Annotation Guideline"))
-            {
-                private static final long serialVersionUID = 7887973231065189200L;
-
-                @Override
-                public Panel getPanel(String panelId)
-                {
-                    return new AnnotationGuideLinePanel(panelId);
-                }
-            });
-
             add(new AjaxTabbedPanel("tabs", tabs));
             ProjectDetailForm.this.setMultiPart(true);
         }
@@ -315,6 +307,15 @@ public class ProjectPage
                 @Override
                 public void onSubmit()
                 {
+
+                    HttpSession session = ((ServletWebRequest) RequestCycle.get().getRequest())
+                            .getContainerRequest().getSession();
+                    // Maintain already loaded project and selected Users
+                    // Hence Illegal Project modification (limited privilege, illegal project
+                    // name,...) preserves the original one
+                    Project selectedProject = (Project) session.getAttribute("project");
+                    @SuppressWarnings("unchecked")
+                    Set<User> selectedusers = (Set<User>) session.getAttribute("selectedusers");
                     Project project = projectDetailForm.getModelObject();
 
                     // If only the project is new!
@@ -350,16 +351,8 @@ public class ProjectPage
                     else {
                         // Invalid Project name, restore
                         if (!isProjectNameValid(project.getName())) {
-
-                            // Maintain already loaded project and selected Users
-                            // Hence Illegal Project modification (limited privilege, illegal project
-                            // name,...) preserves the original one
-
-                            String oldProjectName = projectRepository.getProject(project.getId()).getName();
-                            List<User> selectedusers = projectRepository.listProjectUsers(project);
-
-                            project.setName(oldProjectName);
-                            project.setUsers(new HashSet<User>(selectedusers));
+                            project.setName(selectedProject.getName());
+                            project.setUsers(selectedusers);
                             error("Project name shouldn't contain characters such as /\\*?&!$+[^]");
                             LOG.error("Project name shouldn't contain characters such as /\\*?&!$+[^]");
                         }
@@ -562,11 +555,12 @@ public class ProjectPage
                     Project project = projectDetailForm.getModelObject();
 
                     if (isNotEmpty(uploadedFiles)) {
-                        for (FileUpload documentToUpload : uploadedFiles) {
-                            InputStream is;
+                        for (FileUpload tcfFile : uploadedFiles) {
+                            InputStream tcfInputStream;
                             try {
-                                String fileName = documentToUpload.getClientFileName();
-                                File uploadFile = documentToUpload.writeToTempFile();
+                                tcfInputStream = tcfFile.getInputStream();
+                                String text = IOUtils.toString(tcfInputStream, "UTF-8");
+                                String fileName = tcfFile.getClientFileName();
 
                                 // if getSourceDocument succeeded, it is a duplication!
                                 try {
@@ -589,7 +583,7 @@ public class ProjectPage
                                     document.setProject(project);
                                     document.setFormat(readableFormatsChoice.getModelObject());
                                     projectRepository.createSourceDocument(document, user);
-                                    projectRepository.uploadSourceDocument(uploadFile, document,
+                                    projectRepository.uploadSourceDocument(text, document,
                                             project.getId(), user);
 
                                 }
@@ -667,7 +661,7 @@ public class ProjectPage
                 }
             });
         }
-    }
+    };
 
     private class ProjectTagSetsPanel
         extends Panel
@@ -1243,107 +1237,5 @@ public class ProjectPage
             add(tagSetDetailForm);
             add(tagDetailForm);
         }
-    }
-
-
-    private class AnnotationGuideLinePanel
-    extends Panel
-{
-    private static final long serialVersionUID = 2116717853865353733L;
-    private ArrayList<String> documents = new ArrayList<String>();
-    private ArrayList<String> selectedDocuments = new ArrayList<String>();
-
-    private List<FileUpload> uploadedFiles;
-    private FileUploadField fileUpload;
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public AnnotationGuideLinePanel(String id)
-    {
-        super(id);
-        add(fileUpload = new FileUploadField("content", new Model()));
-
-        add(new Button("importGuideline", new ResourceModel("label"))
-        {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void onSubmit()
-            {
-                uploadedFiles = fileUpload.getFileUploads();
-                Project project = projectDetailForm.getModelObject();
-
-                if (isNotEmpty(uploadedFiles)&& project.getId()!=0) {
-                    for (FileUpload guidelineFile : uploadedFiles) {
-
-                            try {
-                                File tempFile = guidelineFile.writeToTempFile();
-                              //  String text = IOUtils.toString(tcfInputStream, "UTF-8");
-                                String fileName = guidelineFile.getClientFileName();
-                                projectRepository.writeGuideline(project, tempFile, fileName);
-                            }
-                            catch (IOException e) {
-                                error("Unable to write guideline file "+ ExceptionUtils.getRootCauseMessage(e));
-                            }
-                    }
-                }
-                else if (isEmpty(uploadedFiles)) {
-                    error("No document is selected to upload, please select a document first");
-                    LOG.info("No document is selected to upload, please select a document first");
-                }
-                else if (project.getId() == 0) {
-                    error("Project not yet created, please save project Details!");
-                    LOG.info("Project not yet created, please save project Details!");
-                }
-
-            }
-        });
-
-        add(new ListMultipleChoice<String>("documents", new Model(selectedDocuments), documents)
-        {
-            private static final long serialVersionUID = 1L;
-
-            {
-                setChoices(new LoadableDetachableModel<List<String>>()
-                {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    protected List<String> load()
-                    {
-                        Project project = projectDetailForm.getModelObject();
-                        documents.clear();
-                        if (project.getId() != 0) {
-                       documents.addAll(projectRepository.listAnnotationGuidelineDocument(project));
-                        }
-                        return documents;
-                    }
-                });
-            }
-        });
-
-        add(new Button("remove", new ResourceModel("label"))
-        {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void onSubmit()
-            {
-                Project project = projectDetailForm.getModelObject();
-                for (String document : selectedDocuments) {
-                    try {
-
-                        projectRepository.removeAnnotationGuideline(project, document);
-                    }
-                    catch (IOException e) {
-                        error("Error while removing a document document "
-                                + ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Error while removing a document document "
-                                + ExceptionUtils.getRootCauseMessage(e));
-                    }
-                    documents.remove(document);
-                }
-            }
-        });
-    }
-}
+    };
 }

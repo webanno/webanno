@@ -21,6 +21,7 @@ import static org.uimafit.factory.AnalysisEngineFactory.createPrimitiveDescripti
 import static org.uimafit.pipeline.SimplePipeline.runPipeline;
 
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -29,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +116,6 @@ public class RepositoryServiceDbData
     private static final String PROJECT = "/project/";
     private static final String DOCUMENT = "/document/";
     private static final String SOURCE = "/source";
-    private static final String GUIDELINE = "/guideline/";
     private static final String ANNOTATION = "/annotation";
     private static final String SETTINGS = "/settings/";
 
@@ -516,12 +515,6 @@ public class RepositoryServiceDbData
     }
 
     @Override
-    public File getGuideline(Project aProject, String aFilename)
-    {
-        return new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE + aFilename);
-    }
-
-    @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public String getPermisionLevel(User aUser, Project aProject)
     {
@@ -560,22 +553,6 @@ public class RepositoryServiceDbData
     {
         return entityManager.createQuery("FROM Project WHERE name = :name", Project.class)
                 .setParameter("name", aName).getSingleResult();
-    }
-
-    public Project getProject(long aId)
-    {
-        return entityManager.createQuery("FROM Project WHERE id = :id", Project.class)
-                .setParameter("id", aId).getSingleResult();
-    }
-
-    @Override
-    public void writeGuideline(Project aProject, File aContent, String aFileName)
-        throws IOException
-    {
-        String guidelinePath = dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE;
-        FileUtils.forceMkdir(new File(guidelinePath));
-        copyLarge(new FileInputStream(aContent), new FileOutputStream(new File(guidelinePath
-                + aFileName)));
     }
 
     @Override
@@ -625,39 +602,19 @@ public class RepositoryServiceDbData
                 .getResultList();
     }
 
-    @Override
-    public List<String> listAnnotationGuidelineDocument(Project aProject)
-    {
-        // list all guideline files
-        File[] files = new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE)
-                .listFiles();
-
-        // Name of the guideline files
-        List<String> annotationGuidelineFiles = new ArrayList<String>();
-        if (files != null) {
-            for (File file : files) {
-                annotationGuidelineFiles.add(file.getName());
-            }
-        }
-
-        return annotationGuidelineFiles;
-    }
-
+    /*
+     * @Override
+     *
+     * @Transactional public String getAuthority(User aUser) { return entityManager.createQuery(
+     * "SELECT role FROM Authority where users =:users", String.class) .setParameter("users",
+     * aUser).getSingleResult(); }
+     */
     @Override
     @Transactional
     public List<AnnotationDocument> listAnnotationDocument()
     {
         return entityManager.createQuery("From AnnotationDocument", AnnotationDocument.class)
                 .getResultList();
-    }
-
-    @Override
-    @Transactional
-    public List<AnnotationDocument> listAnnotationDocument(Project aProject)
-    {
-        return entityManager
-                .createQuery("FROM AnnotationDocument WHERE project = :project",
-                        AnnotationDocument.class).setParameter("project", aProject).getResultList();
     }
 
     @Override
@@ -669,22 +626,13 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
-    public List<String> listProjectUserNames(Project aproject)
+    public List<String> listProjectUsers(Project aproject)
     {
         List<String> users = entityManager
                 .createQuery(
                         "SELECT i.username FROM Project s JOIN s.users i WHERE s.id = :projectId",
                         String.class).setParameter("projectId", aproject.getId()).getResultList();
         return users;
-    }
-
-    @Override
-    @Transactional
-    public List<User> listProjectUsers(Project aproject)
-    {
-        return entityManager
-                .createQuery("SELECT i FROM Project s JOIN s.users i WHERE s.id = :projectId",
-                        User.class).setParameter("projectId", aproject.getId()).getResultList();
     }
 
     @Override
@@ -750,14 +698,6 @@ public class RepositoryServiceDbData
     }
 
     @Override
-    public void removeAnnotationGuideline(Project aProject, String aFileName)
-        throws IOException
-    {
-        FileUtils.forceDelete(new File(dir.getAbsolutePath() + PROJECT + aProject.getId()
-                + GUIDELINE + aFileName));
-    }
-
-    @Override
     @Transactional
     public void removeProjectPermission(ProjectPermissions projectPermission)
         throws IOException
@@ -819,7 +759,7 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
-    public void uploadSourceDocument(File aFile, SourceDocument aDocument, long aProjectId,
+    public void uploadSourceDocument(String aText, SourceDocument aDocument, long aProjectId,
             User aUser)
         throws IOException
     {
@@ -832,7 +772,7 @@ public class RepositoryServiceDbData
         OutputStream os = null;
         try {
             os = new FileOutputStream(newTcfFile);
-            is = new FileInputStream(aFile);
+            is = new ByteArrayInputStream(aText.getBytes("UTF-8"));
             copyLarge(is, os);
         }
         finally {

@@ -31,7 +31,6 @@ import org.apache.uima.jcas.JCas;
 import org.codehaus.jackson.JsonGenerator;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
-import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Argument;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Entity;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Offsets;
@@ -60,7 +59,7 @@ public class CasToBratJson
      */
     int windowSize;
 
-    HashSet<String> annotationLayers = new HashSet<String>();
+    ArrayList<String> annotationLayers = new ArrayList<String>();
     int currentWindowSentenceBeginAddress;
     int lastSentenceAddress;
     int sentenceStartAddress;
@@ -71,24 +70,25 @@ public class CasToBratJson
         // Nothing to Do.
     }
 
-    public CasToBratJson(BratAnnotatorModel aBratAnnotatorModel)
+    public CasToBratJson(int aFirstSentenceAddress, int aLastSentenceAddress, int awindowSize,
+            HashSet<TagSet> aAnnotationLayers)
     {
 
-        for (TagSet tag : aBratAnnotatorModel.getAnnotationLayers()) {
+        for (TagSet tag : aAnnotationLayers) {
             this.annotationLayers.add(tag.getType().getName());
         }
 
-        this.currentWindowSentenceBeginAddress = aBratAnnotatorModel.getSentenceAddress();
-        this.lastSentenceAddress = aBratAnnotatorModel.getLastSentenceAddress();
+        this.currentWindowSentenceBeginAddress = aFirstSentenceAddress;
+        this.lastSentenceAddress = aLastSentenceAddress;
         this.sentenceStartAddress = this.currentWindowSentenceBeginAddress;
-        this.windowSize = aBratAnnotatorModel.getWindowSize();
+        this.windowSize = awindowSize;
     }
 
     // for test purpose
     public CasToBratJson(int aFirstSentenceAddress, int aLastSentenceAddress, int awindowSize,
             List<String> aAnnotationLayers)
     {
-        this.annotationLayers = (HashSet<String>) aAnnotationLayers;
+        this.annotationLayers = (ArrayList<String>) aAnnotationLayers;
         this.currentWindowSentenceBeginAddress = aFirstSentenceAddress;
         this.lastSentenceAddress = aLastSentenceAddress;
         this.sentenceStartAddress = this.currentWindowSentenceBeginAddress;

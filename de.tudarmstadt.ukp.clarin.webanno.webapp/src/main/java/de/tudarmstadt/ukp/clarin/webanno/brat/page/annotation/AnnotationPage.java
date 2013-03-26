@@ -42,11 +42,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
-
 /**
  * A wicket page for the Brat Annotation/Visualization page. Included components for pagination,
  * annotation layer configuration, and Exporting document
- *
  * @author Seid Muhie Yimam
  *
  */
@@ -100,7 +98,7 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getProject() == null) {
+                if (annotator.getProject() == null) {
                     target.appendJavaScript("alert('Please open a project first!')");
                 }
                 else {
@@ -143,37 +141,10 @@ public class AnnotationPage
 
             public Page createPage()
             {
-                return new ExportModalWindowPage(exportModal, annotator.bratAnnotatorModel
-                        .getProject(), annotator.bratAnnotatorModel.getDocument());
+                return new ExportModalWindowPage(exportModal, annotator.getProject(), annotator
+                        .getDocument());
             }
 
-        });
-        exportModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
-        {
-            private static final long serialVersionUID = 1643342179335627082L;
-
-            public void onClose(AjaxRequestTarget target)
-            {
-                // reget JCAs, transeint object lost
-                BratAjaxCasController controller = new BratAjaxCasController(jsonConverter,
-                        repository, annotationService);
-                try {
-                    annotator.bratAnnotatorModel.setjCas(controller.getJCas(
-                            annotator.bratAnnotatorModel.getDocument(),
-                            annotator.bratAnnotatorModel.getProject(),
-                            annotator.bratAnnotatorModel.getUser()));
-                }
-                catch (UIMAException e) {
-                    error("Unable to get annotation : " + ExceptionUtils.getRootCauseMessage(e));
-                }
-                catch (ClassNotFoundException e) {
-                    error("Unable to get annotation : " + ExceptionUtils.getRootCauseMessage(e));
-                }
-                catch (IOException e) {
-                    error("Unable to get annotation : " + ExceptionUtils.getRootCauseMessage(e));
-                }
-
-            }
         });
         add(new AjaxLink<Void>("showExportModal")
         {
@@ -182,7 +153,7 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getDocument() == null) {
+                if (annotator.getDocument() == null) {
                     target.appendJavaScript("alert('Please open a document first!')");
                 }
                 else {
@@ -203,15 +174,13 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getDocument() != null) {
+                if (annotator.getDocument() != null) {
                     int nextSentenceAddress = BratAjaxCasUtil
                             .getNextDisplayWindowSentenceBeginAddress(
-                                    getJCas(annotator.bratAnnotatorModel.getProject(),
-                                            annotator.bratAnnotatorModel.getDocument()),
-                                    annotator.bratAnnotatorModel.getSentenceAddress(),
-                                    annotator.bratAnnotatorModel.getWindowSize());
-                    if (annotator.bratAnnotatorModel.getSentenceAddress() != nextSentenceAddress) {
-                        annotator.bratAnnotatorModel.setSentenceAddress(nextSentenceAddress);
+                                    getJCas(annotator.getProject(), annotator.getDocument()),
+                                    annotator.getSentenceAddress(), annotator.getWindowSize());
+                    if (annotator.getSentenceAddress() != nextSentenceAddress) {
+                        annotator.setSentenceAddress(nextSentenceAddress);
                         // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
@@ -233,15 +202,13 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getDocument() != null) {
+                if (annotator.getDocument() != null) {
                     int previousSentenceAddress = BratAjaxCasUtil
                             .getPreviousDisplayWindowSentenceBeginAddress(
-                                    getJCas(annotator.bratAnnotatorModel.getProject(),
-                                            annotator.bratAnnotatorModel.getDocument()),
-                                    annotator.bratAnnotatorModel.getSentenceAddress(),
-                                    annotator.bratAnnotatorModel.getWindowSize());
-                    if (annotator.bratAnnotatorModel.getSentenceAddress() != previousSentenceAddress) {
-                        annotator.bratAnnotatorModel.setSentenceAddress(previousSentenceAddress);
+                                    getJCas(annotator.getProject(), annotator.getDocument()),
+                                    annotator.getSentenceAddress(), annotator.getWindowSize());
+                    if (annotator.getSentenceAddress() != previousSentenceAddress) {
+                        annotator.setSentenceAddress(previousSentenceAddress);
                         // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
@@ -262,12 +229,9 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getDocument() != null) {
-                    if (annotator.bratAnnotatorModel.getFirstSentenceAddress() != annotator.bratAnnotatorModel
-                            .getSentenceAddress()) {
-                        annotator.bratAnnotatorModel
-                                .setSentenceAddress(annotator.bratAnnotatorModel
-                                        .getFirstSentenceAddress());
+                if (annotator.getDocument() != null) {
+                    if (annotator.getFirstSentenceAddress() != annotator.getSentenceAddress()) {
+                        annotator.setSentenceAddress(annotator.getFirstSentenceAddress());
                         // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
@@ -288,16 +252,13 @@ public class AnnotationPage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-                if (annotator.bratAnnotatorModel.getDocument() != null) {
+                if (annotator.getDocument() != null) {
                     int lastDisplayWindowBeginingSentenceAddress = BratAjaxCasUtil
                             .getLastDisplayWindowFirstSentenceAddress(
-                                    getJCas(annotator.bratAnnotatorModel.getProject(),
-                                            annotator.bratAnnotatorModel.getDocument()),
-                                    annotator.bratAnnotatorModel.getWindowSize());
-                    if (lastDisplayWindowBeginingSentenceAddress != annotator.bratAnnotatorModel
-                            .getSentenceAddress()) {
-                        annotator.bratAnnotatorModel
-                                .setSentenceAddress(lastDisplayWindowBeginingSentenceAddress);
+                                    getJCas(annotator.getProject(), annotator.getDocument()),
+                                    annotator.getWindowSize());
+                    if (lastDisplayWindowBeginingSentenceAddress != annotator.getSentenceAddress()) {
+                        annotator.setSentenceAddress(lastDisplayWindowBeginingSentenceAddress);
                         // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
@@ -310,40 +271,6 @@ public class AnnotationPage
                 }
             }
         });
-
-        final ModalWindow guidelineModal;
-        add(guidelineModal = new ModalWindow("guidelineModal"));
-
-        guidelineModal.setInitialWidth(550);
-        guidelineModal.setInitialHeight(450);
-        guidelineModal.setResizable(true);
-        guidelineModal.setWidthUnit("px");
-        guidelineModal.setHeightUnit("px");
-        guidelineModal.setTitle("Open Annotation Guideline, in separate window");
-
-        guidelineModal.setPageCreator(new ModalWindow.PageCreator()
-        {
-            private static final long serialVersionUID = -2827824968207807739L;
-
-            public Page createPage()
-            {
-                return new GuidelineModalWindowPage(guidelineModal, annotator.bratAnnotatorModel
-                        .getProject());
-            }
-
-        });
-        add(new AjaxLink<Void>("showGuidelineModal")
-        {
-            private static final long serialVersionUID = 7496156015186497496L;
-
-            @Override
-            public void onClick(AjaxRequestTarget target)
-            {
-                guidelineModal.show(target);
-
-            }
-        });
-
         gotoPageTextField = (NumberTextField<Integer>) new NumberTextField<Integer>("gotoPageText",
                 new Model<Integer>(10));
         gotoPageTextField.setType(Integer.class);
@@ -355,9 +282,8 @@ public class AnnotationPage
             protected void onUpdate(AjaxRequestTarget target)
             {
                 gotoPageAddress = BratAjaxCasUtil.getSentenceAddress(
-                        getJCas(annotator.bratAnnotatorModel.getProject(),
-                                annotator.bratAnnotatorModel.getDocument()), gotoPageTextField
-                                .getModelObject());
+                        getJCas(annotator.getProject(), annotator.getDocument()),
+                        gotoPageTextField.getModelObject());
 
             }
         });
@@ -372,16 +298,15 @@ public class AnnotationPage
                 if (gotoPageAddress == -2) {
                     target.appendJavaScript("alert('This sentence number is either negative or beyond the last sentence number!')");
                 }
-                else if (annotator.bratAnnotatorModel.getDocument() != null) {
+                else if (annotator.getDocument() != null) {
 
                     if (gotoPageAddress == -1) {
                         // Not Updated, default used
                         gotoPageAddress = BratAjaxCasUtil.getSentenceAddress(
-                                getJCas(annotator.bratAnnotatorModel.getProject(),
-                                        annotator.bratAnnotatorModel.getDocument()), 10);
+                                getJCas(annotator.getProject(), annotator.getDocument()), 10);
                     }
-                    if (annotator.bratAnnotatorModel.getSentenceAddress() != gotoPageAddress) {
-                        annotator.bratAnnotatorModel.setSentenceAddress(gotoPageAddress);
+                    if (annotator.getSentenceAddress() != gotoPageAddress) {
+                        annotator.setSentenceAddress(gotoPageAddress);
                         // target.add(annotator);
                         target.appendJavaScript("Wicket.Window.unloadConfirmation=false;window.location.reload()");
                     }
@@ -394,6 +319,7 @@ public class AnnotationPage
                 }
             }
         });
+
     }
 
     private JCas getJCas(Project aProject, SourceDocument aDocument)

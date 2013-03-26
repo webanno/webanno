@@ -23,7 +23,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -46,7 +45,7 @@ public class Project
     @Column(nullable = false)
     private String name;
 
-    @Lob
+    @Column
     private String description;
 
     @ManyToMany

@@ -21,7 +21,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 /**
@@ -53,7 +52,6 @@ public class AnnotationType
     @Column(nullable = false)
     private String type;
 
-    @Lob
     private String description;
 
     public long getId()

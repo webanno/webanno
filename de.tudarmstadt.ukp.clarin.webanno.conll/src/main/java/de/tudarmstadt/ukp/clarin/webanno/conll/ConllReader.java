@@ -17,6 +17,7 @@ package de.tudarmstadt.ukp.clarin.webanno.conll;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,13 +27,14 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.Level;
 import org.uimafit.descriptor.ConfigurationParameter;
+
+import com.ibm.icu.text.CharsetDetector;
 
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
@@ -59,7 +61,7 @@ public class ConllReader
     extends JCasResourceCollectionReader_ImplBase
 {
 
-    public void convertToCas(JCas aJCas, InputStream aIs, String aEncoding)
+    public void convertToCas(JCas aJCas, String aDocument)
         throws IOException
 
     {
@@ -75,16 +77,13 @@ public class ConllReader
         Map<Integer, Integer> dependencyDependent = new HashMap<Integer, Integer>();
 
         List<Integer> firstTokenInSentence = new ArrayList<Integer>();
+
+        StringTokenizer sentToknizer = new StringTokenizer(aDocument, "\n");
         boolean first = true;
         int base = 0;
-
-        LineIterator lineIterator = IOUtils.lineIterator(aIs, aEncoding);
-        while (lineIterator.hasNext()) {
-            String line = lineIterator.next().trim();
+        while (sentToknizer.hasMoreElements()) {
+            String line = sentToknizer.nextToken().trim();
             int count = StringUtils.countMatches(line, "\t");
-            if (line.isEmpty()) {
-                continue;
-            }
             if (count != 9) {// not a proper conll file
                 getUimaContext().getLogger().log(Level.INFO, "This is not valid conll File");
                 throw new IOException("This is not valid conll File");
@@ -122,7 +121,7 @@ public class ConllReader
                     dependencyDependent.put(tokenNumber, dependent == 0 ? 0 : base + dependent);
                     dependencyFunction.put(tokenNumber, lineTk.nextToken());
                 }
-                else {
+                else{
                     lineTk.nextToken();
                     noDependency = true;
                 }
@@ -147,19 +146,19 @@ public class ConllReader
             outToken.addToIndexes();
 
             // Add pos to CAS if exist
-            if (!pos.get(i).equals("_")) {
-                POS outPos = new POS(aJCas, outToken.getBegin(), outToken.getEnd());
-                outPos.setPosValue(pos.get(i));
-                outPos.addToIndexes();
-                outToken.setPos(outPos);
+            if(!pos.get(i).equals("_")){
+            POS outPos = new POS(aJCas, outToken.getBegin(), outToken.getEnd());
+            outPos.setPosValue(pos.get(i));
+            outPos.addToIndexes();
+            outToken.setPos(outPos);
             }
 
             // Add lemma if exist
-            if (!lemma.get(i).equals("_")) {
-                Lemma outLemma = new Lemma(aJCas, outToken.getBegin(), outToken.getEnd());
-                outLemma.setValue(lemma.get(i));
-                outLemma.addToIndexes();
-                outToken.setLemma(outLemma);
+            if(!lemma.get(i).equals("_")){
+            Lemma outLemma = new Lemma(aJCas, outToken.getBegin(), outToken.getEnd());
+            outLemma.setValue(lemma.get(i));
+            outLemma.addToIndexes();
+            outToken.setLemma(outLemma);
             }
             tokensStored.put("t_" + i, outToken);
         }
@@ -168,7 +167,7 @@ public class ConllReader
         // For Nested Named Entity
         createNamedEntity(namedEntity2, aJCas, tokens, tokensStored);
         // add Dependency parsing to CAS, if exist
-        if (!noDependency) {
+        if(!noDependency) {
             for (int i = 1; i <= tokens.size(); i++) {
                 Dependency outDependency = new Dependency(aJCas);
                 outDependency.setDependencyType(dependencyFunction.get(i));
@@ -187,10 +186,8 @@ public class ConllReader
 
         for (int i = 0; i < firstTokenInSentence.size(); i++) {
             Sentence outSentence = new Sentence(aJCas);
-            // Only last sentence, and no the only sentence in the document (i!=0)
-            if (i == firstTokenInSentence.size() - 1 && i != 0) {
-                outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i))
-                        .getEnd());
+            if (i == firstTokenInSentence.size() - 1) {
+                outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i)).getEnd());
                 outSentence.setEnd(tokensStored.get("t_" + (tokensStored.size())).getEnd());
                 outSentence.addToIndexes();
                 break;
@@ -212,6 +209,7 @@ public class ConllReader
         }
     }
 
+    public static final String ENCODING_AUTO = "auto";
     public static final String PARAM_ENCODING = ComponentParameters.PARAM_SOURCE_ENCODING;
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
@@ -224,8 +222,16 @@ public class ConllReader
         initCas(aJCas, res);
         InputStream is = null;
         try {
-            is = res.getInputStream();
-            convertToCas(aJCas, is, encoding);
+            is = new BufferedInputStream(res.getInputStream());
+
+            if (ENCODING_AUTO.equals(encoding)) {
+                CharsetDetector detector = new CharsetDetector();
+                convertToCas(aJCas, IOUtils.toString(detector.getReader(is, null)));
+            }
+            else {
+                CharsetDetector detector = new CharsetDetector();
+                convertToCas(aJCas, IOUtils.toString(detector.getReader(is, encoding)));
+            }
         }
         finally {
             closeQuietly(is);
@@ -291,8 +297,9 @@ public class ConllReader
         // If the last token have a named Entity with Multiple span, add it
         int lastTokenIndex = aTokensMap.size();
         String lastNamedEntity = aNamedEntityMap.get(lastTokenIndex);
-        if (lastNamedEntity.startsWith("I_")) {
-            NamedEntity outNamedEntity = new NamedEntity(aJCas, namedEntityBegin, namedEntityEnd);
+        if (lastNamedEntity.startsWith("I_")){
+            NamedEntity outNamedEntity = new NamedEntity(aJCas, namedEntityBegin,
+                    namedEntityEnd);
             outNamedEntity.setValue(previousNamedEntity.substring(2));
             outNamedEntity.addToIndexes();
         }
