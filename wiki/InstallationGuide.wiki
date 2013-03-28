@@ -157,7 +157,7 @@ mysql> USE webanno;
 }}}
    * create table user 
 {{{
-mysql> CREATE  TABLE users(username VARCHAR(45), TINYINT(1)  password VARCHAR(45));
+mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password VARCHAR(45));
 }}}
    * add WebAnno users to user table
 {{{
