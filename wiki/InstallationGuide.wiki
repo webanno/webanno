@@ -100,7 +100,7 @@ $ mysql -u root -p
 }}}
    * Create databases
 {{{
-mysql> CREATE DATABSE webanno; 
+mysql> CREATE DATABASE webanno; 
 }}}
    * create database users
 {{{
@@ -161,7 +161,7 @@ mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password V
 }}}
    * add WebAnno users to user table
 {{{
-mysql> INSERT INTO users (username, enabled, password) VALUES (username, 1, password);
+mysql> INSERT INTO users (username, enabled, password) VALUES ('username', 1, 'password');
 }}}
    * Create an authority table
 {{{
@@ -169,8 +169,8 @@ mysql> CREATE  TABLE authorities(role VARCHAR(10), user VARCHAR(45));
 }}}
    * Add users authority in the authorities table
 {{{
-mysql> INSERT INTO authorities (role, user) VALUES (ROLE_ADMIN, user1);
-mysql> INSERT INTO authorities (role, user) VALUES (ROLE_USER, user2);
+mysql> INSERT INTO authorities (role, user) VALUES ('ROLE_ADMIN', 'user1');
+mysql> INSERT INTO authorities (role, user) VALUES ('ROLE_USER', 'user2');
 }}}
    
 = Use !WebAnno =
