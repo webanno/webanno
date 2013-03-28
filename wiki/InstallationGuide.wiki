@@ -23,7 +23,7 @@ $ chown -R www-data /opt/webanno
    * Configure the startup script. Edit `/etc/init.d/webanno` and add the following contents:
 {{{
 #!/bin/sh
-export JAVA_OPTS="-Djava.awt.headless=true -Xmx750m -XX:+UseConcMarkSweepGC -Dweblab.home=/srv/webanno"
+export JAVA_OPTS="-Djava.awt.headless=true -Xmx750m -XX:+UseConcMarkSweepGC -Dwebanno.home=/srv/webanno"
 
 case "$1" in
 start)
