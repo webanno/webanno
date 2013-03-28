@@ -393,7 +393,7 @@ public class BratAnnotator
                     bratAnnotatorModel.getAnnotationOffsetStart(),
                     bratAnnotatorModel.getAnnotationOffsetEnd())) {
                 throw new Exception(
-                        "Annotation coveres multiple sentence, Limit your annotation to single sentence");
+                        "Annotation covers multiple sentence, Limit your annotation to single sentence");
             }
             result = controller.createSpan(bratAnnotatorModel, aUIData);
             if (bratAnnotatorModel.isScrollPage()) {
