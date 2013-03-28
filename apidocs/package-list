@@ -11,6 +11,7 @@ de.tudarmstadt.ukp.clarin.webanno.brat.page.curation
 de.tudarmstadt.ukp.clarin.webanno.brat.page.curation.component
 de.tudarmstadt.ukp.clarin.webanno.brat.page.curation.component.model
 de.tudarmstadt.ukp.clarin.webanno.brat.page.login
+de.tudarmstadt.ukp.clarin.webanno.brat.page.monitoring
 de.tudarmstadt.ukp.clarin.webanno.brat.page.project
 de.tudarmstadt.ukp.clarin.webanno.brat.page.welcome
 de.tudarmstadt.ukp.clarin.webanno.brat.security
@@ -19,3 +20,4 @@ de.tudarmstadt.ukp.clarin.webanno.conll
 de.tudarmstadt.ukp.clarin.webanno.export.model
 de.tudarmstadt.ukp.clarin.webanno.model
 de.tudarmstadt.ukp.clarin.webanno.tcf
+de.tudarmstadt.ukp.dkpro.core.api.coref.type
