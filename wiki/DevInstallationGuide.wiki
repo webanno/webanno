@@ -1,4 +1,4 @@
-=Installation guide to develop WebAnno in Eclipse=
+=Installation guide to develop !WebAnno in Eclipse=
 
 This is a guide to setting up a developer environment in Eclipse for !WebAnno using Max OS X. The procedure should be similar for other operation systems.  
 
