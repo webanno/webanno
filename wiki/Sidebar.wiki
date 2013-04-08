@@ -1,2 +1,5 @@
+ =User documentation=
   * [InstallationGuide Installation Guide]
+
+=Developer documentation=
   * [DevInstallationGuide Developer Installation Guide]
