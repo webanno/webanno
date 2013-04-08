@@ -1,1 +1,2 @@
   * [InstallationGuide Installation Guide]
+  * [DevInstallationGuide Developer Installation Guide]
