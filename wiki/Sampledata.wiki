@@ -6,7 +6,7 @@ For qucik test, you can download the war file ( 	de.tudarmstadt.ukp.clarin.weban
 
 
 = Details =
-For qucik test, you can download the war file [de.tudarmstadt.ukp.clarin.webanno.webapp-0.2.0.war] and the sample Zip file [webanno-stable.zip] from [downloads] page which contains a simple instance of the application, both the database dumb and the source and annotation documents.
+For qucik test, you can download the war file [de.tudarmstadt.ukp.clarin.webanno.webapp-0.2.0.war] and the sample Zip file [webanno-stable.zip] from Downloads page which contains a simple instance of the application, both the database dumb and the source and annotation documents.
 = How to install =
   # Download the war and zip files from Downloads page
   # Put the war file inside your web servers webapps directory, as indicated in the InstallationGuide
