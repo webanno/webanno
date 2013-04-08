@@ -8,16 +8,16 @@ You need Eclipse IDE for Java EE Developers. If you want to convert from a norma
 
 =Eclipse plugins=
 
-Version Control: Use Subclipse 1.8.x, see: http://subclipse.tigris.org/update_1.8.x
+* Version Control: Use Subclipse 1.8.x, see: http://subclipse.tigris.org/update_1.8.x
 Please do not use Subversive. 
 
-Maven Integration: m2e , is included in Eclipse Classic. Use Help->Install New Software, select "--All available sites--" and choose Collaboration -> m2e - Maven Integration for Eclipse
+* Maven Integration: m2e , is included in Eclipse Classic. Use Help->Install New Software, select "--All available sites--" and choose Collaboration -> m2e - Maven Integration for Eclipse
 
-Subclipse/Maven Integration: Subclipse Maven Integration, update site: http://subclipse.tigris.org/m2eclipse/1.0/
+* Subclipse/Maven Integration: Subclipse Maven Integration, update site: http://subclipse.tigris.org/m2eclipse/1.0/
 
-Apache UIMA tools, see: http://www.apache.org/dist/uima/eclipse-update-site/.
+* Apache UIMA tools, see: http://www.apache.org/dist/uima/eclipse-update-site/.
 
-You should check that Text file encoding is UTF-8  in "Preferences -> General -> Workspace" of your eclipse install.
+* You should check that Text file encoding is UTF-8  in "Preferences -> General -> Workspace" of your eclipse install.
 
 =WebAnno and tomcat installation=
 
