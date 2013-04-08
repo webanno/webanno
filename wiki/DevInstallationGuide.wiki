@@ -1,0 +1,53 @@
+=Installation guide to develop WebAnno in Eclipse=
+
+This is a guide to set up a developer environment in Eclipse for WebAnno using Max OS X. The procedure should be similar for other operation systems.  
+
+First, you need to follow some steps of the user [InstallationGuide Installation guide]. You need to configure your MySQL-server for WebAnno. After that, jump right to the chapter WebAnno and follow all steps besides the first one until the end of the document.
+
+You need Eclipse IDE for Java EE Developers. If you want to convert from a normal IDE installation, head to http://www.eclipse.org/downloads/compare.php and install the required packages through 'Help' -> 'Install new software...'  so that your eclipse installation matches the package set of 'Eclipse IDE for Java EE Developers'. It might be easier to start fresh with a new 'Eclipse IDE for Java EE Developers' install though.
+
+=Eclipse plugins=
+
+Version Control: Use Subclipse 1.8.x, see: http://subclipse.tigris.org/update_1.8.x
+Please do not use Subversive. 
+
+Maven Integration: m2e , is included in Eclipse Classic. Use Help->Install New Software, select "--All available sites--" and choose Collaboration -> m2e - Maven Integration for Eclipse
+
+Subclipse/Maven Integration: Subclipse Maven Integration, update site: http://subclipse.tigris.org/m2eclipse/1.0/
+
+Apache UIMA tools, see: http://www.apache.org/dist/uima/eclipse-update-site/.
+
+You should check that Text file encoding is UTF-8  in "Preferences -> General -> Workspace" of your eclipse install.
+
+=WebAnno and tomcat installation=
+
+Checkout out the svn repository 'https://webanno.googlecode.com/svn/trunk' and checkout the project as Maven project: http://webanno.googlecode.com/svn/wiki/images/checkout_as_maven_project.png
+
+Download Apache Tomcat from http://tomcat.apache.org/ (we're using version 7). Then, you need to add the Tomcat server to your runtime configuration. Go to preferences and go to Servers -> Runtime environments:
+http://webanno.googlecode.com/svn/wiki/images/AddApacheTomcat.png
+
+When prompted for an installation path, specify the folder where you extracted (or installed) Apache Tomcat v7 into. 
+
+Change the runtime configuartion for the project. On the left side of the dialog, you should now be able to select Apache Tomcat. Change its VM arguments and include the definition -Dwebanno.home="/srv/webanno" to specifiy the home directory for WebAnno:
+
+http://webanno.googlecode.com/svn/wiki/images/ChangeRunConfiguration.png
+
+Head to the servers pane. If you cannot locate it in your eclipse window, add it by going to Window -> Show View -> Other... and select servers. Right click on 'Tomcat v7 localhost' and click on "Add and remove...":
+
+http://webanno.googlecode.com/svn/wiki/images/AddAndRemoveServer.png
+
+You should end up with:
+
+http://webanno.googlecode.com/svn/wiki/images/AddAndRemoveServerFinal.png
+
+WebAnno should now be configured to start with tomcat.
+
+=Troubleshooting=
+
+If you run into problems with the last step (Add and remove...) and get the error 'There are no resources that can be added or removed from the server', checkout if you have installed m2eclipse-wtp:
+
+http://webanno.googlecode.com/svn/wiki/images/Problems%20with%20no%20resource%20available.png
+
+and go to the project settings and check if these project facets are activated for the project:
+
+http://webanno.googlecode.com/svn/wiki/images/ProjectsFacets.png
