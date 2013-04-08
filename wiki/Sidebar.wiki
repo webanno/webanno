@@ -1,5 +1,5 @@
- =User documentation=
+====User documentation====
   * [InstallationGuide Installation Guide]
 
-=Developer documentation=
+====Developer documentation====
   * [DevInstallationGuide Developer Installation Guide]
