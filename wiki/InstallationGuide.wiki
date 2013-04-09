@@ -20,7 +20,7 @@ $ cd /opt
 $ tomcat6-instance-create -p 18080 -c 18005 webanno
 $ chown -R www-data /opt/webanno
 }}}
-   * Configure the startup script. Edit `/etc/init.d/webanno` and add the following contents:
+   * Configure the startup script. Edit `/etc/init.d/webanno` and add the following contents:SampleData
 {{{
 #!/bin/sh
 export JAVA_OPTS="-Djava.awt.headless=true -Xmx750m -XX:+UseConcMarkSweepGC -Dwebanno.home=/srv/webanno"
@@ -159,7 +159,7 @@ $ mysql -u root -p
 mysql> USE webanno;
 }}}
    * create table user 
-{{{
+{{{SampleData
 mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password VARCHAR(45));
 }}}
    * add WebAnno users to user table
