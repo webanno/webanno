@@ -6,4 +6,4 @@
   * [DevInstallationGuide Developer Installation Guide]
 
 *Sample Data*
-  * [SampleData Sample Data]
+  * [Sampledata Sample Data]
