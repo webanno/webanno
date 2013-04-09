@@ -1,3 +1,4 @@
+#labels SampleData
 *User documentation*
   * [InstallationGuide Installation Guide]
 
@@ -5,4 +6,4 @@
   * [DevInstallationGuide Developer Installation Guide]
 
 *Sample Data*
-  * [Sample Data]
+  * [SampleData Sample Data]
