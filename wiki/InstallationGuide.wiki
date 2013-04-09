@@ -149,7 +149,7 @@ $ chown -R www-data /srv/webanno
 }}}
 
 = Install Sample Data =
-If you want to test WebAnno with the sample data and the compiled war file, skip the Users and permissions Section, follow the instraction at SampleData, and start WebAnno
+If you want to test WebAnno with the sample data and the compiled war file, skip the Users and permissions Section, follow the instraction at [Sampledata], and start WebAnno
 
 = Users and permissions =
 
