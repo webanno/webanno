@@ -3,3 +3,6 @@
 
 *Developer documentation*
   * [DevInstallationGuide Developer Installation Guide]
+
+*Sample Data*
+  * [SampleData]
