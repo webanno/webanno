@@ -1,9 +1,10 @@
 #labels SampleData
 *User documentation*
-  * [InstallationGuide Installation Guide]
+  * [InstallationGuide Users' Installation Guide]
+  * [UserGuide User's Guide]
 
 *Developer documentation*
-  * [DevInstallationGuide Developer Installation Guide]
+  * [DevInstallationGuide Developer's Installation Guide]
 
 *Sample Data*
   * [Sampledata Sample Data]
