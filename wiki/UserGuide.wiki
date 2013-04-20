@@ -1,0 +1,49 @@
+#summary User's Guide
+
+= Introduction =
+
+This document serves as a quick user’s guide for the operation of !WebAnno. The application is under development, and we welcome your comments for improvements.
+
+= Description of GUI functionality =
+
+== Log-in screen ==
+
+Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
+
+== Overview screen ==
+
+After login, you will be presented with the _overview screen_. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
+
+Here, you can navigate to one of the currently three options: 
+  * *Annotation* - the page to perform annotations
+  * *Curation* -  compare and merge annotations from multiple users (only for _curators_)
+  * *Project Configuration* - set up or change annotation projects (only for _administrators_)
+  * *Monitoring* - inspect the progress of annotation projects (only for _administrators_)
+
+== Annotation ==
+
+When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
+
+Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
+
+Once the document is opened, a default of 10 sentences are loaded on the annotation page. The *Settings*  button allows to specify the display window size as well as select the annotation layers to be displayed.
+
+The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *go to page* allow you to navigate accordingly.
+
+Sentence numbers on the left side of the annotation page shows the exact sentence numbers in the document.
+
+Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation.  To change or delete an annotation, double-click on the annotation (span or link annotations).
+
+Link annotations (between POS tags) are created by selecting the starting POS-tag, then dragging the arrow to connect it to its target POS tag. All possible targets are highlighted. 
+
+Annotations are always immediately saved on the server. Thus, it is not necessary to save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. 
+
+To obtain a local copy of the current document, click on the *export* button. A dialog opens in which the export format can be selected. The exported file will be saved on your local disk.
+
+= Known Issues =
+
+If the tool is kept open in the browser, but not used for a long period of time, you will have to log in again. For this, press the reload button of your browser.
+
+If the tool does not react for more than 1 minute, please also reload and re-login. 
+
+We are collecting error reports to improve the tool. For this, the error must be reproducible: If you find a way how to produce the error, please open an issue and describe it.
