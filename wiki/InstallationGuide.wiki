@@ -159,7 +159,7 @@ $ mysql -u root -p
 mysql> USE webanno;
 }}}
    * create table user 
-{{{SampleData
+{{{
 mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password VARCHAR(45));
 }}}
    * add WebAnno users to user table
