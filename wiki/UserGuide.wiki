@@ -1,5 +1,6 @@
 #summary User's Guide
-#sidebar TableOfContents
+
+<wiki:toc max_depth="1" />
 
 = Introduction =
 
