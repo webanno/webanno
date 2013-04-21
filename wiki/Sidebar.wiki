@@ -1,4 +1,6 @@
 #labels SampleData
+#sidebar none
+
 *User documentation*
   * [InstallationGuide Users' Installation Guide]
   * [UserGuide User's Guide]
