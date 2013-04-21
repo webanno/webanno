@@ -1,6 +1,6 @@
 #summary User's Guide
 
-<wiki:toc max_depth="1" />
+<wiki:toc/>
 
 = Introduction =
 
