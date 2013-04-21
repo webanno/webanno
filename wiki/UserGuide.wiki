@@ -1,4 +1,5 @@
 #summary User's Guide
+#sidebar TableOfContents
 
 = Introduction =
 
