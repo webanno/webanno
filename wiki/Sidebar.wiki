@@ -2,7 +2,7 @@
 #sidebar none
 
 *User documentation*
-  * [InstallationGuide Users' Installation Guide]
+  * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
 
 *Developer documentation*
