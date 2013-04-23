@@ -1,0 +1,15 @@
+#summary One-sentence summary of this page.
+
+= Upgrade Procedure =
+
+== Upgrading from version 0.2.0 to 0.3.0 ==
+The database schema for annotation document and source document is modified to include the *state* of the document.
+To upgrade your existing application from 0.2.0 to 0.3.0
+  #Start your application server with the new webanno.war file
+  # run the following commands in mysql:
+{{{
+USE webanno;
+UPDATE `webanno`.`source_document`  SET `state`='NEW';
+UPDATE `webanno`.`annotation_document` SET `state`='INPROGRESS';
+}}}
+  # Restart your application
