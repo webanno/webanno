@@ -6,7 +6,9 @@
 
 = Prerequisites =
 
-This guide assumes Debian (or possibly Ubuntu). It is further assumed that the user "www-data" already exists on the system and that it shall be used to run !WebAnno. Finally, it is expected that you have set up a !MySQL database that !WebAnno can use.
+  * This guide assumes Debian 6.0.0 (Squeeze). It may also work on Ubuntu with some modifications, but we do not test this. Instructions for other Linux distributions likely deviate significantly.
+  * It is further assumed that the user "www-data" already exists on the system and that it shall be used to run !WebAnno. Finally, it is expected that you have set up a !MySQL database that !WebAnno can use. 
+  * All commands assume that you are logged in as the *root* user.
 
 = Tomcat =
 
@@ -35,8 +37,8 @@ su -c "sh /opt/webanno/bin/shutdown.sh" www-data
 ;;
 
 restart)
-su -c "sh /opt/webanno/shutdown.sh" www-data
-su -c "sh /opt/webanno/startup.sh" www-data
+su -c "sh /opt/webanno/bin/shutdown.sh" www-data
+su -c "sh /opt/webanno/bin/startup.sh" www-data
 ;;
 esac
 
@@ -102,9 +104,9 @@ $ mysql -u root -p
 {{{
 mysql> CREATE DATABASE webanno; 
 }}}
-   * create database users
+   * create a database user called `webanno` with the password `t0t4llYSecreT`which is later used by the application to access the database (instructions for `settings.properties`file below).
 {{{
-mysql> CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
+mysql> CREATE USER 'webanno'@'localhost' IDENTIFIED BY 't0t4llYSecreT';
 mysql> GRANT ALL PRIVILEGES ON * . * TO 'webanno'@'localhost';
 }}}
 
@@ -117,13 +119,14 @@ $ cp webanno.war /opt/webanno/webapps/webanno.war
 {{{
 $ mkdir /srv/webanno
 }}}
-   * Edit `/srv/webanno/settings.properties` to define the database connection. Replace `DATABASE`,  `USER`, and `PASSWORD` with the appropriate data of your system:
+   * *Optional* If you want to test !WebAnno with some sample data, skip the _Users and permissions_ section and follow the instraction at [Sampledata], then come back here.
+   * Edit `/srv/webanno/settings.properties` to define the database connection:
 {{{
 database.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
 database.driver=com.mysql.jdbc.Driver
 database.url=jdbc:mysql://localhost:3306/DATABASE
-database.username=USER
-database.password=PASSWORD
+database.username=webanno
+database.password=t0t4llYSecreT
 }}}
    * Edit `/srv/webanno/formats.properties` and add the following content:
 {{{
@@ -147,9 +150,6 @@ conll.writer=de.tudarmstadt.ukp.clarin.webanno.conll.ConllWriter
 {{{
 $ chown -R www-data /srv/webanno
 }}}
-
-= Install Sample Data =
-If you want to test WebAnno with the sample data and the compiled war file, skip the Users and permissions Section, follow the instraction at [Sampledata], and start WebAnno
 
 = Users and permissions =
 
