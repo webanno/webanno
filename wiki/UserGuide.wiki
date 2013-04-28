@@ -38,7 +38,7 @@ The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *
 
 Sentence numbers on the left side of the annotation page shows the exact sentence numbers in the document.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation2.png" width="600"/>
 
 Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation.  To change or delete an annotation, double-click on the annotation (span or link annotations).
 
