@@ -5,11 +5,49 @@
 == Upgrading from version 0.2.0 to 0.3.0 ==
 The database schema for annotation document and source document is modified to include the *state* of the document.
 To upgrade your existing application from 0.2.0 to 0.3.0
-  #Start your application server with the new webanno.war file
+  # Start your application server with the new webanno.war file
   # run the following commands in mysql:
 {{{
 USE webanno;
 UPDATE `webanno`.`source_document`  SET `state`='NEW';
 UPDATE `webanno`.`annotation_document` SET `state`='INPROGRESS';
+UPDATE `webanno`.`source_document` SET `format`='tcf' WHERE `format`='Weblicht TCF Format';
+UPDATE `webanno`.`source_document` SET `format`='text' WHERE `format`='Plain text';
+UPDATE `webanno`.`source_document` SET `format`='xmi' WHERE `format`='XMI format';
+UPDATE `webanno`.`source_document` SET `format`='conll' WHERE `format`='Conll Format';
 }}}
   # Restart your application
+
+== Copying data and metadata from version 0.2.0 to 0.3.0 ==
+If you have annotation data and metadata in 0.2.0 and want to migrate to 0.3.0, do the following steps
+
+   * Copy database to new 0.3.0 instance
+   # create the database for 0.3.0
+{{{
+mysql> create database webanno
+}}}
+   # start webanno
+   # create mysqldump from 0.2.0
+{{{
+mysqldump -u root -p webanno > webanno.sql
+}}}
+   # restore the mysqldump data to 0.3.0 webanno database
+{{{
+mysql -u root -p  webanno < webanno.sql
+}}}
+   # make updates appropraitely as stated above (UPDATE `webanno`.....)
+   # restart webanno
+
+
+  * copy database to existing 0.3.0 database
+  # create mysqldump only for data
+{{{
+mysqldump -u root -p -t -c webanno > webanno.sql
+}}}
+  # restore only the data to the existing database 
+{{{
+mysql -u root -p -f webanno < webanno.sql
+}}}
+
+  # make updates appropraitely as stated above (UPDATE `webanno`.....)
+  # restart webanno
