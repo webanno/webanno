@@ -57,7 +57,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -216,8 +215,7 @@ public class ProjectTagSetsPanel
                                     tagInputStream = tagFile.getInputStream();
                                     String text = IOUtils.toString(tagInputStream, "UTF-8");
 
-                                    MappingJacksonHttpMessageConverter jsonConverter = new
-                                            MappingJacksonHttpMessageConverter();
+                                    MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
                                     ExportedTagSets importedTagSet = jsonConverter
                                             .getObjectMapper().readValue(text,
                                                     ExportedTagSets.class);
@@ -243,25 +241,26 @@ public class ProjectTagSetsPanel
 
                                         // Override existing tagset
                                         if (annotationService.existTagSet(type, project)) {
-                                            annotationService.removeTagSet(annotationService.getTagSet(type, project));
+                                            annotationService.removeTagSet(annotationService
+                                                    .getTagSet(type, project));
                                         }
-                                            TagSet newTagSet = new TagSet();
-                                            newTagSet.setDescription(tagSet.getDescription());
-                                            newTagSet.setName(tagSet.getName());
-                                            newTagSet.setLanguage(tagSet.getLanguage());
-                                            newTagSet.setProject(project);
-                                            newTagSet.setType(type);
-                                            annotationService.createTagSet(newTagSet, user);
-                                            for (de.tudarmstadt.ukp.clarin.webanno.export.model.Tag tag : tagSet
-                                                    .getTags()) {
-                                                Tag newTag = new Tag();
-                                                newTag.setDescription(tag.getDescription());
-                                                newTag.setName(tag.getName());
-                                                newTag.setTagSet(newTagSet);
-                                                annotationService.createTag(newTag, user);
-                                            }
-                                            info("TagSet successfully imported. Refresh page to see the imported TagSet.");
+                                        TagSet newTagSet = new TagSet();
+                                        newTagSet.setDescription(tagSet.getDescription());
+                                        newTagSet.setName(tagSet.getName());
+                                        newTagSet.setLanguage(tagSet.getLanguage());
+                                        newTagSet.setProject(project);
+                                        newTagSet.setType(type);
+                                        annotationService.createTagSet(newTagSet, user);
+                                        for (de.tudarmstadt.ukp.clarin.webanno.export.model.Tag tag : tagSet
+                                                .getTags()) {
+                                            Tag newTag = new Tag();
+                                            newTag.setDescription(tag.getDescription());
+                                            newTag.setName(tag.getName());
+                                            newTag.setTagSet(newTagSet);
+                                            annotationService.createTag(newTag, user);
                                         }
+                                        info("TagSet successfully imported. Refresh page to see the imported TagSet.");
+                                    }
 
                                 }
                                 catch (IOException e) {
@@ -568,10 +567,8 @@ public class ProjectTagSetsPanel
                     }
                     return exportFile;
                 }
-            }).setCacheDuration(Duration.NONE)
-            .setDeleteAfterDownload(true)
-            .setOutputMarkupId(true))
-            .detach();
+            }).setOutputMarkupId(true));
+
         }
     }
 
@@ -698,8 +695,10 @@ public class ProjectTagSetsPanel
                 @Override
                 protected void onUpdate(AjaxRequestTarget aTarget)
                 {
-                    tagDetailForm.setModelObject(getModelObject().tag);
-                    aTarget.add(tagDetailForm.setOutputMarkupId(true));
+                    if (getModelObject().tag != null) {
+                        tagDetailForm.setModelObject(getModelObject().tag);
+                        aTarget.add(tagDetailForm.setOutputMarkupId(true));
+                    }
                 }
             }).setOutputMarkupId(true);
         }
