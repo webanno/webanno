@@ -136,7 +136,8 @@ public class ProjectPage
                                     return allProjects;
                                 }
                             }
-
+                            // Not a super admin,
+                            info("You are not allowed to create new Project");
                             // else only projects she is admin of
                             for (Project project : allProjects) {
                                 if (ApplicationUtils.isProjectAdmin(project, projectRepository,
