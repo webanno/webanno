@@ -57,6 +57,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.time.Duration;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -567,8 +568,10 @@ public class ProjectTagSetsPanel
                     }
                     return exportFile;
                 }
-            }).setOutputMarkupId(true));
-
+            }).setCacheDuration(Duration.NONE)
+            .setDeleteAfterDownload(true)
+            .setOutputMarkupId(true))
+            .detach();
         }
     }
 
