@@ -125,7 +125,7 @@ public class DocumentColumnMetaData
                             .getName();
                     User user = projectRepositoryService.getUser(username);
                     SourceDocumentState state = document.getState();
-                    if(state.toString().equals(SourceDocumentState.CURATION_FINISHED.toString())){
+                    if (state.toString().equals(SourceDocumentState.CURATION_FINISHED.toString())) {
                         try {
                             changeSourceDocumentState(
                                     document,
@@ -136,7 +136,8 @@ public class DocumentColumnMetaData
                             LOG.info(e.getMessage());
                         }
                     }
-                    else if(state.toString().equals(SourceDocumentState.CURATION_IN_PROGRESS.toString())){
+                    else if (state.toString().equals(
+                            SourceDocumentState.CURATION_IN_PROGRESS.toString())) {
                         try {
                             changeSourceDocumentState(
                                     document,
@@ -147,7 +148,7 @@ public class DocumentColumnMetaData
                             LOG.info(e.getMessage());
                         }
                     }
-                    else{
+                    else {
                         aTarget.appendJavaScript("alert('the state can only be changed explicitly by the curator')");
                     }
 
@@ -158,7 +159,8 @@ public class DocumentColumnMetaData
         else if (value.substring(0, value.indexOf(":")).equals(MonitoringPage.SOURCE_DOCUMENT)) {
             SourceDocument document = projectRepositoryService.getSourceDocument(
                     value.substring(value.indexOf(":") + 1), project);
-            aCellItem.add(new Label(componentId, document.getState().toString()));
+            aCellItem.add(new Label(componentId, document.getState().toString().toLowerCase()
+                    .replace("_", " ")));
             aCellItem.add(AttributeModifier.append("class", "centering"));
             aCellItem.add(new AjaxEventBehavior("onclick")
             {
@@ -215,23 +217,24 @@ public class DocumentColumnMetaData
                         AnnotationDocument annoDoc = projectRepositoryService
                                 .getAnnotationDocument(document, user);
                         state = annoDoc.getState();
-                        if(state.toString().equals(AnnotationDocumentState.FINISHED.toString())){
+                        if (state.toString().equals(AnnotationDocumentState.FINISHED.toString())) {
                             changeAnnotationDocumentState(
                                     document,
                                     user,
                                     AnnotationDocumentStateTransition.ANNOTATION_FINISHED_TO_ANNOTATION_IN_PROGRESS);
-                        }else
-                            if(state.toString().equals(AnnotationDocumentState.IN_PROGRESS.toString())){
+                        }
+                        else if (state.toString().equals(
+                                AnnotationDocumentState.IN_PROGRESS.toString())) {
                             changeAnnotationDocumentState(
                                     document,
                                     user,
                                     AnnotationDocumentStateTransition.ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED);
-                            }
-                        if(state.toString().equals(AnnotationDocumentState.NEW.toString())){
+                        }
+                        if (state.toString().equals(AnnotationDocumentState.NEW.toString())) {
                             changeAnnotationDocumentState(document, user,
                                     AnnotationDocumentStateTransition.NEW_TO_IGNORE);
                         }
-                        if(state.toString().equals(AnnotationDocumentState.IGNORE.toString())){
+                        if (state.toString().equals(AnnotationDocumentState.IGNORE.toString())) {
                             changeAnnotationDocumentState(document, user,
                                     AnnotationDocumentStateTransition.IGNORE_TO_NEW);
                         }
