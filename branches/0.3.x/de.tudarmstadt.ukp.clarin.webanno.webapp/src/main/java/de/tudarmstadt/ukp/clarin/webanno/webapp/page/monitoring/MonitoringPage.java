@@ -197,6 +197,9 @@ public class MonitoringPage
                         List<String> documentListAsColumnHeader = new ArrayList<String>();
                         documentListAsColumnHeader.add("Documents");
 
+                        // A column for curation user annotation document status
+                        documentListAsColumnHeader.add("curation");
+
                         // List of users with USER permission level
                         List<User> usersWithPermissions = projectRepository
                                 .listProjectUsersWithPermissions(project, PermissionLevel.USER);
@@ -204,8 +207,6 @@ public class MonitoringPage
                         for (User user : usersWithPermissions) {
                             documentListAsColumnHeader.add(user.getUsername());
                         }
-                        // A column for curation user annotation document status
-                        documentListAsColumnHeader.add(CurationPanel.CURATION_USER);
                         // A column for source document states
                         documentListAsColumnHeader.add(SOURCE_DOCUMENT);
                         List<List<String>> userAnnotationDocumentStatusList = new ArrayList<List<String>>();
@@ -214,14 +215,15 @@ public class MonitoringPage
                             List<String> userAnnotationDocuments = new ArrayList<String>();
                             userAnnotationDocuments.add(DOCUMENT + document.getName());
 
+                            // Curation Document status
+                            userAnnotationDocuments.add(CurationPanel.CURATION_USER + "-"
+                                    + DOCUMENT + document.getName());
+
                             for (User user : usersWithPermissions) {
                                 // annotation document status for this annotator
                                 userAnnotationDocuments.add(user.getUsername() + "-" + DOCUMENT
                                         + document.getName());
                             }
-                            // Curation Document status
-                            userAnnotationDocuments.add(CurationPanel.CURATION_USER + "-"
-                                    + DOCUMENT + document.getName());
 
                             // source Document status
                             userAnnotationDocuments.add(SOURCE_DOCUMENT + "-" + DOCUMENT
