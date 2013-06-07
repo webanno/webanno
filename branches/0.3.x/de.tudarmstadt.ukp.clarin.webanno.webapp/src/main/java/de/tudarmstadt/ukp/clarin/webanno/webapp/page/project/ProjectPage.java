@@ -136,8 +136,7 @@ public class ProjectPage
                                     return allProjects;
                                 }
                             }
-                            // Not a super admin,
-                            info("You are not allowed to create new Project");
+
                             // else only projects she is admin of
                             for (Project project : allProjects) {
                                 if (ApplicationUtils.isProjectAdmin(project, projectRepository,
@@ -301,7 +300,7 @@ public class ProjectPage
                 }
             });
 
-            tabs.add(new AbstractTab(new Model<String>("WebService"))
+            tabs.add(new AbstractTab(new Model<String>("Export"))
             {
 
                 private static final long serialVersionUID = 788812791376373350L;
@@ -309,13 +308,13 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new WebservicePanel(panelId, project);
+                    return new ExportPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return(!createProject&&projectRepository.isRemoteProject(project.getObject()));
+                    return !createProject;
 
                 }
             });
