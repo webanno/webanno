@@ -175,6 +175,7 @@ public class MonitoringPage
                         monitoringDetailForm.setModelObject(aNewSelection);
                         monitoringDetailForm.setVisible(true);
                         annotationTypeSelectionForm.setVisible(true);
+                        monitoringDetailForm.setVisible(true);
                         ProjectSelectionForm.this.setVisible(true);
 
                         final Map<String, Integer> annotatorsProgress = new HashMap<String, Integer>();
@@ -197,6 +198,9 @@ public class MonitoringPage
                         List<String> documentListAsColumnHeader = new ArrayList<String>();
                         documentListAsColumnHeader.add("Documents");
 
+                        // A column for source document states
+                        documentListAsColumnHeader.add(SOURCE_DOCUMENT);
+
                         // A column for curation user annotation document status
                         documentListAsColumnHeader.add("curation");
 
@@ -207,13 +211,16 @@ public class MonitoringPage
                         for (User user : usersWithPermissions) {
                             documentListAsColumnHeader.add(user.getUsername());
                         }
-                        // A column for source document states
-                        documentListAsColumnHeader.add(SOURCE_DOCUMENT);
+
                         List<List<String>> userAnnotationDocumentStatusList = new ArrayList<List<String>>();
 
                         for (SourceDocument document : documents) {
                             List<String> userAnnotationDocuments = new ArrayList<String>();
                             userAnnotationDocuments.add(DOCUMENT + document.getName());
+
+                            // source Document status
+                            userAnnotationDocuments.add(SOURCE_DOCUMENT + "-" + DOCUMENT
+                                    + document.getName());
 
                             // Curation Document status
                             userAnnotationDocuments.add(CurationPanel.CURATION_USER + "-"
@@ -225,9 +232,6 @@ public class MonitoringPage
                                         + document.getName());
                             }
 
-                            // source Document status
-                            userAnnotationDocuments.add(SOURCE_DOCUMENT + "-" + DOCUMENT
-                                    + document.getName());
                             userAnnotationDocumentStatusList.add(userAnnotationDocuments);
                         }
 
@@ -242,7 +246,7 @@ public class MonitoringPage
                         }
                         annotationDocumentStatusTable.remove();
                         annotationDocumentStatusTable = new DefaultDataTable("rsTable", columns,
-                                provider, 10);
+                                provider, 20);
                         annotationDocumentStatusTable.add(new AjaxEventBehavior("onclick")
                         {
                             @Override
@@ -678,6 +682,7 @@ public class MonitoringPage
             cols.add(new DocumentColumnMetaData(prov, i, new Project(), projectRepository));
         }
         annotationDocumentStatusTable = new DefaultDataTable("rsTable", cols, prov, 2);
+        monitoringDetailForm.setVisible(false);
         add(monitoringDetailForm.add(annotatorsProgressImage).add(projectName)
                 .add(annotationDocumentStatusTable));
         annotationDocumentStatusTable.setVisible(false);
