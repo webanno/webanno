@@ -143,7 +143,7 @@ public class MonitoringPage
                             User user = projectRepository.getUser(username);
 
                             List<Project> allProjects = projectRepository.listProjects();
-                            List<Authority> authorities = projectRepository.listAuthorities(user);
+                            List<Authority> authorities = projectRepository.getAuthorities(user);
 
                             // if global admin, show all projects
                             for (Authority authority : authorities) {
@@ -176,7 +176,6 @@ public class MonitoringPage
                         monitoringDetailForm.setVisible(true);
                         annotationTypeSelectionForm.setVisible(true);
                         monitoringDetailForm.setVisible(true);
-                        agreementForm.setVisible(true);
                         ProjectSelectionForm.this.setVisible(true);
 
                         final Map<String, Integer> annotatorsProgress = new HashMap<String, Integer>();
@@ -219,7 +218,7 @@ public class MonitoringPage
                             List<String> userAnnotationDocuments = new ArrayList<String>();
                             userAnnotationDocuments.add(DOCUMENT + document.getName());
 
-                // source Document status
+                            // source Document status
                             userAnnotationDocuments.add(SOURCE_DOCUMENT + "-" + DOCUMENT
                                     + document.getName());
 
@@ -645,7 +644,6 @@ public class MonitoringPage
         // monitoringDetailForm.setVisible(false);
         agreementForm = new AgreementForm("agreementForm", new Model<AnnotationType>(),
                 new Model<Project>());
-        agreementForm.setVisible(false);
         add(agreementForm);
 
         annotationTypeSelectionForm = new AnnotationTypeSelectionForm("annotationTypeSelectionForm");
