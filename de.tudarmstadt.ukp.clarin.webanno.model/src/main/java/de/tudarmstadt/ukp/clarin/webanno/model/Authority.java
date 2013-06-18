@@ -32,7 +32,7 @@ import javax.persistence.UniqueConstraint;
  *
  */
 @Entity
-@Table(name = "authorities", uniqueConstraints = { @UniqueConstraint(columnNames = { "authority", "username" }) })
+@Table(name = "authorities", uniqueConstraints = { @UniqueConstraint(columnNames = { "role", "user" }) })
 public class Authority
     implements Serializable
 {
@@ -43,11 +43,10 @@ public class Authority
     private long id;
 
     @Column(nullable = false)
-    @JoinColumn(name = "authority")
-    private String authority;
+    private String role;
 
     @ManyToOne
-    @JoinColumn(name = "username")
+    @JoinColumn(name = "user")
     private User user;
 
     public long getId()
@@ -62,12 +61,12 @@ public class Authority
 
     public String getRole()
     {
-        return authority;
+        return role;
     }
 
     public void setRole(String aRole)
     {
-        authority = aRole;
+        role = aRole;
     }
 
     public User getUsers()

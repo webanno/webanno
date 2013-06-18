@@ -279,36 +279,6 @@ public class CurationPanel
                                 BratAnnotatorUIData uIData = new BratAnnotatorUIData();
                                 uIData.setjCas(mergeJCas);
                                 uIData.setGetDocument(false);
-                                // TODO no coloring is done at all for arc annotation.
-                                // Do the same for arc colors (AGREE, USE,...
-                                AnnotationDocument clickedAnnotationDocument = null;
-                                List<AnnotationDocument> annotationDocuments = repository
-                                        .listAnnotationDocument(project, sourceDocument);
-                                for (AnnotationDocument annotationDocument : annotationDocuments) {
-                                    if (annotationDocument.getUser().getUsername().equals(username)) {
-                                        clickedAnnotationDocument = annotationDocument;
-                                        break;
-                                    }
-                                }
-                                JCas clickedJCas = null;
-                                try {
-                                    clickedJCas = repository.getAnnotationDocumentContent(clickedAnnotationDocument);
-                                }
-                                catch (UIMAException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                catch (ClassNotFoundException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                catch (IOException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                AnnotationFS fsClicked = (AnnotationFS) clickedJCas.getLowLevelCas().ll_getFSForRef(
-                                        addressOriginClicked);
-                                arcType =  BratAjaxCasUtil.getAnnotationType(fsClicked.getType())+arcType;
                                 uIData.setType(arcType);
                                 uIData.setOrigin(addressOrigin);
                                 uIData.setTarget(addressTarget);
@@ -654,9 +624,10 @@ public class CurationPanel
                 }
             }
             if (newState != null) {
+                String label = entity.getType();
                 String type = entity.getType() + "_(" + newState.name() + ")";
                 entity.setType(type);
-                entityTypes.put(type, getEntity(type, newState));
+                entityTypes.put(type, getEntity(type, label, newState));
             }
 
         }
@@ -678,11 +649,11 @@ public class CurationPanel
         return collData;
     }
 
-    private Map<String, Object> getEntity(String type, AnnotationState annotationState)
+    private Map<String, Object> getEntity(String type, String label, AnnotationState annotationState)
     {
         Map<String, Object> entityType = new HashMap<String, Object>();
         entityType.put("type", type);
-        entityType.put("labels", new String[] { type });
+        entityType.put("labels", new String[] { type, label });
         String color = annotationState.getColorCode();
         entityType.put("bgColor", color);
         entityType.put("borderColor", "darken");
