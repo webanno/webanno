@@ -51,3 +51,23 @@ mysql -u root -p -f webanno < webanno.sql
 
   # make updates appropraitely as stated above (UPDATE `webanno`.....)
   # restart webanno
+== Upgrading from version 0.3.0 to 0.4.0 ==
+Make a achaneg to the authorities schema as follows
+  # change the role column as
+{{{
+alter table `webanno`.`authorities`  change `role` `authority` VARCHAR(255) NOT NULL ;
+}}}
+  # change user column as follows:
+{{{
+alter table `tcf`.`authorities`  change `user` `username` VARCHAR(255) NOT NULL ;
+}}}
+  # If the username admin is not present, create it as follows:
+{{{
+INSERT INTO `webanno`.`users` (`username`, `enabled`, `password`) VALUES ('admin', '1', 'b7f76f3d1cfa8746e9d44a9ccca81bf22e0e123f06519fc964f97172d5d61b731e9bf8a11da4a3d0');
+}}}
+  # If the user name admin is already there, update the old password with a hash as follows:
+{{{
+UPDATE `tcf`.`users` SET `password`='b7f76f3d1cfa8746e9d44a9ccca81bf22e0e123f06519fc964f97172d5d61b731e9bf8a11da4a3d0' WHERE `username`='admin';
+}}}
+  # Log in to webanno using admin/admin
+  # Go to *manage users* and update passwords for the remaining users. Make sure that ROLE_USER is selected for every user. Multiple roles can be selected by selecting using *ctrl + click *
