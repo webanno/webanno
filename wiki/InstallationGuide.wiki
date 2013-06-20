@@ -124,7 +124,7 @@ $ mkdir /srv/webanno
 {{{
 database.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
 database.driver=com.mysql.jdbc.Driver
-database.url=jdbc:mysql://localhost:3306/DATABASE
+database.url=jdbc:mysql://localhost:3306/webanno
 database.username=webanno
 database.password=t0t4llYSecreT
 }}}
