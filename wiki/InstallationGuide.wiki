@@ -164,9 +164,10 @@ mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password V
 }}}
    * add WebAnno users to user table
 {{{
-mysql> INSERT INTO users (username, enabled, password) VALUES ('username', 1, 'password');
+mysql> INSERT INTO users (username, enabled, password) VALUES ('user1', 1, 'password');
+mysql> INSERT INTO users (username, enabled, password) VALUES ('user2', 1, 'password');
 }}}
- where username is the username to add and password is the password for username
+ where user1/user2 are the usernames to add and password is the password for user1/user2
    * Create an authority table
 {{{
 mysql> CREATE  TABLE authorities(role VARCHAR(10), user VARCHAR(45));
