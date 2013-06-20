@@ -152,7 +152,7 @@ $ chown -R www-data /srv/webanno
 }}}
 
 = Users and permissions =
-
+*This is not required for 0.4.0 release onwards*
    * login to mysql and use the correct database
 {{{
 $ mysql -u root -p
