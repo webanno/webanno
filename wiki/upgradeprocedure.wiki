@@ -9,12 +9,12 @@ To upgrade your existing application from 0.2.0 to 0.3.0
   # run the following commands in mysql:
 {{{
 USE webanno;
-UPDATE `webanno`.`source_document`  SET `state`='NEW';
-UPDATE `webanno`.`annotation_document` SET `state`='INPROGRESS';
-UPDATE `webanno`.`source_document` SET `format`='tcf' WHERE `format`='Weblicht TCF Format';
-UPDATE `webanno`.`source_document` SET `format`='text' WHERE `format`='Plain text';
-UPDATE `webanno`.`source_document` SET `format`='xmi' WHERE `format`='XMI format';
-UPDATE `webanno`.`source_document` SET `format`='conll' WHERE `format`='Conll Format';
+UPDATE `source_document`  SET `state`='NEW';
+UPDATE `annotation_document` SET `state`='INPROGRESS';
+UPDATE `source_document` SET `format`='tcf' WHERE `format`='Weblicht TCF Format';
+UPDATE `source_document` SET `format`='text' WHERE `format`='Plain text';
+UPDATE `source_document` SET `format`='xmi' WHERE `format`='XMI format';
+UPDATE `source_document` SET `format`='conll' WHERE `format`='Conll Format';
 }}}
   # Restart your application
 
