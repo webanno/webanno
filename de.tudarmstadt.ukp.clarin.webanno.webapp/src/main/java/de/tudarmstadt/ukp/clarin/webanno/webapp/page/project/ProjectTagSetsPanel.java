@@ -73,9 +73,9 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.support.EntityModel;
 
 /**
  * A Panel Used to add Tagsets to a selected {@link Project}
- * 
+ *
  * @author Seid Muhie Yimam
- * 
+ *
  */
 
 public class ProjectTagSetsPanel

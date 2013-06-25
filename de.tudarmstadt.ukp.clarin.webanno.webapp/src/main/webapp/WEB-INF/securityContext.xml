@@ -46,9 +46,10 @@
 		pre-post-annotations="enabled" />
 
 	<security:authentication-manager>
-		<security:authentication-provider>
-		<security:jdbc-user-service data-source-ref="dataSource" />
-		<security:password-encoder ref="passwordEncoder" />
-		</security:authentication-provider>
+		<security:authentication-provider
+			user-service-ref="userDetailsService" />
 	</security:authentication-manager>
+
+	<bean id="userDetailsService"
+		class="de.tudarmstadt.ukp.clarin.webanno.webapp.security.AnyUserDetailsService" />
 </beans>
