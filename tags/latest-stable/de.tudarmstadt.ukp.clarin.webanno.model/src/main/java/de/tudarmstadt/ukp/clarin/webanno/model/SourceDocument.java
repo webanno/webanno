@@ -25,6 +25,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Type;
 /**
  * A persistence object for meta-data of source documents. The content of the source document is stored in
  * the file system.
@@ -51,6 +53,10 @@ public class SourceDocument
     Project project;
 
     private String format;
+
+    @Column(nullable = false)
+    @Type(type="de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateType")
+    private SourceDocumentState state = SourceDocumentState.NEW;
 
     public long getId()
     {
@@ -91,5 +97,50 @@ public class SourceDocument
     {
         format = aFormat;
     }
+
+    public SourceDocumentState getState()
+    {
+        return state;
+    }
+
+    public void setState(SourceDocumentState aState)
+    {
+        state = aState;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SourceDocument other = (SourceDocument) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        }
+        else if (!name.equals(other.name)) {
+            return false;
+        }
+        return true;
+    }
+
+
 
 }

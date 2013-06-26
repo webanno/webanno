@@ -18,12 +18,7 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.annotation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
 
 import javax.persistence.NoResultException;
 
@@ -47,8 +42,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
@@ -56,13 +49,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationType;
+import de.tudarmstadt.ukp.clarin.webanno.brat.ApplicationUtils;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.OffsetsList;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 
 /**
@@ -91,6 +87,7 @@ public class BratAnnotator
     private AnnotationService annotationService;
 
     public Label numberOfPages;
+    public Label documentNameLabel;
     private int sentenceNumber = 1;
     private int totalNumberOfSentence;
 
@@ -106,6 +103,9 @@ public class BratAnnotator
     {
         super(id, aModel);
 
+        // This is an Annotation Operation, set model to ANNOTATION mode
+        bratAnnotatorModel.setMode(Mode.ANNOTATION);
+
         vis = new WebMarkupContainer("vis");
         vis.setOutputMarkupId(true);
 
@@ -113,6 +113,36 @@ public class BratAnnotator
         add(feedbackPanel);
         feedbackPanel.setOutputMarkupId(true);
         feedbackPanel.add(new SimpleAttributeModifier("class", "info"));
+        feedbackPanel.add(new SimpleAttributeModifier("class", "error"));
+
+        // Add project and document information at the top
+
+        add(documentNameLabel = (Label) new Label("doumentName", new LoadableDetachableModel()
+        {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected String load()
+            {
+                String projectName;
+                String documentName;
+                if (bratAnnotatorModel.getProject() == null) {
+                    projectName = "/";
+                }
+                else {
+                    projectName = bratAnnotatorModel.getProject().getName() + "/";
+                }
+                if (bratAnnotatorModel.getDocument() == null) {
+                    documentName = "";
+                }
+                else {
+                    documentName = bratAnnotatorModel.getDocument().getName();
+                }
+                return projectName + documentName;
+
+            }
+        }).setOutputMarkupId(true));
 
         add(numberOfPages = (Label) new Label("numberOfPages", new LoadableDetachableModel()
         {
@@ -159,6 +189,9 @@ public class BratAnnotator
                         // error(ExceptionUtils.getRootCauseMessage(e));
                         return "";
                     }
+                    catch (IOException e) {
+                        return "";
+                    }
 
                 }
                 else {
@@ -182,8 +215,8 @@ public class BratAnnotator
                 final IRequestParameters request = getRequest().getPostParameters();
 
                 Object result = null;
-                BratAjaxCasController controller = new BratAjaxCasController(jsonConverter,
-                        repository, annotationService);
+                BratAjaxCasController controller = new BratAjaxCasController(repository,
+                        annotationService);
 
                 if (request.getParameterValue("action").toString().equals("whoami")) {
                     result = controller.whoami();
@@ -207,16 +240,24 @@ public class BratAnnotator
                     result = controller.getCollectionInformation(
                             request.getParameterValue("collection").toString(),
                             bratAnnotatorModel.getAnnotationLayers());
+
                 }
 
                 else if (request.getParameterValue("action").toString().equals("getDocument")) {
                     String collection = request.getParameterValue("collection").toString();
-                    String documentName = request.getParameterValue("document").toString();
+                    String documentName;
+                    if (bratAnnotatorModel.getDocumentName() == null) {
+                        documentName = request.getParameterValue("document").toString();
+                    }
+                    else {
+                        documentName = bratAnnotatorModel.getDocumentName();
+                    }
 
                     boolean firstTimeDocumentOpened = isDocumentOpenedFirstTime(collection,
                             documentName);
 
-                    result = getDocument(request, bratAnnotatorModel.getUser(), uIData);
+                    result = getDocument(collection, documentName, bratAnnotatorModel.getUser(),
+                            uIData);
 
                     if (firstTimeDocumentOpened) {
                         info("Document is opened for the first time. "
@@ -224,34 +265,101 @@ public class BratAnnotator
                                 + bratAnnotatorModel.getDocument().getFormat()
                                 + "> has been performed.");
                     }
+                    // update source document
+                    bratAnnotatorModel.setDocument(repository.getSourceDocument(documentName,
+                            bratAnnotatorModel.getProject()));
                 }
                 else if (request.getParameterValue("action").toString().equals("createSpan")) {
-                    result = createSpan(request, bratAnnotatorModel.getUser(), uIData);
-                    info("Annotation [" + request.getParameterValue("type").toString()
-                            + "]has been created");
+                    try {
+                        if (!isDocumentFinished()) {
+                            result = createSpan(request, bratAnnotatorModel.getUser(), uIData);
+                            info("Annotation [" + request.getParameterValue("type").toString()
+                                    + "]has been created");
+                        }
+                        else {
+                            error("This document is already closed. Please ask admin to re-open");
+                            String collection = request.getParameterValue("collection").toString();
+                            String documentName = request.getParameterValue("document").toString();
+                            result = getDocument(collection, documentName,
+                                    bratAnnotatorModel.getUser(), uIData);
+                        }
+                    }
+
+                    catch (Exception e) {
+                        info(e.getMessage());
+                        String collection = request.getParameterValue("collection").toString();
+                        String documentName = request.getParameterValue("document").toString();
+                        result = getDocument(collection, documentName,
+                                bratAnnotatorModel.getUser(), uIData);
+                    }
+
                 }
 
                 else if (request.getParameterValue("action").toString().equals("createArc")) {
-                    result = createArc(request, bratAnnotatorModel.getUser(), uIData);
-                    info("Annotation [" + request.getParameterValue("type").toString()
-                            + "]has been created");
+                    if (!isDocumentFinished()) {
+                        result = createArc(request, bratAnnotatorModel.getUser(), uIData);
+                        info("Annotation [" + request.getParameterValue("type").toString()
+                                + "]has been created");
+                    }
+                    else {
+                        error("This document is already closed. Please ask admin to re-open");
+                        String collection = request.getParameterValue("collection").toString();
+                        String documentName = request.getParameterValue("document").toString();
+                        result = getDocument(collection, documentName,
+                                bratAnnotatorModel.getUser(), uIData);
+                    }
                 }
 
                 else if (request.getParameterValue("action").toString().equals("reverseArc")) {
-                    result = reverseArc(request, bratAnnotatorModel.getUser(), uIData);
-                    info("Annotation [" + request.getParameterValue("type").toString()
-                            + "]has been reversed");
+                    if (!isDocumentFinished()) {
+                        result = reverseArc(request, bratAnnotatorModel.getUser(), uIData);
+                        info("Annotation [" + request.getParameterValue("type").toString()
+                                + "]has been reversed");
+                    }
+                    else {
+                        error("This document is already closed. Please ask admin to re-open");
+                        String collection = request.getParameterValue("collection").toString();
+                        String documentName = request.getParameterValue("document").toString();
+                        result = getDocument(collection, documentName,
+                                bratAnnotatorModel.getUser(), uIData);
+                    }
                 }
                 else if (request.getParameterValue("action").toString().equals("deleteSpan")) {
-                    result = deleteSpan(request, bratAnnotatorModel.getUser(), uIData);
-                    info("Annotation [" + request.getParameterValue("type").toString()
-                            + "]has been deleted");
+                    if (!isDocumentFinished()) {
+                        String type = request.getParameterValue("type").toString();
+                        String annotationType = BratAjaxCasUtil.getAnnotationType(type);
+                        if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
+                            result = deleteSpan(request, bratAnnotatorModel.getUser(), uIData);
+                            info("POS annotations can't be deleted!");
+                        }
+                        else {
+                            result = deleteSpan(request, bratAnnotatorModel.getUser(), uIData);
+                            info("Annotation [" + request.getParameterValue("type").toString()
+                                    + "]has been deleted");
+                        }
+                    }
+                    else {
+                        error("This document is already closed. Please ask admin to re-open");
+                        String collection = request.getParameterValue("collection").toString();
+                        String documentName = request.getParameterValue("document").toString();
+                        result = getDocument(collection, documentName,
+                                bratAnnotatorModel.getUser(), uIData);
+                    }
                 }
 
                 else if (request.getParameterValue("action").toString().equals("deleteArc")) {
-                    result = deleteArc(request, bratAnnotatorModel.getUser(), uIData);
-                    info("Annotation [" + request.getParameterValue("type").toString()
-                            + "]has been deleted");
+                    if (!isDocumentFinished()) {
+                        result = deleteArc(request, bratAnnotatorModel.getUser(), uIData);
+                        info("Annotation [" + request.getParameterValue("type").toString()
+                                + "]has been deleted");
+                    }
+                    else {
+                        error("This document is already closed. Please ask admin to re-open");
+                        String collection = request.getParameterValue("collection").toString();
+                        String documentName = request.getParameterValue("document").toString();
+                        result = getDocument(collection, documentName,
+                                bratAnnotatorModel.getUser(), uIData);
+                    }
                 }
 
                 StringWriter out = new StringWriter();
@@ -278,7 +386,7 @@ public class BratAnnotator
                 // getRequestCycle().scheduleRequestHandlerAfterCurrent(
                 // new TextRequestHandler("application/json", "UTF-8", out.toString()));
                 aTarget.add(numberOfPages);
-
+                aTarget.add(documentNameLabel);
                 aTarget.add(feedbackPanel);
             }
         };
@@ -306,27 +414,25 @@ public class BratAnnotator
                 + "var visualizerUI = new VisualizerUI(dispatcher, visualizer.svg);"
                 + "var annotatorUI = new AnnotatorUI(dispatcher, visualizer.svg);"
                 + "var spinner = new Spinner(dispatcher, '#spinner');"
-                + "var logger = new AnnotationLog(dispatcher);" + " dispatcher.post('init');" };
+                + "var logger = new AnnotationLog(dispatcher);" + "dispatcher.post('init');" };
 
         // This doesn't work with head.js because the onLoad event is fired before all the
         // JavaScript references are loaded.
         aResponse.renderOnLoadJavaScript("\n" + StringUtils.join(script, "\n"));
     }
 
-    private Object getDocument(IRequestParameters aRequest, User aUser, BratAnnotatorUIData aUIData)
+    private Object getDocument(String aCollection, String aDocumentName, User aUser,
+            BratAnnotatorUIData aUIData)
     {
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
-        String collection = aRequest.getParameterValue("collection").toString();
-        String documentName = aRequest.getParameterValue("document").toString();
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
 
         try {
             {
-                setAttributesForDocument(collection, documentName, aUIData);
+                setAttributesForDocument(aUIData);
             }
             aUIData.setGetDocument(true);
-            result = controller.getDocument(bratAnnotatorModel, aUIData);
+            result = controller.getDocumentResponse(bratAnnotatorModel, aUIData);
             aUIData.setGetDocument(false);
         }
         catch (UIMAException e) {
@@ -348,46 +454,38 @@ public class BratAnnotator
     }
 
     private Object createSpan(IRequestParameters aRequest, User aUser, BratAnnotatorUIData aUIData)
+        throws Exception
     {
 
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
         String offsets = aRequest.getParameterValue("offsets").toString();
-        OffsetsList offsetList = null;
-        try {
-            offsetList = jsonConverter.getObjectMapper().readValue(offsets, OffsetsList.class);
-        }
-        catch (JsonParseException e1) {
-            error("Inavlid Json Object sent from Brat :" + ExceptionUtils.getRootCauseMessage(e1));
-        }
-        catch (JsonMappingException e1) {
-            error("Inavlid Json Object sent from Brat :" + ExceptionUtils.getRootCauseMessage(e1));
-        }
-        catch (IOException e1) {
-            error("Inavlid Json Object sent from Brat :" + ExceptionUtils.getRootCauseMessage(e1));
-        }
 
         try {
             OffsetsList offsetLists = jsonConverter.getObjectMapper().readValue(offsets,
                     OffsetsList.class);
             int start = offsetLists.get(0).getBegin();
             int end = offsetLists.get(0).getEnd();
-            setAttributesForDocument(bratAnnotatorModel.getProject().getName(), bratAnnotatorModel
-                    .getDocument().getName(), aUIData);
-            bratAnnotatorModel.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress()) + start);
-            bratAnnotatorModel.setAnnotationOffsetEnd(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress()) + end);
-            bratAnnotatorModel.setType(aRequest.getParameterValue("type").toString());
+            setAttributesForDocument(aUIData);
+            aUIData.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress())
+                    + start);
+            aUIData.setAnnotationOffsetEnd(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress())
+                    + end);
+            aUIData.setType(aRequest.getParameterValue("type").toString());
 
-            result = controller.createSpan(bratAnnotatorModel, aUIData);
+            if (!BratAjaxCasUtil.offsetsInOneSentences(aUIData.getjCas(),
+                    aUIData.getAnnotationOffsetStart(), aUIData.getAnnotationOffsetEnd())) {
+                throw new Exception(
+                        "Annotation coveres multiple sentences, limit your annotation to single sentence!");
+            }
+            result = controller.createSpanResponse(bratAnnotatorModel, aUIData);
             if (bratAnnotatorModel.isScrollPage()) {
                 bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(
                         aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress(),
-                        bratAnnotatorModel.getAnnotationOffsetStart(),
-                        bratAnnotatorModel.getProject(), bratAnnotatorModel.getDocument(),
-                        bratAnnotatorModel.getWindowSize()));
+                        aUIData.getAnnotationOffsetStart(), bratAnnotatorModel.getProject(),
+                        bratAnnotatorModel.getDocument(), bratAnnotatorModel.getWindowSize()));
             }
         }
         catch (JsonParseException e) {
@@ -416,23 +514,20 @@ public class BratAnnotator
     {
 
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
         try {
-            setAttributesForDocument(bratAnnotatorModel.getProject().getName(), bratAnnotatorModel
-                    .getDocument().getName(), aUIData);
-            bratAnnotatorModel.setOrigin(aRequest.getParameterValue("origin").toString());
-            bratAnnotatorModel.setTarget(aRequest.getParameterValue("target").toString());
-            bratAnnotatorModel.setType(aRequest.getParameterValue("type").toString());
-            bratAnnotatorModel.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), Integer.parseInt(bratAnnotatorModel.getOrigin())));
-            result = controller.createArc(bratAnnotatorModel, aUIData);
+            setAttributesForDocument(aUIData);
+            aUIData.setOrigin(aRequest.getParameterValue("origin").toInt());
+            aUIData.setTarget(aRequest.getParameterValue("target").toInt());
+            aUIData.setType(aRequest.getParameterValue("type").toString());
+            aUIData.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), aUIData.getOrigin()));
+            result = controller.createArcResponse(bratAnnotatorModel, aUIData);
             if (bratAnnotatorModel.isScrollPage()) {
                 bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(
                         aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress(),
-                        bratAnnotatorModel.getAnnotationOffsetStart(),
-                        bratAnnotatorModel.getProject(), bratAnnotatorModel.getDocument(),
-                        bratAnnotatorModel.getWindowSize()));
+                        aUIData.getAnnotationOffsetStart(), bratAnnotatorModel.getProject(),
+                        bratAnnotatorModel.getDocument(), bratAnnotatorModel.getWindowSize()));
             }
         }
         catch (UIMAException e) {
@@ -450,28 +545,25 @@ public class BratAnnotator
     {
 
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
 
         try {
-            setAttributesForDocument(bratAnnotatorModel.getProject().getName(), bratAnnotatorModel
-                    .getDocument().getName(), aUIData);
-            bratAnnotatorModel.setOrigin(aRequest.getParameterValue("origin").toString());
-            bratAnnotatorModel.setTarget(aRequest.getParameterValue("target").toString());
-            bratAnnotatorModel.setType(aRequest.getParameterValue("type").toString());
-            bratAnnotatorModel.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), Integer.parseInt(bratAnnotatorModel.getOrigin())));
+            setAttributesForDocument(aUIData);
+            aUIData.setOrigin(aRequest.getParameterValue("origin").toInt());
+            aUIData.setTarget(aRequest.getParameterValue("target").toInt());
+            aUIData.setType(aRequest.getParameterValue("type").toString());
+            aUIData.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), aUIData.getOrigin()));
 
-            String annotationType = bratAnnotatorModel.getType().substring(0,
-                    bratAnnotatorModel.getType().indexOf(AnnotationType.PREFIX) + 1);
-            if (annotationType.equals(AnnotationType.POS_PREFIX)) {
-                result = controller.reverseArc(bratAnnotatorModel, aUIData);
+            String annotationType = aUIData.getType().substring(0,
+                    aUIData.getType().indexOf(AnnotationTypeConstant.PREFIX) + 1);
+            if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
+                result = controller.reverseArcResponse(bratAnnotatorModel, aUIData);
                 if (bratAnnotatorModel.isScrollPage()) {
                     bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(
                             aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress(),
-                            bratAnnotatorModel.getAnnotationOffsetStart(),
-                            bratAnnotatorModel.getProject(), bratAnnotatorModel.getDocument(),
-                            bratAnnotatorModel.getWindowSize()));
+                            aUIData.getAnnotationOffsetStart(), bratAnnotatorModel.getProject(),
+                            bratAnnotatorModel.getDocument(), bratAnnotatorModel.getWindowSize()));
                 }
             }
         }
@@ -490,30 +582,29 @@ public class BratAnnotator
     {
 
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
 
         try {
             String offsets = aRequest.getParameterValue("offsets").toString();
-            String id = aRequest.getParameterValue("id").toString();
+            int id = aRequest.getParameterValue("id").toInt();
             OffsetsList offsetLists = jsonConverter.getObjectMapper().readValue(offsets,
                     OffsetsList.class);
             int start = offsetLists.get(0).getBegin();
             int end = offsetLists.get(0).getEnd();
-            setAttributesForDocument(bratAnnotatorModel.getProject().getName(), bratAnnotatorModel
-                    .getDocument().getName(), aUIData);
-            bratAnnotatorModel.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress()) + start);
-            bratAnnotatorModel.setAnnotationOffsetEnd(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress()) + end);
-            bratAnnotatorModel.setType(aRequest.getParameterValue("type").toString());
-            result = controller.deleteSpan(bratAnnotatorModel, id, aUIData);
+            setAttributesForDocument(aUIData);
+            aUIData.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress())
+                    + start);
+            aUIData.setAnnotationOffsetEnd(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress())
+                    + end);
+            aUIData.setType(aRequest.getParameterValue("type").toString());
+            result = controller.deleteSpanResponse(bratAnnotatorModel, id, aUIData);
             if (bratAnnotatorModel.isScrollPage()) {
                 bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(
                         aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress(),
-                        bratAnnotatorModel.getAnnotationOffsetStart(),
-                        bratAnnotatorModel.getProject(), bratAnnotatorModel.getDocument(),
-                        bratAnnotatorModel.getWindowSize()));
+                        aUIData.getAnnotationOffsetStart(), bratAnnotatorModel.getProject(),
+                        bratAnnotatorModel.getDocument(), bratAnnotatorModel.getWindowSize()));
             }
 
         }
@@ -540,25 +631,22 @@ public class BratAnnotator
     {
 
         Object result = null;
-        BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
-                annotationService);
+        BratAjaxCasController controller = new BratAjaxCasController(repository, annotationService);
 
         try {
-            setAttributesForDocument(bratAnnotatorModel.getProject().getName(), bratAnnotatorModel
-                    .getDocument().getName(), aUIData);
-            bratAnnotatorModel.setOrigin(aRequest.getParameterValue("origin").toString());
-            bratAnnotatorModel.setTarget(aRequest.getParameterValue("target").toString());
-            bratAnnotatorModel.setType(aRequest.getParameterValue("type").toString());
-            bratAnnotatorModel.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
-                    aUIData.getjCas(), Integer.parseInt(bratAnnotatorModel.getOrigin())));
+            setAttributesForDocument(aUIData);
+            aUIData.setOrigin(aRequest.getParameterValue("origin").toInt());
+            aUIData.setTarget(aRequest.getParameterValue("target").toInt());
+            aUIData.setType(aRequest.getParameterValue("type").toString());
+            aUIData.setAnnotationOffsetStart(BratAjaxCasUtil.getAnnotationBeginOffset(
+                    aUIData.getjCas(), aUIData.getOrigin()));
 
-            result = controller.deleteArc(bratAnnotatorModel, aUIData);
+            result = controller.deleteArcResponse(bratAnnotatorModel, aUIData);
             if (bratAnnotatorModel.isScrollPage()) {
                 bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(
                         aUIData.getjCas(), bratAnnotatorModel.getSentenceAddress(),
-                        bratAnnotatorModel.getAnnotationOffsetStart(),
-                        bratAnnotatorModel.getProject(), bratAnnotatorModel.getDocument(),
-                        bratAnnotatorModel.getWindowSize()));
+                        aUIData.getAnnotationOffsetStart(), bratAnnotatorModel.getProject(),
+                        bratAnnotatorModel.getDocument(), bratAnnotatorModel.getWindowSize()));
             }
 
         }
@@ -581,8 +669,7 @@ public class BratAnnotator
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    public void setAttributesForDocument(String aProjectName, String aDocumentName,
-            BratAnnotatorUIData aUIData)
+    public void setAttributesForDocument(BratAnnotatorUIData aUIData)
         throws UIMAException, IOException
     {
 
@@ -601,7 +688,8 @@ public class BratAnnotator
                 bratAnnotatorModel.setFirstSentenceAddress(bratAnnotatorModel.getSentenceAddress());
 
                 AnnotationPreference preference = new AnnotationPreference();
-                setAnnotationPreference(preference, username);
+                ApplicationUtils.setAnnotationPreference(preference, username, repository,
+                        annotationService, bratAnnotatorModel, Mode.ANNOTATION);
             }
             catch (DataRetrievalFailureException ex) {
                 throw ex;
@@ -619,7 +707,6 @@ public class BratAnnotator
 
         currentprojectId = bratAnnotatorModel.getProject().getId();
         currentDocumentId = bratAnnotatorModel.getDocument().getId();
-
     }
 
     /**
@@ -639,7 +726,8 @@ public class BratAnnotator
             if (bratAnnotatorModel.getProject().getId() != currentprojectId) {
                 AnnotationPreference preference = new AnnotationPreference();
                 try {
-                    setAnnotationPreference(preference, username);
+                    ApplicationUtils.setAnnotationPreference(preference, username, repository,
+                            annotationService, bratAnnotatorModel, Mode.ANNOTATION);
                 }
                 catch (BeansException e) {
                     throw e;
@@ -672,11 +760,11 @@ public class BratAnnotator
     }
 
     private JCas getCas(Project aProject, User user, SourceDocument aDocument)
-        throws UIMAException
+        throws UIMAException, IOException
     {
         JCas jCas = null;
         try {
-            BratAjaxCasController controller = new BratAjaxCasController(jsonConverter, repository,
+            BratAjaxCasController controller = new BratAjaxCasController(repository,
                     annotationService);
             jCas = controller.getJCas(aDocument, aProject, user);
         }
@@ -686,6 +774,7 @@ public class BratAnnotator
         }
         catch (IOException e) {
             error("Unable to read CAS object: " + ExceptionUtils.getRootCauseMessage(e));
+            throw e;
         }
         catch (ClassNotFoundException e) {
             error("The Class name in the properties is not found " + ":"
@@ -697,50 +786,26 @@ public class BratAnnotator
         return jCas;
     }
 
-    private void setAnnotationPreference(AnnotationPreference aPreference, String aUsername)
-        throws BeansException, FileNotFoundException, IOException
+    private boolean isDocumentFinished()
     {
-        BeanWrapper wrapper = new BeanWrapperImpl(aPreference);
-
-        // get project preference from file system
+        // if annotationDocument is finished, disable editing
+        boolean finished = false;
         try {
-            for (Entry<Object, Object> entry : repository.loadUserSettings(aUsername,
-                    bratAnnotatorModel.getProject(), "annotation").entrySet()) {
-                String propertyName = entry.getKey().toString();
-                int index = propertyName.lastIndexOf(".");
-                propertyName = propertyName.substring(index + 1);
-                if (wrapper.isWritableProperty(propertyName)) {
-
-                    if (AnnotationPreference.class.getDeclaredField(propertyName).getGenericType()
-                            instanceof ParameterizedType) {
-                        List<String> value = Arrays.asList(StringUtils.replaceChars(
-                                entry.getValue().toString(), "[]", "").split(","));
-                        if (!value.get(0).equals("")) {
-                            wrapper.setPropertyValue(propertyName, value);
-                        }
-                    }
-                    else {
-                        wrapper.setPropertyValue(propertyName, entry.getValue());
-                    }
-                }
-            }
-            bratAnnotatorModel.setWindowSize(aPreference.getWindowSize());
-            bratAnnotatorModel.setScrollPage(aPreference.isScrollPage());
-            bratAnnotatorModel.setDisplayLemmaSelected(aPreference.isDisplayLemmaSelected());
-            // Get tagset using the id, from the properties file
-            bratAnnotatorModel.getAnnotationLayers().clear();
-            if (aPreference.getAnnotationLayers() != null) {
-                for (Long id : aPreference.getAnnotationLayers()) {
-                    bratAnnotatorModel.getAnnotationLayers().add(annotationService.getTagSet(id));
-                }
+            if (repository
+                    .getAnnotationDocument(bratAnnotatorModel.getDocument(),
+                            bratAnnotatorModel.getUser()).getState()
+                    .equals(AnnotationDocumentState.FINISHED)
+                    || bratAnnotatorModel.getDocument().getState()
+                            .equals(SourceDocumentState.CURATION_FINISHED)
+                    || bratAnnotatorModel.getDocument().getState()
+                            .equals(SourceDocumentState.CURATION_IN_PROGRESS)) {
+                finished = true;
             }
         }
-        // no preference found
         catch (Exception e) {
-            bratAnnotatorModel.setAnnotationLayers(new HashSet<TagSet>(annotationService
-                    .listTagSets(bratAnnotatorModel.getProject())));
+            finished = false;
         }
 
+        return finished;
     }
-
 }

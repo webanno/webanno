@@ -16,19 +16,18 @@
 package de.tudarmstadt.ukp.clarin.webanno.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
 /**
  * A persistence object for a Project.
+ *
  * @author Seid Muhie Yimam
  *
  */
@@ -49,9 +48,7 @@ public class Project
     @Lob
     private String description;
 
-    @ManyToMany
-    private Set<User> users = new HashSet<User>();
-
+    private boolean reverseDependencyDirection;
 
     public Project()
     {
@@ -78,14 +75,25 @@ public class Project
         name = aName;
     }
 
-    public Set<User> getUsers()
+
+    public String getDescription()
     {
-        return users;
+        return description;
     }
 
-    public void setUsers(Set<User> aUsers)
+    public void setDescription(String description)
     {
-        users = aUsers;
+        this.description = description;
+    }
+
+    public boolean isReverseDependencyDirection()
+    {
+        return reverseDependencyDirection;
+    }
+
+    public void setReverseDependencyDirection(boolean aReverseDependencyDirection)
+    {
+        reverseDependencyDirection = aReverseDependencyDirection;
     }
 
     @Override

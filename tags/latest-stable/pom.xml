@@ -15,14 +15,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	<packaging>pom</packaging>
 	<name>WebAnno</name>
 	<url>http://code.google.com/p/webanno/</url>
 	<inceptionYear>2012</inceptionYear>
 	<properties>
-		<spring.version>3.1.1.RELEASE</spring.version>
-		<spring.security.version>3.1.0.RELEASE</spring.security.version>
+		<spring.version>3.1.4.RELEASE</spring.version>
+		<spring.security.version>3.1.4.RELEASE</spring.security.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<log4j.version>1.2.16</log4j.version>
 		<wicket.version>1.5.8</wicket.version>
@@ -35,37 +35,37 @@
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.api</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.brat</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.conll</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.model</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tcf</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.uima</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.webapp</artifactId>
-				<version>0.2.0</version>
+				<version>0.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
@@ -214,6 +214,13 @@
 				<artifactId>spring-security-web</artifactId>
 				<version>${spring.security.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+				<artifactId>
+					de.tudarmstadt.ukp.clarin.webanno.crowdflower
+				</artifactId>
+				<version>0.3.0</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
@@ -224,11 +231,12 @@
 		<module>de.tudarmstadt.ukp.clarin.webanno.model</module>
 		<module>de.tudarmstadt.ukp.clarin.webanno.uima</module>
 		<module>de.tudarmstadt.ukp.clarin.webanno.webapp</module>
+		<module>de.tudarmstadt.ukp.clarin.webanno.crowdflower</module>
 	</modules>
 	<scm>
-		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.2.0</developerConnection>
-		<connection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.2.0</connection>
-		<url>https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.2.0</url>
+		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0</developerConnection>
+		<connection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0</connection>
+		<url>https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0</url>
 	</scm>
 	<build>
 		<extensions>

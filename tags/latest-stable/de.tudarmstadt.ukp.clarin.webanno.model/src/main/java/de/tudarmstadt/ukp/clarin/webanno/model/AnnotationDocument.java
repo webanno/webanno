@@ -25,6 +25,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Type;
 /**
  * A persistence object for meta-data of annotation documents. The content of annotation document is stored
  * in a file system as {@link SerializedCas}
@@ -51,13 +53,15 @@ public class AnnotationDocument
     @JoinColumn(name = "project")
     private Project project;
 
-    @ManyToOne
-    @JoinColumn(name = "user")
-    private User user;
+    private String user;
 
     @ManyToOne
     @JoinColumn(name = "document")
     private SourceDocument document;
+
+    @Column(nullable = false)
+    @Type(type="de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateType")
+    private AnnotationDocumentState state = AnnotationDocumentState.IN_PROGRESS;
 
     public SourceDocument getDocument()
     {
@@ -99,14 +103,25 @@ public class AnnotationDocument
         project = aProject;
     }
 
-    public User getUser()
+    public String getUser()
     {
         return user;
     }
 
-    public void setUser(User aUser)
+    public void setUser(String aUser)
     {
         user = aUser;
     }
+
+    public AnnotationDocumentState getState()
+    {
+        return state;
+    }
+
+    public void setState(AnnotationDocumentState aState)
+    {
+        state = aState;
+    }
+
 
 }

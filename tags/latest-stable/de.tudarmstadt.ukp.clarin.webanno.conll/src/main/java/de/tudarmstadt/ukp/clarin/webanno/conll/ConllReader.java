@@ -168,8 +168,8 @@ public class ConllReader
         // For Nested Named Entity
         createNamedEntity(namedEntity2, aJCas, tokens, tokensStored);
         // add Dependency parsing to CAS, if exist
-        if (!noDependency) {
             for (int i = 1; i <= tokens.size(); i++) {
+                if(dependencyFunction.get(i)!=null){
                 Dependency outDependency = new Dependency(aJCas);
                 outDependency.setDependencyType(dependencyFunction.get(i));
                 outDependency.setBegin(tokensStored.get("t_" + i).getBegin());
@@ -183,19 +183,24 @@ public class ConllReader
                 }
                 outDependency.addToIndexes();
             }
-        }
+            }
 
         for (int i = 0; i < firstTokenInSentence.size(); i++) {
             Sentence outSentence = new Sentence(aJCas);
             // Only last sentence, and no the only sentence in the document (i!=0)
             if (i == firstTokenInSentence.size() - 1 && i != 0) {
-                outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i))
-                        .getEnd());
+                outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i)).getEnd());
                 outSentence.setEnd(tokensStored.get("t_" + (tokensStored.size())).getEnd());
                 outSentence.addToIndexes();
                 break;
             }
-            if (i == 0) {
+            if (i == firstTokenInSentence.size() - 1 && i == 0) {
+                outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i))
+                        .getBegin());
+                outSentence.setEnd(tokensStored.get("t_" +(tokensStored.size())).getEnd());
+                outSentence.addToIndexes();
+            }
+            else if (i == 0) {
                 outSentence.setBegin(tokensStored.get("t_" + firstTokenInSentence.get(i))
                         .getBegin());
                 outSentence.setEnd(tokensStored.get("t_" + firstTokenInSentence.get(i + 1))

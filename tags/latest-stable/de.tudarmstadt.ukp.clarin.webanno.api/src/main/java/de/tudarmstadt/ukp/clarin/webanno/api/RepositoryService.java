@@ -18,6 +18,7 @@ package de.tudarmstadt.ukp.clarin.webanno.api;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -28,8 +29,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermissions;
+import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import eu.clarin.weblicht.wlfxb.io.WLFormatException;
@@ -63,11 +66,18 @@ public interface RepositoryService
      * documents are stored per project, user and document
      *
      * @param user
-     *            TODO
+     *            The User who perform this operation
      */
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void createAnnotationDocumentContent(JCas jCas, AnnotationDocument annotationDocument, User user)
+    void createAnnotationDocumentContent(JCas jCas, SourceDocument document, User user)
+        throws IOException;
+
+    /**
+     * Create a curation annotation document under a special user named as "CURATION_USER"
+     */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+    void createCurationDocumentContent(JCas jCas, SourceDocument document, User user)
         throws IOException;
 
     /**
@@ -78,11 +88,11 @@ public interface RepositoryService
      * @param aProject
      *            The {@link Project} object to be created.
      * @param user
-     *            TODO
+     *            The User who perform this operation
      * @throws IOException
      *             If the specified webanno.home directory is not available no write permission
      */
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_REMOTE')")
     void createProject(Project project, User user)
         throws IOException;
 
@@ -92,8 +102,8 @@ public interface RepositoryService
      * @param permission
      * @throws IOException
      */
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void createProjectPermission(ProjectPermissions permission)
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER', 'ROLE_REMOTE')")
+    void createProjectPermission(ProjectPermission permission)
         throws IOException;
 
     /**
@@ -105,28 +115,57 @@ public interface RepositoryService
      * @param document
      *            {@link SourceDocument} to be created
      * @param user
-     *            TODO
+     *            The User who perform this operation
      * @throws IOException
      */
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
     void createSourceDocument(SourceDocument document, User user)
         throws IOException;
 
     /**
-     * A Method that checks if there is already an annotation document created for
-     * the source code
+     * A Method that checks if there is already an annotation document created for the source
+     * document
+     *
      * @param annotationDocument
      * @return
      */
     boolean existsAnnotationDocument(SourceDocument document, User user);
+
     /**
-     * A method that check is a project exists with the same name already.
-     * getSingleResult() fails if the project is not created, hence existProject
-     * returns false.
+     * A method that check is a project exists with the same name already. getSingleResult() fails
+     * if the project is not created, hence existProject returns false.
+     *
      * @param name
      * @return
      */
     boolean existsProject(String name);
+
+    /**
+     * Check if a user have at least one {@link PermissionLevel } for this {@link Project}
+     *
+     * @return
+     */
+    boolean existProjectPermission(User user, Project project);
+
+    /**
+     * Check if there is already a {@link PermissionLevel} on a given {@link Project} for a given
+     * {@link User}
+     *
+     * @return
+     */
+    boolean existProjectPermissionLevel(User user, Project project, PermissionLevel level);
+
+    /**
+     * Check if a Source document with this same name exist in the project. The caller method then
+     * can decide to override or throw an exception/message to the cleint
+     */
+    boolean existSourceDocument(Project project, String fileName);
+    /**
+     * If the user is in the database (exclude some historycal users that have annotations in the system)
+     * @return
+     */
+    boolean existUser(String username);
+
     /**
      * Exports an {@link AnnotationDocument } CAS Object as TCF/TXT/XMI... file formats.
      *
@@ -138,10 +177,34 @@ public interface RepositoryService
      * @param user
      *            the {@link User } who annotates the document.
      */
-    File exportAnnotationDocument(SourceDocument document, Project project, User user, Class writer, String fileName)
+    File exportAnnotationDocument(SourceDocument document, Project project, User user,
+            Class writer, String fileName, Mode mode)
         throws FileNotFoundException, UIMAException, IOException, WLFormatException,
         ClassNotFoundException;
 
+    /**
+     * Exports source documents of a given Project. This is used to copy projects from one
+     * application/release to anothor.
+     */
+    File exportSourceDocument(SourceDocument document, Project project);
+    /**
+     * Export a Serialized CAS annotation document from the file system
+     * @return
+     */
+    File exportAnnotationDocument(SourceDocument document, Project project, String user);
+
+    /**
+     * Export the associated project log for this {@link Project} while copying a project
+     * @param project
+     * @return
+     */
+    File exportProjectLog(Project project);
+    /**
+     * Export the associated project guideline for this {@link Project} while copying a project
+     */
+    File exportGuideLines(Project project);
+
+    File exportProjectMetaInf(Project project);
     /**
      * Get an {@link AnnotationDocument} object from the database using the {@link SourceDocument}
      * and {@link User} Objects. If {@code getAnnotationDocument} fails, it will be created anew
@@ -168,6 +231,12 @@ public interface RepositoryService
         throws UIMAException, IOException, ClassNotFoundException;
 
     /**
+     * Get a curation document for the given {@link SourceDocument}
+     */
+    JCas getCurationDocumentContent(SourceDocument document)
+        throws UIMAException, IOException, ClassNotFoundException;
+
+    /**
      * Returns a role of a user, globally we will have ROLE_ADMIN and ROLE_USER
      *
      * @param aUser
@@ -185,28 +254,29 @@ public interface RepositoryService
 
     /**
      * get the annotation guideline document from the file system
+     *
      * @param project
      * @return
      */
     File getGuideline(Project project, String fileName);
 
     /**
-     * For a given project, get the permission level of the user if it is granted
+     * For a given project, get the permission level(s) of the user if it is granted
      *
      * @param aUser
      *            the user, if already assigned in that project
      * @param aProject
      *            the project to be examined
-     * @return
+     * @return list of {@link ProjectPermission#getLevel()}
      */
-    String getPermisionLevel(User user, Project project);
+    ProjectPermission getPermisionLevel(User user, Project project);
 
     /**
      * get a permission object where a user is granted permission/permissions;
      *
      * @return
      */
-    ProjectPermissions getProjectPermission(User user, Project project);
+    ProjectPermission getProjectPermission(User user, Project project);
 
     /**
      * Get a {@link Project} from the database the name of the Project
@@ -223,23 +293,27 @@ public interface RepositoryService
      */
 
     Project getProject(long id);
+
     /**
      * Write this {@code content} of the guideline file in the project;
+     *
      * @param project
      * @return
      * @throws IOException
      */
-    void writeGuideline(Project project, File content, String fileName) throws IOException;
+    void writeGuideline(Project project, File content, String fileName)
+        throws IOException;
+
     /**
-     * Get a {@link ProjectPermissions }objects where a project is member of. We need to get them,
-     * for example if the associated {@link Project} is deleted, the {@link ProjectPermissions }
-     * objects too.
+     * Get a {@link ProjectPermission }objects where a project is member of. We need to get them, for
+     * example if the associated {@link Project} is deleted, the {@link ProjectPermission } objects
+     * too.
      *
      * @param project
      *            The project contained in a projectPermision
-     * @return the {@link ProjectPermissions } list to be analysed.
+     * @return the {@link ProjectPermission } list to be analysed.
      */
-    List<ProjectPermissions> getProjectPermisions(Project project);
+    List<ProjectPermission> getProjectPermisions(Project project);
 
     /**
      * Get meta data information about {@link SourceDocument} from the database. This method is
@@ -277,31 +351,53 @@ public interface RepositoryService
     User getUser(String username);
 
     /**
-     * List all annotation documents in the system.
-     * @return
+     * Check if the user finished annotating the {@link SourceDocument} in this {@link Project}
      */
-    List<AnnotationDocument> listAnnotationDocument();
 
+    boolean isAnnotationFinished(SourceDocument document, Project project, User user);
 
     /**
-     * List all annotation documents in a project.
+     * Check if at least one annotation document is finished for this {@link SourceDocument} in the
+     * project
+     *
+     * @param document
+     * @param project
      * @return
      */
-    List<AnnotationDocument> listAnnotationDocument(Project project);
+    boolean existsFinishedAnnotation(SourceDocument document, Project project);
 
     /**
-     * List all the {@link AnnotationDocument}s, if available for a given {@link SourceDocument}.
-     * Returns list of {@link AnnotationDocument}s for all {@link User}s in the {@link Project} that
-     * has already annotated the {@link SourceDocument}
+     * List all the {@link AnnotationDocument}s, if available for a given {@link SourceDocument} in
+     * the {@link Project}. Returns list of {@link AnnotationDocument}s for all {@link User}s in the
+     * {@link Project} that has already annotated the {@link SourceDocument}
      *
      * @param document
      *            the {@link SourceDocument}
      * @return {@link AnnotationDocument}
      */
+    List<AnnotationDocument> listAnnotationDocument(Project project, SourceDocument document);
+
+    /**
+     * List all {@link AnnotationDocument}s of this {@link SourceDocument} including those created
+     * by project admins or super admins for Test purpose. This method is called when a source
+     * document is deleted so that associated annotation documents also get removed.
+     *
+     * @param document
+     * @return
+     */
     List<AnnotationDocument> listAnnotationDocument(SourceDocument document);
 
     /**
+     * List all annotation documents in the state <b>INPROGRESS</b>
+     *
+     * @param document
+     * @return
+     */
+    // List<AnnotationDocument> listAnnotationDocumentInProgress(SourceDocument document);
+
+    /**
      * List annotation guideline document already uploaded
+     *
      * @param project
      * @return
      */
@@ -315,21 +411,6 @@ public interface RepositoryService
      */
 
     List<Project> listProjects();
-
-    /**
-     * list user names in a project. Hence, only users in a project can annotate documents
-     *
-     * @param project
-     *            The project where users are member of
-     * @return returns list of {@link User}s in a project
-     */
-    List<String> listProjectUserNames(Project project);
-    /**
-     * List {@link User} objects in a project
-     * @param project
-     * @return
-     */
-    List<User> listProjectUsers(Project project);
 
     /**
      * List all source documents in a project. The source documents are the original TCF documents
@@ -347,33 +428,48 @@ public interface RepositoryService
      * @return list of users
      */
     List<User> listUsers();
+
     /**
      * Load annotation preferences such as {@link BratAnnotator#windowSize} from a property file
-     * @param username the username.
-     * @param subject the type of the setting for {@link AnnotationPage } or {@link CurationPage}.
-     * @param project the project where the user is wroking on.
+     *
+     * @param username
+     *            the username.
+     * @param project
+     *            the project where the user is wroking on.
      * @return
      * @throws IOException
      * @throws FileNotFoundException
      */
-    Properties loadUserSettings(String username, Project project, String subject) throws FileNotFoundException, IOException;
+    Properties loadUserSettings(String username, Project project)
+        throws FileNotFoundException, IOException;
 
     /**
      * Remove an annotation guideline document from the file system
+     *
      * @param project
      * @param fileName
      * @throws IOException
      */
-    void removeAnnotationGuideline(Project project, String fileName) throws IOException;
+    void removeAnnotationGuideline(Project project, String fileName)
+        throws IOException;
+
+    /**
+     * Remove a curation annotation document from the file system, for this {@link SourceDocument}
+     *
+     * @throws IOException
+     */
+    void removeCurationDocumentContent(SourceDocument sourceDocument)
+        throws IOException;
+
     /**
      * remove a user permission from the project
      *
      * @param projectPermission
-     *            TODO
+     *            The ProjectPermission to be removed
      * @throws IOException
      */
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void removeProjectPermission(ProjectPermissions projectPermission)
+    void removeProjectPermission(ProjectPermission projectPermission)
         throws IOException;
 
     /**
@@ -383,7 +479,7 @@ public interface RepositoryService
      * @param project
      *            the project to be deleted
      * @param aUser
-     *            TODO
+     *            The User who perform this operation
      * @throws IOException
      *             if the project to be deleted is not available in the file system
      */
@@ -398,13 +494,21 @@ public interface RepositoryService
      * @param document
      *            the source document to be deleted
      * @param user
-     *            TODO
+     *            The User who perform this operation
      * @throws IOException
      *             If the source document searched for deletion is not availble
      */
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER', 'ROLE_REMOTE')")
     void removeSourceDocument(SourceDocument document, User user)
         throws IOException;
+
+    /**
+     * Remove an annotation document, for example, when a user is removed from a project
+     *
+     * @param annotationDocument
+     *            the {@link AnnotationDocument} to be removed
+     */
+    void removeAnnotationDocument(AnnotationDocument annotationDocument);
 
     /**
      * This method creates the source document (TCF File) to a file system. It creates a directory
@@ -417,7 +521,7 @@ public interface RepositoryService
      * @param projectId
      *            The id of the {@link Project}
      * @param user
-     *            TODO
+     *            The User who perform this operation
      * @throws IOException
      * @throws UIMAException
      * @throws WLFormatException
@@ -439,14 +543,56 @@ public interface RepositoryService
      * @throws FileNotFoundException
      * @throws IOException
      */
-    <T> void saveUserSettings(String username, Project project, String subject, T configurationObject) throws FileNotFoundException, IOException;
+    <T> void saveUserSettings(String username, Project project, Mode subject, T configurationObject)
+        throws FileNotFoundException, IOException;
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    public void uploadSourceDocument(File file, SourceDocument document, long projectId, User user)
+    /**
+     * Save some properties file associated to a project, such as meta-data.properties
+     *
+     * @param project
+     *            The project for which the user save some properties file.
+     * @throws IOException
+     */
+    void savePropertiesFile(Project project, InputStream is, String fileName)
+        throws IOException;
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
+    void uploadSourceDocument(File file, SourceDocument document, long projectId, User user)
         throws IOException, UIMAException, WLFormatException;
 
     /**
-     * Returns the format of the {@link SourceDocument} to be read from a properties File
+     * Upload a SourceDocument, obtained as Inputstream, such as from remote API Zip folder to a
+     * repository directory. This way we don't need to create the file to a temporary folder
+     */
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
+    void uploadSourceDocument(InputStream file, SourceDocument document, long projectId, User user)
+        throws IOException, UIMAException, WLFormatException;
+
+    /**
+     * Returns the labels on the UI for the format of the {@link SourceDocument} to be read from a
+     * properties File
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    List<String> getReadableFormatsLabel()
+        throws IOException, ClassNotFoundException;
+
+    /**
+     * Returns the Id of the format for the {@link SourceDocument} to be read from a properties File
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+
+    String getReadableFormatId(String label)
+        throws IOException, ClassNotFoundException;
+
+    /**
+     * Returns formats of the {@link SourceDocument} to be read from a properties File
      *
      * @return
      * @throws IOException
@@ -456,7 +602,28 @@ public interface RepositoryService
         throws IOException, ClassNotFoundException;
 
     /**
-     * Returns the format of {@link AnnotationDocument} while exporting
+     * Returns the labels on the UI for the format of {@link AnnotationDocument} while exporting
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    List<String> getWritableFormatsLabel()
+        throws IOException, ClassNotFoundException;
+
+    /**
+     * Returns the Id of the format for {@link AnnotationDocument} while exporting
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+
+    String getWritableFormatId(String label)
+        throws IOException, ClassNotFoundException;
+
+    /**
+     * Returns formats of {@link AnnotationDocument} while exporting
      *
      * @return
      * @throws IOException
@@ -470,6 +637,30 @@ public interface RepositoryService
      *
      * @return
      */
-    List<String> listProjectPermisionLevels(User user, Project project);
+    List<ProjectPermission> listProjectPermisionLevel(User user, Project project);
 
+    /**
+     * List Users those with some {@link PermissionLevel}s in the project
+     */
+    List<User> listProjectUsersWithPermissions(Project project);
+
+    /**
+     * List of users with the a given {@link PermissionLevel}
+     *
+     * @param project
+     *            The {@link Project}
+     * @param permissionLevel
+     *            The {@link PermissionLevel}
+     */
+    List<User> listProjectUsersWithPermissions(Project project, PermissionLevel permissionLevel);
+
+    /**
+     * Determine if the project is created using the remote API webanno service or not TODO: For
+     * now, it checks if the project consists of META-INF folder!!
+     *
+     * @param project
+     * @return
+     */
+
+    boolean isRemoteProject(Project project);
 }

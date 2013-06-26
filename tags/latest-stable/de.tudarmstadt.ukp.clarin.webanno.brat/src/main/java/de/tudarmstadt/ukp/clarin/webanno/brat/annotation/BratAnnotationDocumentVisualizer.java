@@ -29,9 +29,11 @@ import org.codehaus.jackson.JsonGenerator;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationType;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.ArcAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.CasToBratJson;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.ChainAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.SpanAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 
@@ -119,10 +121,11 @@ public class BratAnnotationDocumentVisualizer
             return docData;
         }
         catch (IOException e) {
-           error("Unable to find annotation document " + ExceptionUtils.getRootCauseMessage(e));
+            error("Unable to find annotation document " + ExceptionUtils.getRootCauseMessage(e));
         }
         catch (ClassNotFoundException e) {
-            error("Unable to get the class name for conversion +" + ExceptionUtils.getRootCauseMessage(e));
+            error("Unable to get the class name for conversion +"
+                    + ExceptionUtils.getRootCauseMessage(e));
 
         }
         // Generate BRAT object model from CAS
@@ -130,29 +133,31 @@ public class BratAnnotationDocumentVisualizer
         response.setText(jCas.getDocumentText());
 
         List<String> tagSetNames = new ArrayList<String>();
-        tagSetNames.add(AnnotationType.POS);
-        tagSetNames.add(AnnotationType.DEPENDENCY);
-        tagSetNames.add(AnnotationType.NAMEDENTITY);
-        tagSetNames.add(AnnotationType.COREFERENCE);
-        tagSetNames.add(AnnotationType.COREFRELTYPE);
-// THE BratSession is deleted. modify BratViualizer to include windowSize in its state.
-     //   HttpSession session = BratSession.session();
-      //  Project project = (Project) session.getAttribute("project");
-   //     SourceDocument document = (SourceDocument) session.getAttribute("document");
-     //   int windowSize = (Integer)session.getAttribute("windowSize-" + project.getName()
-   //             +"-"+document.getName());
-        CasToBratJson casToBratJson = new CasToBratJson(
-                BratAjaxCasUtil.getFirstSenetnceAddress(jCas),
-                BratAjaxCasUtil.getLastSenetnceAddress(jCas),10, tagSetNames);
-
-        casToBratJson.addTokenToResponse(jCas, response);
-        casToBratJson.addSentenceToResponse(jCas, response);
-        casToBratJson.addPosToResponse(jCas, response);
-        casToBratJson.addCorefTypeToResponse(jCas, response);
-        casToBratJson.addLemmaToResponse(jCas, response);
-        casToBratJson.addNamedEntityToResponse(jCas, response);
-        casToBratJson.addDependencyParsingToResponse(jCas, response);
-        casToBratJson.addCoreferenceToResponse(jCas, response);
+        tagSetNames.add(AnnotationTypeConstant.POS);
+        tagSetNames.add(AnnotationTypeConstant.DEPENDENCY);
+        tagSetNames.add(AnnotationTypeConstant.NAMEDENTITY);
+        tagSetNames.add(AnnotationTypeConstant.COREFERENCE);
+        tagSetNames.add(AnnotationTypeConstant.COREFRELTYPE);
+        // THE BratSession is deleted. modify BratViualizer to include windowSize in its state.
+        // HttpSession session = BratSession.session();
+        // Project project = (Project) session.getAttribute("project");
+        // SourceDocument document = (SourceDocument) session.getAttribute("document");
+        // int windowSize = (Integer)session.getAttribute("windowSize-" + project.getName()
+        // +"-"+document.getName());
+        CasToBratJson casToBratJson = new CasToBratJson();
+        // If this Classe is used somewhere, get BratAnnotatorModel populated somewhere
+        BratAnnotatorModel bratAnnotatorDataModel = new BratAnnotatorModel();
+        casToBratJson.addTokenToResponse(jCas, response, bratAnnotatorDataModel);
+        casToBratJson.addSentenceToResponse(jCas, response, bratAnnotatorDataModel);
+        // If POS annotation exist in CAS 
+        SpanAdapter.getPosAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
+        ChainAdapter.getCoreferenceLinkAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
+        // If Lemma Layer Exist in CAS 
+        SpanAdapter.getLemmaAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
+        // IF Named Entity layer exist in CAS 
+        SpanAdapter.getNamedEntityAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
+        ArcAdapter.getDependencyAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
+        ChainAdapter.getCoreferenceChainAdapter().addToBrat(jCas, response, bratAnnotatorDataModel);
 
         // Serialize BRAT object model to JSON
         try {

@@ -18,6 +18,7 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.annotation;
 import java.io.Serializable;
 import java.util.HashSet;
 
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
@@ -25,6 +26,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.User;
 
 /**
  * Data model for the {@link BratAnnotator}
+ *
  * @author Seid Muhie Yimam
  *
  */
@@ -58,26 +60,6 @@ public class BratAnnotatorModel
      * The very first sentence address in its UIMA annotation
      */
     private int firstSentenceAddress;
-    /**
-     * The starting offset position for the current display window
-     */
-    private int annotationOffsetStart;
-    /**
-     * The end offset position for the current display window
-     */
-    private int annotationOffsetEnd;
-    /**
-     * The annotation type, span or arc value in brat annotation window
-     */
-    private String annotationType;
-    /**
-     * The id of the origin span in arc annotation
-     */
-    private String origin;
-    /**
-     * The id of target span in arc annotation
-     */
-    private String target;
 
 
     // Annotation preferences, to be saved in a file system
@@ -97,7 +79,16 @@ public class BratAnnotatorModel
      * Used to enable/disable auto-scrolling while annotation
      */
     private boolean scrollPage;
-
+    /**
+     * If the document is opened through the next/previous buttons on the annotation page, not with
+     * the open dialog method, used to change {@link #document}
+     */
+    private String documentName;
+    /**
+     * The Mode of the current operations as either {@link Mode#ANNOTATION} or
+     * as {@link Mode#CURATION}
+     */
+    private Mode mode;
 
     public Project getProject()
     {
@@ -199,54 +190,24 @@ public class BratAnnotatorModel
         scrollPage = aScrollPage;
     }
 
-    public int getAnnotationOffsetStart()
+    public String getDocumentName()
     {
-        return annotationOffsetStart;
+        return documentName;
     }
 
-    public void setAnnotationOffsetStart(int aAnnotationOffsetStart)
+    public void setDocumentName(String documentName)
     {
-        annotationOffsetStart = aAnnotationOffsetStart;
+        this.documentName = documentName;
     }
 
-    public int getAnnotationOffsetEnd()
+    public Mode getMode()
     {
-        return annotationOffsetEnd;
+        return mode;
     }
 
-    public void setAnnotationOffsetEnd(int aAnnotationOffsetEnd)
+    public void setMode(Mode mode)
     {
-        annotationOffsetEnd = aAnnotationOffsetEnd;
-    }
-
-    public String getType()
-    {
-        return annotationType;
-    }
-
-    public void setType(String aType)
-    {
-        annotationType = aType;
-    }
-
-    public String getOrigin()
-    {
-        return origin;
-    }
-
-    public void setOrigin(String aOrigin)
-    {
-        origin = aOrigin;
-    }
-
-    public String getTarget()
-    {
-        return target;
-    }
-
-    public void setTarget(String aTarget)
-    {
-        target = aTarget;
+        this.mode = mode;
     }
 
 }
