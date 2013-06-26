@@ -36,7 +36,7 @@ import org.apache.uima.jcas.JCas;
  * a {@link AnnotationSelection}. Instances of {@link AnnotationSelection}, which are
  * exchangeble, because they refer to the same annotated unit, are grouped together in
  * an {@link AnnotationOption}.
- *
+ * 
  * @author Andreas Straninger
  */
 public class CasDiff {
@@ -98,8 +98,8 @@ public class CasDiff {
 
                         Map<FeatureStructure, AnnotationSelection> annotationSelectionByFeatureStructureNew = new HashMap<FeatureStructure, AnnotationSelection>(annotationSelectionByFeatureStructure);
                         for (FeatureStructure fsOld : annotationSelectionByFeatureStructure.keySet()) {
-                            if (fsNew != fsOld && fsNew.getType().toString().equals(fsOld.getType().toString())) {
-                                CompareResult compareResult = compareFeatureFS(fsNew.getType(),
+                            if (fsNew != fsOld) {
+                                CompareResult compareResult = compareFeatureFS(
                                         fsNew, fsOld, diffFSNew);
                                 for (FeatureStructure compareResultFSNew : compareResult.getAgreements().keySet()) {
                                     FeatureStructure compareResultFSOld = compareResult.getAgreements().get(compareResultFSNew);
@@ -117,7 +117,6 @@ public class CasDiff {
 
                         // add featureStructures, that have not been found in existing annotationSelections
                         for (FeatureStructure subFS1 : diffFSNew) {
-                            if(subFS1.getType().toString().equals(fsNew.getType().toString())){
                             AnnotationSelection annotationSelection = new AnnotationSelection();
                             int addressSubFS1 = aCasMap.get(usernameFSNew).getLowLevelCas().ll_getFSRef(subFS1);
                             annotationSelection.getAddressByUsername().put(usernameFSNew, addressSubFS1);
@@ -132,7 +131,6 @@ public class CasDiff {
                             annotationOption.getAnnotationSelections().add(annotationSelection);
                             // Add Debug information
                             annotationSelection.getFsStringByUsername().put(usernameFSNew, subFS1.toString());
-                        }
                         }
                     }
                     annotationOptions.addAll(annotationOptionPerType.values());
@@ -161,7 +159,7 @@ public class CasDiff {
         return nodePlusChildren;
     }
 
-    private static CompareResult compareFeatureFS(Type aType,
+    private static CompareResult compareFeatureFS(
             FeatureStructure fsNew, FeatureStructure fsOld, Set<FeatureStructure> diffFSNew) throws Exception {
         CompareResult compareResult = new CompareResult();
 
@@ -223,13 +221,8 @@ public class CasDiff {
                 // composite feature
                 FeatureStructure featureValue1 = fsNew.getFeatureValue(feature);
                 FeatureStructure featureValue2 = fsOld.getFeatureValue(feature);
-                if(((AnnotationFS)featureValue1).getBegin()!=((AnnotationFS)featureValue2).getBegin()
-                        ||((AnnotationFS)featureValue1).getEnd()!=((AnnotationFS)featureValue2).getEnd()){
-                    agreeOnSubfeatures = false;
-                }
-                if (featureValue1 != null && featureValue2 != null &&
-                        (aType.toString().equals(featureValue1.getType().toString()))) {
-                    CompareResult compareResultSubfeatures = compareFeatureFS(aType,
+                if (featureValue1 != null && featureValue2 != null) {
+                    CompareResult compareResultSubfeatures = compareFeatureFS(
                             featureValue1, featureValue2, diffFSNew);
                     compareResult.getDiffs().putAll(compareResultSubfeatures.getDiffs());
                     compareResult.getAgreements().putAll(compareResultSubfeatures.getAgreements());
