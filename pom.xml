@@ -234,9 +234,9 @@
 		<module>de.tudarmstadt.ukp.clarin.webanno.crowdflower</module>
 	</modules>
 	<scm>
-		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0-SNAPSHOT</developerConnection>
-		<connection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0-SNAPSHOT</connection>
-		<url>https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-0.3.0-SNAPSHOT</url>
+		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/branches/0.3.x</developerConnection>
+		<connection>scm:svn:https://webanno.googlecode.com/svn/branches/0.3.x</connection>
+		<url>https://webanno.googlecode.com/svn/branches/0.3.x</url>
 	</scm>
 	<build>
 		<extensions>
