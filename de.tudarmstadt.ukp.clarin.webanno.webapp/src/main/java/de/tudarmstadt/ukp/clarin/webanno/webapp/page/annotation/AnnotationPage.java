@@ -254,8 +254,7 @@ public class AnnotationPage
 
                List<SourceDocument> sourceDocumentsinIgnorState = new ArrayList<SourceDocument>();
                 for (SourceDocument sourceDocuemtn : listOfSourceDocuements) {
-                    if(repository.existsAnnotationDocument(sourceDocuemtn, user) &&
-                            repository.getAnnotationDocument(sourceDocuemtn, user).getState().equals(
+                    if(repository.existsAnnotationDocument(sourceDocuemtn, user) && repository.getAnnotationDocument(sourceDocuemtn, user).getState().equals(
                             AnnotationDocumentState.IGNORE)){
                         sourceDocumentsinIgnorState.add(sourceDocuemtn);
                     }
@@ -307,8 +306,7 @@ public class AnnotationPage
 
                List<SourceDocument> sourceDocumentsinIgnorState = new ArrayList<SourceDocument>();
                 for (SourceDocument sourceDocuemtn : listOfSourceDocuements) {
-                    if(repository.existsAnnotationDocument(sourceDocuemtn, user) &&
-                            repository.getAnnotationDocument(sourceDocuemtn, user).getState().equals(
+                    if(repository.existsAnnotationDocument(sourceDocuemtn, user) && repository.getAnnotationDocument(sourceDocuemtn, user).getState().equals(
                             AnnotationDocumentState.IGNORE)){
                         sourceDocumentsinIgnorState.add(sourceDocuemtn);
                     }
