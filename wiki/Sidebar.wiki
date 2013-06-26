@@ -3,6 +3,7 @@
 *User documentation*
   * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
+  * [AnnotationGuideLine Annotation Guideline]
 
 *Developer documentation*
   * [DevInstallationGuide Developer's Installation Guide]
