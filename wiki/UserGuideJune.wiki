@@ -24,8 +24,8 @@ The testing version is unstable and can be changed without prior notification.
 
 Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
 
-#insert login here
-#<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_login.png" width="600"/>
+//insert login here
+<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_login.png" width="600"/>
 
 == Overview screen ==
 
