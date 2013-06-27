@@ -13,6 +13,7 @@ The platform can be reached under:
 https://clarin.ukp.informatik.tu-darmstadt.de/
 
 The project site is the following:
+
 https://code.google.com/p/webanno/ 
 
 Currently there are two versions, stable and testing. Please use stable.
@@ -29,13 +30,26 @@ Upon navigating to the !WebAnno page, the login screen opens. Please enter your 
 
 == Overview screen ==
 
-After login, you will be presented with the _overview screen_. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
+After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
+
+Here, you can navigate to one of the currently three options:  
+•  Annotation Page: The page to perform annotations 
+•  Curation:  Merging  multiple  annotations  (not  available  to  mere 
+annotators) 
+•  Projects:  The  page  to  set  up  or  change  annotation 
+projects (not available to mere annotators)
+•   Monitoring: Allows you to see the projects, their progress and change 
+documentstatus
+
+
+Please click on the functionality you need. The individual functionalities will be explained in further chapters.
 
 Here, you can navigate to one of the currently three options: 
-  * *Annotation* - the page to perform annotations
-  * *Curation* -  compare and merge annotations from multiple users (only for _curators_)
-  * *Project Configuration* - set up or change annotation projects (only for _administrators_)
-  * *Monitoring* - inspect the progress of annotation projects (only for _administrators_)
+  * *Annotation* - The page to perform annotations
+  * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
+  * *Projects* - Set up or change annotation projects (only for _administrators_)
+  * *Monitoring* - Allows you to see the projects, their progress and change 
+documentstatus (only for _administrators_ and _curators)
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/webanno_overview.png" width="600"/>
 
