@@ -10,7 +10,7 @@ The platform is under development. Please do not use it merely for testing the f
 
 The platform can be reached under:
 
-<url: https://clarin.ukp.informatik.tu-darmstadt.de/ >
+https://clarin.ukp.informatik.tu-darmstadt.de/
 
 = Description of GUI functionality =
 
