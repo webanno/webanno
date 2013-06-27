@@ -12,6 +12,12 @@ The platform can be reached under:
 
 https://clarin.ukp.informatik.tu-darmstadt.de/
 
+The project site is the following:
+https://code.google.com/p/webanno/ 
+
+Currently there are two versions, stable and testing. Please use stable.
+The testing version is unstable and can be changed without prior notification. 
+
 = Description of GUI functionality =
 
 == Log-in screen ==
