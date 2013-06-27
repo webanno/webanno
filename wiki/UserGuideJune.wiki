@@ -25,7 +25,6 @@ The testing version is unstable and can be changed without prior notification.
 
 Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
 
-//insert login here
 <img src="https://webanno.googlecode.com/svn/wiki/images/webanno_login.png" width="600"/>
 
 == Overview screen ==
@@ -57,14 +56,18 @@ documentstatus (only for _administrators_ and _curators)
 
 When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
 
-//Annotation1 here
+<wiki:comment>
+annotation1.jpg here
+</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation_open.png" width="600"/>
 
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
 Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  “Settings”  button       will  allow  you  to specify the display window size as well as select the annotation layers to be used. For Example, for NER annotation, select the options as shown below (red check mark):
+<wiki:comment>
+annotation2.jpg here 
+</wiki:comment>
 
-//Annotation2 here 
 
 
 
