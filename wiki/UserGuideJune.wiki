@@ -83,8 +83,8 @@ annotation3.jpg here
 
 
 The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *go to page* allow you to navigate accordingly. The “Prev.” and “Next” buttons in the “Document” frame allow you to go to the previous or next document on your project list. 
-Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on “Export”         button . The document will be saved in TCF to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
-A click on the “Help” Button       displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
+Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button . The document will be saved in TCF to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
+A click on the “Help” Button displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
 When you are finished with annotating or curating a document, please click on the “Done” 
 button      , so that the document may be further processed.
 
@@ -102,15 +102,146 @@ Annotation of spans works by selecting the span, or double-clicking on a word. T
 
 Link annotations (between POS tags) are created by selecting the starting POS-tag, then dragging the arrow to connect it to its target POS tag. All possible targets are highlighted. 
 
-Annotations are always immediately saved on the server. Thus, it is not necessary to save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. 
+== Curation ==
+When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
 
-Once the document is opened, a default of 10 sentences are loaded on the annotation page. The *Settings*  button allows to specify the display window size as well as select the annotation layers to be displayed.
+In the left frame of the window, named “Sentences”, the sentences of the chosen document are displayed. The ones shaded in red created a conflict in annotation.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation_settings.png" width="600"/>
+<wiki:comment>
+curation1.jpg here 
+</wiki:comment>
 
-To obtain a local copy of the current document, click on the *export* button. A dialog opens in which the export format can be selected. The exported file will be saved on your local disk.
+If you want to see the annotations that were made in a sentence, you have to click on the sentence. Then on the right side of the window, the annotations are displayed.
 
-= Known Issues =
+<wiki:comment>
+curation2.jpg here 
+</wiki:comment>
+
+The frame called “Merged” shows the result of the default merge the conflicting annotations. Below, the annotated sentences are shown in separate frames, entitled with the annotators logins. By double-clicking on the annotation of an annotator's frame, you select his annotation to in the merged sentence. The sentence in the merged frame can be treated like a sentence in the “Annotation”. By selecting a word with a click you are able to produce new annotations, by clicking on an annotation, you are able to change its classification or delete it.
+
+== Projects ==
+This is the place to specify/edit annotation projects.
+You can either select one of the existing projects for editing, or click “Create Project” to add a project.
+
+=== Create a New Project ===
+
+Only superadmins are allowed to create projects.	
+Click on “Create Project” to add a project.
+
+<wiki:comment>
+project1.jpg here 
+</wiki:comment>
+
+After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
+
+
+<wiki:comment>
+project2.jpg here 
+</wiki:comment>
+
+After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
+
+=== Edit and Organize a Project ===
+
+The pane with the options to organize and edit a project, as described above, can also be reached by clicking on the desired project in the left frame.
+
+<wiki:comment>
+project3.jpg here 
+</wiki:comment>
+
+By clicking on the tabs, you can now set up the chosen project. 
+
+==== User administration ====
+
+After clicking on “Users”, you are displayed a new pane in which you can add new users by clicking on the button “Add User”.  After doing so, you get a list of users in the system which can be added to the project. By making a tick in front of the log in you can chose a new user.
+
+<wiki:comment>
+project4.jpg here 
+</wiki:comment>
+
+Please do not forget to save after choosing all members of the project. Close the pane by clicking on “Cancel”. The rights of users created like this are that of an annotator. If you want to expand the user's status, you can do so by clicking on the user and then on “Change permission”. The following frame will pop up.
+
+
+<wiki:comment>
+project5.jpg here 
+</wiki:comment>
+
+After ticking the wished permissions, click update.
+To remove a user, click on the login and then “Remove User”.
+
+==== Document administration ====
+To add or delete documents, you have to click on the tab “Documents” in the project pane. Two frames will be displayed. In the first frame you can import new documents.
+
+<wiki:comment>
+project6.jpg here 
+</wiki:comment>
+
+Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
+The imported documents can be seen in the frame below.
+To delete a document from the project, you have to click on it and then click on “Delete” in the right lower corner.
+
+==== Tagset administration ====
+
+To administer the tagsets, click on the tab “Tagsets” in the project pane. 
+
+<wiki:comment>
+project7.jpg here 
+</wiki:comment>
+
+To administer one of the existing tagsets, select it by a click. Then, the tagset characteristics are displayed.
+
+<wiki:comment>
+project8.jpg here 
+</wiki:comment>
+
+In the Frame “Tagset details”, you can change them,  export a tagset, save the changes you made on it or delete it by clicking on “Delete tagSet”.
+To change an individual tag, you select one in the list displayed in the frame “Tags”. You can then change its description or name or delete it by clicking “Delete tag” in “Tag details”.  Please do not forget to save your changes by clicking on “Save tag”.
+To add a new tag, you have to click on “Create tag” in “Tag details”. Then you add the name   and the description, which is optional. Again, do not forget to click “Save tag” or else the new tag will not be created.
+
+==== Guidelines administration ==== 
+
+To add or delete guidelines, which will be accessible by users in the project, you have to select the tab “Guidelines”. Two new frames will be displayed.
+To upload guidelines, click on “Dateien auswählen” in the first frame – “Add guideline document”, select a file from your local disc and then click “Import guidelines”.
+
+<wiki:comment>
+project9.jpg here 
+</wiki:comment>
+
+Uploaded guidelines are displayed in the second frame – “Guideline documents”.
+To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
+
+=== Delete Project ===
+<wiki:comment>
+project10.jpg here 
+</wiki:comment>
+
+To delete a project, click on it in the frame “Projects”. Then you are displayed the details of the project. Click on “Delete”.
+
+== Monitoring ==
+
+As an administrator, you are able to observe the progress and document status of projects you are responsible for. After clicking on “Monitoring” in Home, the following page is displayed:
+
+<wiki:comment>
+monitoring1.jpg here 
+</wiki:comment>
+
+In the left frame all the projects that you are administrator of. By clicking on a project, you are able to observe the progress and document status of individual group members in the project.
+
+<wiki:comment>
+monitoring2.jpg here 
+</wiki:comment>
+
+You can also alter the document status of annotators.  The tick symbol      means that the document is marked as “Done”. The triangle symbol     means that the annotion is in progress.  By clicking on the symbols you can change between “Done” and “In Progress”.
+The symbol       means that this document has not been opened by the annotator yet.  The symbol    means that the annotator is not allowed to open or annotate this document. Actually, he is not even able to see it. By clicking on this symbols you can change between “New” and “Blocked” status. 
+The second column of the Document status frame displays the status of the curation. As there is only one curator for one document, curation is not divided into individual curators. The tick and “new symbols” and mean the same as in annotation status. The symbol        means that curation is in progress.
+
+<wiki:comment>
+here again all spaces were reserved for the corresponding buttons
+</wiki:comment>
+
+
+
+= Known Issues and Error reporting =
 
 If the tool is kept open in the browser, but not used for a long period of time, you will have to log in again. For this, press the reload button of your browser.
 
