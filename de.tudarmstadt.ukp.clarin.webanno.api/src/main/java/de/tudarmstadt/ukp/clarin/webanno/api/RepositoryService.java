@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -179,7 +177,7 @@ public interface RepositoryService
      * @param user
      *            the {@link User } who annotates the document.
      */
-    File exportAnnotationDocument(SourceDocument document, Project project, String user,
+    File exportAnnotationDocument(SourceDocument document, Project project, User user,
             Class writer, String fileName, Mode mode)
         throws FileNotFoundException, UIMAException, IOException, WLFormatException,
         ClassNotFoundException;
@@ -245,7 +243,7 @@ public interface RepositoryService
      *            the {@link User} object
      * @return
      */
-    List<Authority> listAuthorities(User user);
+    List<Authority> getAuthorities(User user);
 
     /**
      * The Directory where the {@link SourceDocument}s and {@link AnnotationDocument}s stored

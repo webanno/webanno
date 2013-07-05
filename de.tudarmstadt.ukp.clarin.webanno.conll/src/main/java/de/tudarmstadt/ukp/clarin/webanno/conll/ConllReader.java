@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -174,29 +172,8 @@ public class ConllReader
                 if(dependencyFunction.get(i)!=null){
                 Dependency outDependency = new Dependency(aJCas);
                 outDependency.setDependencyType(dependencyFunction.get(i));
-
-                // if span A has (start,end)= (20, 26) and B has (start,end)= (30, 36)
-                // arc drawn from A to B, dependency will have (start, end) = (20, 36)
-                // arc drawn from B to A, still dependency will have (start, end) = (20, 36)
-                int begin = 0, end = 0;
-                // if not ROOT
-                if (dependencyDependent.get(i) != 0) {
-                begin = tokensStored.get("t_" + i).getBegin()>
-                tokensStored.get("t_" + dependencyDependent.get(i)).getBegin()?
-                        tokensStored.get("t_" + dependencyDependent.get(i)).getBegin()
-                        :tokensStored.get("t_" + i).getBegin();
-                 end = tokensStored.get("t_" + i).getEnd()<
-                tokensStored.get("t_" + dependencyDependent.get(i)).getEnd()?
-                        tokensStored.get("t_" + dependencyDependent.get(i)).getEnd()
-                        :tokensStored.get("t_" + i).getEnd();
-                }
-                else{
-                    begin = tokensStored.get("t_" + i).getBegin();
-                     end = tokensStored.get("t_" + i).getEnd();
-                }
-
-                outDependency.setBegin(begin);
-                outDependency.setEnd(end);
+                outDependency.setBegin(tokensStored.get("t_" + i).getBegin());
+                outDependency.setEnd(tokensStored.get("t_" + i).getEnd());
                 outDependency.setGovernor(tokensStored.get("t_" + i));
                 if (dependencyDependent.get(i) == 0) {
                     outDependency.setDependent(tokensStored.get("t_" + i));

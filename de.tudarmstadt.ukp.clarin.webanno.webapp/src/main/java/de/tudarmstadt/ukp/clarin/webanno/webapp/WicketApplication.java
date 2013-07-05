@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,14 +30,12 @@ import org.odlabs.wiquery.ui.themes.WiQueryCoreThemeResourceReference;
 
 import de.tudarmstadt.ukp.clarin.webanno.brat.Myresources;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.annotation.AnnotationPage;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.page.crowdsource.CrowdSourcePage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.curation.CurationPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.login.LoginPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.monitoring.MonitoringPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.project.ProjectPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.welcome.WelcomePage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.security.SpringAuthenticatedWebSession;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.security.page.ManageUsersPage;
 
 /**
  * The wicket application class. Sets up pages, authentication, theme, and other application-wide
@@ -84,8 +80,6 @@ public class WicketApplication
             mountPage("/projectpage.html", ProjectPage.class);
             mountPage("/projectsetting.html", ProjectPage.class);
             mountPage("/monitoring.html", MonitoringPage.class);
-            mountPage("/users.html", ManageUsersPage.class);
-            mountPage("/crowdsource.html", CrowdSourcePage.class);
 
             mountResource("/client/lib/head.load.min.js",
                     new JavaScriptResourceReference(Myresources.class, "client/lib/head.load.min.js"));

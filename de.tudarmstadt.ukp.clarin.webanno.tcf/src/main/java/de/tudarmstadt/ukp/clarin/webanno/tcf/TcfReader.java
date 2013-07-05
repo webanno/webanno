@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -280,18 +278,8 @@ public class TcfReader
                     governorTokens = dependentTokens;
                 }
                 Dependency outDependency = new Dependency(aJCas);
-                // if span A has (start,end)= (20, 26) and B has (start,end)= (30, 36)
-                // arc drawn from A to B, dependency will have (start, end) = (20, 36)
-                // arc drawn from B to A, still dependency will have (start, end) = (20, 36)
-                if(aTokens.get(dependentTokens[0].getID()).getBegin()<aTokens.get(governorTokens[0].getID()).getBegin()){
-                    outDependency.setBegin(aTokens.get(dependentTokens[0].getID()).getBegin());
-                    outDependency.setEnd(aTokens.get(governorTokens[0].getID()).getEnd());
-                }
-                else{
-                    outDependency.setBegin(aTokens.get(governorTokens[0].getID()).getBegin());
-                    outDependency.setEnd(aTokens.get(dependentTokens[0].getID()).getEnd());
-                }
-
+                outDependency.setBegin(aTokens.get(governorTokens[0].getID()).getBegin());
+                outDependency.setEnd(aTokens.get(governorTokens[0].getID()).getEnd());
                 outDependency.setDependencyType(dependency.getFunction());
                 outDependency.setGovernor(aTokens.get(governorTokens[0].getID()));
                 outDependency.setDependent(dependency.getFunction().equals("ROOT") ? aTokens

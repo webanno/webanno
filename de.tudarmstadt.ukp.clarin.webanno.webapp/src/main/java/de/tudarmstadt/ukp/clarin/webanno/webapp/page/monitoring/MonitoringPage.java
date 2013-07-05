@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,9 +81,7 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.page.curation.component.Curation
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.project.SettingsPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.statistics.TwoPairedKappa;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.support.ChartImageResource;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.support.DynamicColumnMetaData;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.support.EntityModel;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.support.TableDataProvider;
 
 /**
  * Monitoring To display different monitoring and statistics measurements tabularly and graphically.
@@ -147,7 +143,7 @@ public class MonitoringPage
                             User user = projectRepository.getUser(username);
 
                             List<Project> allProjects = projectRepository.listProjects();
-                            List<Authority> authorities = projectRepository.listAuthorities(user);
+                            List<Authority> authorities = projectRepository.getAuthorities(user);
 
                             // if global admin, show all projects
                             for (Authority authority : authorities) {
@@ -180,7 +176,6 @@ public class MonitoringPage
                         monitoringDetailForm.setVisible(true);
                         annotationTypeSelectionForm.setVisible(true);
                         monitoringDetailForm.setVisible(true);
-                        agreementForm.setVisible(true);
                         ProjectSelectionForm.this.setVisible(true);
 
                         final Map<String, Integer> annotatorsProgress = new HashMap<String, Integer>();
@@ -223,7 +218,7 @@ public class MonitoringPage
                             List<String> userAnnotationDocuments = new ArrayList<String>();
                             userAnnotationDocuments.add(DOCUMENT + document.getName());
 
-                // source Document status
+                            // source Document status
                             userAnnotationDocuments.add(SOURCE_DOCUMENT + "-" + DOCUMENT
                                     + document.getName());
 
@@ -374,16 +369,11 @@ public class MonitoringPage
                             }
                         }
 
-                        // Users with some annotations of this type
-                        int usersWithAnnotation = 0;
                         for (SourceDocument sourceDocument : sourceDocumentsWithAnnotations) {
                             TwoPairedKappa twoPairedKappa = new TwoPairedKappa(project,
                                     projectRepository);
-
                             Set<String> allANnotations = twoPairedKappa.getAllAnnotations(users,
                                     sourceDocument, type);
-                            if(allANnotations.size() != 0){
-                                usersWithAnnotation++;
                             Map<String, Map<String, String>> userAnnotations = twoPairedKappa
                                     .initializeAnnotations(users, allANnotations);
                             userAnnotations = twoPairedKappa.updateUserAnnotations(users,
@@ -396,16 +386,13 @@ public class MonitoringPage
                                     results[i][j] = results[i][j] + thisSourceDocumentResult[i][j];
                                 }
                             }
-                            }
                         }
 
                         // get average agreement value across documents
-                        if(usersWithAnnotation != 0) {
-                            for (int i = 0; i < users.size(); i++) {
-                                for (int j = 0; j < users.size(); j++) {
-                                    results[i][j] = results[i][j]
-                                            / usersWithAnnotation;
-                                }
+                        for (int i = 0; i < users.size(); i++) {
+                            for (int j = 0; j < users.size(); j++) {
+                                results[i][j] = results[i][j]
+                                        / sourceDocumentsWithAnnotations.size();
                             }
                         }
 
@@ -434,7 +421,7 @@ public class MonitoringPage
                         List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
                         for (int m = 0; m < provider.getColumnCount(); m++) {
-                            columns.add(new DynamicColumnMetaData(provider, m));
+                            columns.add(new AgreementColumnMetaData(provider, m));
                         }
                         agreementTable.remove();
                         agreementTable = new DefaultDataTable("agreementTable", columns, provider,
@@ -532,7 +519,7 @@ public class MonitoringPage
             List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
             for (int m = 0; m < provider.getColumnCount(); m++) {
-                columns.add(new DynamicColumnMetaData(provider, m));
+                columns.add(new AgreementColumnMetaData(provider, m));
             }
             add(agreementTable = new DefaultDataTable("agreementTable", columns, provider, 10));
         }
@@ -657,7 +644,6 @@ public class MonitoringPage
         // monitoringDetailForm.setVisible(false);
         agreementForm = new AgreementForm("agreementForm", new Model<AnnotationType>(),
                 new Model<Project>());
-        agreementForm.setVisible(false);
         add(agreementForm);
 
         annotationTypeSelectionForm = new AnnotationTypeSelectionForm("annotationTypeSelectionForm");

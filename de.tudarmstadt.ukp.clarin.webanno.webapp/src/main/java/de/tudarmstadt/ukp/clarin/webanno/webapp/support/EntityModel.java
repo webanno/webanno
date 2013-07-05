@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +28,11 @@ import org.hibernate.proxy.HibernateProxyHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.DirectFieldAccessor;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.support.spring.ApplicationContextProvider;
-
 /**
  * Wicket model implementation which makes sure that s persistent model object is always attached to
  * an entity manager. Requires Hibernate and requires that the {@link ApplicationContextProvider}
  * is present in the Spring context.
- *
+ * 
  * @author Richard Eckart de Castilho
  */
 public class EntityModel<T>

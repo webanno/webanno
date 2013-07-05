@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +36,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.api.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
@@ -57,11 +54,6 @@ public class ProjectUsersPanel
 
     @SpringBean(name = "documentRepository")
     private RepositoryService projectRepository;
-
-    @SpringBean(name = "userRepository")
-    private UserDao userRepository;
-
-   private static final String CROWD_USER = "crowd_user";
 
     private class UserSelectionForm
         extends Form<SelectionModel>
@@ -348,17 +340,6 @@ public class ProjectUsersPanel
                             List<User> allUSers = projectRepository.listUsers();
                             allUSers.removeAll(projectRepository
                                     .listProjectUsersWithPermissions(selectedProject.getObject()));
-                            // add this User in the List that can be used as virtual user for crowdsource
-
-                            if(userRepository.get(CROWD_USER) == null){
-                                User crowdUser = new User();
-                                crowdUser.setUsername(CROWD_USER);
-                                crowdUser.setPassword("");
-                                crowdUser.setEnabled(false);
-                                userRepository.create(crowdUser);
-                                allUSers.add(crowdUser);
-                            }
-
                             return allUSers;
                         }
                     }, new ChoiceRenderer<User>("username", "username")));

@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -352,7 +350,7 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
-    public File exportAnnotationDocument(SourceDocument aDocument, Project aProject, String aUser,
+    public File exportAnnotationDocument(SourceDocument aDocument, Project aProject, User aUser,
             Class aWriter, String aFileName, Mode aMode)
         throws UIMAException, IOException, WLFormatException, ClassNotFoundException
     {
@@ -363,7 +361,7 @@ public class RepositoryServiceDbData
         File annotationFolder = getAnnotationFolder(aDocument);
         String serializedCaseFileName;
         if (aMode.equals(Mode.ANNOTATION)) {
-            serializedCaseFileName = aUser + ".ser";
+            serializedCaseFileName = aUser.getUsername() + ".ser";
         }
         else {
             serializedCaseFileName = CURATION_USER + ".ser";
@@ -403,10 +401,10 @@ public class RepositoryServiceDbData
                 .toExternalForm());
         runPipeline(cas, writer);
 
-        createLog(aProject, aUser).info(
+        createLog(aProject, aUser.getUsername()).info(
                 " Exported file [" + aDocument.getName() + "] with ID [" + aDocument.getId()
                         + "] from Project[" + aProject.getId() + "]");
-        createLog(aProject, aUser).removeAllAppenders();
+        createLog(aProject, aUser.getUsername()).removeAllAppenders();
 
         if (exportTempDir.listFiles().length > 1) {
             try {
@@ -414,7 +412,7 @@ public class RepositoryServiceDbData
                         new File(exportTempDir.getAbsolutePath() + ".zip"));
             }
             catch (Exception e) {
-                createLog(aProject, aUser).info("Unable to create Zip File");
+                createLog(aProject, aUser.getUsername()).info("Unable to create Zip File");
             }
             return new File(exportTempDir.getAbsolutePath() + ".zip");
         }
@@ -480,7 +478,7 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
-    public List<Authority> listAuthorities(User aUser)
+    public List<Authority> getAuthorities(User aUser)
     {
         return entityManager.createQuery("FROM Authority where user =:user", Authority.class)
                 .setParameter("user", aUser).getResultList();

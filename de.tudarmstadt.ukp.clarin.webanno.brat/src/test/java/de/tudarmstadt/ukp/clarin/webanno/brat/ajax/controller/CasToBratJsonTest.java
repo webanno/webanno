@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -226,13 +224,13 @@ public class CasToBratJsonTest
         casToBratJson.addTokenToResponse(jCas, response, bratannotatorModel);
         casToBratJson.addSentenceToResponse(jCas, response, bratannotatorModel);
 
-        SpanAdapter.getPosAdapter().render(jCas, response, bratannotatorModel);
-        ChainAdapter.getCoreferenceLinkAdapter().render(jCas, response, bratannotatorModel);
+        SpanAdapter.getPosAdapter().addToBrat(jCas, response, bratannotatorModel);
+        ChainAdapter.getCoreferenceLinkAdapter().addToBrat(jCas, response, bratannotatorModel);
 
-        SpanAdapter.getLemmaAdapter().render(jCas, response, bratannotatorModel);
-        SpanAdapter.getNamedEntityAdapter().render(jCas, response, bratannotatorModel);
-        ArcAdapter.getDependencyAdapter().render(jCas, response, bratannotatorModel);
-        ChainAdapter.getCoreferenceChainAdapter().render(jCas, response, bratannotatorModel);
+        SpanAdapter.getLemmaAdapter().addToBrat(jCas, response, bratannotatorModel);
+        SpanAdapter.getNamedEntityAdapter().addToBrat(jCas, response, bratannotatorModel);
+        ArcAdapter.getDependencyAdapter().addToBrat(jCas, response, bratannotatorModel);
+        ChainAdapter.getCoreferenceChainAdapter().addToBrat(jCas, response, bratannotatorModel);
 
         ApplicationUtils.generateJson(response, new File(jsonFilePath));
 

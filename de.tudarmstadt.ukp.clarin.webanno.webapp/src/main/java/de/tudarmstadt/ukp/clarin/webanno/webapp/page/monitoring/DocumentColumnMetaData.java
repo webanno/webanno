@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +45,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.curation.component.CurationPanel;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.support.EmbeddableImage;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.support.TableDataProvider;
 
 /**
  * Build dynamic columns for the user's annotation documents status {@link DataGridView}
@@ -129,7 +126,7 @@ public class DocumentColumnMetaData
                             .getName();
                     User user = projectRepositoryService.getUser(username);
                     SourceDocumentState state = document.getState();
-                    if(state.toString().equals(SourceDocumentState.CURATION_FINISHED.toString())){
+                    if (state.toString().equals(SourceDocumentState.CURATION_FINISHED.toString())) {
                         try {
                             changeSourceDocumentState(
                                     document,
@@ -140,7 +137,8 @@ public class DocumentColumnMetaData
                             LOG.info(e.getMessage());
                         }
                     }
-                    else if(state.toString().equals(SourceDocumentState.CURATION_IN_PROGRESS.toString())){
+                    else if (state.toString().equals(
+                            SourceDocumentState.CURATION_IN_PROGRESS.toString())) {
                         try {
                             changeSourceDocumentState(
                                     document,
@@ -151,7 +149,7 @@ public class DocumentColumnMetaData
                             LOG.info(e.getMessage());
                         }
                     }
-                    else{
+                    else {
                         aTarget.appendJavaScript("alert('the state can only be changed explicitly by the curator')");
                     }
 
@@ -219,23 +217,24 @@ public class DocumentColumnMetaData
                         AnnotationDocument annoDoc = projectRepositoryService
                                 .getAnnotationDocument(document, user);
                         state = annoDoc.getState();
-                        if(state.toString().equals(AnnotationDocumentState.FINISHED.toString())){
+                        if (state.toString().equals(AnnotationDocumentState.FINISHED.toString())) {
                             changeAnnotationDocumentState(
                                     document,
                                     user,
                                     AnnotationDocumentStateTransition.ANNOTATION_FINISHED_TO_ANNOTATION_IN_PROGRESS);
-                        }else
-                            if(state.toString().equals(AnnotationDocumentState.IN_PROGRESS.toString())){
+                        }
+                        else if (state.toString().equals(
+                                AnnotationDocumentState.IN_PROGRESS.toString())) {
                             changeAnnotationDocumentState(
                                     document,
                                     user,
                                     AnnotationDocumentStateTransition.ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED);
-                            }
-                        if(state.toString().equals(AnnotationDocumentState.NEW.toString())){
+                        }
+                        if (state.toString().equals(AnnotationDocumentState.NEW.toString())) {
                             changeAnnotationDocumentState(document, user,
                                     AnnotationDocumentStateTransition.NEW_TO_IGNORE);
                         }
-                        if(state.toString().equals(AnnotationDocumentState.IGNORE.toString())){
+                        if (state.toString().equals(AnnotationDocumentState.IGNORE.toString())) {
                             changeAnnotationDocumentState(document, user,
                                     AnnotationDocumentStateTransition.IGNORE_TO_NEW);
                         }

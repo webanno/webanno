@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +35,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -129,7 +126,7 @@ public class ProjectPage
                             User user = projectRepository.getUser(username);
 
                             List<Project> allProjects = projectRepository.listProjects();
-                            List<Authority> authorities = projectRepository.listAuthorities(user);
+                            List<Authority> authorities = projectRepository.getAuthorities(user);
 
                             // if global admin, show all projects
                             for (Authority authority : authorities) {
@@ -250,23 +247,6 @@ public class ProjectPage
                 }
             });
 
-            tabs.add(tagSets = new AbstractTab(new Model<String>("Layers"))
-            {
-                private static final long serialVersionUID = 3274065112505097898L;
-
-                @Override
-                public Panel getPanel(String panelId)
-                {
-                    return new EmptyPanel(panelId);
-                }
-
-                @Override
-                public boolean isVisible()
-                {
-                    return !createProject;
-                }
-            });
-
             tabs.add(tagSets = new AbstractTab(new Model<String>("Tagsets"))
             {
                 private static final long serialVersionUID = -3205723896786674220L;
@@ -301,7 +281,7 @@ public class ProjectPage
                 }
             });
 
-            tabs.add(new AbstractTab(new Model<String>("Export/Import"))
+            tabs.add(new AbstractTab(new Model<String>("Export"))
             {
 
                 private static final long serialVersionUID = 788812791376373350L;

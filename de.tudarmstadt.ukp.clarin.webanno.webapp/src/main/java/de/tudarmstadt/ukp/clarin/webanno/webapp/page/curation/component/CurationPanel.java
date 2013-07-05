@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -281,36 +279,6 @@ public class CurationPanel
                                 BratAnnotatorUIData uIData = new BratAnnotatorUIData();
                                 uIData.setjCas(mergeJCas);
                                 uIData.setGetDocument(false);
-                                // TODO no coloring is done at all for arc annotation.
-                                // Do the same for arc colors (AGREE, USE,...
-                                AnnotationDocument clickedAnnotationDocument = null;
-                                List<AnnotationDocument> annotationDocuments = repository
-                                        .listAnnotationDocument(project, sourceDocument);
-                                for (AnnotationDocument annotationDocument : annotationDocuments) {
-                                    if (annotationDocument.getUser().equals(username)) {
-                                        clickedAnnotationDocument = annotationDocument;
-                                        break;
-                                    }
-                                }
-                                JCas clickedJCas = null;
-                                try {
-                                    clickedJCas = repository.getAnnotationDocumentContent(clickedAnnotationDocument);
-                                }
-                                catch (UIMAException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                catch (ClassNotFoundException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                catch (IOException e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-                                AnnotationFS fsClicked = (AnnotationFS) clickedJCas.getLowLevelCas().ll_getFSForRef(
-                                        addressOriginClicked);
-                                arcType =  BratAjaxCasUtil.getAnnotationType(fsClicked.getType())+arcType;
                                 uIData.setType(arcType);
                                 uIData.setOrigin(addressOrigin);
                                 uIData.setTarget(addressTarget);
@@ -586,7 +554,7 @@ public class CurationPanel
          * addresses, username)); mergeUserSegment.setCollectionData("{}");
          * mergeUserSegment.setDocumentResponse(getStringDocumentResponse(response));
          */
-        bratAnnotatorModel.setMode(Mode.MERGE);
+        bratAnnotatorModel.setMode(Mode.CURATIONANNOTATION);
         mergeVisualizer.setModelObject(bratAnnotatorModel);
         mergeVisualizer.reloadContent(target);
 
@@ -656,8 +624,8 @@ public class CurationPanel
                 }
             }
             if (newState != null) {
-                String type = entity.getType() + "_(" + newState.name() + ")";
                 String label = entity.getType();
+                String type = entity.getType() + "_(" + newState.name() + ")";
                 entity.setType(type);
                 entityTypes.put(type, getEntity(type, label, newState));
             }
@@ -685,7 +653,7 @@ public class CurationPanel
     {
         Map<String, Object> entityType = new HashMap<String, Object>();
         entityType.put("type", type);
-        entityType.put("labels", new String[] { label });
+        entityType.put("labels", new String[] { type, label });
         String color = annotationState.getColorCode();
         entityType.put("bgColor", color);
         entityType.put("borderColor", "darken");

@@ -1,14 +1,12 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
- *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -362,12 +360,12 @@ public class BratAjaxCasController
         String type = BratAjaxCasUtil.getType(aUIData.getType());
 
         if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
-            ArcAdapter.getDependencyAdapter().delete(aUIData, aBratAnnotatorModel);
+            ArcAdapter.getDependencyAdapter().deleteFromCas(aUIData, aBratAnnotatorModel);
             // Reverse directions
             int origin = aUIData.getOrigin();// swap variable
             aUIData.setOrigin(aUIData.getTarget());
             aUIData.setTarget(origin);
-            ArcAdapter.getDependencyAdapter().add(type, aUIData, aBratAnnotatorModel, false);
+            ArcAdapter.getDependencyAdapter().addToCas(type, aUIData, aBratAnnotatorModel, false);
         }
 
         GetDocumentResponse response = new GetDocumentResponse();
@@ -416,15 +414,7 @@ public class BratAjaxCasController
         throws UIMAException, IOException
     {
 
-        String annotationType = BratAjaxCasUtil.getAnnotationType(aUIData.getType());
-
-        if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
-            ArcAdapter.getDependencyAdapter().delete(aUIData, aBratAnnotatorModel);
-        }
-        else if (annotationType.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
-            ChainAdapter.getCoreferenceChainAdapter().delete(aUIData.getjCas(),
-                    aUIData.getOrigin());
-        }
+        delteArcFromCas(aUIData, aBratAnnotatorModel);
 
         GetDocumentResponse response = new GetDocumentResponse();
         addBratResponses(response, aBratAnnotatorModel, aUIData);
@@ -455,13 +445,13 @@ public class BratAjaxCasController
         String type = BratAjaxCasUtil.getType(aUIData.getType());
 
         if (annotationType.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
-            SpanAdapter.getNamedEntityAdapter().add(type, aUIData);
+            SpanAdapter.getNamedEntityAdapter().addToCas(type, aUIData);
         }
         else if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
-            SpanAdapter.getPosAdapter().add(type, aUIData);
+            SpanAdapter.getPosAdapter().addToCas(type, aUIData);
         }
         else if (annotationType.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
-            ChainAdapter.getCoreferenceLinkAdapter().add(type, aUIData);
+            ChainAdapter.getCoreferenceLinkAdapter().addToCas(type, aUIData);
         }
 
     }
@@ -481,10 +471,10 @@ public class BratAjaxCasController
         String type = BratAjaxCasUtil.getType(aUIData.getType());
 
         if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
-            ArcAdapter.getDependencyAdapter().add(type, aUIData, aBratAnnotatorModel, false);
+            ArcAdapter.getDependencyAdapter().addToCas(type, aUIData, aBratAnnotatorModel, false);
         }
         else if (annotationType.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
-            ChainAdapter.getCoreferenceChainAdapter().add(type, aUIData);
+            ChainAdapter.getCoreferenceChainAdapter().addToCas(type, aUIData);
         }
     }
 
@@ -504,11 +494,11 @@ public class BratAjaxCasController
         String annotationType = BratAjaxCasUtil.getAnnotationType(aType);
 
         if (annotationType.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
-            SpanAdapter.getNamedEntityAdapter().delete(aJcas, aId);
+            SpanAdapter.getNamedEntityAdapter().deleteFromCas(aJcas, aId);
         }
         else if (annotationType.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
 
-            ChainAdapter.getCoreferenceLinkAdapter().delete(aJcas, aId);
+            ChainAdapter.getCoreferenceLinkAdapter().deleteFromCas(aJcas, aId);
 
         }
     }
@@ -529,10 +519,10 @@ public class BratAjaxCasController
         String annotationType = BratAjaxCasUtil.getAnnotationType(aUIData.getType());
 
         if (annotationType.equals(AnnotationTypeConstant.POS_PREFIX)) {
-            ArcAdapter.getDependencyAdapter().delete(aUIData, aBratAnnotatorModel);
+            ArcAdapter.getDependencyAdapter().deleteFromCas(aUIData, aBratAnnotatorModel);
         }
         else if (annotationType.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
-            ChainAdapter.getCoreferenceChainAdapter().delete(aUIData.getjCas(),
+            ChainAdapter.getCoreferenceChainAdapter().deleteFromCas(aUIData.getjCas(),
                     aUIData.getOrigin());
         }
     }
@@ -547,7 +537,7 @@ public class BratAjaxCasController
         if (aMode.equals(Mode.ANNOTATION)) {
             repository.createAnnotationDocumentContent(aJcas, aSourceDocument, aUser);
         }
-        else if (aMode.equals(Mode.CURATION)||aMode.equals(Mode.MERGE)) {
+        else if (aMode.equals(Mode.CURATION)||aMode.equals(Mode.CURATIONANNOTATION)) {
             repository.createCurationDocumentContent(aJcas, aSourceDocument, aUser);
         }
     }
@@ -595,30 +585,30 @@ public class BratAjaxCasController
 
         if (annotationLayers.contains(AnnotationTypeConstant.POS)) {
             SpanAdapter.getPosAdapter()
-                    .render(aUIData.getjCas(), aResponse, aBratAnnotatorModel);
+                    .addToBrat(aUIData.getjCas(), aResponse, aBratAnnotatorModel);
         }
 
         if (annotationLayers.contains(AnnotationTypeConstant.COREFRELTYPE)) {
 
-            ChainAdapter.getCoreferenceLinkAdapter().render(aUIData.getjCas(), aResponse,
+            ChainAdapter.getCoreferenceLinkAdapter().addToBrat(aUIData.getjCas(), aResponse,
                     aBratAnnotatorModel);
         }
         if (aBratAnnotatorModel.isDisplayLemmaSelected()) {
-            SpanAdapter.getLemmaAdapter().render(aUIData.getjCas(), aResponse,
+            SpanAdapter.getLemmaAdapter().addToBrat(aUIData.getjCas(), aResponse,
                     aBratAnnotatorModel);
         }
         if (annotationLayers.contains(AnnotationTypeConstant.NAMEDENTITY)) {
-            SpanAdapter.getNamedEntityAdapter().render(aUIData.getjCas(), aResponse,
+            SpanAdapter.getNamedEntityAdapter().addToBrat(aUIData.getjCas(), aResponse,
                     aBratAnnotatorModel);
         }
         if (annotationLayers.contains(AnnotationTypeConstant.DEPENDENCY)
                 && annotationLayers.contains(AnnotationTypeConstant.POS)) {
-            ArcAdapter.getDependencyAdapter().render(aUIData.getjCas(), aResponse,
+            ArcAdapter.getDependencyAdapter().addToBrat(aUIData.getjCas(), aResponse,
                     aBratAnnotatorModel);
         }
         if (annotationLayers.contains(AnnotationTypeConstant.COREFERENCE)
                 && annotationLayers.contains(AnnotationTypeConstant.COREFRELTYPE)) {
-            ChainAdapter.getCoreferenceChainAdapter().render(aUIData.getjCas(), aResponse,
+            ChainAdapter.getCoreferenceChainAdapter().addToBrat(aUIData.getjCas(), aResponse,
                     aBratAnnotatorModel);
         }
     }

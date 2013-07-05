@@ -1,13 +1,11 @@
 /*******************************************************************************
  * Copyright 2012
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package de.tudarmstadt.ukp.clarin.webanno.webapp.dialog;
 
 import java.io.IOException;
@@ -30,7 +29,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition;
@@ -55,13 +53,13 @@ public class YesNoModalPanel
 
     private YesNoButtonsForm yesNoButtonsForm;
 
-    private BratAnnotatorModel bratAnnotatorModel;
+    private OpenDocumentModel openDocumentModel;
 
-    public YesNoModalPanel(String aId, BratAnnotatorModel aOpenDocumentModel, ModalWindow aModalWindow,
+    public YesNoModalPanel(String aId, OpenDocumentModel aOpenDocumentModel, ModalWindow aModalWindow,
             Mode aSubject)
     {
         super(aId);
-        this.bratAnnotatorModel = aOpenDocumentModel;
+        this.openDocumentModel = aOpenDocumentModel;
         yesNoButtonsForm = new YesNoButtonsForm("yesNoButtonsForm", aModalWindow, aSubject);
         add(yesNoButtonsForm);
     }
@@ -90,7 +88,7 @@ public class YesNoModalPanel
 
                     if (aSubject.equals(Mode.ANNOTATION)) {
                         AnnotationDocument annotationDocument = repository.getAnnotationDocument(
-                                bratAnnotatorModel.getDocument(), user);
+                                openDocumentModel.getDocument(), user);
 
                         annotationDocument
                                 .setState(AnnotationDocumentStateTransition
@@ -104,12 +102,12 @@ public class YesNoModalPanel
                         // check if other users are also finished annotation, hence
                         // change source document state to FINISHED
                         boolean othersFinished = true;
-                        for (User annotationUser : repository.listProjectUsersWithPermissions(bratAnnotatorModel
+                        for (User annotationUser : repository.listProjectUsersWithPermissions(openDocumentModel
                                 .getProject())) {
                             if (repository.existsAnnotationDocument(
-                                    bratAnnotatorModel.getDocument(), annotationUser)) {
+                                    openDocumentModel.getDocument(), annotationUser)) {
                                 if (!repository
-                                        .getAnnotationDocument(bratAnnotatorModel.getDocument(),
+                                        .getAnnotationDocument(openDocumentModel.getDocument(),
                                                 annotationUser).getState()
                                         .equals(AnnotationDocumentState.FINISHED)) {
                                     othersFinished = false;
@@ -119,10 +117,10 @@ public class YesNoModalPanel
                         }
 
                         if (othersFinished) {
-                            bratAnnotatorModel.getDocument().setState(
+                            openDocumentModel.getDocument().setState(
                                     SourceDocumentState.ANNOTATION_FINISHED);
                             try {
-                                repository.createSourceDocument(bratAnnotatorModel.getDocument(),
+                                repository.createSourceDocument(openDocumentModel.getDocument(),
                                         user);
                             }
                             catch (IOException e) {
@@ -133,10 +131,10 @@ public class YesNoModalPanel
                     }
                     else {
 
-                        bratAnnotatorModel.getDocument().setState(
+                        openDocumentModel.getDocument().setState(
                                 SourceDocumentState.CURATION_FINISHED);
                         try {
-                            repository.createSourceDocument(bratAnnotatorModel.getDocument(), user);
+                            repository.createSourceDocument(openDocumentModel.getDocument(), user);
                         }
                         catch (IOException e) {
                             error("Unable to update source file "
