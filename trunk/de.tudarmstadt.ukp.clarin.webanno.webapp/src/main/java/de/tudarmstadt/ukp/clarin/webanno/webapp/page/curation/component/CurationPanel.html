@@ -1,0 +1,54 @@
+<!--
+#Copyright 2012
+#Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
+#Technische Universität Darmstadt
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<body>
+	<wicket:panel>
+		<table class="hfill">
+			<tr style="vertical-align: top;">
+				<td width="33%">
+					<fieldset class="ui-widget-content ui-corner-all">
+						<legend>Sentences</legend>
+						<table class="hfill" wicket:id="textOuterView" style="border-collapse: collapse;">
+							<tr wicket:id="textListView">
+								<td class="curation-sentence-number" wicket:id="sentenceNumber" />
+								<td class="curation-sentence-item" wicket:id="sentence" />
+							</tr>
+						</table>
+					</fieldset>
+				</td>
+				<td width="66%">
+					<div class="merge-view" wicket:id="mergeView" />
+
+					<div wicket:id="sentenceOuterView">
+						<div class="sentence-list-view" wicket:id="sentenceListView">
+							<div wicket:id="sentence" />
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+		<script type="text/javascript">
+			var webFontURLs = [ '/static/fonts/Astloch-Bold.ttf',
+					'/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+					'/static/fonts/Liberation_Sans-Regular.ttf' ];
+		</script>
+	</wicket:panel>
+</body>
+</html>
