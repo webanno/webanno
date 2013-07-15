@@ -56,7 +56,7 @@ overview_sreen.jpg here
 
 
 ========
-<img src="https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="600"/>
 ========
 
 
