@@ -149,12 +149,16 @@ After clicking on “Users”, you are displayed a new pane in which you can add
 project4.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/project4.jpg" width="600"/>
+
 Please do not forget to save after choosing all members of the project. Close the pane by clicking on “Cancel”. The rights of users created like this are that of an annotator. If you want to expand the user's status, you can do so by clicking on the user and then on “Change permission”. The following frame will pop up.
 
 
 <wiki:comment>
 project5.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project5.jpg" width="600"/>
 
 After ticking the wished permissions, click update.
 To remove a user, click on the login and then “Remove User”.
@@ -165,6 +169,8 @@ To add or delete documents, you have to click on the tab “Documents” in the 
 <wiki:comment>
 project6.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="600"/>
 
 Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
 The imported documents can be seen in the frame below.
@@ -178,11 +184,15 @@ To administer the tagsets, click on the tab “Tagsets” in the project pane.
 project7.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/project7.jpg" width="600"/>
+
 To administer one of the existing tagsets, select it by a click. Then, the tagset characteristics are displayed.
 
 <wiki:comment>
 project8.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project8.jpg" width="600"/>
 
 In the Frame “Tagset details”, you can change them,  export a tagset, save the changes you made on it or delete it by clicking on “Delete tagSet”.
 To change an individual tag, you select one in the list displayed in the frame “Tags”. You can then change its description or name or delete it by clicking “Delete tag” in “Tag details”.  Please do not forget to save your changes by clicking on “Save tag”.
@@ -197,6 +207,8 @@ To upload guidelines, click on “Dateien auswählen” in the first frame – �
 project9.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/project9.jpg" width="600"/>
+
 Uploaded guidelines are displayed in the second frame – “Guideline documents”.
 To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
 
@@ -204,6 +216,8 @@ To delete a guideline document, click on it and then on “Delete” in the righ
 <wiki:comment>
 project10.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project10.jpg" width="600"/>
 
 To delete a project, click on it in the frame “Projects”. Then you are displayed the details of the project. Click on “Delete”.
 
@@ -215,11 +229,16 @@ As an administrator, you are able to observe the progress and document status of
 monitoring1.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/monitoring1.jpg" width="600"/>
+
 In the left frame all the projects that you are administrator of. By clicking on a project, you are able to observe the progress and document status of individual group members in the project.
 
 <wiki:comment>
 monitoring2.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
+
 
 You can also alter the document status of annotators.  The tick symbol      means that the document is marked as “Done”. The triangle symbol     means that the annotion is in progress.  By clicking on the symbols you can change between “Done” and “In Progress”.
 The symbol       means that this document has not been opened by the annotator yet.  The symbol    means that the annotator is not allowed to open or annotate this document. Actually, he is not even able to see it. By clicking on this symbols you can change between “New” and “Blocked” status. 
