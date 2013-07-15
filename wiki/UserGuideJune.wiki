@@ -116,7 +116,7 @@ Click on “Create Project” to add a project.
 project1.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="400"/>
 
 After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
 
