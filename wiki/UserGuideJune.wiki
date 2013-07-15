@@ -116,7 +116,7 @@ Click on “Create Project” to add a project.
 project1.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="600"/>
 
 After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
 
@@ -125,7 +125,7 @@ After doing so, a new pane is displayed, where you can name and describe your ne
 project2.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="400"/>
 
 After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
 
@@ -137,7 +137,7 @@ The pane with the options to organize and edit a project, as described above, ca
 project3.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project3.jpg.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project3.jpg" width="600"/>
 
 By clicking on the tabs, you can now set up the chosen project. 
 
