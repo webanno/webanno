@@ -29,6 +29,10 @@ Upon navigating to the !WebAnno page, the login screen opens. Please enter your 
 login.jpg here
 </wiki:comment>
 
+========
+<img src="https://webanno.googlecode.com/svn/wiki/images/login.jpg" width="600"/>
+========
+
 == Overview screen ==
 
 After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
