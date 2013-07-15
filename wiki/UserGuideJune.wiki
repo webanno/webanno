@@ -57,7 +57,7 @@ Here, you can navigate to one of the currently three options:
 
 When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="600"/>
 
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
 Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the display window size as well as select the annotation layers to be used. For Example, for NER annotation, select the options as shown below (red check mark):
@@ -82,7 +82,7 @@ everywhere were you see spaces, there should be pictures of buttons or links to 
 annotation4.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation4.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation4.jpg" width="600"/>
 
 Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation.  To change or delete an annotation, double-click on the annotation (span or link annotations).
 
@@ -99,7 +99,7 @@ In the left frame of the window, named “Sentences”, the sentences of the cho
 curation1.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/curation1.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/curation1.jpg" width="600"/>
 
 If you want to see the annotations that were made in a sentence, you have to click on the sentence. Then on the right side of the window, the annotations are displayed.
 
@@ -107,7 +107,7 @@ If you want to see the annotations that were made in a sentence, you have to cli
 curation2.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/curation2.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/curation2.jpg" width="600"/>
 
 The frame called “Merged” shows the result of the default merge the conflicting annotations. Below, the annotated sentences are shown in separate frames, entitled with the annotators logins. By double-clicking on the annotation of an annotator's frame, you select his annotation to in the merged sentence. The sentence in the merged frame can be treated like a sentence in the “Annotation”. By selecting a word with a click you are able to produce new annotations, by clicking on an annotation, you are able to change its classification or delete it.
 
