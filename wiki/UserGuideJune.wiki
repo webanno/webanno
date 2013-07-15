@@ -25,10 +25,6 @@ The testing version is unstable and can be changed without prior notification.
 
 Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
 
-<wiki:comment>
-login.jpg here
-</wiki:comment>
-
 ========
 <img src="https://webanno.googlecode.com/svn/wiki/images/login.jpg" width="600"/>
 ========
@@ -58,7 +54,10 @@ Here, you can navigate to one of the currently three options:
 overview_sreen.jpg here
 </wiki:comment>
 
-https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/
+
+========
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/>
+========
 
 
 == Annotation ==
