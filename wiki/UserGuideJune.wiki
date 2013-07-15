@@ -57,7 +57,7 @@ Here, you can navigate to one of the currently three options:
 
 When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="800"/>
 
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
 Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the display window size as well as select the annotation layers to be used. For Example, for NER annotation, select the options as shown below (red check mark):
@@ -95,17 +95,9 @@ When navigating to the “Curation Page”, the procedure for opening projects a
 
 In the left frame of the window, named “Sentences”, the sentences of the chosen document are displayed. The ones shaded in red created a conflict in annotation.
 
-<wiki:comment>
-curation1.jpg here 
-</wiki:comment>
-
 <img src="https://webanno.googlecode.com/svn/wiki/images/curation1.jpg" width="600"/>
 
 If you want to see the annotations that were made in a sentence, you have to click on the sentence. Then on the right side of the window, the annotations are displayed.
-
-<wiki:comment>
-curation2.jpg here 
-</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/curation2.jpg" width="600"/>
 
@@ -124,12 +116,16 @@ Click on “Create Project” to add a project.
 project1.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg.jpg" width="600"/>
+
 After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
 
 
 <wiki:comment>
 project2.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg.jpg" width="400"/>
 
 After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
 
@@ -140,6 +136,8 @@ The pane with the options to organize and edit a project, as described above, ca
 <wiki:comment>
 project3.jpg here 
 </wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project3.jpg.jpg" width="600"/>
 
 By clicking on the tabs, you can now set up the chosen project. 
 
