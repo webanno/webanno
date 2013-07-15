@@ -49,14 +49,8 @@ Here, you can navigate to one of the currently three options:
   * *Projects* - Set up or change annotation projects (only for _administrators_)
   * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
 
-<wiki:comment>
-overview_sreen.jpg here
-</wiki:comment>
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="100"/>
 
-
-========
-<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="200"/>
-========
 
 
 == Annotation ==
@@ -67,6 +61,7 @@ When navigating to the *Annotation* page, a dialogue opens that allows you to se
 annotation1.jpg here
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="100"/>
 
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
 Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the display window size as well as select the annotation layers to be used. For Example, for NER annotation, select the options as shown below (red check mark):
@@ -75,6 +70,7 @@ Once the document is opened, a default of 10 sentences are loaded on the annotat
 annotation2.jpg here 
 </wiki:comment>
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation2.jpg" width="100"/>
 
 Sentence  numbers  on  the  left  side  of  the  annotation  page  shows  the  exact sentence numbers in the document. 
 
@@ -83,7 +79,7 @@ Sentence  numbers  on  the  left  side  of  the  annotation  page  shows  the  e
 annotation3.jpg here 
 </wiki:comment>
 
-
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation3.jpg" width="100"/>
 
 The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *go to page* allow you to navigate accordingly. The “Prev.” and “Next” buttons in the “Document” frame allow you to go to the previous or next document on your project list. 
 Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button . The document will be saved in TCF to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
