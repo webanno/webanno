@@ -26,7 +26,7 @@ The testing version is unstable and can be changed without prior notification.
 Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
 
 ========
-<img src="https://webanno.googlecode.com/svn/wiki/images/login.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/login.jpg" width="400"/>
 ========
 
 == Overview screen ==
@@ -56,7 +56,7 @@ overview_sreen.jpg here
 
 
 ========
-<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="200"/>
 ========
 
 
