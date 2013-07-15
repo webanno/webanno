@@ -39,8 +39,7 @@ Here, you can navigate to one of the currently three options:
 annotators) 
 •  Projects:  The  page  to  set  up  or  change  annotation 
 projects (not available to mere annotators)
-•   Monitoring: Allows you to see the projects, their progress and change 
-documentstatus
+•   Monitoring: Allows you to see the projects, their progress and change documentstatus
 
 
 Please click on the functionality you need. The individual functionalities will be explained in further chapters.
@@ -49,12 +48,15 @@ Here, you can navigate to one of the currently three options:
   * *Annotation* - The page to perform annotations
   * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
   * *Projects* - Set up or change annotation projects (only for _administrators_)
-  * *Monitoring* - Allows you to see the projects, their progress and change 
-documentstatus (only for _administrators_ and _curators)
+  * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
 
 <wiki:comment>
 overview_sreen.jpg here
 </wiki:comment>
+
+========
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/>
+========
 
 == Annotation ==
 
