@@ -170,7 +170,7 @@ To add or delete documents, you have to click on the tab “Documents” in the 
 project6.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="400"/>
 
 Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
 The imported documents can be seen in the frame below.
