@@ -54,7 +54,7 @@ Here, you can navigate to one of the currently three options:
 overview_sreen.jpg here
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/>
+https://webanno.googlecode.com/svn/wiki/images/overview_sreen.jpg" width="600"/
 
 
 == Annotation ==
