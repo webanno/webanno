@@ -149,7 +149,7 @@ After clicking on “Users”, you are displayed a new pane in which you can add
 project4.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project4.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project4.jpg" width="200"/>
 
 Please do not forget to save after choosing all members of the project. Close the pane by clicking on “Cancel”. The rights of users created like this are that of an annotator. If you want to expand the user's status, you can do so by clicking on the user and then on “Change permission”. The following frame will pop up.
 
