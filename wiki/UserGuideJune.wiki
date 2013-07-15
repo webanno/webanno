@@ -170,7 +170,7 @@ To add or delete documents, you have to click on the tab “Documents” in the 
 project6.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="600"/>
 
 Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
 The imported documents can be seen in the frame below.
@@ -184,7 +184,7 @@ To administer the tagsets, click on the tab “Tagsets” in the project pane.
 project7.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project7.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project7.jpg" width="200"/>
 
 To administer one of the existing tagsets, select it by a click. Then, the tagset characteristics are displayed.
 
