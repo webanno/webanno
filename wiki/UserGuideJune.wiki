@@ -5,7 +5,7 @@ This guide summarizes the functionality of !WebAnno from the user's perspective.
 
 Currently, this guide describes the functionality of WebAnno Version 0.3. 
 
-
+==Table of Contents== 
 <wiki:toc/>
 
 = Introduction =
