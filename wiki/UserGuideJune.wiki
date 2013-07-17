@@ -1,5 +1,11 @@
 #summary User's GuideJune
 
+This guide summarizes the functionality of !WebAnno from the user's perspective. It is constantly updated to match the latest verson of !WebAnno. 
+
+
+Currently, this guide describes the functionality of WebAnno Version 0.3. 
+
+
 <wiki:toc/>
 
 = Introduction =
@@ -9,8 +15,6 @@ This document serves as a quick user’s guide for the operation of the web-base
 It is assumed that !WebAnno has been installed successfully. For issues regarding the installation, please see [http://code.google.com/p/webanno/wiki/InstallationGuide]. 
 
 All materials, including this guide, is available via the project site: https://code.google.com/p/webanno/ 
-
-This guide describes the functionality of WebAnno Version 0.3. 
 
 
 = Description of GUI functionality =
