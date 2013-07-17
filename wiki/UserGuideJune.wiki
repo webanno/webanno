@@ -4,20 +4,14 @@
 
 = Introduction =
 
-This document serves as a quick user’s guide for the operation of the KP-1 web-based annotation platform !WebAnno, and is targeted towards our project partners. 
+This document serves as a quick user’s guide for the operation of the KP-1 web-based annotation platform !WebAnno, and is targeted towards users of the platform, including project managers, curators and annotators.
 
-The platform is under development. Please do not use it merely for testing the functionalities – a loss of data can occur when we update the platform to another version.
+It is assumed that !WebAnno has been installed successfully. For issues regarding the installation, please see [http://code.google.com/p/webanno/wiki/InstallationGuide]. 
 
-The platform can be reached under:
+All materials, including this guide, is available via the project site: https://code.google.com/p/webanno/ 
 
-https://clarin.ukp.informatik.tu-darmstadt.de/
+This guide describes the functionality of WebAnno Version 0.3. 
 
-The project site is the following:
-
-https://code.google.com/p/webanno/ 
-
-Currently there are two versions, stable and testing. Please use stable.
-The testing version is unstable and can be changed without prior notification. 
 
 = Description of GUI functionality =
 
