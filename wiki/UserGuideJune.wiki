@@ -252,7 +252,7 @@ monitoring2.jpg here
 ||<img src="https://webanno.googlecode.com/svn/wiki/images/lock_symbol.png" width="20"/>|| Document locked for user ||
 ||<img src="https://webanno.googlecode.com/svn/wiki/images/leiste_symbol.png" width="20"/>|| Curation of document in progress ||
 ||<img src="https://webanno.googlecode.com/svn/wiki/images/done_button.png" width="20"/> || Document finished ||
-|| <img src="https://webanno.googlecode.com/svn/wiki/images/triangle_symbol.png" width="20"/>|| Document in progress
+|| <img src="https://webanno.googlecode.com/svn/wiki/images/triangle_symbol.png" width="20"/>|| Document in progress ||
 
 
 
