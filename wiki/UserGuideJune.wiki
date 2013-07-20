@@ -248,7 +248,12 @@ monitoring2.jpg here
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
 
 || *Symbol* || *Meaning* ||
-|| <img src="https://webanno.googlecode.com/svn/wiki/images/new_symbol.png" width="20"/> || Document not annotated by this annotator ||
+|| <img src="https://webanno.googlecode.com/svn/wiki/images/new_symbol.png" width="20"/> || Document not opened by user ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/lock_symbol.png" width="20"/>|| Document locked for user ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/leiste_symbol.png" width="20"/>|| Curation of document in progress ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/done_button.png" width="20"/> || Document finished ||
+|| <img src="https://webanno.googlecode.com/svn/wiki/images/triangle_symbol.png" width="20"/>|| Document in progress
+
 
 
 You can also alter the document status of annotators.  The tick symbol      means that the document is marked as “Done”. The triangle symbol     means that the annotion is in progress.  By clicking on the symbols you can change between “Done” and “In Progress”.
