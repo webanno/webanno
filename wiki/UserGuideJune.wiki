@@ -227,7 +227,10 @@ project10.jpg here
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/project10.jpg" width="600"/>
 
-To delete a project, click on it in the frame “Projects”. Then you are displayed the details of the project. Click on “Delete”.
+To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
+
+=== Extract Curated Documents ===
+To extract curated documents, click on the frame “Export”. By clicking on the Button “Export curated documents to the file system”, the documents are saved on your local disk and can be further processed.
 
 == Monitoring ==
 
@@ -263,6 +266,21 @@ You can also alter between “New” and “Blocked” status.
 The second column of the Document status frame displays the status of the curation. 
 
 As there is only one curator for one document, curation is not divided into individual curators. 
+
+= Workflow =
+
+The following image shows an examplary workflow of an annotation project with WebAnno.
+
+<wiki:comment>
+progress_workflow.jpg here 
+</wiki:comment>
+
+First, the projects needs to be set up. In more detail, this means that users are to be added, guidelines need to provided, documents have to be uploaded, tagsets need to be defined and uploaded, etc. The process of setting up and administrating a project are explicidly described in *Projects*.
+After the setup of a project, the users which were assigned with the task of annotation annotate the documents according to the guidelines. The task of annotation is further explained in *Annotation*. The work of the annotators is managed and controlled by Monitoring. Here, the person in charge has to assign the workload. For example, in order to prevent redundant annotation, documents which are already annotated by several other annotators and need not be annotated by another person, can be blocked for others. The person in charge is also able to follow the progress of individual annotators. All these tasks are demonstrated in *Monitoring* in more detail. The person in charge should not only controll the quantity, but also the quality of annotation by looking closer into the annotations of individual annotators. This can be done by logging in with the credentials of the annotators.
+After at least two annotors finished the annotation of the same document by clicking on "Done", the curator can start his work. The curator compares the annotations and corrects them if needed. This task is further explained in *Curation*. 
+The document merged by the curator can be exported as soon as the curator clicked on "Done" for the document. The extraction of curated documents is also explained in *Projects*.
+
+
 
 
 
