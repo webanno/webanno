@@ -136,7 +136,7 @@ After doing so, a new pane is displayed, where you can name and describe your ne
 project2.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project2.jpg" width="400"/>
 
 After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
 
