@@ -203,7 +203,7 @@ To administer one of the existing tagsets, select it by a click. Then, the tagse
 project8.jpg here 
 </wiki:comment>
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project8.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project8.jpg" width="800"/>
 
 In the Frame “Tagset details”, you can change them,  export a tagset, save the changes you made on it or delete it by clicking on “Delete tagSet”.
 To change an individual tag, you select one in the list displayed in the frame “Tags”. You can then change its description or name or delete it by clicking “Delete tag” in “Tag details”.  Please do not forget to save your changes by clicking on “Save tag”.
