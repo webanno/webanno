@@ -215,7 +215,7 @@ To add or delete guidelines, which will be accessible by users in the project, y
 To upload guidelines, click on “Dateien auswählen” in the first frame – “Add guideline document”, select a file from your local disc and then click “Import guidelines”.
 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/project9.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/project9.jpg" width="400"/>
 
 Uploaded guidelines are displayed in the second frame – “Guideline documents”.
 To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
