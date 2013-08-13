@@ -12,5 +12,9 @@
 *Sample Data*
   * [Sampledata Sample Data]
 
+*WebAnno FAQ*
+  * [webannofaq WebAnno FAQ]
+
+
 *Upgrade Procedure*
   * [upgradeprocedure Upgrade Procedure]
