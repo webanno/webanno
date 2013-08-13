@@ -1,5 +1,9 @@
 #summary WebAnno FAQs
-*Nach Durchsicht der Infos auf der WebAnno-Website hätten wir bereits zwei Fragen, zu denen wir uns über eine Antwort sehr freuen würden:*
 
-  # *Wenn bei der PoS-Annotation via WebAnno die Annotatoren Segmentierungsfehler in der zugrundeliegenden Textbasis entdecken, besteht dsann die Möglichkleit, diese Fehler direkt über WebAnno zu korrigieren (d.h. Segmentierungen in der Textbasis zu ändern)? M.a.W.: Ist die Tokenebene nach dem Einspielen des Textes in die Datenbank fixiert oder nicht?*
-  # *Können in WebAnno auch Metadaten mitverwaltet bzw. gespeichert werden Im Falle unserer Daten verwenden wir u.a. IDs für einzelne Postings und deren Autoren.*
+*Nach Durchsicht der Infos auf der WebAnno-Website hätten wir bereits zwei Fragen, zu denen wir uns über eine Antwort sehr freuen würden:*
+<font color="red">
+  * *Wenn bei der PoS-Annotation via WebAnno die Annotatoren Segmentierungsfehler in der zugrundeliegenden Textbasis entdecken, besteht dsann die Möglichkleit, diese Fehler direkt über WebAnno zu korrigieren (d.h. Segmentierungen in der Textbasis zu ändern)? M.a.W.: Ist die Tokenebene nach dem Einspielen des Textes in die Datenbank fixiert oder nicht?* </font>
+Answer goes here
+<font color="red">
+  * *Können in WebAnno auch Metadaten mitverwaltet bzw. gespeichert werden Im Falle unserer Daten verwenden wir u.a. IDs für einzelne Postings und deren Autoren.* </font>
+Answer goes here
