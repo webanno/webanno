@@ -1,10 +1,21 @@
-#summary User's Guide
+#summary User's GuideJune
 
+This guide summarizes the functionality of !WebAnno from the user's perspective. It is constantly updated to match the latest verson of !WebAnno. 
+
+
+Currently, this guide describes the functionality of WebAnno Version 0.3. 
+
+==Table of Contents== 
 <wiki:toc/>
 
 = Introduction =
 
-This document serves as a quick user’s guide for the operation of !WebAnno. The application is under development, and we welcome your comments for improvements.
+This document serves as a quick user’s guide for the operation of the web-based annotation platform !WebAnno, and is targeted towards users of the platform, including project managers, curators and annotators.
+
+It is assumed that !WebAnno has been installed successfully. For issues regarding the installation, please see [http://code.google.com/p/webanno/wiki/InstallationGuide]. 
+
+All materials, including this guide, is available via the project site: https://code.google.com/p/webanno/ 
+
 
 = Description of GUI functionality =
 
@@ -12,33 +23,71 @@ This document serves as a quick user’s guide for the operation of !WebAnno. Th
 
 Upon navigating to the !WebAnno page, the login screen opens. Please enter your credentials to proceed.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_login.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/login.jpg" width="400"/>
+
 
 == Overview screen ==
 
-After login, you will be presented with the _overview screen_. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
+After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
+
+Here, you can navigate to one of the currently three options:  
+•  Annotation Page: The page to perform annotations 
+•  Curation:  Merging  multiple  annotations  (not  available  to  mere 
+annotators) 
+•  Projects:  The  page  to  set  up  or  change  annotation 
+projects (not available to mere annotators)
+•   Monitoring: Allows you to see the projects, their progress and change documentstatus
+
+
+Please click on the functionality you need. The individual functionalities will be explained in further chapters.
 
 Here, you can navigate to one of the currently three options: 
-  * *Annotation* - the page to perform annotations
-  * *Curation* -  compare and merge annotations from multiple users (only for _curators_)
-  * *Project Configuration* - set up or change annotation projects (only for _administrators_)
-  * *Monitoring* - inspect the progress of annotation projects (only for _administrators_)
+  * *Annotation* - The page to perform annotations
+  * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
+  * *Projects* - Set up or change annotation projects (only for _administrators_)
+  * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_overview.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="100"/>
+
+
 
 == Annotation ==
 
 When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="800"/>
+
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
+Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the settings of you the annotation layer. The following window will pop up:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation_open.png" width="600"/>
+<wiki:comment>
+annotation_settings.jpg here 
+</wiki:comment>
 
-The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *go to page* allow you to navigate accordingly.
+The first option allows you to select an Annotation Layer. The second option allows you to specify the number of sentences that will be displayed on one page. The next option allows you to decide whether you want to be displayed a Lemma or not. The last option allows you to select autoscroll while annotating. 
+<wiki:comment>
+ask Chris what the other layers do in detail, what lemma does and what this autoscroll does, I see no difference with or without
+</wiki:comment>
 
-Sentence numbers on the left side of the annotation page shows the exact sentence numbers in the document.
+For Example, for NER annotation, select the options as shown below (red check mark):
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation2.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation2.jpg" width="400"/>
+
+Sentence  numbers  on  the  left  side  of  the  annotation  page  shows  the  exact sentence numbers in the document. 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation3.jpg" width="400"/>
+
+The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *go to page* allow you to navigate accordingly. The “Prev.” and “Next” buttons in the “Document” frame allow you to go to the previous or next document on your project list. 
+Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button . The document will be saved in TCF to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
+A click on the “Help” Button displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
+When you are finished with annotating or curating a document, please click on the “Done” 
+button      , so that the document may be further processed.
+
+<wiki:comment>
+everywhere were you see spaces, there should be pictures of buttons or links to buttons 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation4.jpg" width="600"/>
 
 Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation.  To change or delete an annotation, double-click on the annotation (span or link annotations).
 
@@ -46,15 +95,194 @@ Annotation of spans works by selecting the span, or double-clicking on a word. T
 
 Link annotations (between POS tags) are created by selecting the starting POS-tag, then dragging the arrow to connect it to its target POS tag. All possible targets are highlighted. 
 
-Annotations are always immediately saved on the server. Thus, it is not necessary to save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. 
+== Curation ==
+When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
 
-Once the document is opened, a default of 10 sentences are loaded on the annotation page. The *Settings*  button allows to specify the display window size as well as select the annotation layers to be displayed.
+In the left frame of the window, named “Sentences”, the sentences of the chosen document are displayed. The ones shaded in red created a conflict in annotation.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation_settings.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/curation1.jpg" width="600"/>
 
-To obtain a local copy of the current document, click on the *export* button. A dialog opens in which the export format can be selected. The exported file will be saved on your local disk.
+If you want to see the annotations that were made in a sentence, you have to click on the sentence. Then on the right side of the window, the annotations are displayed.
 
-= Known Issues =
+<img src="https://webanno.googlecode.com/svn/wiki/images/curation2.jpg" width="600"/>
+
+The frame called “Merged” shows the result of the default merge the conflicting annotations. Below, the annotated sentences are shown in separate frames, entitled with the annotators logins. By double-clicking on the annotation of an annotator's frame, you select his annotation to in the merged sentence. The sentence in the merged frame can be treated like a sentence in the “Annotation”. By selecting a word with a click you are able to produce new annotations, by clicking on an annotation, you are able to change its classification or delete it.
+The different states of the annotation agreement are marked by different colours. If the annotations were the same, they are marked grey in the lower frames and light blue in the merged frame. If the annotations are disparate, the markings are dark blue in the lower frames. By default, they are not taken into the merged file. If you choose one annotation to be right by clicking on it, the chosen annotation will turn green in the frame of the corresponding annotator. Also, the annotation will say *USE* next to the classification. 
+The annotations which were not chosen to be in the merged file are marked dark blue. The annotations which were wrongly classified are marked in red.
+
+<wiki:comment>
+I don't get why sometimes there is an AGREE and sometimes not
+</wiki:comment>
+
+== Projects ==
+This is the place to specify/edit annotation projects.
+You can either select one of the existing projects for editing, or click “Create Project” to add a project.
+
+=== Create a New Project ===
+
+Only superadmins are allowed to create projects.	
+Click on “Create Project” to add a project.
+
+<wiki:comment>
+project1.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="400"/>
+
+After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
+
+
+<wiki:comment>
+project2.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project2.jpg" width="400"/>
+
+After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
+
+=== Edit and Organize a Project ===
+
+The pane with the options to organize and edit a project, as described above, can also be reached by clicking on the desired project in the left frame.
+
+<wiki:comment>
+project3.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project3.jpg" width="600"/>
+
+By clicking on the tabs, you can now set up the chosen project. 
+
+==== User administration ====
+
+After clicking on “Users”, you are displayed a new pane in which you can add new users by clicking on the button “Add User”.  After doing so, you get a list of users in the system which can be added to the project. By making a tick in front of the log in you can chose a new user.
+
+<wiki:comment>
+project4.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project4.jpg" width="200"/>
+
+Please do not forget to save after choosing all members of the project. Close the pane by clicking on “Cancel”. The rights of users created like this are that of an annotator. If you want to expand the user's status, you can do so by clicking on the user and then on “Change permission”. The following frame will pop up.
+
+
+<wiki:comment>
+project5.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project5.jpg" width="600"/>
+
+After ticking the wished permissions, click update.
+To remove a user, click on the login and then “Remove User”.
+
+==== Document administration ====
+To add or delete documents, you have to click on the tab “Documents” in the project pane. Two frames will be displayed. In the first frame you can import new documents.
+
+<wiki:comment>
+project6.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="600"/>
+
+Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
+The imported documents can be seen in the frame below.
+To delete a document from the project, you have to click on it and then click on “Delete” in the right lower corner.
+
+==== Tagset administration ====
+
+To administer the tagsets, click on the tab “Tagsets” in the project pane. 
+
+<wiki:comment>
+project7.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project7.jpg" width="200"/>
+
+To administer one of the existing tagsets, select it by a click. Then, the tagset characteristics are displayed.
+
+<wiki:comment>
+project8.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project8.jpg" width="800"/>
+
+In the Frame “Tagset details”, you can change them,  export a tagset, save the changes you made on it or delete it by clicking on “Delete tagSet”.
+To change an individual tag, you select one in the list displayed in the frame “Tags”. You can then change its description or name or delete it by clicking “Delete tag” in “Tag details”.  Please do not forget to save your changes by clicking on “Save tag”.
+To add a new tag, you have to click on “Create tag” in “Tag details”. Then you add the name   and the description, which is optional. Again, do not forget to click “Save tag” or else the new tag will not be created.
+
+==== Guidelines administration ==== 
+
+To add or delete guidelines, which will be accessible by users in the project, you have to select the tab “Guidelines”. Two new frames will be displayed.
+To upload guidelines, click on “Dateien auswählen” in the first frame – “Add guideline document”, select a file from your local disc and then click “Import guidelines”.
+
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project9.jpg" width="400"/>
+
+Uploaded guidelines are displayed in the second frame – “Guideline documents”.
+To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
+
+=== Delete Project ===
+<wiki:comment>
+project10.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project10.jpg" width="600"/>
+
+To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
+
+=== Extract Curated Documents ===
+To extract curated documents, click on the frame “Export”. By clicking on the Button “Export curated documents to the file system”, the documents are saved on your local disk and can be further processed.
+
+== Monitoring ==
+
+As an administrator, you are able to observe the progress and document status of projects you are responsible for. After clicking on “Monitoring” in Home, the following page is displayed:
+
+<wiki:comment>
+monitoring1.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/monitoring1.jpg" width="600"/>
+
+In the left frame all the projects that you are administrator of. By clicking on a project, you are able to observe the progress and document status of individual group members in the project.
+
+<wiki:comment>
+monitoring2.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
+
+The following table will explain the different symbols, which explain the status of a document for a user and the described task.
+
+|| *Symbol* || *Meaning* ||
+|| <img src="https://webanno.googlecode.com/svn/wiki/images/new_symbol.png" width="20"/> || Document not opened by user ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/lock_symbol.png" width="20"/>|| Document not available to user ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/leiste_symbol.png" width="20"/>|| Curation of document in progress ||
+||<img src="https://webanno.googlecode.com/svn/wiki/images/done_button.png" width="20"/> || Document finished ||
+|| <img src="https://webanno.googlecode.com/svn/wiki/images/triangle_symbol.png" width="20"/>|| Document in progress ||
+
+
+
+You can also alter the document status of annotators. By clicking on the symbols you can change between “Done” and “In Progress”.
+You can also alter between “New” and “Blocked” status. 
+The second column of the Document status frame displays the status of the curation. 
+
+As there is only one curator for one document, curation is not divided into individual curators. 
+
+= Workflow =
+
+The following image shows an examplary workflow of an annotation project with WebAnno.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/progress_workflow.JPG" width="500"/>
+
+First, the projects needs to be set up. In more detail, this means that users are to be added, guidelines need to provided, documents have to be uploaded, tagsets need to be defined and uploaded, etc. The process of setting up and administrating a project are explicidly described in *Projects*.
+After the setup of a project, the users which were assigned with the task of annotation annotate the documents according to the guidelines. The task of annotation is further explained in *Annotation*. The work of the annotators is managed and controlled by Monitoring. Here, the person in charge has to assign the workload. For example, in order to prevent redundant annotation, documents which are already annotated by several other annotators and need not be annotated by another person, can be blocked for others. The person in charge is also able to follow the progress of individual annotators. All these tasks are demonstrated in *Monitoring* in more detail. The person in charge should not only controll the quantity, but also the quality of annotation by looking closer into the annotations of individual annotators. This can be done by logging in with the credentials of the annotators.
+After at least two annotors finished the annotation of the same document by clicking on "Done", the curator can start his work. The curator compares the annotations and corrects them if needed. This task is further explained in *Curation*. 
+The document merged by the curator can be exported as soon as the curator clicked on "Done" for the document. The extraction of curated documents is also explained in *Projects*.
+
+
+
+
+
+= Known Issues and Error reporting =
 
 If the tool is kept open in the browser, but not used for a long period of time, you will have to log in again. For this, press the reload button of your browser.
 
