@@ -52,15 +52,68 @@ mysql -u root -p -f webanno < webanno.sql
   # make updates appropraitely as stated above (UPDATE `webanno`.....)
   # restart webanno
 == Upgrading from version 0.3.0 to 0.4.0 ==
-Make a achaneg to the authorities schema as follows
-  # change the role column as
+
+Before starting using the 0.4.0 war file make the following changes to the authorities schema as follows:
+  # change the role column as authority as follows
 {{{
-alter table `authorities`  change `role` `authority` VARCHAR(255) NOT NULL ;
+>use webanno;
+>alter table `authorities`  change `role` `authority` VARCHAR(255) NOT NULL ;
+}}}
+  # remove the foreign key constraint of user column. to do so, get the name of the constraint as follows:
+{{{
+>use webanno;
+>SHOW CREATE TABLE authorities;
+}}}
+This will display the name of the foreign key constarint, something simillar as 
+{{{
+authorities | CREATE TABLE `authorities` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `role` varchar(255) NOT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `role` (`role`,`user`),
+  KEY `FK2B0F1321393B7DBE` (`user`),
+  CONSTRAINT `FK2B0F1321393B7DBE` FOREIGN KEY (`user`) REFERENCES `users` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1 
+}}}
+  # remove the foreign key constariant as follows
+{{{
+>alter table `authorities` drop foreign key `FK2B0F1321393B7DBE`;
 }}}
   # change user column as follows:
 {{{
-alter table `authorities`  change `user` `username` VARCHAR(255) NOT NULL ;
+>alter table `authorities`  change `user` `username` VARCHAR(255) NOT NULL ;
 }}}
+  # add the foreign key constraint back using the following command
+
+{{{
+>alter table `authorities` add foreign key (`username`) references `users` (`username`);
+}}}
+  * in 0.4.0, the conll reader/writer is changed to tsv reader/writer. in the /srv/webanno/formats.properties file make the following changes
+<---
+{{{
+conll.label=Conll Format
+conll.reader=de.tudarmstadt.ukp.clarin.webanno.conll.ConllReader
+conll.writer=de.tudarmstadt.ukp.clarin.webanno.conll.ConllWriter
+}}}
+-->
+{{{
+tsv.label=TSV Format
+tsv.reader=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvReader
+tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
+}}}
+
+  * change the database entry of source_documents table as follows
+{{{
+>USE webanno;
+>UPDATE source_document SET `format`='tsv' where `format`='conll';
+}}}
+
+  * since 0.4.0, projects have modes either as ANNOTATION or CORRECTION. update the project table as follows
+{{{
+UPDATE project SET `mode`='annotation' where `mode` is NULL;
+}}}
+
   # If the username admin is not present, create it as follows:
 {{{
 INSERT INTO `users` (`username`, `enabled`, `password`) VALUES ('admin', '1', 'b7f76f3d1cfa8746e9d44a9ccca81bf22e0e123f06519fc964f97172d5d61b731e9bf8a11da4a3d0');
