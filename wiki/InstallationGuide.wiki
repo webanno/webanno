@@ -142,42 +142,15 @@ xmi.label=XMI format
 xmi.reader=de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiReader
 xmi.writer=de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter
 
-conll.label=Conll Format
-conll.reader=de.tudarmstadt.ukp.clarin.webanno.conll.ConllReader
-conll.writer=de.tudarmstadt.ukp.clarin.webanno.conll.ConllWriter
+tsv.label=TSV Format
+tsv.reader=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvReader
+tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
+
 }}}
    * Fix permissions in !WebAnno home folder
 {{{
 $ chown -R www-data /srv/webanno
 }}}
-
-= Users and permissions =
-*This is not required for 0.4.0 release onwards*
-   * login to mysql and use the correct database
-{{{
-$ mysql -u root -p
-mysql> USE webanno;
-}}}
-   * create table user 
-{{{
-mysql> CREATE  TABLE users(username VARCHAR(45), enabled TINYINT(1),  password VARCHAR(45));
-}}}
-   * add WebAnno users to user table
-{{{
-mysql> INSERT INTO users (username, enabled, password) VALUES ('user1', 1, 'password');
-mysql> INSERT INTO users (username, enabled, password) VALUES ('user2', 1, 'password');
-}}}
- where user1/user2 are the usernames to add and password is the password for user1/user2
-   * Create an authority table
-{{{
-mysql> CREATE  TABLE authorities(role VARCHAR(10), user VARCHAR(45));
-}}}
-   * Add users authority in the authorities table
-{{{
-mysql> INSERT INTO authorities (role, user) VALUES ('ROLE_ADMIN', 'user1'); 
-mysql> INSERT INTO authorities (role, user) VALUES ('ROLE_USER', 'user2');
-}}} 
-where user1 and user2 are already added user names in users table
    
 = Use !WebAnno =
 
@@ -186,3 +159,4 @@ where user1 and user2 are already added user names in users table
 $ service webanno-testing start
 }}}
    * Open it with your browser at `http://localhost:18080/webanno`. If you chose to run !WebAnno behind the Apache web-server use `http://localhost/webanno`.
+The first time, it will create a username admin with password admin. login with this username and proceed
