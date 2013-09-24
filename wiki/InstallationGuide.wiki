@@ -81,7 +81,7 @@ ProxyPreserveHost On
 </Proxy>
 
 <Location /webanno >
-  ProxyPass ajp://localhost:18009/webanno-experimental timeout=1200
+  ProxyPass ajp://localhost:18009/webanno timeout=1200
   ProxyPassReverse http://localhost/webanno
 </Location>
 }}}
