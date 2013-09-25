@@ -70,7 +70,12 @@ tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
 
 Fetch the WAR and place it into the webapps folder of your tomcat. Rename it to "webanno.war"
 
-Start Tomcat using `bin/startup.sh` - to stop tomcat, there is a `bin/shutdown.sh` script.
+Start Tomcat using `bin/startup.sh` - to stop tomcat, there is a `bin/shutdown.sh` script, e.g.
+
+{{{
+$ cd /Applications/apache-tomcat-7.0.42/bin
+$ sh startup.sh
+}}}
 
 That should be it: `http://localhost:8080/webanno`
 
