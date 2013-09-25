@@ -1,0 +1,58 @@
+#summary Quick installation guide for advanced users
+
+*TODO*: Add instructions on downloading and importing example project. Mention to turn off "Automatically open safe file types" in Safari to avoid unpacking the example project ZIP on download.
+
+*TODO*: Add MySQL commands to create database, user, and permissions
+
+
+I assume you have MySQL server installed and running.
+
+Create a database that !WebAnno can use (encoding UTF-8).
+
+Create a user that !WebAnno can use. Make sure to add full permissions on the created database.
+
+Create !WebAnno home directory, e.g. `/Users/JohnDoe/Library/WebAnno`
+
+Download Tomcat and extract somewhere
+
+Edit `bin/catalina.sh` and add the following line after the comment section at the beginning of the file
+
+{{{
+ export JAVA_OPTS="-Djava.awt.headless=true -Xmx750m -XX:+UseConcMarkSweepGC -Dwebanno.home=/Users/JohnDoe/Library/WebAnno"
+}}}
+
+Create a simple text file `/Users/JohnDoe/Library/WebAnno/settings.properties`(change the database user, password, and URL to match your system)
+
+{{{
+database.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
+database.driver=com.mysql.jdbc.Driver
+database.url=jdbc:mysql://localhost:3306/webanno
+database.username=webanno
+database.password=t0t4llYSecreT
+}}}
+
+Create another simple text file `/Users/JohnDoe/Library/WebAnno/formats.properties`
+
+{{{
+text.label=Plain text
+text.reader=de.tudarmstadt.ukp.dkpro.core.io.text.TextReader
+text.writer=de.tudarmstadt.ukp.dkpro.core.io.text.TextWriter
+
+tcf.label=Weblicht TCF Format
+tcf.reader=de.tudarmstadt.ukp.clarin.webanno.tcf.TcfReader
+tcf.writer=de.tudarmstadt.ukp.clarin.webanno.tcf.TcfWriter
+
+xmi.label=XMI format
+xmi.reader=de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiReader
+xmi.writer=de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter
+
+tsv.label=TSV Format
+tsv.reader=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvReader
+tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
+}}}
+
+Fetch the WAR and place it into the webapps folder of your tomcat. Rename it to "webanno.war"
+
+Start Tomcat using `bin/startup.sh` - to stop tomcat, there is a `bin/shutdown.sh` script.
+
+That should be it: `http://localhost:8080/webanno`
