@@ -4,16 +4,16 @@
 
 
 We assume you have MySQL server installed and running.
-After installation, MySQL server can be started by running the "mysqld" command, located in the binary directory of mysql.
+After installation, MySQL server can be started by running the "mysqld" command, located in the binary directory of mysql, e.g.:
 
 {{{
 $ cd /usr/local/mysql-5.1.71-osx10.6-x86_64/bin/
 $ ./mysqld &
 }}}
 
-Log into mysql as the root user in a terminal:
+Log into mysql as the root user in a terminal (if no password is set, omit -p):
 {{{
-$ mysql -u root
+$ mysql -u root -p
 }}}
 
 Create a database (here: webanno as the db name) that !WebAnno can use (encoding UTF-8).
@@ -22,7 +22,7 @@ mysql> CREATE DATABASE `webanno` /*!40100 DEFAULT CHARACTER SET utf8 */;
 }}}
 
 
-Create a user (here: "webanno") that !WebAnno can use. Make sure to add full permissions on the created database. If MySql and WebAnno run on different servers, replace 'localhost' with the server's address.
+Create a user (here: "webanno") that !WebAnno can use. Make sure to add full permissions on the created database. If !MySql and !WebAnno run on different servers, replace 'localhost' with the server's address.
 
 {{{
 grant all on webanno.* to 'webanno'@'localhost' identified by "t0t4llYSecreT";
