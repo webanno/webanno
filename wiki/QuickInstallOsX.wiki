@@ -73,3 +73,5 @@ Fetch the WAR and place it into the webapps folder of your tomcat. Rename it to 
 Start Tomcat using `bin/startup.sh` - to stop tomcat, there is a `bin/shutdown.sh` script.
 
 That should be it: `http://localhost:8080/webanno`
+
+We recommend using WebKit-based browsers, such as Safari or Chrome.
