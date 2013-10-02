@@ -14,6 +14,8 @@
 
 *WebAnno FAQ*
   * [webannofaq WebAnno FAQ]
+  * [troubleshooting]
+
 
 
 *Upgrade Procedure*
