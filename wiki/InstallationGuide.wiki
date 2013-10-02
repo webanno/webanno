@@ -156,7 +156,7 @@ $ chown -R www-data /srv/webanno
 
    * Start !WebAnno
 {{{
-$ service webanno-testing start
+$ service webanno start
 }}}
    * Open it with your browser at `http://localhost:18080/webanno`. If you chose to run !WebAnno behind the Apache web-server use `http://localhost/webanno`.
 The first time, it will create a username admin with password admin. login with this username and proceed
