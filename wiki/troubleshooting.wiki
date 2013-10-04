@@ -1,0 +1,18 @@
+#summary Troubleshooting
+==default login does not work upon setup==
+If you use old war files such as *webanno-0.3.0-rc-4.war*, you will encounter the *log-in failed* message with any username/password combination.
+The exception at catalina.out resembles the following
+{{{
+INFO: Starting Coyote HTTP/1.1 on http-18080
+Oct 2, 2013 3:47:06 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 4068 ms
+2013-10-02 15:47:52  INFO [http-18080-1] (PropertiesFactory) - Loading properties files from file:/opt/webanno/webapps/webanno/WEB-INF/classes/de/tudarmstadt/ukp/clarin/webanno/webapp/page/login/LoginPage.properties with loader org.apache.wicket.resource.IsoPropertiesFilePropertiesLoader@54135640
+2013-10-02 15:48:01  WARN [http-18080-2] (SpringAuthenticatedWebSession) - User 'admin' failed to login. Reason: No entity found for query
+2013-10-02 15:48:01 ERROR [http-18080-2] (LoginForm) - Login failed
+2013-10-02 15:48:01 ERROR [http-18080-2] (ApplicationPageBase$1) - anonymousUser: Login failed
+2013-10-02 15:49:39  WARN [http-18080-1] (SpringAuthenticatedWebSession) - User 'admin' failed to login. Reason: No entity found for query
+2013-10-02 15:49:39 ERROR [http-18080-1] (LoginForm) - Login failed
+2013-10-02 15:49:39 ERROR [http-18080-1] (ApplicationPageBase$1) - anonymousUser: Login failed
+}}}
+==Solution==
+When following the installation instruction, use the latest war file by compiling webanno from source code or ask the developer for the latest war file. Otherwise, follow the [upgradeprocedure]
