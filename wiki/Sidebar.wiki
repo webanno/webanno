@@ -16,7 +16,8 @@
   * [webannofaq WebAnno FAQ]
   * [troubleshooting]
 
-
-
 *Upgrade Procedure*
   * [upgradeprocedure Upgrade Procedure]
+
+*Reference Users*
+  * [ProjectsUsingWebAnno Projects using WebAnno]
