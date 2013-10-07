@@ -1,0 +1,7 @@
+Selection of projects that use WebAnno for their annotation needs
+
+
+
+2013
+  * SeNeReKo: http://www.ceres.rub.de/en/project/forschungsprojekte/senereko-en/  
+  * PhD dissertation on mechanisms of language change http://www.linguistics.rub.de/~krasselt/research.html
