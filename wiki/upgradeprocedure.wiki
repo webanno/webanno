@@ -109,7 +109,7 @@ tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
 >UPDATE source_document SET `format`='tsv' where `format`='conll';
 }}}
 
-  * since 0.4.0, projects have modes either as ANNOTATION or CORRECTION. update the project table as follows
+  * since 0.4.0, projects have modes either as ANNOTATION or CORRECTION. *Restart webbanno* and *then only* update the project table as follows
 {{{
 UPDATE project SET `mode`='annotation' where `mode` is NULL;
 }}}
@@ -117,6 +117,11 @@ UPDATE project SET `mode`='annotation' where `mode` is NULL;
   # If the username admin is not present, create it as follows:
 {{{
 INSERT INTO `users` (`username`, `enabled`, `password`) VALUES ('admin', '1', 'b7f76f3d1cfa8746e9d44a9ccca81bf22e0e123f06519fc964f97172d5d61b731e9bf8a11da4a3d0');
+}}}
+  # Update the authorities table with ROLE_ADMIN for user admin as follows.
+{{{
+INSERT INTO `authorities` (`authority`, `username`) VALUES ('ROLE_ADMIN', 'admin');
+
 }}}
   # If the user name admin is already there, update the old password with a hash as follows:
 {{{
