@@ -27,10 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -101,8 +98,6 @@ public class MonitoringPage
     extends SettingsPageBase
 {
     private static final long serialVersionUID = -2102136855109258306L;
-
-    private static final Log LOG = LogFactory.getLog(MonitoringPage.class);
 
     private static final int CHART_WIDTH = 300;
 
@@ -231,7 +226,7 @@ public class MonitoringPage
 
                             // if global admin, show all projects
                             for (Authority authority : authorities) {
-                                if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                                if (authority.getRole().equals("ROLE_ADMIN")) {
                                     return allProjects;
                                 }
                             }
@@ -692,54 +687,83 @@ public class MonitoringPage
                 List<User> users = projectRepository.listProjectUsersWithPermissions(project,
                         PermissionLevel.USER);
                 double[][] results = new double[users.size()][users.size()];
-                //initialize results with zero
+                // initialize results with zero
                 for (int m = 0; m < users.size(); m++) {
                     for (int j = 0; j < users.size(); j++) {
                         results[m][j] = 0.0;
                     }
                 }
 
+                // assume all users finished only one document
+                double[][] multipleDocumentsFinished = new double[users.size()][users.size()];
+                for (int m = 0; m < users.size(); m++) {
+                    for (int j = 0; j < users.size(); j++) {
+                        multipleDocumentsFinished[m][j] = 1.0;
+                    }
+                }
+
                 List<SourceDocument> sourceDocuments = projectRepository
                         .listSourceDocuments(project);
 
-
                 // Users with some annotations of this type
 
-                Map<String, Map<String, String>> allUserAnnotations = new TreeMap<String, Map<String,String>>();
+                Map<SourceDocument, Map<String, Map<String, String>>> finishedUserAnnotations =
+                        new HashMap<SourceDocument, Map<String, Map<String, String>>>();
                 TwoPairedKappa twoPairedKappa = new TwoPairedKappa(project, projectRepository);
-                for (SourceDocument sourceDocument : sourceDocuments) {
 
-                    Set<String> allANnotations = twoPairedKappa.getAllAnnotations(users,
-                            sourceDocument, type);
-                    if (allANnotations.size() != 0) {
+                for (SourceDocument sourceDocument : sourceDocuments) {
+                    // get all users with finished annotation document
+                    List<User> usersFinishedAnnotation = new ArrayList<User>();
+                    for (User user : users) {
+                        AnnotationDocument annotationDocument = projectRepository
+                                .getAnnotationDocument(sourceDocument, user);
+                        if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)) {
+                            usersFinishedAnnotation.add(user);
+                        }
+                    }
+                    if (usersFinishedAnnotation.size() < 1) {
+                        continue;
+                    }
+                    else {
+                        Set<String> allANnotations = twoPairedKappa.getAllAnnotations(users,
+                                sourceDocument, type);
                         Map<String, Map<String, String>> userAnnotations = twoPairedKappa
                                 .initializeAnnotations(users, allANnotations);
                         userAnnotations = twoPairedKappa.updateUserAnnotations(users,
                                 sourceDocument, type, featureName, userAnnotations);
+                        finishedUserAnnotations.put(sourceDocument, userAnnotations);
+                    }
+                }
 
-                        // merge annotations from different object for this user
-                        for(String username: userAnnotations.keySet()){
-                            if(allUserAnnotations.get(username) != null){
-                                allUserAnnotations.get(username).putAll(userAnnotations.get(username));
-                            }
-                            else{
-                                allUserAnnotations.put(username, userAnnotations.get(username));
+                for (SourceDocument sourceDocument : sourceDocuments) {
+                    // if at least a user finished an annotation
+                    if (finishedUserAnnotations.get(sourceDocument) != null) {
+                        Map<String, Map<String, String>> userAnnotationsMap = finishedUserAnnotations
+                                .get(sourceDocument);
+
+                        double[][] thisSourceDocumentResult = twoPairedKappa
+                                .getAgreement(userAnnotationsMap);
+                        for (int i = 0; i < users.size(); i++) {
+                            for (int j = 0; j < users.size(); j++) {
+                                double thisResult = (double) Math
+                                        .round(thisSourceDocumentResult[i][j] * 100) / 100;
+                                if (thisResult > 0.0 && results[i][j] > 0.0) {// only for thenext
+                                                                              // update!
+                                    multipleDocumentsFinished[i][j]++;
+                                }
+                                results[i][j] = results[i][j] + thisResult;
+
                             }
                         }
-
-                        for(User user:users){
-                            allUserAnnotations.get(user.getUsername()).putAll(userAnnotations.get(user.getUsername()));
-                        }
-
 
                     }
                 }
 
-
-                if(twoPairedKappa
-                        .getAgreement(allUserAnnotations).length != 0) {
-                    results = twoPairedKappa
-                            .getAgreement(allUserAnnotations);
+                // take the average kappa if the user has finished more than one document
+                for (int i = 0; i < users.size(); i++) {
+                    for (int j = 0; j < users.size(); j++) {
+                        results[i][j] = results[i][j] / multipleDocumentsFinished[i][j]++;
+                    }
                 }
 
                 List<String> usersListAsColumnHeader = new ArrayList<String>();
@@ -803,8 +827,8 @@ public class MonitoringPage
         return chart;
     }
 
-    private ChartImageResource createProgressChart(Map<String, Integer> chartValues,
-    		int aMaxValue, boolean aIsPercentage)
+    private ChartImageResource createProgressChart(Map<String, Integer> chartValues, int aMaxValue,
+            boolean aIsPercentage)
     {
         // fill dataset
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -820,12 +844,12 @@ public class MonitoringPage
         plot.getRangeAxis().setRange(0.0, aMaxValue);
         ((NumberAxis) plot.getRangeAxis()).setNumberFormatOverride(new DecimalFormat("0"));
 
-        if(!aIsPercentage){
-	        TickUnits standardUnits = new TickUnits();
-	        NumberAxis tick = new NumberAxis();
-	        tick.setTickUnit(new NumberTickUnit(1));
-	        standardUnits.add(tick.getTickUnit());
-	        plot.getRangeAxis().setStandardTickUnits(standardUnits);
+        if (!aIsPercentage) {
+            TickUnits standardUnits = new TickUnits();
+            NumberAxis tick = new NumberAxis();
+            tick.setTickUnit(new NumberTickUnit(1));
+            standardUnits.add(tick.getTickUnit());
+            plot.getRangeAxis().setStandardTickUnits(standardUnits);
         }
         plot.setOutlineVisible(false);
         plot.setBackgroundPaint(null);
