@@ -12,6 +12,11 @@
 
 = Tomcat =
 
+   * Install Tomcat. 
+
+{{{
+$ aptitude install tomcat6
+}}}
    * Install package to install user-instances of Tomcat. 
 {{{
 $ aptitude install tomcat6-user
@@ -22,6 +27,7 @@ $ cd /opt
 $ tomcat6-instance-create -p 18080 -c 18005 webanno
 $ chown -R www-data /opt/webanno
 }}}
+Now we have the /opt/webanno/ apache tomcat installation. You will put the webanno.war file in the /opt/webanno/webapps/ folder
    * Configure the startup script. Edit `/etc/init.d/webanno` and add the following contents:SampleData
 {{{
 #!/bin/sh
@@ -50,7 +56,7 @@ $ chmod +x /etc/init.d/webanno
 $ update-rc.d webanno defaults
 }}}
 
-= Tomcat behind Apache Web-Server =
+= Tomcat behind Apache Web-Server (<font color="red"> *OPTIONAL*</font>) =
 
 These are *optional* instructions if you want to run !WebAnno behind an Apache web-server instead of accessing it directly. This assumes that you already have the following packages installed:
 
@@ -115,7 +121,7 @@ mysql> GRANT ALL PRIVILEGES ON webanno.* TO 'webanno'@'localhost';
 {{{
 $ cp webanno.war /opt/webanno/webapps/webanno.war
 }}}
-   * Create !WebAnno home folder
+   * Create !WebAnno home folder. This is the directory wher webanno settings files and projects (Serialized Cases, Source documents...) are stored
 {{{
 $ mkdir /srv/webanno
 }}}
