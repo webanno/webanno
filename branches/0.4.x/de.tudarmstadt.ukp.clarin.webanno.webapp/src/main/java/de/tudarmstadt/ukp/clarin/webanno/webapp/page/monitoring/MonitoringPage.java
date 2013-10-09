@@ -870,6 +870,7 @@ public class MonitoringPage
         for (SourceDocument document : sourceDocuments) {
             Map<User, JCas> jCases = new HashMap<User, JCas>();
             for (User user : users) {
+                if(projectRepository.existsAnnotationDocument(document, user)){
                 AnnotationDocument annotationDocument = projectRepository
                         .getAnnotationDocument(document, user);
                 if (!(annotationDocument.getState().equals(AnnotationDocumentState.IGNORE)||
@@ -890,6 +891,7 @@ public class MonitoringPage
                     }
 
                 }
+            }
             }
             documentJCases.put(document, jCases);
         }
