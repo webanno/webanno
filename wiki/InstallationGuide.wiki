@@ -107,7 +107,7 @@ mysql> CREATE DATABASE webanno;
    * create a database user called `webanno` with the password `t0t4llYSecreT`which is later used by the application to access the database (instructions for `settings.properties`file below).
 {{{
 mysql> CREATE USER 'webanno'@'localhost' IDENTIFIED BY 't0t4llYSecreT';
-mysql> GRANT ALL PRIVILEGES ON * . * TO 'webanno'@'localhost';
+mysql> GRANT ALL PRIVILEGES ON webanno.* TO 'webanno'@'localhost';
 }}}
 
 = !WebAnno =
