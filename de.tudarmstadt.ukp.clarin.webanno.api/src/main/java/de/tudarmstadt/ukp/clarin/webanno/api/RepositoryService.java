@@ -40,6 +40,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
+import eu.clarin.weblicht.wlfxb.io.WLFormatException;
 
 /**
  * This interface contains methods that are related to accessing/creating/deleting... documents,
@@ -67,7 +68,7 @@ public interface RepositoryService
      * Creates an annotation document. The {@link AnnotationDocument} is stored in the
      * webanno.home/project/Project.id/document/document.id/annotation/username.ser. annotated
      * documents are stored per project, user and document
-     *
+     * 
      * @param user
      *            The User who perform this operation
      */
@@ -216,7 +217,7 @@ public interface RepositoryService
      */
     File exportAnnotationDocument(SourceDocument document, Project project, String user,
             Class writer, String fileName, Mode mode)
-        throws FileNotFoundException, UIMAException, IOException,
+        throws FileNotFoundException, UIMAException, IOException, WLFormatException,
         ClassNotFoundException;
 
     /**
@@ -642,7 +643,7 @@ public interface RepositoryService
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
     void uploadSourceDocument(File file, SourceDocument document, long projectId, User user)
-        throws IOException, UIMAException;
+        throws IOException, UIMAException, WLFormatException;
 
     /**
      * Upload a SourceDocument, obtained as Inputstream, such as from remote API Zip folder to a
@@ -651,7 +652,7 @@ public interface RepositoryService
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
     void uploadSourceDocument(InputStream file, SourceDocument document, long projectId, User user)
-        throws IOException, UIMAException;
+        throws IOException, UIMAException, WLFormatException;
 
     /**
      * Returns the labels on the UI for the format of the {@link SourceDocument} to be read from a

@@ -20,7 +20,7 @@
 	<parent>
 		<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
 		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<version>0.5.0-SNAPSHOT</version>
+		<version>0.4.1-beta-2</version>
 	</parent>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno.brat</artifactId>
 	<packaging>jar</packaging>
@@ -151,13 +151,6 @@
 				de.tudarmstadt.ukp.dkpro.core.tokit-asl
 			</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>visural-common-and-wicket-w15</groupId>
-			<artifactId>visural-common-and-wicket-w15</artifactId>
-			<version>0.7.0</version>
-		</dependency>
-
 	</dependencies>
 	<build>
 		<resources>

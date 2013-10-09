@@ -92,6 +92,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.io.bincas.SerializedCasReader;
 import de.tudarmstadt.ukp.dkpro.core.io.bincas.SerializedCasWriter;
+import eu.clarin.weblicht.wlfxb.io.WLFormatException;
 
 public class RepositoryServiceDbData
     implements RepositoryService
@@ -429,7 +430,7 @@ public class RepositoryServiceDbData
     @Transactional
     public File exportAnnotationDocument(SourceDocument aDocument, Project aProject, String aUser,
             Class aWriter, String aFileName, Mode aMode)
-        throws UIMAException, IOException, ClassNotFoundException
+        throws UIMAException, IOException, WLFormatException, ClassNotFoundException
     {
         File exportTempDir = File.createTempFile("webanno", "export");
         exportTempDir.delete();
@@ -437,12 +438,12 @@ public class RepositoryServiceDbData
 
         File annotationFolder = getAnnotationFolder(aDocument);
         String serializedCaseFileName;
-        // for Correction, it will export the corrected result (of the logged in user) (CORRECTION_USER.ser is
-        // the automated result displayed for the user to correct it, not the final result)
-        if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.CORRECTION)) {
+        if (aMode.equals(Mode.ANNOTATION)) {
             serializedCaseFileName = aUser + ".ser";
         }
-        // The merge result will be exported
+        else if (aMode.equals(Mode.CORRECTION)) {
+            serializedCaseFileName = CORRECTION_USER + ".ser";
+        }
         else {
             serializedCaseFileName = CURATION_USER + ".ser";
         }
@@ -566,8 +567,8 @@ public class RepositoryServiceDbData
     @Transactional(noRollbackFor = NoResultException.class)
     public List<Authority> listAuthorities(User aUser)
     {
-        return entityManager.createQuery("FROM Authority where username =:username", Authority.class)
-                .setParameter("username", aUser).getResultList();
+        return entityManager.createQuery("FROM Authority where user =:user", Authority.class)
+                .setParameter("user", aUser).getResultList();
     }
 
     @Override

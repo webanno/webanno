@@ -42,11 +42,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
+import eu.clarin.weblicht.wlfxb.io.WLFormatException;
 
 /**
  * Modal window to Export annotated document
- *
  * @author Seid Muhie Yimam
  *
  */
@@ -116,20 +119,16 @@ public class ExportModalWindowPage
                             String username = SecurityContextHolder.getContext()
                                     .getAuthentication().getName();
                             User user = repository.getUser(username);
-                            if (bratAnnotatorModel.getDocument() == null) {
+                            if (document == null) {
                                 error("NO Document is opened yet !");
                             }
                             else {
 
                                 try {
-                                    downloadFile = repository.exportAnnotationDocument(
-                                            bratAnnotatorModel.getDocument(),
-                                            bratAnnotatorModel.getProject(),
-                                            username,
-                                            repository.getWritableFormats().get(
-                                                    repository.getWritableFormatId(selectedFormat)),
-                                            bratAnnotatorModel.getDocument().getName(),
-                                            bratAnnotatorModel.getMode());
+                                    downloadFile = repository.exportAnnotationDocument(document,
+                                            project, username,
+                                            repository.getWritableFormats().get(repository.getWritableFormatId(selectedFormat)),
+                                            fileName, Mode.ANNOTATION);
                                 }
                                 catch (FileNotFoundException e) {
                                     error("Ubable to find annotation document " + ":"
@@ -141,6 +140,10 @@ public class ExportModalWindowPage
                                 }
                                 catch (IOException e) {
                                     error("Ubable to find annotation document " + ":"
+                                            + ExceptionUtils.getRootCauseMessage(e));
+                                }
+                                catch (WLFormatException e) {
+                                    error("Ubable to Export the document in TCF format " + ":"
                                             + ExceptionUtils.getRootCauseMessage(e));
                                 }
                                 catch (ClassNotFoundException e) {
@@ -167,12 +170,15 @@ public class ExportModalWindowPage
     }
 
     private ExportDetailsForm exportForm;
-    private BratAnnotatorModel bratAnnotatorModel;
+    private Project project;
+    private SourceDocument document;
+    private String fileName;
 
-    public ExportModalWindowPage(final ModalWindow modalWindow,
-            BratAnnotatorModel aBratAnnotatorModel)
+    public ExportModalWindowPage(final ModalWindow modalWindow, BratAnnotatorModel aBratAnnotatorModel)
     {
-        this.bratAnnotatorModel = aBratAnnotatorModel;
+        this.project = aBratAnnotatorModel.getProject();
+        this.document = aBratAnnotatorModel.getDocument();
+        this.fileName = aBratAnnotatorModel.getDocument().getName();
         exportForm = new ExportDetailsForm("exportForm", modalWindow);
         add(exportForm);
     }
