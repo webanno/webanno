@@ -13,7 +13,6 @@
 = Tomcat =
 
    * Install Tomcat. 
-
 {{{
 $ aptitude install tomcat6
 }}}
