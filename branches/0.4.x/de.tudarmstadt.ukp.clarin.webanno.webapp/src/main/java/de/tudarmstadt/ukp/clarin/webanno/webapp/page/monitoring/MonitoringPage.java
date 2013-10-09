@@ -733,10 +733,10 @@ public class MonitoringPage
 
                 TwoPairedKappa twoPairedKappa = new TwoPairedKappa(project, projectRepository);
                 int userInRow = 0;
-                for (User user1 : finishedDocumentLists.keySet()) {
+                for (User user1 : users) {
                     if (finishedDocumentLists.get(user1).size() != 0) {
                         int userInColumn = 0;
-                        for (User user2 : finishedDocumentLists.keySet()) {
+                        for (User user2 : users) {
 
                             Map<String, Map<String, String>> allUserAnnotations = new TreeMap<String, Map<String, String>>();
 
