@@ -37,7 +37,7 @@ Here, you can navigate to one of the currently three options:
   * *Correction* - Correcting automatic annotation (under development)
   * *Projects* - Set up or change annotation projects (only for _administrators_)
   * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
-  * *CrowdSource* - currently under development
+  * *CrowdSource* - Currently under development
 
 Please click on the functionality you need. The individual functionalities will be explained in further chapters.
 
