@@ -30,24 +30,20 @@ Upon navigating to the !WebAnno page, the login screen opens. Please enter your 
 
 After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
 
-Here, you can navigate to one of the currently three options:  
-•  Annotation Page: The page to perform annotations 
-•  Curation:  Merging  multiple  annotations  (not  available  to  mere 
-annotators) 
-•  Correction:  Correcting automatic annotation (not  available  to  mere 
-annotators)
-•  Projects:  The  page  to  set  up  or  change  annotation 
-projects (not available to mere annotators)
-•   Monitoring: Allows you to see the projects, their progress and change documentstatus
-
-
-Please click on the functionality you need. The individual functionalities will be explained in further chapters.
 
 Here, you can navigate to one of the currently three options: 
   * *Annotation* - The page to perform annotations
   * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
+  * *Correction* - Correcting automatic annotation (under development)
   * *Projects* - Set up or change annotation projects (only for _administrators_)
   * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
+  * *CrowdSource* - currently under development
+
+Please click on the functionality you need. The individual functionalities will be explained in further chapters.
+
+<wiki:comment>
+Send current screenshot
+</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="100"/>
 
@@ -101,6 +97,10 @@ Link annotations (between POS tags) are created by selecting the starting POS-ta
 When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
 
 In the left frame of the window, named “Sentences”, the sentences of the chosen document are displayed. The ones shaded in red created a conflict in annotation.
+
+<wiki:comment>
+Make and upload new screenshots; new functionality: go between docs
+</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/curation1.jpg" width="600"/>
 
@@ -236,18 +236,20 @@ To extract curated documents, click on the frame “Export”. By clicking on th
 
 == Monitoring ==
 
-As an administrator, you are able to observe the progress and document status of projects you are responsible for. After clicking on “Monitoring” in Home, the following page is displayed:
+As an administrator, you are able to observe the progress and document status of projects you are responsible for. Moreover, you are able to see the time of the last login of every user and observe the agreement between the annotators.
+After clicking on “Monitoring” in Home, the following page is displayed:
+
 
 <wiki:comment>
-monitoring1.jpg here 
+Image erneuern 
 </wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring1.jpg" width="600"/>
 
-In the left frame all the projects that you are administrator of. By clicking on a project, you are able to observe the progress and document status of individual group members in the project.
+In the left frame all the projects that you are administrator of. By clicking on a project, you are able to observe the progress, number of finished documents and document status of individual group members in the project. 
 
 <wiki:comment>
-monitoring2.jpg here 
+Insert new picture 
 </wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
@@ -268,6 +270,13 @@ You can also alter between “New” and “Blocked” status.
 The second column of the Document status frame displays the status of the curation. 
 
 As there is only one curator for one document, curation is not divided into individual curators. 
+
+
+<wiki:comment>
+Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
+do we have to cite?
+also inser image: kappa.jpg
+</wiki:comment>
 
 = Workflow =
 
