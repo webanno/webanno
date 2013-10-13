@@ -3,7 +3,7 @@
 This guide summarizes the functionality of !WebAnno from the user's perspective. It is constantly updated to match the latest verson of !WebAnno. 
 
 
-Currently, this guide describes the functionality of WebAnno Version 0.3. 
+Currently, this guide describes the functionality of WebAnno Version 0.4. 
 
 ==Table of Contents== 
 <wiki:toc/>
@@ -34,6 +34,8 @@ Here, you can navigate to one of the currently three options:
 •  Annotation Page: The page to perform annotations 
 •  Curation:  Merging  multiple  annotations  (not  available  to  mere 
 annotators) 
+•  Correction:  Correcting automatic annotation (not  available  to  mere 
+annotators)
 •  Projects:  The  page  to  set  up  or  change  annotation 
 projects (not available to mere annotators)
 •   Monitoring: Allows you to see the projects, their progress and change documentstatus
