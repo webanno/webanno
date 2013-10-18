@@ -79,4 +79,17 @@ $ sh startup.sh
 
 That should be it: `http://localhost:8080/webanno`
 
+
+You can export the project from the *Projects Settings* page once logged in (and if you have admin privilege). 
+  * Click *Projects* in the *Welcome to WebAnno* Page
+  * Select a project you are going to export in the *Projects Settings* page
+  * Go to the *Export/Import* tab
+  * Click the *Export the whole project into the File System* button.
+
+Please make sure that you have turnned of *"Automatically open safe file types"* in Safari to avoid unpacking the exported project on download.
+
+You can import exported project from the *Projects Settings* page. 
+  * Below the lists of projects, choose the exported webanno project (ZIP file) 
+  * Click *Import Project* button
+
 We recommend using WebKit-based browsers, such as Safari or Chrome.
