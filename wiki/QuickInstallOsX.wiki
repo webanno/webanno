@@ -1,5 +1,4 @@
-#summary Quick installation guide for advanced users *TODO*: Add instructions on downloading and importing example project. Mention to turn off "Automatically open safe file types" in Safari to avoid unpacking the example project ZIP on download.
-
+#summary Quick installation guide for advanced users
 
 We assume you have MySQL server installed and running.
 After installation, MySQL server can be started by running the "mysqld" command, located in the binary directory of mysql, e.g.:
