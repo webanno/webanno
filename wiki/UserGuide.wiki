@@ -62,7 +62,7 @@ Once the document is opened, a default of 10 sentences are loaded on the annotat
 annotation_settings.jpg here 
 </wiki:comment>
 
-The first option allows you to select an Annotation Layer. The second option allows you to specify the number of sentences that will be displayed on one page. The next option allows you to decide whether you want to be displayed a Lemma or not. The last option allows you to select autoscroll while annotating. 
+The first option allows you to select an Annotation Layer. The second option allows you to specify the number of sentences that will be displayed on one page. The next option allows you to decide whether you want to be displayed a Lemma or not. The last option allows you to select autoscroll while annotating. Autoscroll scrolls automatically forward by putting the last annotated sentence in the middle.
 <wiki:comment>
 ask Chris what the other layers do in detail, what lemma does and what this autoscroll does, I see no difference with or without
 </wiki:comment>
