@@ -1,6 +1,4 @@
-#summary Quick installation guide for advanced users
-
-*TODO*: Add instructions on downloading and importing example project. Mention to turn off "Automatically open safe file types" in Safari to avoid unpacking the example project ZIP on download.
+#summary Quick installation guide for advanced users *TODO*: Add instructions on downloading and importing example project. Mention to turn off "Automatically open safe file types" in Safari to avoid unpacking the example project ZIP on download.
 
 
 We assume you have MySQL server installed and running.
