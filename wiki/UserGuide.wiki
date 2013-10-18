@@ -79,7 +79,7 @@ The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *
 Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button . The document will be saved in TCF to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
 A click on the “Help” Button displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
 When you are finished with annotating or curating a document, please click on the “Done” 
-button      , so that the document may be further processed.
+button      , so that the document may be further processed. If the button above the “Done” is a cross symbol, it means the documents has already been finished. If the symbol has a tick, it is still open.
 
 <wiki:comment>
 everywhere were you see spaces, there should be pictures of buttons or links to buttons 
@@ -232,7 +232,7 @@ project10.jpg here
 To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
 
 === Extract Curated Documents ===
-To extract curated documents, click on the frame “Export”. By clicking on the Button “Export curated documents to the file system”, the documents are saved on your local disk and can be further processed.
+To extract curated documents, click on the frame “Export”. By clicking on the Button “Export curated documents to the file system”, the documents are saved on your local disk and can be further processed. You can also export the whole project on your local disk.
 
 == Monitoring ==
 
@@ -271,11 +271,10 @@ The second column of the Document status frame displays the status of the curati
 
 As there is only one curator for one document, curation is not divided into individual curators. 
 
+Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
 
 <wiki:comment>
-Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
-do we have to cite?
-also inser image: kappa.jpg
+also insert image: kappa.jpg
 </wiki:comment>
 
 = Workflow =
