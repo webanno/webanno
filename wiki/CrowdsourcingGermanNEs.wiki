@@ -1,0 +1,66 @@
+#summary This tutorial shows how you can use the experimental CrowdSource feature to crowdsource German named entity recognition
+
+= Crowdsourcing NEs =
+
+TODO: Explain how NEs are crowdsourced in WebAnno and why there are two tasks.
+
+= Prerequisites =
+
+WebAnno now has experimental support to crowdsource German named entities with http://crowdflower.com.
+
+You need to get an API key, which you can generate on the "Your Account" page in your Crowdflower account.
+
+Another prerequisite is that the account that is currently logged in into your WebAnno instance has admin capabilities.
+
+= Creating and accessing a crowdsource project =
+
+Create a new project or use an existing one and add the virtual crowd user to it. You can do this in the 'Projects' panel. You should now be able to select this project, when you access the 'CrowdSource' panel.
+
+= Creating a new Crowdsource task =
+
+Click on 'New task' to create a new task. Specify a name and the API key that you want to use with this Crowdtask and hit save. You can add documents you want to have annotated by the crowd and you absolutely should also add curated gold documents
+
+== Selecting documents ==
+
+Gold documents are curated documents (only available to select if you have curated any documents). They should be chosen so that the contained sentences and NEs reliably help to distinguish bad and good annotators. This is done automatically on the crowd platform: <explain gold here>
+
+If you press add, you can add one or more documents that should be annotated.
+With 'add gold', you can add one ore more curated documents that should be used as gold data for your task.
+
+You should now see the number of total sentences available for your documents and gold documents. Specify how many sentences you which to use in the 'use:' text box right next to it or leave a text box empty to use all available data.
+
+=Uploading  task1=
+
+Hit 'Upload task1 (span detection)' to create a new job on Crowdflower. After some time - it can take a while if you have many sentences, leave your browser window open - a new link should appear under 'Link for task1 job:'
+
+Click on the link and log into Crowdflower. One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
+
+You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'.  You can enable as many channels as you like. However, using the right channels is crucial to get good quality. Some channels are also notorious for a bigger number of cheaters.
+
+We've had good results with: Crowdguru, EntropiaPartners (Second Life), Embee, Coinworker, Mturk (however Mturk has a very limited availability of German annotators).
+
+Only EntropiaPartners (Second Life) and Mturk remain available to 'Basic Users' since October 2013. Unfortunately, esp. Crowdguru is a good channel for German annotation, since it's the only German-only one and has strict sign up tests in place to ensure quality.
+
+Quizmode can be enabled for your task, too. TODO: explain quiz mode
+
+==Ordering your job==
+
+You should now be ready to order your job. After you've done that, monitor the progress of your job. You should see first judgments after some minutes. If something goes wrong, you will see a very high percentage of untrusted judgments. You can abort the job and get a refund in this case. (You need to reupload the job then.)
+
+It often happens that your job gets stuck at 99.x%. This is usually a last block of your data that gets paired with an unusual tricky gold question. After some time, some one might get the answer right, however people are now generally discouraged to work on your task, since the time it takes to read the instructions not worth the effort for the little potential reward remaining.
+
+You can use the internal interface to finish the job on your own, or you skip directly to the next section with an incomplete job. WebAnno will see that some judgments are missing and only works on sentences where the span detection is 'finalized'.
+
+=Uploading  task2=
+
+Never change the associated documents after you've started crowdsourcing! If you're happy with the results of the span detection you can start a new job on Crowdflower.com which identifies the types of these spans. Only spans which have been identified by the crowd in the previous step are used to build new data for this new crowdsourcing job.
+
+When you click the button 'Upload task 2 (type recognition)' the first time you might get an error message that the data isn't ready on Crowdflower. This normal and expected for bigger uploads: Crowdflower needs more time to prepare your data. Wait 1-2 Minutes and rehit the button, it should work then.
+
+You need to convert the uploaded gold like in the previous job before Crowdflower can use it. Also, select the channels you want your job to appear in.
+
+=Retrieving data=
+
+Once you are happy with the progress you can import your data into WebAnno. You can also import a job which isn't finished (e.g. one that is stuck at 99%) and reimport later should it finish. You should now be able to see your data in the 'curation' view in WebAnno for the virtual crowd user.
+
+ 
