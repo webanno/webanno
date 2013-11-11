@@ -107,7 +107,7 @@ $ mysql -u root -p
 }}}
    * Create databases
 {{{
-mysql> CREATE DATABASE webanno; 
+mysql> CREATE DATABASE webanno DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
 }}}
    * create a database user called `webanno` with the password `t0t4llYSecreT`which is later used by the application to access the database (instructions for `settings.properties`file below).
 {{{
