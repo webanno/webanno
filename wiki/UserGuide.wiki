@@ -273,9 +273,7 @@ As there is only one curator for one document, curation is not divided into indi
 
 Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
 
-<wiki:comment>
-also insert image: kappa.jpg
-</wiki:comment>
+<img src="https://webanno.googlecode.com/svn/wiki/images/kappa.JPG" width="500"/>
 
 = Workflow =
 
