@@ -131,8 +131,13 @@ UPDATE `users` SET `password`='b7f76f3d1cfa8746e9d44a9ccca81bf22e0e123f06519fc96
   # Go to *manage users* and update passwords for the remaining users. Make sure that ROLE_USER is selected for every user. Multiple roles can be selected by selecting using *ctrl + click *
 
 == Upgrading from version 0.4.0 to 0.5.0 ==
-If you need to have case sensitive tag, such as Loc, LOC..., change collation of tag table as follows:
+  # If you need to have case sensitive tag, such as Loc, LOC..., change collation of tag table as follows:
 {{{
 >use webanno;
 > ALTER TABLE tag  CONVERT TO CHARACTER SET utf8 COLLATE 'utf8_bin';
+}}}
+  # The column *reverseDependencyDirection* in the project table is no more needed in the 0.5.0+ releases. If you have an old project, remove the column as follows
+{{{
+>use webanno;
+> ALTER TABLE project DROP COLUMN `reverseDependencyDirection` ;
 }}}
