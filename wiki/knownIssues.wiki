@@ -1,0 +1,3 @@
+#summary Known Issues
+  #  File with uncommon UTF-8 characters in name cause problems for MacOS/Safari. (
+Bug #525: File with uncommon UTF-8 characters in name cause problems) 
