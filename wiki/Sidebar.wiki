@@ -16,6 +16,7 @@
 *WebAnno FAQ*
   * [webannofaq WebAnno FAQ]
   * [troubleshooting]
+  * [known Issues]
 
 *Upgrade Procedure*
   * [upgradeprocedure Upgrade Procedure]
