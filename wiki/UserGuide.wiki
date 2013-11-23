@@ -41,10 +41,6 @@ Here, you can navigate to one of the currently three options:
 
 Please click on the functionality you need. The individual functionalities will be explained in further chapters.
 
-<wiki:comment>
-Send current screenshot
-</wiki:comment>
-
 <img src="https://webanno.googlecode.com/svn/wiki/images/overview_screen.jpg" width="100"/>
 
 
