@@ -68,11 +68,11 @@ For Example, for NE annotation, select the options as shown below (red check mar
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation2.jpg" width="400"/>
 
-NE annotation can be chosen from a tagset and can span over several tokens within one sentence. Nested NE annotations are also possible (in the example below: “Frankfurter“ in “Frankfurter FC“). 
+NE annotation can be chosen from a tagset and can span over several tokens within one sentence. Nested NE annotations are also possible (in the example below: "Frankfurter" in "Frankfurter FC"). 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_ner.jpg" width="400"/>
 
-Lemma [http://en.wikipedia.org/wiki/Lemma_%28morphology%29 lemma] annotation, as shown below, is freely selectable over a single token.
+[http://en.wikipedia.org/wiki/Lemma_%28morphology%29 Lemma] annotation, as shown below, is freely selectable over a single token.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.jpg" width="400"/>
 
