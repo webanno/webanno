@@ -74,14 +74,14 @@ For Example, for NE annotation, select the options as shown below (red check mar
 
 [http://en.wikipedia.org/wiki/Lemma_%28morphology%29 Lemma] annotation, as shown below, is freely selectable over a single token.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.JPG" width="400"/>
 
 
 <wiki:comment>
 Write click STTS??? 
 </wiki:comment>
 [http://en.wikipedia.org/wiki/Part_of_speech POS] can be chosen over one token out of a tagset.
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.JPG" width="400"/>
 
 <wiki:comment>
 Write click BART???
