@@ -70,7 +70,7 @@ For Example, for NE annotation, select the options as shown below (red check mar
 
 [http://en.wikipedia.org/wiki/Named-entity_recognition NE] annotation can be chosen from a tagset and can span over several tokens within one sentence. Nested NE annotations are also possible (in the example below: "Frankfurter" in "Frankfurter FC"). 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_ner.jpg" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_ner.JPG" width="400"/>
 
 [http://en.wikipedia.org/wiki/Lemma_%28morphology%29 Lemma] annotation, as shown below, is freely selectable over a single token.
 
