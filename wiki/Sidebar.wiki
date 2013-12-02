@@ -4,7 +4,6 @@
   * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
   * [UserGuideJune User's Guide Latest (under dev)]
-  * [AnnotationGuideLine Annotation Guideline]  
   * [QuickInstallOsX Quick installation guide for advanced users]
 
 *Developer documentation*
