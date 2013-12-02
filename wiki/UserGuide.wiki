@@ -52,7 +52,8 @@ When navigating to the *Annotation* page, a dialogue opens that allows you to se
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation1.jpg" width="800"/>
 
-Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. 
+Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. Document names written in black show that the document has not been opened by the current user, blue font means that it has already been opened, whereas
+red front indicates that the document has already been marked as "done".
 Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the settings of you the annotation layer. The following window will pop up:
 
 <wiki:comment>
