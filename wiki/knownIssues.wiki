@@ -1,4 +1,4 @@
 #summary Known Issues
-  #  File with uncommon UTF-8 characters in name cause problems for MacOS/Safari. (
-Bug #525: File with uncommon UTF-8 characters in name cause problems) 
+  #  File with uncommon UTF-8 characters in name cause problems for MacOS/Safari. ( Bug #525: File with uncommon UTF-8 characters in name cause problems) 
   # On mac os 10.6.8 and safari Version 5.1.10, you might have a problem during rendering (the tokens and spaces are not displayed nicely) for the first time you open the annotation document. 
+  # The keybaord assignment for document navigation, as indicated in the UserGuide is not working for Mac/Safari (Mac/Chrome works however)
