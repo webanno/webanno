@@ -1,0 +1,11 @@
+#summary Standalone Installation
+
+All-in-one version which does not require a database server or tomcat to be set up.
+
+Just start with: java -Xmx1g -jar -Dwebanno.home=/my/webanno/home webanno-XXX-standalone.jar (found in [Downloads] )
+
+Mind to replace /my/webanno/home with the full path (not relative path!) of a folder where WebAnno can store its data.
+
+By default the server starts on port 8080 an you can access it via a browser at http://localhost:8080 after you started it. You can add the parameter "--httpPort=9999" at the end of the command line to start the server on port 9999 (or choose any other port).
+
+A full list of the command line parameters can be found here: http://winstone.sourceforge.net/#commandLine
