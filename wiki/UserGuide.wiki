@@ -282,12 +282,15 @@ After clicking on “Monitoring” in Home, the following page is displayed:
 
 In the right frame, the overall progress of all projects is displayed.
 In the left frame one sees all projects, that one has an adminster role in. By clicking on a project, you are able to observe the progress, number of finished documents and document status of individual group members in the project. 
-
-<wiki:comment>
-Insert new picture 
-</wiki:comment>
+By clicking on one of the projects on the left, it may be selected and the following view is opened.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
+
+
+Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/monitoring_agreement.JPG" width="500"/>
+
 
 The following table will explain the different symbols, which explain the status of a document for a user and the described task.
 
@@ -306,9 +309,6 @@ The second column of the Document status frame displays the status of the curati
 
 As there is only one curator for one document, curation is not divided into individual curators. 
 
-Scrolling down, two further frames become visible. The left one, named “Layer”, allows you to chose a layer in which pairwise kappa agreement between annotators will be calculated.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/kappa.JPG" width="500"/>
 
 = Workflow =
 
