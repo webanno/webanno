@@ -3,7 +3,7 @@
 This guide summarizes the functionality of !WebAnno from the user's perspective. It is constantly updated to match the latest verson of !WebAnno. 
 
 
-Currently, this guide describes the functionality of WebAnno Version 0.5. 
+Currently, this guide describes the functionality of WebAnno Version 1.0.0. 
 
 ==Table of Contents== 
 <wiki:toc/>
