@@ -268,7 +268,10 @@ project10.jpg here
 To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
 
 === Extract Curated Documents ===
-To extract curated documents, click on the frame “Export”. By clicking on the Button “Export curated documents to the file system”, the documents are saved on your local disk and can be further processed. You can also export the whole project on your local disk.
+WebAnno gives the admin the possibility to extract whole projects or only curated documents by clicking on the corresponding buttons. The progress bar shows the progress of the download, which may take a while, depending on the size of the project.
+
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/export_project.jpg" width="600"/>
 
 == Monitoring ==
 
