@@ -37,7 +37,7 @@ Here, you can navigate to one of the currently three options:
   * *Correction* - Correcting automatic annotation (under development)
   * *Projects* - Set up or change annotation projects (only for _administrators_)
   * *Monitoring* - Allows you to see the projects, their progress and change documentstatus (only for _administrators_ and _curators)
-  * *Manage users* - Currently under development
+  * *Manage users* - Allows you to manage the rights of users
   * *CrowdSource* - Currently under development
 
 Please click on the functionality you need. The individual functionalities will be explained in further chapters.
@@ -310,6 +310,17 @@ Scrolling down, two further frames become visible. The left one, named â€œLayerâ
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring_agreement.JPG" width="500"/> 
 
+== Manage users ==
+After selecting this functionality, you are displayed a frame which shows all users. By selecting a user, a frame is displayed on the right. 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/manage_users.JPG" width="500"/> 
+
+Now you may change his role or password,sign him an e-Mail address or dis- or enable his accound by placing the tick.
+
+To create a new user, click on create in the left frame. This will display a similar frame as the one described in the last paragraph. Here you have to give a login-name to the new user.
+
+In both cases, do not forget to save your changes by pressing the "Save"
+button.
 
 = Workflow =
 
