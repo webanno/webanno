@@ -78,17 +78,13 @@ For Example, for NE annotation, select the options as shown below (red check mar
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.JPG" width="400"/>
 
 
-<wiki:comment>
-Write click STTS??? 
-</wiki:comment>
 [http://en.wikipedia.org/wiki/Part_of_speech POS] can be chosen over one token out of a tagset.
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.JPG" width="400"/>
 
-<wiki:comment>
-Write click BART???
-I can't do it. 
-</wiki:comment>
+
 [http://en.wikipedia.org/wiki/Coreference Co-reference] annotation can be made over several tokens within one sentence. A single token sequence have several co-ref spans parallely.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_span_many.JPG" width="400"/>
 
 <wiki:comment>
 Make examples 
@@ -111,17 +107,20 @@ A click on the “Help” Button displays the Guidelines for the tool and “The
 When you are finished with annotating or curating a document, please click on the “Done” 
 button      , so that the document may be further processed. If the button above the “Done” is a cross symbol, it means the documents has already been finished. If the symbol has a tick, it is still open.
 
-<wiki:comment>
-everywhere were you see spaces, there should be pictures of buttons or links to buttons 
-</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation4.jpg" width="600"/>
 
-Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation.  To change or delete an annotation, double-click on the annotation (span or link annotations).
+Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation. The layer can be selected on the left side of the frame. The Tag can be selected out of the right box, containing the tags of the tagset. One can also type in the initial letters and chose the needed tag. In the case of lemma annotation, a lemma can be typed into the box on the right. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/webanno_annotation_edit.png" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_edit.JPG" width="600"/> 
+
+To change or delete an annotation, double-click on the annotation (span or link annotations).
+
 
 Link annotations (between POS tags) are created by selecting the starting POS-tag, then dragging the arrow to connect it to its target POS tag. All possible targets are highlighted. 
+
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos_span.JPG" width="600"/> 
 
 == Curation ==
 When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
