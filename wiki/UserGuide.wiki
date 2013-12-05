@@ -58,35 +58,9 @@ Once the document is opened, a default of 10 sentences are loaded on the annotat
 
 The first option allows you to select an Annotation Layer you are displayed during annotation. The second option allows you to specify the number of sentences that will be displayed on one page. The last option allows you to select autoscroll while annotating. Autoscroll scrolls automatically forward by putting the last annotated sentence in the middle.
 
-Concerning annotation, WebAnno supports six layers:
-Span annotations support NE, lemma, POS, and co-referance. Several annotation layers may be selected. 
-
-For Example, for NE annotation, select the options as shown below (red check mark):
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation2.jpg" width="400"/>
-
-[http://en.wikipedia.org/wiki/Named-entity_recognition NE] annotation can be chosen from a tagset and can span over several tokens within one sentence. Nested NE annotations are also possible (in the example below: "Frankfurter" in "Frankfurter FC"). 
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_ner.JPG" width="400"/>
-
-[http://en.wikipedia.org/wiki/Lemma_%28morphology%29 Lemma] annotation, as shown below, is freely selectable over a single token.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.JPG" width="400"/>
+===Annotation Navigation===
 
 
-[http://en.wikipedia.org/wiki/Part_of_speech POS] can be chosen over one token out of a tagset.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.JPG" width="400"/>
-
-
-[http://en.wikipedia.org/wiki/Coreference Co-reference] annotation can be made over several tokens within one sentence. A single token sequence have several co-ref spans parallely.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/anno_span_many.JPG" width="400"/>
-
-<wiki:comment>
-Make examples 
-</wiki:comment>
-The other kind of annotation that is supported by WebAnno is Arc. The arcs can be made within one sentence and their types are chosen out of a tagset. Dependency arcs are defined between POS. Every POS is allowed to have only one head. Co-reference arcs are defined between co-reference-anchors. All transitivly combined anchors build a colour-coded lexical chain.
 
 Sentence  numbers  on  the  left  side  of  the  annotation  page  shows  the  exact sentence numbers in the document. 
 
@@ -118,6 +92,42 @@ Link annotations (between POS tags) are created by selecting the starting POS-ta
 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos_span.JPG" width="600"/> 
+
+
+===Annotation Layers===
+Concerning annotation, WebAnno supports six layers:
+Span annotations support NE, lemma, POS, and co-referance. Several annotation layers may be selected. 
+
+For Example, for NE annotation, select the options as shown below (red check mark):
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation2.jpg" width="400"/>
+
+[http://en.wikipedia.org/wiki/Named-entity_recognition NE] annotation can be chosen from a tagset and can span over several tokens within one sentence. Nested NE annotations are also possible (in the example below: "Frankfurter" in "Frankfurter FC"). 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_ner.JPG" width="400"/>
+
+[http://en.wikipedia.org/wiki/Lemma_%28morphology%29 Lemma] annotation, as shown below, is freely selectable over a single token.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_lemma.JPG" width="400"/>
+
+
+[http://en.wikipedia.org/wiki/Part_of_speech POS] can be chosen over one token out of a tagset.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.JPG" width="400"/>
+
+
+[http://en.wikipedia.org/wiki/Coreference Co-reference] annotation can be made over several tokens within one sentence. A single token sequence have several co-ref spans parallely.
+
+<wiki:comment>
+Make examples 
+</wiki:comment>
+
+The other kind of annotation that is supported by WebAnno is Arc. The arcs can be made within one sentence and their types are chosen out of a tagset. Dependency arcs are defined between POS. Every POS is allowed to have only one head. Co-reference arcs are defined between co-reference-anchors. All transitivly combined anchors build a colour-coded lexical chain.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/anno_span_many.JPG" width="400"/>
+
+
+
 
 == Curation ==
 When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
