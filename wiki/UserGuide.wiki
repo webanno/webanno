@@ -271,7 +271,7 @@ To delete a project, click on it in the frame “Details”. Then you are displa
 WebAnno gives the admin the possibility to extract whole projects or only curated documents by clicking on the corresponding buttons. The progress bar shows the progress of the download, which may take a while, depending on the size of the project.
 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/export_project.jpg" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/export_project.JPG" width="600"/>
 
 == Monitoring ==
 
