@@ -3,7 +3,7 @@
 This guide summarizes the functionality of !WebAnno from the user's perspective. It is constantly updated to match the latest verson of !WebAnno. 
 
 
-Currently, this guide describes the functionality of WebAnno Version 0.4. 
+Currently, this guide describes the functionality of WebAnno Version 0.5. 
 
 ==Table of Contents== 
 <wiki:toc/>
@@ -85,7 +85,7 @@ For Example, for NE annotation, select the options as shown below (red check mar
 
 [http://en.wikipedia.org/wiki/Coreference Co-reference] annotation can be made over several tokens within one sentence. A single token sequence have several co-ref spans parallely.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_span_many.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/anno_span_many.JPG" width="400"/>
 
 <wiki:comment>
 Make examples 
