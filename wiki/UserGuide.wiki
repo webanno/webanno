@@ -54,11 +54,7 @@ When navigating to the *Annotation* page, a dialogue opens that allows you to se
 
 Projects appear as folders, and contain the documents of the project. Double-click on a document to open it for annotation. Document names written in black show that the document has not been opened by the current user, blue font means that it has already been opened, whereas
 red font indicates that the document has already been marked as "done".
-Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the settings of you the annotation layer. The following window will pop up:
-
-<wiki:comment>
-annotation_settings.jpg here 
-</wiki:comment>
+Once the document is opened, a default of 10 sentences are loaded on the annotation  page.  The  *Settings*  button will  allow  you  to specify the settings of you the annotation layer.
 
 The first option allows you to select an Annotation Layer you are displayed during annotation. The second option allows you to specify the number of sentences that will be displayed on one page. The last option allows you to select autoscroll while annotating. Autoscroll scrolls automatically forward by putting the last annotated sentence in the middle.
 
