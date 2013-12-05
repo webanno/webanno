@@ -91,7 +91,7 @@ To change or delete an annotation, double-click on the annotation (span or link 
 Link annotations (between POS tags) are created by selecting the starting POS-tag, then dragging the arrow to connect it to its target POS tag. All possible targets are highlighted. 
 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos_span.JPG" width="600"/> 
+<img src="https://webanno.googlecode.com/svn/wiki/images/anno_pos_span.JPG" width="600"/> 
 
 
 ===Annotation Layers===
