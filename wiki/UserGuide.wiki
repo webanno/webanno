@@ -281,7 +281,7 @@ After clicking on “Monitoring” in Home, the following page is displayed:
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring1.jpg" width="600"/>
 
 In the right frame, the overall progress of all projects is displayed.
-In the left frame one sees all projects, that one has an adminster role in. By clicking on a project, you are able to observe the progress, number of finished documents and document status of individual group members in the project. 
+In the left frame one sees all projects, that one has an adminster role in.  
 By clicking on one of the projects on the left, it may be selected and the following view is opened:
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/monitoring2.jpg" width="600"/>
