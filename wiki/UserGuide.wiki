@@ -79,6 +79,7 @@ For Example, for NE annotation, select the options as shown below (red check mar
 
 
 [http://en.wikipedia.org/wiki/Part_of_speech POS] can be chosen over one token out of a tagset.
+
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_pos.JPG" width="400"/>
 
 
@@ -112,7 +113,7 @@ button      , so that the document may be further processed. If the button above
 
 Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation. The layer can be selected on the left side of the frame. The Tag can be selected out of the right box, containing the tags of the tagset. One can also type in the initial letters and chose the needed tag. In the case of lemma annotation, a lemma can be typed into the box on the right. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_edit.JPG" width="600"/> 
+<img src="https://webanno.googlecode.com/svn/wiki/images/annotation_edit.JPG" width="400"/> 
 
 To change or delete an annotation, double-click on the annotation (span or link annotations).
 
