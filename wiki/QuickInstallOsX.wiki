@@ -90,3 +90,5 @@ You can import exported project from the *Projects Settings* page.
   * Click *Import Project* button
 
 We recommend using WebKit-based browsers, such as Safari or Chrome.
+
+You can start with the SampleProjects to explore some of the functionalities. 
