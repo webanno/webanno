@@ -12,7 +12,7 @@
 
 *Sample Data*
   * [Sampledata Sample Data]
-  * [ SampleProjects Sample Projects for release 1.0.0]
+  * [SampleProjects Sample Projects for release 1.0.0]
 
 *WebAnno FAQ*
   * [webannofaq WebAnno FAQ]
