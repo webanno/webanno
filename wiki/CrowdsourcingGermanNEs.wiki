@@ -9,6 +9,9 @@ TODO: Explain how NEs are crowdsourced in WebAnno and why there are two tasks.
 WebAnno now has experimental support to crowdsource German named entities with http://crowdflower.com.
 
 You need to get an API key, which you can generate on the "Your Account" page in your Crowdflower account.
+For this, you have to login with your crededtials in https://id.crowdflower.com/session/new?redirect_url=https%3A%2F%2Fcrowdflower.com%2Faccount&app=make. After logging proceed to your account by clicking on the down arrow next to your login name and selecting "Account".
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/your_account.JPG" width="400"/>
 
 Another prerequisite is that the account that is currently logged in into your WebAnno instance has admin capabilities.
 
