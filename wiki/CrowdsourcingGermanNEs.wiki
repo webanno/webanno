@@ -15,13 +15,26 @@ For this, you have to login with your crededtials in https://id.crowdflower.com/
 
 Another prerequisite is that the account that is currently logged in into your WebAnno instance has admin capabilities.
 
-= Creating and accessing a crowdsource project =
+== Creating a crowdsource project ==
 
-Create a new project or use an existing one and add the virtual crowd user to it. You can do this in the 'Projects' panel. You should now be able to select this project, when you access the 'CrowdSource' panel.
+Before a new Crowdsource task can be created, one has to add the user "crowd_user" to the project one wants to use for Crowdsourcing. 
+
+<wiki:comment>
+Make link to how create project and add users 
+</wiki:comment>
+Furthermore, the document which is to be used as 'gold document' has to marked as curated.
+<wiki:comment>
+Make link to how to mark documents as curated
+</wiki:comment>
 
 = Creating a new Crowdsource task =
+After having added the "crowd_user" to the project you want to use for your Crowdsource task, you should be able to select this project, when you access the 'CrowdSource' panel.
+After selecting the project, click on 'New task' to create a new task. Specify a name and the API key that you want to use with this Crowdtask and hit save. You have to enter both parameters (name and API) before saving, otherwise the task cannot be created.
 
-Click on 'New task' to create a new task. Specify a name and the API key that you want to use with this Crowdtask and hit save. You can add documents you want to have annotated by the crowd and you absolutely should also add curated gold documents
+You can add documents you uploaded in your chosen project in order to have them annotated by the crowd in the corresponding frames.
+<wiki:comment>
+Make link to add documents to project
+</wiki:comment>
 
 == Selecting documents ==
 
