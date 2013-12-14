@@ -63,7 +63,7 @@ One important step is to convert uploaded gold, otherwise Crowdflower won't use 
 A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
 
 
-
+Before choosing the choosing the channels, you may also specify the country, skills and behavior settings, e.g. the maximum number of judgements per contributor.
 You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'. You can enable as many channels as you like by pulling the trigger to "on" in the corresponding line. 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
@@ -74,23 +74,35 @@ We've had good results with: Crowdguru, EntropiaPartners (Second Life), Embee, C
 
 Only EntropiaPartners (Second Life) and Mturk remain available to 'Basic Users' since October 2013. Unfortunately, esp. Crowdguru is a good channel for German annotation, since it's the only German-only one and has strict sign up tests in place to ensure quality.
 
+Before finally ordering your job, you can specify the number of sentences and payment per sheet, as well as the task expiration time in "Job settings".
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
+
 Quizmode can be enabled for your task, too. TODO: explain quiz mode
+
+
 
 ==Ordering your job==
 
-You should now be ready to order your job. After you've done that, monitor the progress of your job. You should see first judgments after some minutes. If something goes wrong, you will see a very high percentage of untrusted judgments. You can abort the job and get a refund in this case. (You need to reupload the job then.)
+You should now be ready to order your job. You can do that by clicking on "Launch". The Job settings and the total job costs will be displayed to you after that. 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/checkout.JPG" width="400"/>
+
+To order the job, click on "Proceed to Checkout" and then on "Launch Job Now!"
+
+After you've done that, monitor the progress of your job. You should see first judgments after some minutes. If something goes wrong, you will see a very high percentage of untrusted judgments. You can abort the job and get a refund in this case. (You need to reupload the job then.)
 
 It often happens that your job gets stuck at 99.x%. This is usually a last block of your data that gets paired with an unusual tricky gold question. After some time, some one might get the answer right, however people are now generally discouraged to work on your task, since the time it takes to read the instructions not worth the effort for the little potential reward remaining.
 
 You can use the internal interface to finish the job on your own, or you skip directly to the next section with an incomplete job. WebAnno will see that some judgments are missing and only works on sentences where the span detection is 'finalized'.
 
-=Uploading  task2=
+==Uploading  task2==
 
 Never change the associated documents after you've started crowdsourcing! If you're happy with the results of the span detection you can start a new job on Crowdflower.com which identifies the types of these spans. Only spans which have been identified by the crowd in the previous step are used to build new data for this new crowdsourcing job.
 
 When you click the button 'Upload task 2 (type recognition)' the first time you might get an error message that the data isn't ready on Crowdflower. This is normal and expected for bigger uploads: Crowdflower needs more time to prepare your data. Wait 1-2 Minutes and rehit the button, it should work then. If not, try to update the status of the first task and try to upload task two again.
 
-You need to convert the uploaded gold like in the previous job before Crowdflower can use it. Also, select the channels you want your job to appear in.
+The remaining procedure is the same as previously described.
 
 =Retrieving data=
 
