@@ -48,16 +48,23 @@ If you press add, you can add one or more documents that should be annotated. Wi
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.JPG" width="400"/>
 
-You should now see the number of total sentences available for your documents and gold documents. Specify how many sentences you which to use in the 'use:' text box right next to it or leave a text box empty to use all available data.
 
 =Uploading  task1=
 
 Hit 'Upload task1 (span detection)' to create a new job on Crowdflower. After some time - it can take a while if you have many sentences, leave your browser window open - a new link should appear under 'Link for task1 job:'
 
-Click on the link and log into Crowdflower. One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
+Click on the link and log into Crowdflower. One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. 
 
-You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'.  You can enable as many channels as you like. However, using the right channels is crucial to get good quality. Some channels are also notorious for a bigger number of cheaters.
+<img src="https://webanno.googlecode.com/svn/wiki/images/convert_uploaded_test.JPG" width="400"/>
 
+A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
+
+You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'. You can enable as many channels as you like by pulling the trigger to "on" in the corresponding line. 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
+
+
+However, using the right channels is crucial to get good quality. Some channels are also notorious for a bigger number of cheaters.
 We've had good results with: Crowdguru, EntropiaPartners (Second Life), Embee, Coinworker, Mturk (however Mturk has a very limited availability of German annotators).
 
 Only EntropiaPartners (Second Life) and Mturk remain available to 'Basic Users' since October 2013. Unfortunately, esp. Crowdguru is a good channel for German annotation, since it's the only German-only one and has strict sign up tests in place to ensure quality.
@@ -76,7 +83,7 @@ You can use the internal interface to finish the job on your own, or you skip di
 
 Never change the associated documents after you've started crowdsourcing! If you're happy with the results of the span detection you can start a new job on Crowdflower.com which identifies the types of these spans. Only spans which have been identified by the crowd in the previous step are used to build new data for this new crowdsourcing job.
 
-When you click the button 'Upload task 2 (type recognition)' the first time you might get an error message that the data isn't ready on Crowdflower. This normal and expected for bigger uploads: Crowdflower needs more time to prepare your data. Wait 1-2 Minutes and rehit the button, it should work then.
+When you click the button 'Upload task 2 (type recognition)' the first time you might get an error message that the data isn't ready on Crowdflower. This is normal and expected for bigger uploads: Crowdflower needs more time to prepare your data. Wait 1-2 Minutes and rehit the button, it should work then. If not, try to update the status of the first task and try to upload task two again.
 
 You need to convert the uploaded gold like in the previous job before Crowdflower can use it. Also, select the channels you want your job to appear in.
 
