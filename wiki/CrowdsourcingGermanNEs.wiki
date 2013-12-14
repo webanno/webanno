@@ -9,7 +9,7 @@ TODO: Explain how NEs are crowdsourced in WebAnno and why there are two tasks.
 WebAnno now has experimental support to crowdsource German named entities with http://crowdflower.com.
 
 You need to get an API key, which you can generate on the "Your Account" page in your Crowdflower account.
-For this, you have to login with your crededtials in https://id.crowdflower.com/session/new?redirect_url=https%3A%2F%2Fcrowdflower.com%2Faccount&app=make. After logging proceed to your account by clicking on the down arrow next to your login name and selecting "Account".
+For this, you have to login with your crededtials in [https://id.crowdflower.com/session/new?redirect_url=https%3A%2F%2Fcrowdflower.com%2Faccount&app=make Login Window]. After logging proceed to your account by clicking on the down arrow next to your login name and selecting "Account".
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/your_account.JPG" width="400"/>
 
@@ -38,10 +38,15 @@ Make link to add documents to project
 
 == Selecting documents ==
 
-Gold documents are curated documents (only available to select if you have curated any documents). They should be chosen so that the contained sentences and NEs reliably help to distinguish bad and good annotators. This is done automatically on the crowd platform: <explain gold here>
+Gold documents are curated documents (only available to select if you have curated and marked them as such). They should be chosen so that the contained sentences and NEs reliably help to distinguish bad and good annotators. This is done automatically on the crowd platform.
 
-If you press add, you can add one or more documents that should be annotated.
-With 'add gold', you can add one ore more curated documents that should be used as gold data for your task.
+Gold documents are documents which have been annotated perfectly according to the guidelines and are therefore considered as the correct result or norm.
+
+With 'add gold', you can add one ore more curated documents that should be used as gold data for your task. Removal of documents and number of sentences that will be used for the judgement of the annotation can be done with the same approach as with unannotated documents.
+
+If you press add, you can add one or more documents that should be annotated. With the button remove you may also delete documents you have chosen before. Next to the "Remove" and "Add" button the sum of all sentences of the chosen documents is displayed. In the input window you may specify the number of sentences you want to have annotated in the crowdsourcing.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.JPG" width="400"/>
 
 You should now see the number of total sentences available for your documents and gold documents. Specify how many sentences you which to use in the 'use:' text box right next to it or leave a text box empty to use all available data.
 
