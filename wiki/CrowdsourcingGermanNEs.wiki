@@ -66,7 +66,7 @@ A popup should appear that informs you that your gold data is updated in the bac
 Before choosing the choosing the channels, you may also specify the country, skills and behavior settings, e.g. the maximum number of judgements per contributor.
 You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'. You can enable as many channels as you like by pulling the trigger to "on" in the corresponding line. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/channel.jpg" width="400"/>
 
 
 However, using the right channels is crucial to get good quality. Some channels are also notorious for a bigger number of cheaters.
