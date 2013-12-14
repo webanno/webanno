@@ -51,16 +51,18 @@ If you press add, you can add one or more documents that should be annotated. Wi
 
 =Creating tasks=
 
-==Setting task1==
+==Uploading task1==
 Hit 'Upload task1 (span detection)' to create a new job on Crowdflower. After some time - it can take a while if you have many sentences, leave your browser window open - a new link should appear under 'Link for task1 job'.
 Click on the link and log into Crowdflower. 
 
-== Setting task ==
+== Setting up a task ==
 One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/convert_uploaded_test.JPG" width="400"/>
 
 A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
+
+
 
 You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'. You can enable as many channels as you like by pulling the trigger to "on" in the corresponding line. 
 
