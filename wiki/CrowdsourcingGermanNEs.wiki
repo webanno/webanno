@@ -11,7 +11,7 @@ WebAnno now has experimental support to crowdsource German named entities with h
 You need to get an API key, which you can generate on the "Your Account" page in your Crowdflower account.
 For this, you have to login with your crededtials in [https://id.crowdflower.com/session/new?redirect_url=https%3A%2F%2Fcrowdflower.com%2Faccount&app=make Login Window]. After logging proceed to your account by clicking on the down arrow next to your login name and selecting "Account".
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/your_account.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/your_account.jpg" width="400"/>
 
 Another prerequisite is that the account that is currently logged in into your WebAnno instance has admin capabilities.
 
@@ -46,7 +46,7 @@ With 'add gold', you can add one ore more curated documents that should be used 
 
 If you press add, you can add one or more documents that should be annotated. With the button remove you may also delete documents you have chosen before. Next to the "Remove" and "Add" button the sum of all sentences of the chosen documents is displayed. In the input window you may specify the number of sentences you want to have annotated in the crowdsourcing.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.jpg" width="400"/>
 
 
 =Creating tasks=
@@ -58,7 +58,7 @@ Click on the link and log into Crowdflower.
 == Setting up a task ==
 One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/convert_uploaded_test.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/convert_uploaded_test.jpg" width="400"/>
 
 A popup should appear that informs you that your gold data is updated in the background. After a while, click on 'Monitor' in the menu to confirm that the right amount of gold data has been created.
 
@@ -66,7 +66,7 @@ A popup should appear that informs you that your gold data is updated in the bac
 Before choosing the choosing the channels, you may also specify the country, skills and behavior settings, e.g. the maximum number of judgements per contributor.
 You need to choose channels in which you crowd job is going to appear. Click on 'Contributors' and then 'Channels'. You can enable as many channels as you like by pulling the trigger to "on" in the corresponding line. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/channels.jpg" width="400"/>
 
 
 However, using the right channels is crucial to get good quality. Some channels are also notorious for a bigger number of cheaters.
@@ -76,7 +76,7 @@ Only EntropiaPartners (Second Life) and Mturk remain available to 'Basic Users' 
 
 Before finally ordering your job, you can specify the number of sentences and payment per sheet, as well as the task expiration time in "Job settings".
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/channels.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/channels.jpg" width="400"/>
 
 Quizmode can be enabled for your task, too. TODO: explain quiz mode
 
@@ -86,7 +86,7 @@ Quizmode can be enabled for your task, too. TODO: explain quiz mode
 
 You should now be ready to order your job. You can do that by clicking on "Launch". The Job settings and the total job costs will be displayed to you after that. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/checkout.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/checkout.jpg" width="400"/>
 
 To order the job, click on "Proceed to Checkout" and then on "Launch Job Now!"
 
