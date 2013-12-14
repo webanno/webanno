@@ -22,7 +22,7 @@ Before a new Crowdsource task can be created, one has to add the user "crowd_use
 <wiki:comment>
 Make link to how create project and add users 
 </wiki:comment>
-Furthermore, the document which is to be used as 'gold document' has to marked as curated.
+Furthermore, the document which is to be used as 'gold document' has to be marked as curated.
 <wiki:comment>
 Make link to how to mark documents as curated
 </wiki:comment>
