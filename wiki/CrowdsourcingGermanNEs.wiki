@@ -49,11 +49,14 @@ If you press add, you can add one or more documents that should be annotated. Wi
 <img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.JPG" width="400"/>
 
 
-=Uploading  task1=
+=Creating tasks=
 
-Hit 'Upload task1 (span detection)' to create a new job on Crowdflower. After some time - it can take a while if you have many sentences, leave your browser window open - a new link should appear under 'Link for task1 job:'
+==Setting task1==
+Hit 'Upload task1 (span detection)' to create a new job on Crowdflower. After some time - it can take a while if you have many sentences, leave your browser window open - a new link should appear under 'Link for task1 job'.
+Click on the link and log into Crowdflower. 
 
-Click on the link and log into Crowdflower. One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. 
+== Setting task ==
+One important step is to convert uploaded gold, otherwise Crowdflower won't use your gold data. Click on 'data' in the left menu, then 'Manage data' and then 'Convert uploaded gold'. 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/convert_uploaded_test.JPG" width="400"/>
 
