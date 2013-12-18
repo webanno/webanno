@@ -111,6 +111,8 @@ To import the annotated data, click on "Retrieve T2 judgements", which is on the
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/extract_anno.JPG" width="800"/>
 
-
-
+To see the annotation on the Curation Page, you have to mark the document (not the gold document) as annotated for the "crowd_user" in the Monitoring Page.
+<wiki:comment>
+Make link to how to mark documents as curated
+</wiki:comment>
  
