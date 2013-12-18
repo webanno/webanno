@@ -109,7 +109,7 @@ The remaining procedure is the same as previously described.
 Once you are happy with the progress you can import your data into WebAnno. You can also import a job which isn't finished (e.g. one that is stuck at 99%) and reimport later should it finish. 
 To import the annotated data, click on "Retrieve T2 judgements", which is on the bottom of the "Crowd Job Details" frame.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/extract_anno.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/extract_anno.JPG" width="400"/>
 
 To see the annotation on the Curation Page, you have to mark the document (not the gold document) as annotated for the "crowd_user" in the Monitoring Page.
 <wiki:comment>
