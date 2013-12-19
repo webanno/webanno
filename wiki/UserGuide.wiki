@@ -322,6 +322,10 @@ To create a new user, click on create in the left frame. This will display a sim
 In both cases, do not forget to save your changes by pressing the "Save"
 button.
 
+= Crowdsourcing =
+
+For an description on how to operate the API to Crowdflower, see [CrowdsourcingGermanNEs].
+
 = Workflow =
 
 The following image shows an examplary workflow of an annotation project with WebAnno.
