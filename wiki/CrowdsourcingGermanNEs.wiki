@@ -1,4 +1,4 @@
-#summary This tutorial shows how you can use the experimental CrowdSource feature to crowdsource German named entity recognition
+#summary This tutorial shows how you can use the experimental CrowdSource feature to crowdsource German named entity recognition (NER). This is only a demo for the Crowdsourcing feature in WebAnno. If another task than that of German NER shall be completed, code changes have to be made.
 
 = Crowdsourcing NEs =
 
