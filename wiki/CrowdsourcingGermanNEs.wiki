@@ -1,5 +1,7 @@
 This tutorial shows how you can use the experimental CrowdSource feature to crowdsource German named entity recognition (NER). This is only a demo for the Crowdsourcing feature in WebAnno. If another task than that of German NER shall be completed, code changes have to be made.
 
+_We also offer a step-by-step tutorial, guiding you through the process of creating a new project and getting a document in it be annotated by the crowd_
+
 = Crowdsourcing NEs =
 
 The task of NER has been split up into two tasks in this demo crowdsourcing task. This way it is less complex to present the problem to the crowd and the quality of the annotation is assured. The first task is that of Named Entity Identification, which means that the users only have to recognize the NEs. In the second task the entities, that have been recognized are classified into the following classes: LOC (location), PER (person), ORG (organisation), OTH (all other name classes) and their derivations and parts of them in phrases containing NEs.
