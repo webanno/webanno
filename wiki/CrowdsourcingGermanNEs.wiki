@@ -1,6 +1,6 @@
 This tutorial shows how you can use the experimental CrowdSource feature to crowdsource German named entity recognition (NER). This is only a demo for the Crowdsourcing feature in WebAnno. If another task than that of German NER shall be completed, code changes have to be made.
 
-_We also offer a step-by-step tutorial, guiding you through the process of creating a new project and getting a document in it be annotated by the crowd_
+_We also offer a step-by-step tutorial, guiding you through the process of creating a new project and getting a document in it be annotated by the crowd. The instruction for this tutorial are written in italics beneath the corresponding chapters._
 
 = Crowdsourcing NEs =
 
@@ -30,6 +30,16 @@ Furthermore, the document which is to be used as 'gold document' has to be marke
 <wiki:comment>
 Make link to how to mark documents as curated
 </wiki:comment>
+
+_For this tutorial, download the following file._
+<wiki:comment>
+Put project file here
+</wiki:comment>
+
+_It contains three documents, two of which will be used for the gold data and one of which has to be annotated by the crowd. After downloading, load the file in WebAnno, by choosing *Projects* on the overview screen. On the *Projects* page, click on "Choose file" in "Import project" frame. It is below the "Project" frame on the left. After choosing the file, click on import project. Now you are able to set the project "CrowdTut_ProjectR2" up._
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project_before.JPG" width="400"/>
+
 
 = Creating a new Crowdsource task =
 After having added the "crowd_user" to the project you want to use for your Crowdsource task, you should be able to select this project, when you access the 'CrowdSource' panel.
