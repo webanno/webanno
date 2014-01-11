@@ -36,10 +36,16 @@ _For this tutorial, download the following file._
 Put project file here
 </wiki:comment>
 
-_It contains three documents, two of which will be used for the gold data and one of which has to be annotated by the crowd. After downloading, load the file in WebAnno, by choosing *Projects* on the overview screen. On the *Projects* page, click on "Choose file" in "Import project" frame. It is below the "Project" frame on the left. After choosing the file, click on import project. Now you are able to set the project "CrowdTut_ProjectR2" up._
+_It contains three documents, two of which will be used for the gold data and one of which has to be annotated by the crowd. After downloading, load the file in WebAnno, by choosing *Projects* on the overview screen. On the *Projects* page, click on "Choose file" in "Import project" frame. It is below the "Project" frame on the left. After choosing the file, click on import project. Now you are able to set the project "CrowdTut_ProjectR2" up. To add the "crowd_user", click on the "Users" tab._
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/users_tab.JPG" width="400"/>
+
+_Then click on "Add Users", select the "crowd_user" and click on "Add" in the lower right corner._ 
+
+_Now you should be able to see the following after selecting the project on the *Monitoring* page. To go to the *Monitoring* page, return to the overview screen by clicking on "Home" in the left upper corner. To select the project, click on "CrowdTut_ProjectR2" in the "Projects" frame on the left._ 
+
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/project_before.JPG" width="400"/>
-
 
 = Creating a new Crowdsource task =
 After having added the "crowd_user" to the project you want to use for your Crowdsource task, you should be able to select this project, when you access the 'CrowdSource' panel.
