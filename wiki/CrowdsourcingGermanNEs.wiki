@@ -44,7 +44,6 @@ _Then click on "Add Users", select the "crowd_user" and click on "Add" in the lo
 
 _Now you should be able to see the following after selecting the project on the *Monitoring* page. To go to the *Monitoring* page, return to the overview screen by clicking on "Home" in the left upper corner. To select the project, click on "CrowdTut_ProjectR2" in the "Projects" frame on the left._ 
 
-
 <img src="https://webanno.googlecode.com/svn/wiki/images/project_before.JPG" width="400"/>
 
 = Creating a new Crowdsource task =
@@ -55,6 +54,8 @@ You can add documents you uploaded in your chosen project in order to have them 
 <wiki:comment>
 Make link to add documents to project
 </wiki:comment>
+
+_The next step in the step-by-step tutorial is explained above. To access the 'CrowdSource' panel, return to the overview screen(by clicking on "Home") and select it._
 
 == Selecting documents ==
 
