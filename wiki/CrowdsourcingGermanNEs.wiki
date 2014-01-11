@@ -69,6 +69,7 @@ If you press add, you can add one or more documents that should be annotated. Wi
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/choose_docs.JPG" width="400"/>
 
+_For the tutorial, please follow the instruction above. The file, which will be annotated by the crowd is "NER_deu_block0K2-ai.tcf". Actually, it is the only one that will be offered to you to be added. In this task, we will have all 200 sentences annotated. As gold data, please select the two following two files (which will also be the only two offered to you): "NER_deu_block0K2-ag.tcf" and "NER_deu_block0K2-ah.tcf"._
 
 =Creating tasks=
 
