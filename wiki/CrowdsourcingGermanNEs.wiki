@@ -32,6 +32,7 @@ Make link to how to mark documents as curated
 </wiki:comment>
 
 _For this tutorial, download the following file._
+http://code.google.com/p/webanno/downloads/detail?name=webanno-project3152338732199485518export.zip&can=2&q=#makechanges
 <wiki:comment>
 Put project file here
 </wiki:comment>
