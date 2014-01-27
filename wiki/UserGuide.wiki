@@ -17,6 +17,10 @@ It is assumed that !WebAnno has been installed successfully. For issues regardin
 All materials, including this guide, is available via the project site: https://code.google.com/p/webanno/ 
 
 
+= Compatibility =
+
+WebAnno is compatible with google chrome or safari browsers, sepecifically for annotation and visualization. The remaining component of Webanno, such as project settings and monitoring page should run in all brosers.
+
 = Description of GUI functionality =
 
 == Log-in screen ==
