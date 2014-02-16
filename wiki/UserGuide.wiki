@@ -10,12 +10,6 @@ Currently, this guide describes the functionality of WebAnno Version 1.0.0.
 
 = Introduction =
 
-This document serves as a quick user’s guide for the operation of the web-based annotation platform !WebAnno, and is targeted towards users of the platform, including project managers, curators and annotators.
-
-It is assumed that !WebAnno has been installed successfully. For issues regarding the installation, please see [http://code.google.com/p/webanno/wiki/InstallationGuide]. 
-
-All materials, including this guide, is available via the project site: https://code.google.com/p/webanno/ 
-
 
 = Compatibility =
 
