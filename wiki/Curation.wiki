@@ -1,7 +1,7 @@
 #summary Describes the curation functionality of WebAnno
 
 == Curation ==
-When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in “Annotation”.  The “Page” navigation is also equivalent to “Annotation”.
+When navigating to the “Curation Page”, the procedure for opening projects and documents is the same as in [https://code.google.com/p/webanno/wiki/Annotation Annotation].  The “Page” navigation is also equivalent to [https://code.google.com/p/webanno/wiki/Annotation Annotation].
 
 In the left frame of the window, named “Sentences”, the sentences of the chosen document are displayed. The ones shaded in red created a conflict in annotation.
 
