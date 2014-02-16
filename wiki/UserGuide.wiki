@@ -8,7 +8,8 @@ Currently, this guide describes the functionality of WebAnno Version 1.0.0.
 ==Table of Contents== 
 <wiki:toc/>
 
-= Introduction [https://code.google.com/p/webanno/wiki/Introduction?ts=1392579805&updated=Introduction Introduction] =
+= Introduction =
+See chapter:[https://code.google.com/p/webanno/wiki/Introduction?ts=1392579805&updated=Introduction Introduction]
 
 
 = Compatibility =
@@ -29,7 +30,7 @@ Upon navigating to the !WebAnno page, the login screen opens. Please enter your 
 After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
 
 
-Here, you can navigate to one of the currently three options: 
+Here, you can navigate to one of the currently eight options: 
   * *Annotation* - The page to perform annotations
   * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
   * *Correction* - Correcting automatic annotation (under development)
