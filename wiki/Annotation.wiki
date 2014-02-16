@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Describes the annotation functionality of WebAnno
 
 == Annotation ==
 
