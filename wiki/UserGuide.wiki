@@ -8,7 +8,7 @@ Currently, this guide describes the functionality of WebAnno Version 1.0.0.
 ==Table of Contents== 
 <wiki:toc/>
 
-= Introduction =
+= [https://code.google.com/p/webanno/wiki/Introduction?ts=1392579805&updated=Introduction Introduction] =
 
 
 = Compatibility =
