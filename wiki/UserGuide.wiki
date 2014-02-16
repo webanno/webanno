@@ -35,7 +35,7 @@ After login, you will be presented with the WebAnno overview screen. This screen
 
 
 Here, you can navigate to one of the currently eight options: 
-  * *Annotation* - The page to perform annotations
+  * *[https://code.google.com/p/webanno/wiki/Annotation Annotation]* - The page to perform annotations
   * *Curation* -  Compare and merge annotations from multiple users (only for _curators_)
   * *Correction* - Correcting automatic annotation (under development)
   * *Automation* - Creating automatically annotated data
