@@ -1,0 +1,122 @@
+#summary Describes the editing of projects
+
+== Projects ==
+This is the place to specify/edit annotation projects.
+You can either select one of the existing projects for editing, or click “Create Project” to add a project.
+
+=== Create a New Project ===
+
+Only superadmins are allowed to create projects.	
+Click on “Create Project” to add a project.
+
+<wiki:comment>
+project1.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project1.jpg" width="400"/>
+
+After doing so, a new pane is displayed, where you can name and describe your new project. Please do not forget to save.
+
+
+<wiki:comment>
+project2.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project2.jpg" width="400"/>
+
+After saving the details of the new project, it can be treated like any other already existing one.  Also, you are displayed a new pane with many options to organize it.
+
+=== Edit and Organize a Project ===
+
+The pane with the options to organize and edit a project, as described above, can also be reached by clicking on the desired project in the left frame.
+
+<wiki:comment>
+project3.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project3.jpg" width="600"/>
+
+By clicking on the tabs, you can now set up the chosen project. 
+
+==== User administration ====
+
+After clicking on “Users”, you are displayed a new pane in which you can add new users by clicking on the button “Add User”.  After doing so, you get a list of users in the system which can be added to the project. By making a tick in front of the log in you can chose a new user.
+
+<wiki:comment>
+project4.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project4.jpg" width="200"/>
+
+Please do not forget to save after choosing all members of the project. Close the pane by clicking on “Cancel”. The rights of users created like this are that of an annotator. If you want to expand the user's status, you can do so by clicking on the user and then on “Change permission”. The following frame will pop up.
+
+
+<wiki:comment>
+project5.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project5.jpg" width="600"/>
+
+After ticking the wished permissions, click update.
+To remove a user, click on the login and then “Remove User”.
+
+==== Document administration ====
+To add or delete documents, you have to click on the tab “Documents” in the project pane. Two frames will be displayed. In the first frame you can import new documents.
+
+<wiki:comment>
+project6.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project6.jpg" width="600"/>
+
+Choose a document by clicking on “Dateien auswählen”. Please mind the format, which you have to choose above.  Then click on “Import document”. 
+The imported documents can be seen in the frame below.
+To delete a document from the project, you have to click on it and then click on “Delete” in the right lower corner.
+
+==== Tagset administration ====
+
+To administer the tagsets, click on the tab “Tagsets” in the project pane. 
+
+<wiki:comment>
+project7.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project7.jpg" width="200"/>
+
+To administer one of the existing tagsets, select it by a click. Then, the tagset characteristics are displayed.
+
+<wiki:comment>
+project8.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project8.jpg" width="800"/>
+
+In the Frame “Tagset details”, you can change them,  export a tagset, save the changes you made on it or delete it by clicking on “Delete tagSet”.
+To change an individual tag, you select one in the list displayed in the frame “Tags”. You can then change its description or name or delete it by clicking “Delete tag” in “Tag details”.  Please do not forget to save your changes by clicking on “Save tag”.
+To add a new tag, you have to click on “Create tag” in “Tag details”. Then you add the name   and the description, which is optional. Again, do not forget to click “Save tag” or else the new tag will not be created.
+
+==== Guidelines administration ==== 
+
+To add or delete guidelines, which will be accessible by users in the project, you have to select the tab “Guidelines”. Two new frames will be displayed.
+To upload guidelines, click on “Dateien auswählen” in the first frame – “Add guideline document”, select a file from your local disc and then click “Import guidelines”.
+
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project9.jpg" width="800"/>
+
+Uploaded guidelines are displayed in the second frame – “Guideline documents”.
+To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
+
+=== Delete Project ===
+<wiki:comment>
+project10.jpg here 
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/project10.jpg" width="600"/>
+
+To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
+
+=== Extract Curated Documents ===
+WebAnno gives the admin the possibility to extract whole projects or only curated documents by clicking on the corresponding buttons. The progress bar shows the progress of the download, which may take a while, depending on the size of the project.
+
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/export_project.JPG" width="600"/>
