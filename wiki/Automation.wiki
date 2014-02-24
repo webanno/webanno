@@ -16,6 +16,6 @@ To manage the automation process, choose the Automation frame. Click on "Create 
 
 Two new windows shall now pop up. "Feature selection" allows you to choose the features that you want your template to have. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation3.JPG" width="200"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/automation3.JPG" width="400"/>
 
 In the first sub-frame called "Morphological features", you may select between different n-grams and capitalization. 
