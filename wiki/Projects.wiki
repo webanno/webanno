@@ -1,8 +1,10 @@
-#summary Describes the editing of annotation projects. Although correction and automation projects function similarly, the management differs after the creation of the document. For further description, look at the corresponding chapters.
+#summary Describes the editing of annotation projects.
 
 == Projects ==
 This is the place to specify/edit annotation projects.  
-You can either select one of the existing projects for editing, or click “Create Project” to add a project. 
+You can either select one of the existing projects for editing, or click “Create Project” to add a project.
+
+*Although correction and automation projects function similarly, the management differs after the creation of the document. For further description, look at the corresponding chapters.*
 
 === Create a New Project ===
 
