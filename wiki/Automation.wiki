@@ -1,4 +1,7 @@
 #summary Describes the functionality of automated annotation
 
-== Automation ==
+= Automation =
 This functionality gives the possibility to choose features and documents, which can be used for training of all layers that are offered in WebAnno (lemma, NER, POS and co-ref).
+
+== Create an Automation Project ==
+After clicking on "Create Project" on the Project Page, select "automation" as your project type. The detailled description may be found in https://code.google.com/p/webanno/w/edit/Projects
