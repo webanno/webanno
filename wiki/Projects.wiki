@@ -2,7 +2,7 @@
 
 == Projects ==
 This is the place to specify/edit annotation projects.
-You can either select one of the existing projects for editing, or click “Create Project” to add a project.
+You can either select one of the existing projects for editing, or click “Create Project” to add a project. 
 
 === Create a New Project ===
 
