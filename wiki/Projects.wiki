@@ -1,4 +1,4 @@
-#summary Describes the editing of annotation projects. Although correction and automation projects function similarly, their guidelines are to be found in the corresponding chapters.
+#summary Describes the editing of annotation projects. Although correction and automation projects function similarly, the management differs after the creation of the document. For further description, look at the corresponding chapters.
 
 == Projects ==
 This is the place to specify/edit annotation projects.  
