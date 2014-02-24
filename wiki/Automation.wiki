@@ -4,4 +4,6 @@
 This functionality gives the possibility to choose features and documents, which can be used for training of all layers that are offered in WebAnno (lemma, NER, POS and co-ref).
 
 == Create an Automation Project ==
-After clicking on "Create Project" on the Project Page, select "automation" as your project type. The detailled description may be found in https://code.google.com/p/webanno/w/edit/Projects
+After clicking on "Create Project" on the Project Page, select "automation" as your project type. The detailled description may be found in the [https://code.google.com/p/webanno/wiki/Projects Project chapter].
+
+The documents, that are to be annotated, have to be uploaded in the frame "Documents". Please make sure that the chosen format corresponds to the format of the files you are uploading.
