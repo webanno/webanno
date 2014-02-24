@@ -12,10 +12,10 @@ The documents, that are to be annotated, have to be uploaded in the frame "Docum
 
 To manage the automation process, choose the Automation frame. Click on "Create template" in the "Templates" frame to create a model for your automated annotation.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation2.JPG" width="200"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/automation2.JPG" width="600"/>
 
 Two new windows shall now pop up. "Feature selection" allows you to choose the features that you want your template to have. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation3.JPG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/automation3.JPG" width="200"/>
 
 In the first sub-frame called "Morphological features", you may select between different n-grams and capitalization. 
