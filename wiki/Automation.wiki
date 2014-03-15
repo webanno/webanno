@@ -29,6 +29,5 @@ Also, the documents need to be formatted like WebAnno outputs annotated docs.
 
 Select the format of documents that you want to upload, click on "Select document" and select the document, then click "Import".
 
-After having selected all features, click on "Start" in the "Automation/Prediction" frame.
-
+After having selected all features, click on "Start" in the "Automation/Prediction" frame. The process of automatic annotation takes some time, depending on the size of your training set.
  
