@@ -37,6 +37,6 @@ After having selected all features, click on "Start" in the "Automation/Predicti
 
 When this process finished, the automatic annotations may be observed on the Automation page. Select the Project and a document, after navigating to the Automation page. Then you are presented two frames, the lower one showing the automated annotation, the upper the annotations that were chosen by you. 
 
-One may chose annotations to be in the "Annotation Frame" by clicking on the annotation in the "Automated Frame". To make a new annotation, mark the span in the "Annotation Frame" and proceed to annotate as described in ANNOTATION.
-If you want to delete a chosen annotation, also do as descibed in ANNOTATION.
+One may chose annotations to be in the "Annotation Frame" by clicking on the annotation in the "Automated Frame". To make a new annotation, mark the span in the "Annotation Frame" and proceed to annotate as described in [https://code.google.com/p/webanno/wiki/Annotation Annotaton].
+If you want to delete a chosen annotation, also do as descibed in [https://code.google.com/p/webanno/wiki/Annotation Annotaton].
  
