@@ -34,4 +34,9 @@ Select the format of documents that you want to upload, click on "Select documen
 After having selected all features, click on "Start" in the "Automation/Prediction" frame. The process of automatic annotation takes some time, depending on the size of your training set.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/automation4.JPG" width="400"/>
+
+When this process finished, the automatic annotations may be observed on the Automation page. Select the Project and a document, after navigating to the Automation page. Then you are presented two frames, the lower one showing the automated annotation, the upper the annotations that were chosen by you. 
+
+One may chose annotations to be in the "Annotation Frame" by clicking on the annotation in the "Automated Frame". To make a new annotation, mark the span in the "Annotation Frame" and proceed to annotate as described in ANNOTATION.
+If you want to delete a chosen annotation, also do as descibed in ANNOTATION.
  
