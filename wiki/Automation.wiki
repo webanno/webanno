@@ -29,11 +29,11 @@ Also, the documents need to be formatted like WebAnno outputs annotated docs.
 
 Select the format of documents that you want to upload, click on "Select document" and select the document, then click "Import". Take care to select the data format that your files are going to have.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation5.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/automation5.JPG" width="200"/>
 
 After having selected all features, click on "Start" in the "Automation/Prediction" frame. The process of automatic annotation takes some time, depending on the size of your training set.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation4.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/automation4.JPG" width="100"/>
 
 When this process finished, the automatic annotations may be observed on the Automation page. Select the Project and a document, after navigating to the Automation page. Then you are presented two frames, the lower one showing the automated annotation, the upper the annotations that were chosen by you. 
 
