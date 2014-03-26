@@ -297,6 +297,13 @@ public interface RepositoryService
     boolean existsAnnotationDocument(SourceDocument document, User user);
 
     /**
+     * A method to check if there exist a correction document already. Base correction document
+     * should be the same for all users
+     *
+     * @return
+     */
+    boolean existsCorrectionDocument(SourceDocument document);
+    /**
      * check if the JCAS for the {@link User} and {@link SourceDocument} in this {@link Project}
      * exists It is important as {@link AnnotationDocument} entry can be populated as
      * {@link AnnotationDocumentState#NEW} from the MonitoringPage before the user actually open the
@@ -304,9 +311,9 @@ public interface RepositoryService
      */
     boolean existsAnnotationDocumentContent(SourceDocument sourceDocument, String username)
         throws IOException;
-    
+
     /**
-     * check if there is an already automated document. This is important as automated document 
+     * check if there is an already automated document. This is important as automated document
      * should apear the same among users
      */
     boolean existsAutomatedDocument(SourceDocument sourceDocument);

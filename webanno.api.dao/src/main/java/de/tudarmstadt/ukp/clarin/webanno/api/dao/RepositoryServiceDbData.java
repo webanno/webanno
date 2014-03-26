@@ -336,6 +336,20 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
+    public boolean existsCorrectionDocument(SourceDocument aDocument)
+    {
+
+        try {
+            getCorrectionDocumentContent(aDocument);
+            return true;
+        }
+        catch (Exception ex) {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
     public boolean existsProject(String aName)
     {
         try {
