@@ -303,7 +303,6 @@ public interface RepositoryService
      * @return
      */
     boolean existsCorrectionDocument(SourceDocument document);
-
     /**
      * check if the JCAS for the {@link User} and {@link SourceDocument} in this {@link Project}
      * exists It is important as {@link AnnotationDocument} entry can be populated as
@@ -831,7 +830,7 @@ public interface RepositoryService
      * Get CAS object for the first time, from the source document using the provided reader
      */
     @SuppressWarnings("rawtypes")
-    JCas getJCasFromFile(File file, Class reader, SourceDocument aDocument)
+    JCas getJCasFromFile(File file, Class reader)
         throws UIMAException, IOException;
 
     void updateTimeStamp(SourceDocument document, User user, Mode mode)
@@ -879,6 +878,5 @@ public interface RepositoryService
      * List all the MIRA templates created, hence know which layer do have a training conf already!
      */
     List<MiraTemplate> listMiraTemplates(Project project);
-
-    void removeMiraTemplate(MiraTemplate template);
+    void removeMiraTemplate (MiraTemplate template);
 }

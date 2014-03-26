@@ -152,7 +152,7 @@ public class ProjectMiraTemplatePanel
                         @Override
                         public Object getDisplayValue(MiraTemplate aObject)
                         {
-                            return "[" + aObject.getTrainTagSet().getLayer().getName() + "] "
+                            return "[" + aObject.getTrainTagSet().getType().getName() + "] "
                                     + aObject.getTrainTagSet().getName();
                         }
                     });
@@ -240,7 +240,7 @@ public class ProjectMiraTemplatePanel
                     .getObject());
             List<TagSet> spanTagSets = new ArrayList<TagSet>();
             for (TagSet tagSet : allTagSets) {
-                if (tagSet.getLayer().getType().equals("span")) {
+                if (tagSet.getType().getType().equals("span")) {
                     spanTagSets.add(tagSet);
                 }
             }

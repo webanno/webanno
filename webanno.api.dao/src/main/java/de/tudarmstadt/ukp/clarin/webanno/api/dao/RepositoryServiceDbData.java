@@ -75,14 +75,9 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeDescription;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.resource.metadata.impl.TypeSystemDescription_impl;
-import org.apache.uima.util.CasCreationUtils;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.BeanWrapper;
@@ -96,11 +91,10 @@ import org.springframework.transaction.annotation.Transactional;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.api.UserDao;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
 import de.tudarmstadt.ukp.clarin.webanno.model.CrowdJob;
@@ -233,8 +227,7 @@ public class RepositoryServiceDbData
             throw new IOException("Cannot renamed file [" + aFrom + "] to [" + aTo + "]");
         }
 
-        // We are not sure if File is mutable. This makes sure we get a new file
-        // in any case.
+        // We are not sure if File is mutable. This makes sure we get a new file in any case.
         return new File(aTo.getPath());
     }
 
@@ -539,13 +532,10 @@ public class RepositoryServiceDbData
 
         File annotationFolder = getAnnotationFolder(aDocument);
         String serializedCaseFileName;
-        // for Correction, it will export the corrected document (of the logged
-        // in user)
+        // for Correction, it will export the corrected document (of the logged in user)
         // (CORRECTION_USER.ser is
-        // the automated result displayed for the user to correct it, not the
-        // final result)
-        // for automation, it will export either the corrected cocument
-        // (Annotated) or the automated
+        // the automated result displayed for the user to correct it, not the final result)
+        // for automation, it will export either the corrected cocument (Annotated) or the automated
         // document
         if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.AUTOMATION)
                 || aMode.equals(Mode.CORRECTION)) {
@@ -591,27 +581,27 @@ public class RepositoryServiceDbData
                 .toExternalForm());
 
         // update the cas first
-        upgrade(cas, aDocument.getProject());
+        upgrade(cas);
         // update with the correct tagset name
-        List<AnnotationFeature> features = annotationService.listAnnotationFeature(project);
-        for (AnnotationFeature feature : features) {
-            TagSet tagSet = annotationService.getTagSet(feature, project);
-            if (feature.getName().equals(WebAnnoConst.NAMEDENTITY)) {
+        List<AnnotationType> types = annotationService.listAnnotationType(project);
+        for (AnnotationType annotationType : types) {
+            TagSet tagSet = annotationService.getTagSet(annotationType, project);
+            if (annotationType.getName().equals(AnnotationTypeConstant.NAMEDENTITY)) {
                 BratAjaxCasUtil.updateCasWithTagSet(cas, NamedEntity.class.getName(),
                         tagSet.getName());
             }
-            else if (feature.getName().equals(WebAnnoConst.POS)) {
+            else if (annotationType.getName().equals(AnnotationTypeConstant.POS)) {
                 BratAjaxCasUtil.updateCasWithTagSet(cas, POS.class.getName(), tagSet.getName());
             }
-            else if (feature.getName().equals(WebAnnoConst.DEPENDENCY)) {
+            else if (annotationType.getName().equals(AnnotationTypeConstant.DEPENDENCY)) {
                 BratAjaxCasUtil.updateCasWithTagSet(cas, Dependency.class.getName(),
                         tagSet.getName());
             }
             /*
-             * else if (annotationType.getName().equals(AnnotationTypeConstant.COREFRELTYPE )) {
+             * else if (annotationType.getName().equals(AnnotationTypeConstant.COREFRELTYPE)) {
              * BratAjaxCasUtil.updateCasWithTagSet(cas, CoreferenceLink.class.getName(),
-             * tagSet.getName()); } else if (annotationType
-             * .getName().equals(AnnotationTypeConstant.COREFERENCE)) {
+             * tagSet.getName()); } else if
+             * (annotationType.getName().equals(AnnotationTypeConstant.COREFERENCE)) {
              * BratAjaxCasUtil.updateCasWithTagSet(cas, CoreferenceChain.class.getName(),
              * tagSet.getName()); }
              */
@@ -937,8 +927,7 @@ public class RepositoryServiceDbData
     {
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aDocument.getProject());
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return new ArrayList<AnnotationDocument>();
         }
@@ -957,8 +946,7 @@ public class RepositoryServiceDbData
 
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aProject);
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return 0;
         }
@@ -983,8 +971,7 @@ public class RepositoryServiceDbData
     {
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aProject);
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return new ArrayList<AnnotationDocument>();
         }
@@ -1113,15 +1100,6 @@ public class RepositoryServiceDbData
             removeMiraTemplate(template);
         }
 
-        for (AnnotationFeature feature : annotationService.listAnnotationFeature(aProject)) {
-            annotationService.removeAnnotationFeature(feature);
-        }
-
-        // remove the layers too
-        for (AnnotationType layer : annotationService.listAnnotationType(aProject)) {
-            annotationService.removeAnnotationLayer(layer);
-        }
-        // remove tagsets
         for (TagSet tagset : annotationService.listTagSets(aProject)) {
             annotationService.removeTagSet(tagset);
         }
@@ -1290,8 +1268,7 @@ public class RepositoryServiceDbData
                 + aUsername;
         // append existing preferences for the other mode
         if (new File(propertiesPath, annotationPreferencePropertiesFileName).exists()) {
-            // aSubject = aSubject.equals(Mode.ANNOTATION) ? Mode.CURATION :
-            // Mode.ANNOTATION;
+            // aSubject = aSubject.equals(Mode.ANNOTATION) ? Mode.CURATION : Mode.ANNOTATION;
             for (Entry<Object, Object> entry : loadUserSettings(aUsername, aProject).entrySet()) {
                 String key = entry.getKey().toString();
                 // Maintain other Modes of annotations confs than this one
@@ -1571,14 +1548,12 @@ public class RepositoryServiceDbData
 
             // Save current version
             try {
-                // Make a backup of the current version of the file before
-                // overwriting
+                // Make a backup of the current version of the file before overwriting
                 if (currentVersion.exists()) {
                     renameFile(currentVersion, oldVersion);
                 }
 
-                // Now write the new version to "<username>.ser" or
-                // CURATION_USER.ser
+                // Now write the new version to "<username>.ser" or CURATION_USER.ser
                 writeContent(aDocument, aJcas, aUserName);
                 createLog(aDocument.getProject(), aUser.getUsername()).info(
                         " Updated annotation file [" + aDocument.getName() + "] " + "with ID ["
@@ -1594,8 +1569,7 @@ public class RepositoryServiceDbData
             catch (IOException e) {
                 // If we could not save the new version, restore the old one.
                 FileUtils.forceDelete(currentVersion);
-                // If this is the first version, there is no old version, so do
-                // not restore anything
+                // If this is the first version, there is no old version, so do not restore anything
                 if (oldVersion.exists()) {
                     renameFile(oldVersion, currentVersion);
                 }
@@ -1605,8 +1579,7 @@ public class RepositoryServiceDbData
 
             // Manage history
             if (backupInterval > 0) {
-                // Determine the reference point in time based on the current
-                // version
+                // Determine the reference point in time based on the current version
                 long now = currentVersion.lastModified();
 
                 // Get all history files for the current user
@@ -1618,8 +1591,7 @@ public class RepositoryServiceDbData
                     @Override
                     public boolean accept(File aFile)
                     {
-                        // Check if the filename matches the pattern given
-                        // above.
+                        // Check if the filename matches the pattern given above.
                         return matcher.reset(aFile.getName()).matches();
                     }
                 });
@@ -1631,15 +1603,13 @@ public class RepositoryServiceDbData
                 boolean historyFileCreated = false;
                 File historyFile = new File(annotationFolder, username + ".ser." + now + ".bak");
                 if (history.length == 0) {
-                    // If there is no history yet but we should keep history,
-                    // then we create a
+                    // If there is no history yet but we should keep history, then we create a
                     // history file in any case.
                     FileUtils.copyFile(currentVersion, historyFile);
                     historyFileCreated = true;
                 }
                 else {
-                    // Check if the newest history file is significantly older
-                    // than the current one
+                    // Check if the newest history file is significantly older than the current one
                     File latestHistory = history[history.length - 1];
                     if (latestHistory.lastModified() + backupInterval < now) {
                         FileUtils.copyFile(currentVersion, historyFile);
@@ -1649,8 +1619,7 @@ public class RepositoryServiceDbData
 
                 // Prune history based on number of backup
                 if (historyFileCreated) {
-                    // The new version is not in the history, so we keep that in
-                    // any case. That
+                    // The new version is not in the history, so we keep that in any case. That
                     // means we need to keep one less.
                     int toKeep = Math.max(backupKeepNumber - 1, 0);
                     if ((backupKeepNumber > 0) && (toKeep < history.length)) {
@@ -1718,16 +1687,7 @@ public class RepositoryServiceDbData
             String file = aUsername + ".ser";
 
             try {
-
-                TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                        .createTypeSystemDescription();
-                List<TypeSystemDescription> projectTypes = getProjectTypes(aDocument.getProject());
-                projectTypes.add(builtInTypes);
-                TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
-
-                CAS cas = JCasFactory.createJCas(allTypes).getCas();
-
-                // CAS cas = JCasFactory.createJCas().getCas();
+                CAS cas = JCasFactory.createJCas().getCas();
                 CollectionReader reader = CollectionReaderFactory.createCollectionReader(
                         SerializedCasReader.class, SerializedCasReader.PARAM_PATH,
                         annotationFolder, SerializedCasReader.PARAM_PATTERNS, new String[] { "[+]"
@@ -1768,8 +1728,7 @@ public class RepositoryServiceDbData
                 .setParameter("project", aProject).setParameter("level", PermissionLevel.USER)
                 .getResultList();
 
-        // check if the username is in the Users database (imported projects
-        // might have username
+        // check if the username is in the Users database (imported projects might have username
         // in the ProjectPermission entry while it is not in the Users database
         List<String> notInUsers = new ArrayList<String>();
         for (String user : users) {
@@ -1795,13 +1754,13 @@ public class RepositoryServiceDbData
                 if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.AUTOMATION)
                         || aMode.equals(Mode.CORRECTION)) {
                     CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
-                    upgrade(cas, aDocument.getProject());
+                    upgrade(cas);
                     createAnnotationDocumentContent(cas.getJCas(),
                             annotationDocument.getDocument(), user);
                 }
                 else {
                     CAS cas = getCurationDocumentContent(aDocument).getCas();
-                    upgrade(cas, aDocument.getProject());
+                    upgrade(cas);
                     createCurationDocumentContent(cas.getJCas(), aDocument, user);
                 }
 
@@ -1827,18 +1786,11 @@ public class RepositoryServiceDbData
         }
     }
 
-    public void upgrade(CAS aCas, Project aProject)
+    public static void upgrade(CAS aCas)
         throws UIMAException, IOException
     {
-
-        TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = getProjectTypes(aProject);
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
-
         // Prepare template for new CAS
-        CAS newCas = JCasFactory.createJCas(allTypes).getCas();
+        CAS newCas = JCasFactory.createJCas().getCas();
         CASCompleteSerializer serializer = Serialization.serializeCASComplete((CASImpl) newCas);
 
         // Save old type system
@@ -1920,7 +1872,7 @@ public class RepositoryServiceDbData
 
         try {
             jCas = getJCasFromFile(getSourceDocumentContent(aDocument),
-                    getReadableFormats().get(aDocument.getFormat()), aDocument);
+                    getReadableFormats().get(aDocument.getFormat()));
         }
         catch (UIMAException e) {
             throw new IOException(e);
@@ -1935,16 +1887,10 @@ public class RepositoryServiceDbData
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public JCas getJCasFromFile(File aFile, Class aReader, SourceDocument aDocument)
+    public JCas getJCasFromFile(File aFile, Class aReader)
         throws UIMAException, IOException
     {
-        TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = getProjectTypes(aDocument.getProject());
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
-
-        CAS cas = JCasFactory.createJCas(allTypes).getCas();
+        CAS cas = JCasFactory.createJCas().getCas();
 
         CollectionReader reader = CollectionReaderFactory.createCollectionReader(aReader,
                 ResourceCollectionReaderBase.PARAM_PATH, aFile.getParentFile().getAbsolutePath(),
@@ -2079,50 +2025,5 @@ public class RepositoryServiceDbData
     public void removeMiraTemplate(MiraTemplate aTemplate)
     {
         entityManager.remove(aTemplate);
-    }
-
-    List<TypeSystemDescription> getProjectTypes(Project aProject)
-    {
-
-        // Create a new type system from scratch
-        List<TypeSystemDescription> types = new ArrayList<TypeSystemDescription>();
-        for (AnnotationType type : annotationService.listAnnotationType(aProject)) {
-            if (type.getType().equals("span") && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
-                TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-                List<AnnotationFeature> features = annotationService.listAnnotationFeature(type);
-                td.addFeature(features.get(0).getName(), "", features.get(0).getType());
-                types.add(tsd);
-            }
-            else if (type.getType().equals("relation") && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
-                TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-                AnnotationType attachType = type.getAttachType();
-
-                td.addFeature("Dependent", "", attachType.getName());
-                td.addFeature("Governor", "", attachType.getName());
-
-                List<AnnotationFeature> features = annotationService.listAnnotationFeature(type);
-                td.addFeature(features.get(0).getName(), "", CAS.TYPE_NAME_STRING);
-                types.add(tsd);
-            }
-            else if (type.getType().equals("chain") && !type.isBuiltIn()) {
-                TypeSystemDescription tsdchains = new TypeSystemDescription_impl();
-                TypeDescription tdChains = tsdchains.addType(type.getName() + "Chain", "",
-                        CAS.TYPE_NAME_ANNOTATION);
-                tdChains.addFeature("first", "", type.getName() + "Link");
-                types.add(tsdchains);
-
-                TypeSystemDescription tsdLink = new TypeSystemDescription_impl();
-                TypeDescription tdLink = tsdLink.addType(type.getName() + "Link", "",
-                        CAS.TYPE_NAME_ANNOTATION);
-                tdLink.addFeature("next", "", type.getName() + "Link");
-                tdLink.addFeature("referenceType", "", CAS.TYPE_NAME_STRING);
-                tdLink.addFeature("referenceRelation", "", CAS.TYPE_NAME_STRING);
-                types.add(tsdLink);
-            }
-        }
-
-        return types;
     }
 }

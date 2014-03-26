@@ -165,9 +165,9 @@ public class CorrectionPage
                     curationContainer.setBratAnnotatorModel(bratAnnotatorModel);
                     setCurationSegmentBeginEnd();
 
-                    CuratorUtil.updatePanel(aTarget, this, curationContainer, mergeVisualizer,
-                            repository, annotationSelectionByUsernameAndAddress, curationSegment,
-                            annotationService, jsonConverter);
+                    CuratorUtil.updatePanel(aTarget, this, curationContainer,
+                            mergeVisualizer, repository, annotationSelectionByUsernameAndAddress,
+                            curationSegment, annotationService, jsonConverter);
                 }
                 catch (UIMAException e) {
                     error(ExceptionUtils.getRootCause(e));
@@ -378,7 +378,7 @@ public class CorrectionPage
         });
 
         add(new AnnotationLayersModalPanel("annotationLayersModalPanel",
-                new Model<BratAnnotatorModel>(bratAnnotatorModel))
+                new Model<BratAnnotatorModel>(bratAnnotatorModel) )
         {
             private static final long serialVersionUID = -4657965743173979437L;
 
@@ -766,8 +766,7 @@ public class CorrectionPage
                     catch (ClassNotFoundException e) {
                         error(e.getMessage());
                     }
-                    catch (IOException e) {
-                        ;
+                    catch (IOException e) {;
                         error(e.getMessage());
                     }
                     catch (BratAnnotationException e) {
@@ -943,7 +942,7 @@ public class CorrectionPage
         catch (IOException e) {
             throw e;
         }
-        // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
+     // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
         // or from the previous correction document
         catch (DataRetrievalFailureException e) {
             if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
@@ -997,7 +996,6 @@ public class CorrectionPage
                         logedInUser, repository);
             }
         }
-
         if (bratAnnotatorModel.getSentenceAddress() == -1
                 || bratAnnotatorModel.getDocument().getId() != currentDocumentId
                 || bratAnnotatorModel.getProject().getId() != currentprojectId) {
@@ -1061,9 +1059,9 @@ public class CorrectionPage
     private void update(AjaxRequestTarget target)
     {
         try {
-            CuratorUtil.updatePanel(target, automateView, curationContainer, mergeVisualizer,
-                    repository, annotationSelectionByUsernameAndAddress, curationSegment,
-                    annotationService, jsonConverter);
+            CuratorUtil.updatePanel(target, automateView, curationContainer,
+                    mergeVisualizer, repository, annotationSelectionByUsernameAndAddress,
+                    curationSegment, annotationService, jsonConverter);
         }
         catch (UIMAException e) {
             error(ExceptionUtils.getRootCauseMessage(e));

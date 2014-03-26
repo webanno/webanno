@@ -22,6 +22,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdap
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.MultiValueMap;
@@ -78,7 +80,7 @@ public class BratAjaxCasController
     private RepositoryService repository;
 
     @Resource(name = "annotationService")
-    private static AnnotationService annotationService;
+    private AnnotationService annotationService;
 
     private Log LOG = LogFactory.getLog(getClass());
 
@@ -89,7 +91,7 @@ public class BratAjaxCasController
 
     public BratAjaxCasController(RepositoryService aRepository, AnnotationService aAnnotationService)
     {
-        annotationService = aAnnotationService;
+        this.annotationService = aAnnotationService;
         this.repository = aRepository;
     }
 
@@ -211,17 +213,18 @@ public class BratAjaxCasController
 
         // Get The tags of the tagset
         // merge all of them
-        /*
-         * List<Tag> tagLists = new ArrayList<Tag>();
-         *
-         * List<String> tagSetNames = new ArrayList<String>(); for (TagSet tagSet :
-         * aAnnotationLayers) { List<Tag> tag = annotationService.listTags(tagSet);
-         * tagLists.addAll(tag); tagSetNames.add(tagSet.getType().getName()); }
-         */
+        List<Tag> tagLists = new ArrayList<Tag>();
+
+        List<String> tagSetNames = new ArrayList<String>();
+        for (TagSet tagSet : aAnnotationLayers) {
+            List<Tag> tag = annotationService.listTags(tagSet);
+            tagLists.addAll(tag);
+            tagSetNames.add(tagSet.getType().getName());
+        }
+
         GetCollectionInformationResponse info = new GetCollectionInformationResponse();
         BratAjaxConfiguration configuration = new BratAjaxConfiguration();
-        info.setEntityTypes(configuration.configureVisualizationAndAnnotation(
-                new ArrayList<TagSet>(aAnnotationLayers), annotationService, aStaticColor));
+        info.setEntityTypes(configuration.configureVisualizationAndAnnotation(tagLists, aStaticColor));
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = repository.getUser(username);
@@ -282,6 +285,87 @@ public class BratAjaxCasController
     }
 
     /**
+     * Add a span annotation to CAS
+     */
+    public void createSpanAnnotation(JCas aJCas, int aAnnotationOffsetStart,
+            int aAnnotationOffsetEnd, String aQualifiedLabel, AnnotationFS aOriginFs,
+            AnnotationFS aTargetFs)
+        throws BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
+            SpanAdapter.getNamedEntityAdapter().add(aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            SpanAdapter.getPosAdapter().add(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            ChainAdapter.getCoreferenceLinkAdapter().add(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, aOriginFs, aTargetFs);
+        }
+        // else it should be lemma annotation. we don't have lemma tags and no prefixing !
+        else {
+            SpanAdapter.getLemmaAdapter().add(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+    }
+
+
+    public void deleteSpanAnnotation(JCas aJCas, int aAnnotationOffsetStart,
+            int aAnnotationOffsetEnd, String aQualifiedLabel)
+        throws BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
+            SpanAdapter.getNamedEntityAdapter().delete(aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            SpanAdapter.getPosAdapter().delete(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+/*        else if (labelPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            ChainAdapter.getCoreferenceLinkAdapter().delete(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd);
+        }*/
+        // else it should be lemma annotation. we don't have lemma tags and no prefixing !
+        else {
+            SpanAdapter.getLemmaAdapter().delete(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+    }
+    /**
+     * Add an arc annotation to CAS
+     *
+     * @param aBratAnnotatorModel
+     *            the Brat annotation data model consisting of the source document, project,
+     *            users,...
+     */
+    public void createArcAnnotation(BratAnnotatorModel aBratAnnotatorModel, String aQualifiedLabel,
+            int aAnnotationOffsetStart, int aAnnotationOffsetEnd, AnnotationFS aOriginFs,
+            AnnotationFS aTargetFs, JCas aJCas)
+        throws ArcCrossedMultipleSentenceException, BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.DEP_PREFIX)) {
+            ArcAdapter.getDependencyAdapter().add(label, aOriginFs, aTargetFs, aJCas,
+                    aBratAnnotatorModel);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
+            ChainAdapter.getCoreferenceChainAdapter().add(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, aOriginFs, aTargetFs);
+        }
+    }
+
+    /**
      * wrap JSON responses to BRAT visualizer
      */
     public static void addBratResponses(GetDocumentResponse aResponse,
@@ -297,10 +381,7 @@ public class BratAjaxCasController
         SpanAdapter.renderTokenAndSentence(aJCas, aResponse, aBratAnnotatorModel);
 
         for (TagSet tagSet : aBratAnnotatorModel.getAnnotationLayers()) {
-            if (tagSet.getLayer() == null || tagSet.getFeature() == null) {
-                continue;
-            }
-            getAdapter(tagSet, annotationService).render(aJCas, aResponse, aBratAnnotatorModel);
+            getAdapter(tagSet.getType()).render(aJCas, aResponse, aBratAnnotatorModel);
         }
     }
 }

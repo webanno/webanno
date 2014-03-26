@@ -29,9 +29,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
-
-
 /**
  * A persistence object for an annotation type. Currently, the types are:
  * {@literal
@@ -80,14 +77,10 @@ public class AnnotationType
     private String name;
 
     @ManyToOne
-
-   // @ForeignKey(ConstraintMode.NO_CONSTRAINT)
-    @ForeignKey(name = "none")
     @JoinColumn(name = "annotation_type")
     private AnnotationType attachType;
 
     @ManyToOne
-    @ForeignKey(name = "none")
     @JoinColumn(name = "annotation_feature")
     private AnnotationFeature attachFeature;
 
@@ -103,7 +96,6 @@ public class AnnotationType
     private boolean crossSentence;
 
     private boolean multipleTokens;
-
 
     /**
      *
@@ -438,4 +430,5 @@ public class AnnotationType
     {
         this.multipleTokens = multipleTokens;
     }
+
 }

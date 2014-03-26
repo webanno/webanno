@@ -29,18 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationOption;
@@ -71,9 +68,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  */
 public class CurationBuilder
 {
-
-    @Resource(name = "annotationService")
-    private static AnnotationService annotationService;
 
     private final RepositoryService repository;
     int sentenceNumber;
@@ -250,7 +244,7 @@ public class CurationBuilder
                         randomAnnotationDocument);
             }
             else {
-                mergeJCas = createMergeCas(mergeJCas, randomAnnotationDocument, jCases, -1, -1,
+                mergeJCas = createMergeCas(mergeJCas, randomAnnotationDocument, jCases,-1, -1,
                         aBratAnnotatorModel.getAnnotationLayers());
             }
         }
@@ -302,12 +296,11 @@ public class CurationBuilder
         List<Type> entryTypes = new LinkedList<Type>();
 
         for (TagSet tagSet : aTagSets) {
-            if (tagSet.getLayer().getName().equals(WebAnnoConst.COREFERENCE)
-                    || tagSet.getLayer().getName().equals(WebAnnoConst.COREFRELTYPE)) {
+            if (tagSet.getType().getName().equals(AnnotationTypeConstant.COREFERENCE)
+                    || tagSet.getType().getName().equals(AnnotationTypeConstant.COREFRELTYPE)) {
                 continue;
             }
-            entryTypes.add(getAdapter(tagSet, annotationService).getAnnotationType(
-                    mergeJCas.getCas()));
+            entryTypes.add(getAdapter(tagSet.getType()).getAnnotationType(mergeJCas.getCas()));
         }
         return entryTypes;
     }
@@ -322,7 +315,7 @@ public class CurationBuilder
      * @throws BratAnnotationException
      */
     public JCas createMergeCas(JCas mergeJCas, AnnotationDocument randomAnnotationDocument,
-            Map<String, JCas> jCases, int aBegin, int aEnd, Set<TagSet> aAnnotationLayers)
+            Map<String, JCas> jCases, int aBegin, int aEnd, Set<TagSet> aAnnotationLayers  )
         throws UIMAException, ClassNotFoundException, IOException, BratAnnotationException
     {
         User userLoggedIn = repository.getUser(SecurityContextHolder.getContext()
@@ -332,7 +325,7 @@ public class CurationBuilder
         int numUsers = jCases.size();
         mergeJCas = repository.getAnnotationDocumentContent(randomAnnotationDocument);
 
-        entryTypes = getEntryTypes(mergeJCas, aAnnotationLayers);
+        entryTypes = getEntryTypes(mergeJCas,aAnnotationLayers);
         jCases.put(CurationPanel.CURATION_USER, mergeJCas);
 
         List<AnnotationOption> annotationOptions = null;
