@@ -253,9 +253,9 @@
 		<module>webanno.monitoring</module>
 	</modules>
 	<scm>
-		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</developerConnection>
-		<connection>scm:svn:https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</connection>
-		<url>https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</url>
+		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-1.1.0-beta-16</developerConnection>
+		<connection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-1.1.0-beta-16</connection>
+		<url>https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-1.1.0-beta-16</url>
 	</scm>
 	<build>
 		<extensions>
