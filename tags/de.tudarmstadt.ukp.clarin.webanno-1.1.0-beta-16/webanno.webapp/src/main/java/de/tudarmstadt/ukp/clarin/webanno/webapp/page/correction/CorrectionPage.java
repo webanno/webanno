@@ -942,30 +942,60 @@ public class CorrectionPage
         catch (IOException e) {
             throw e;
         }
-        // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
-        //
+     // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
+        // or from the previous correction document
         catch (DataRetrievalFailureException e) {
+            if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
+                jCas = repository.getCorrectionDocumentContent(bratAnnotatorModel.getDocument());
+                // remove all annotation so that the user can correct from the auto annotation
 
-            jCas = repository.readJCas(bratAnnotatorModel.getDocument(), bratAnnotatorModel
-                    .getDocument().getProject(), logedInUser);
-            // This is the auto annotation, save it under CURATION_USER
-            repository.createCorrectionDocumentContent(jCas, bratAnnotatorModel.getDocument(),
-                    logedInUser);
-            // remove all annotation so that the user can correct from the auto annotation
-            BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
-                    logedInUser, repository);
+                AnnotationDocument annotationDocument = new AnnotationDocument();
+                annotationDocument.setDocument(bratAnnotatorModel.getDocument());
+                annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
+                annotationDocument.setUser(logedInUser.getUsername());
+                annotationDocument.setProject(bratAnnotatorModel.getProject());
+                repository.createAnnotationDocument(annotationDocument);
+
+                BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser, repository);
+            }
+            else {
+                jCas = repository.readJCas(bratAnnotatorModel.getDocument(), bratAnnotatorModel
+                        .getDocument().getProject(), logedInUser);
+                // This is the auto annotation, save it under CURATION_USER
+                repository.createCorrectionDocumentContent(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser);
+                // remove all annotation so that the user can correct from the auto annotation
+                BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser, repository);
+            }
         }
         catch (NoResultException e) {
-            jCas = repository.readJCas(bratAnnotatorModel.getDocument(), bratAnnotatorModel
-                    .getDocument().getProject(), logedInUser);
-            // This is the auto annotation, save it under CURATION_USER
-            repository.createCorrectionDocumentContent(jCas, bratAnnotatorModel.getDocument(),
-                    logedInUser);
-            // remove all annotation so that the user can correct from the auto annotation
-            BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
-                    logedInUser, repository);
-        }
+            if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
+                jCas = repository.getCorrectionDocumentContent(bratAnnotatorModel.getDocument());
+                // remove all annotation so that the user can correct from the auto annotation
 
+                AnnotationDocument annotationDocument = new AnnotationDocument();
+                annotationDocument.setDocument(bratAnnotatorModel.getDocument());
+                annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
+                annotationDocument.setUser(logedInUser.getUsername());
+                annotationDocument.setProject(bratAnnotatorModel.getProject());
+                repository.createAnnotationDocument(annotationDocument);
+
+                BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser, repository);
+            }
+            else {
+                jCas = repository.readJCas(bratAnnotatorModel.getDocument(), bratAnnotatorModel
+                        .getDocument().getProject(), logedInUser);
+                // This is the auto annotation, save it under CURATION_USER
+                repository.createCorrectionDocumentContent(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser);
+                // remove all annotation so that the user can correct from the auto annotation
+                BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
+                        logedInUser, repository);
+            }
+        }
         if (bratAnnotatorModel.getSentenceAddress() == -1
                 || bratAnnotatorModel.getDocument().getId() != currentDocumentId
                 || bratAnnotatorModel.getProject().getId() != currentprojectId) {
