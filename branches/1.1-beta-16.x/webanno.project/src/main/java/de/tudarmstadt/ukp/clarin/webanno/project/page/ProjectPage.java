@@ -399,7 +399,8 @@ public class ProjectPage
                 @Override
                 public boolean isVisible()
                 {
-                    return project.getObject().getId() != 0 && visible;
+                   // return project.getObject().getId() != 0 && visible;
+                    return false;
                 }
             });
 
