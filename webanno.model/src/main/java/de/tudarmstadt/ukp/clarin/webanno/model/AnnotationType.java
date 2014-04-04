@@ -29,9 +29,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
-
-
 /**
  * A persistence object for an annotation type. Currently, the types are:
  * {@literal
@@ -59,7 +56,7 @@ public class AnnotationType
     @Column(name = "id")
     private long id;
 
-    @Column(nullable = false)
+   // @Column(nullable = false)
     private String uiName;
 
     @Column(nullable = false)
@@ -70,6 +67,8 @@ public class AnnotationType
 
     private boolean enabled = true;
 
+    private String labelFeatureName;
+
     private boolean builtIn = false;
 
     private boolean deletable = false;
@@ -78,14 +77,10 @@ public class AnnotationType
     private String name;
 
     @ManyToOne
-
-   // @ForeignKey(ConstraintMode.NO_CONSTRAINT)
-    @ForeignKey(name = "none")
     @JoinColumn(name = "annotation_type")
     private AnnotationType attachType;
 
     @ManyToOne
-    @ForeignKey(name = "none")
     @JoinColumn(name = "annotation_feature")
     private AnnotationFeature attachFeature;
 
@@ -101,7 +96,6 @@ public class AnnotationType
     private boolean crossSentence;
 
     private boolean multipleTokens;
-
 
     /**
      *
@@ -187,6 +181,34 @@ public class AnnotationType
     public void setEnabled(boolean enabled)
     {
         this.enabled = enabled;
+    }
+
+    /**
+     *
+     * the name of a feature of the annotation type whose value is used to represent an annotation
+     * in the UI. E.g. for the POS type, this would be „PosValue“. In the future, an annotation type
+     * can have additional features, but these are only shown in the UI after extra interaction,
+     * e.g. when opening the annotation editing dialog or as a tooltip. In the future, this may be
+     * an expression which allows showing multiple feature values, e.g. „${PosValue} ${begin}
+     * ${end}“. See also section on feature definition below.
+     */
+    public String getLabelFeatureName()
+    {
+        return labelFeatureName;
+    }
+
+    /**
+     *
+     * the name of a feature of the annotation type whose value is used to represent an annotation
+     * in the UI. E.g. for the POS type, this would be „PosValue“. In the future, an annotation type
+     * can have additional features, but these are only shown in the UI after extra interaction,
+     * e.g. when opening the annotation editing dialog or as a tooltip. In the future, this may be
+     * an expression which allows showing multiple feature values, e.g. „${PosValue} ${begin}
+     * ${end}“. See also section on feature definition below.
+     */
+    public void setLabelFeatureName(String labelFeatureName)
+    {
+        this.labelFeatureName = labelFeatureName;
     }
 
     /**
@@ -408,4 +430,5 @@ public class AnnotationType
     {
         this.multipleTokens = multipleTokens;
     }
+
 }

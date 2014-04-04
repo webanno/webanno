@@ -40,7 +40,10 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Argument;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Relation;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 /**
  * A class that is used to create Brat Arc to CAS relations and vice-versa
@@ -56,7 +59,7 @@ public class ArcAdapter
      * same label, e.g. a POS tag "N" and a named entity type "N".
      *
      */
-    private final long typeId;
+    private final String labelPrefix;
 
     /**
      * The UIMA type name.
@@ -71,49 +74,46 @@ public class ArcAdapter
      * The feature of an UIMA annotation containing the label to be used as a governor for arc
      * annotations
      */
-    private final String sourceFeatureName;
+    private final String governorFeatureName;
     /**
      * The feature of an UIMA annotation containing the label to be used as a dependent for arc
      * annotations
      */
 
-    private final String targetFeatureName;
+    private final String dependentFeatureName;
 
-    /*    *//**
+    /**
      * The UIMA type name used as for origin/target span annotations, e.g. {@link POS} for
      * {@link Dependency}
      */
-    /*
-     * private final String arcSpanType;
-     */
+    private final String arcSpanType;
+
     /**
      * The feature of an UIMA annotation containing the label to be used as origin/target spans for
      * arc annotations
      */
-    private final String attacheFeatureName;
+    private final String arcSpanTypeFeatureName;
 
     /**
      * as Governor and Dependent of Dependency annotation type are based on Token, we need the UIMA
      * type for token
      */
-    private final String attachType;
+    private final String arcTokenType;
 
     private boolean deletable;
 
-    private boolean crossMultipleSentence;
-
-    public ArcAdapter(long aTypeId, String aTypeName, String aLabelFeatureName,
-            String aTargetFeatureName, String aSourceFeatureName, /* String aArcSpanType, */
-            String aAttacheFeatureName, String aAttachType)
+    public ArcAdapter(String aLabelPrefix, String aTypeName, String aLabelFeatureName,
+            String aDependentFeatureName, String aGovernorFeatureName, String aArcSpanType,
+            String aArcSpanTypeFeatureName, String aTokenType)
     {
-        typeId = aTypeId;
+        labelPrefix = aLabelPrefix;
         labelFeatureName = aLabelFeatureName;
         annotationTypeName = aTypeName;
-        sourceFeatureName = aSourceFeatureName;
-        targetFeatureName = aTargetFeatureName;
-        // arcSpanType = aArcSpanType;
-        attacheFeatureName = aAttacheFeatureName;
-        attachType = aAttachType;
+        governorFeatureName = aGovernorFeatureName;
+        dependentFeatureName = aDependentFeatureName;
+        arcSpanType = aArcSpanType;
+        arcSpanTypeFeatureName = aArcSpanTypeFeatureName;
+        arcTokenType = aTokenType;
 
     }
 
@@ -145,32 +145,26 @@ public class ArcAdapter
                 FeatureStructure.class, lastAddressInPage);
 
         Type type = getType(aJcas.getCas(), annotationTypeName);
-        Feature dependentFeature = type.getFeatureByBaseName(targetFeatureName);
-        Feature governorFeature = type.getFeatureByBaseName(sourceFeatureName);
+        Feature dependentFeature = type.getFeatureByBaseName(dependentFeatureName);
+        Feature governorFeature = type.getFeatureByBaseName(governorFeatureName);
 
-        Type spanType = getType(aJcas.getCas(), attachType);
-        Feature arcSpanFeature = spanType.getFeatureByBaseName(attacheFeatureName);
-
-        FeatureStructure dependentFs;
-        FeatureStructure governorFs;
+        Type spanType = getType(aJcas.getCas(), arcSpanType);
+        Feature arcSpanFeature = spanType.getFeatureByBaseName(arcSpanTypeFeatureName);
 
         for (AnnotationFS fs : selectCovered(aJcas.getCas(), type, firstSentence.getBegin(),
                 lastSentenceInPage.getEnd())) {
-            if (attacheFeatureName != null) {
-                dependentFs = fs.getFeatureValue(dependentFeature).getFeatureValue(arcSpanFeature);
-                governorFs = fs.getFeatureValue(governorFeature).getFeatureValue(arcSpanFeature);
-            }
-            else {
-                dependentFs = fs.getFeatureValue(dependentFeature);
-                governorFs = fs.getFeatureValue(governorFeature);
-            }
+
+            FeatureStructure dependentFs = fs.getFeatureValue(dependentFeature).getFeatureValue(
+                    arcSpanFeature);
+            FeatureStructure governorFs = fs.getFeatureValue(governorFeature).getFeatureValue(
+                    arcSpanFeature);
 
             List<Argument> argumentList = getArgument(governorFs, dependentFs);
 
             Feature labelFeature = fs.getType().getFeatureByBaseName(labelFeatureName);
 
-            aResponse.addRelation(new Relation(((FeatureStructureImpl) fs).getAddress(), typeId
-                    + "$_" + fs.getStringValue(labelFeature), argumentList));
+            aResponse.addRelation(new Relation(((FeatureStructureImpl) fs).getAddress(),
+                    labelPrefix + fs.getStringValue(labelFeature), argumentList));
         }
     }
 
@@ -197,8 +191,7 @@ public class ArcAdapter
                 Sentence.class,
                 BratAjaxCasUtil.getLastSentenceAddressInDisplayWindow(aJCas, sentence.getAddress(),
                         aBratAnnotatorModel.getWindowSize())).getEnd();
-        if (crossMultipleSentence
-                || BratAjaxCasUtil.isSameSentence(aJCas, aOriginFs.getBegin(), aTargetFs.getEnd())) {
+        if (BratAjaxCasUtil.isSameSentence(aJCas, aOriginFs.getBegin(), aTargetFs.getEnd())) {
             updateCas(aJCas, beginOffset, endOffset, aOriginFs, aTargetFs, aLabelValue);
         }
         else {
@@ -217,16 +210,13 @@ public class ArcAdapter
 
         Type type = getType(aJCas.getCas(), annotationTypeName);
         Feature feature = type.getFeatureByBaseName(labelFeatureName);
-        Feature dependentFeature = type.getFeatureByBaseName(targetFeatureName);
-        Feature governorFeature = type.getFeatureByBaseName(sourceFeatureName);
+        Feature dependentFeature = type.getFeatureByBaseName(dependentFeatureName);
+        Feature governorFeature = type.getFeatureByBaseName(governorFeatureName);
 
-        Type spanType = getType(aJCas.getCas(), attachType);
-        Feature arcSpanFeature = spanType.getFeatureByBaseName(attacheFeatureName);
+        Type spanType = getType(aJCas.getCas(), arcSpanType);
+        Feature arcSpanFeature = spanType.getFeatureByBaseName(arcSpanTypeFeatureName);
 
-        Type tokenType = getType(aJCas.getCas(), attachType);
-
-        FeatureStructure dependentFs;
-        FeatureStructure governorFs;
+        Type tokenType = getType(aJCas.getCas(), arcTokenType);
         // List all sentence in this display window
         List<Sentence> sentences = selectCovered(aJCas, Sentence.class, aBegin, aEnd);
         for (Sentence sentence : sentences) {
@@ -234,20 +224,13 @@ public class ArcAdapter
             for (AnnotationFS fs : selectCovered(aJCas.getCas(), type, sentence.getBegin(),
                     sentence.getEnd())) {
 
-                if (attacheFeatureName != null) {
-                    dependentFs = fs.getFeatureValue(dependentFeature).getFeatureValue(
-                            arcSpanFeature);
-                    governorFs = fs.getFeatureValue(governorFeature)
-                            .getFeatureValue(arcSpanFeature);
-                }
-                else {
-                    dependentFs = fs.getFeatureValue(dependentFeature);
-                    governorFs = fs.getFeatureValue(governorFeature);
-                }
-
+                FeatureStructure dependentFs = fs.getFeatureValue(dependentFeature)
+                        .getFeatureValue(arcSpanFeature);
+                FeatureStructure governorFs = fs.getFeatureValue(governorFeature).getFeatureValue(
+                        arcSpanFeature);
                 if (isDuplicate((AnnotationFS) governorFs, aOriginFs, (AnnotationFS) dependentFs,
                         aTargetFs, fs.getStringValue(feature), aValue)
-                        && !aValue.equals(WebAnnoConst.ROOT)) {
+                        && !aValue.equals(AnnotationTypeConstant.ROOT)) {
 
                     // It is update of arc value, update it
                     if (!fs.getStringValue(feature).equals(aValue)) {
@@ -305,7 +288,8 @@ public class ArcAdapter
     @Override
     public void delete(JCas aJCas, int aAddress)
     {
-        FeatureStructure fs = BratAjaxCasUtil.selectByAddr(aJCas, FeatureStructure.class, aAddress);
+        FeatureStructure fs = BratAjaxCasUtil.selectByAddr(aJCas,
+                FeatureStructure.class, aAddress);
         aJCas.removeFsFromIndexes(fs);
     }
 
@@ -313,11 +297,11 @@ public class ArcAdapter
     public void deleteBySpan(JCas aJCas, AnnotationFS afs, int aBegin, int aEnd)
     {
         Type type = getType(aJCas.getCas(), annotationTypeName);
-        Feature dependentFeature = type.getFeatureByBaseName(targetFeatureName);
-        Feature governorFeature = type.getFeatureByBaseName(sourceFeatureName);
+        Feature dependentFeature = type.getFeatureByBaseName(dependentFeatureName);
+        Feature governorFeature = type.getFeatureByBaseName(governorFeatureName);
 
-        Type spanType = getType(aJCas.getCas(), attachType);
-        Feature arcSpanFeature = spanType.getFeatureByBaseName(attacheFeatureName);
+        Type spanType = getType(aJCas.getCas(), arcSpanType);
+        Feature arcSpanFeature = spanType.getFeatureByBaseName(arcSpanTypeFeatureName);
 
         Set<AnnotationFS> fsToDelete = new HashSet<AnnotationFS>();
 
@@ -346,12 +330,14 @@ public class ArcAdapter
      *
      * NOTE: This is not meant to stay. It's just a convenience during refactoring!
      */
-    /*
-     * public static final ArcAdapter getDependencyAdapter() { ArcAdapter adapter = new
-     * ArcAdapter(AnnotationTypeConstant.DEP_PREFIX, Dependency.class.getName(), "DependencyType",
-     * "Dependent", "Governor", Token.class.getName(), "pos", Token.class.getName()); return
-     * adapter; }
-     */
+    public static final ArcAdapter getDependencyAdapter()
+    {
+        ArcAdapter adapter = new ArcAdapter(AnnotationTypeConstant.DEP_PREFIX,
+                Dependency.class.getName(), "DependencyType", "Dependent", "Governor",
+                Token.class.getName(), "pos", Token.class.getName());
+        return adapter;
+    }
+
     /**
      * Argument lists for the arc annotation
      *
@@ -385,9 +371,9 @@ public class ArcAdapter
     }
 
     @Override
-    public long getTypeId()
+    public String getTypeId()
     {
-        return typeId;
+        return labelPrefix;
     }
 
     @Override
@@ -409,10 +395,11 @@ public class ArcAdapter
     }
 
     @Override
-    public String getAttachFeatureName()
+    public String getArcSpanTypeFeatureName()
     {
-        return attacheFeatureName;
+        return arcSpanTypeFeatureName;
     }
+
 
     @Override
     public List<String> getAnnotation(JCas aJcas, int begin, int end)
@@ -433,16 +420,6 @@ public class ArcAdapter
     {
         // TODO Auto-generated method stub
 
-    }
-
-    public boolean isCrossMultipleSentence()
-    {
-        return crossMultipleSentence;
-    }
-
-    public void setCrossMultipleSentence(boolean crossMultipleSentence)
-    {
-        this.crossMultipleSentence = crossMultipleSentence;
     }
 
 }

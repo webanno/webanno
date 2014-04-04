@@ -108,6 +108,7 @@ public class ProjectExportPanel
     @SuppressWarnings("unused")
     private AjaxLink<Void> exportProjectLink;
 
+ //   private String username;
     private String fileName;
     private String downloadedFile;
     @SuppressWarnings("unused")
@@ -645,9 +646,9 @@ public class ProjectExportPanel
             exportedTagSetContent.setLanguage(tagSet.getLanguage());
             exportedTagSetContent.setName(tagSet.getName());
 
-            exportedTagSetContent.setType(tagSet.getLayer().getType());
-            exportedTagSetContent.setTypeName(tagSet.getLayer().getName());
-            exportedTagSetContent.setTypeDescription(tagSet.getLayer().getDescription());
+            exportedTagSetContent.setType(tagSet.getType().getType());
+            exportedTagSetContent.setTypeName(tagSet.getType().getName());
+            exportedTagSetContent.setTypeDescription(tagSet.getType().getDescription());
 
             List<de.tudarmstadt.ukp.clarin.webanno.model.export.Tag> exportedTags = new ArrayList<de.tudarmstadt.ukp.clarin.webanno.model.export.Tag>();
             for (Tag tag : annotationService.listTags(tagSet)) {

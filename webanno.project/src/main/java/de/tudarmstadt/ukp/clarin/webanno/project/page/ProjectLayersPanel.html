@@ -24,14 +24,8 @@
 				<form wicket:id="layerSelectionForm">
 					<fieldset class="ui-widget-content ui-corner-all">
 						<legend>Layers</legend>
-
-						<div>
-							<select wicket:id="layerSelection" size="10"
-								style="font-weight: bold; width: 300px; height: 230px">
-								<span wicket:id="layers">
-									<option wicket:id="layer"></option>
-							</span>
-							</select>
+						<div class="hfill">
+							<select class="hfill" wicket:id="layer" size="10"></select>
 						</div>
 						<div class="buttons">
 							<input type="submit" wicket:id="create" />
@@ -51,11 +45,17 @@
 							</tr>
 							<tr>
 								<td style="vertical-align: top;">Description:</td>
-								<td><textarea wicket:id="description" rows="2"></textarea></td>
+								<td><textarea
+										wicket:id="description" rows="2"></textarea></td>
 							</tr>
 							<tr>
 								<td style="vertical-align: top;">Enabled:</td>
 								<td><input type="checkbox" wicket:id="enabled" /></td>
+							</tr>
+							<tr>
+								<td>Label feature:</td>
+								<td ><input type="text"
+									wicket:id="labelFeatureName" /></td>
 							</tr>
 						</table>
 					</fieldset>
@@ -63,12 +63,20 @@
 						<legend>Technical Properties</legend>
 						<table class="hfill">
 							<tr>
-								<td>Type:</td>
-								<td><select wicket:id="type"></select></td>
+								<td>Name:</td>
+								<td><input class="hfill" type="text" wicket:id="name" /></td>
 							</tr>
 							<tr>
-								<td>Attach to layer:</td>
+								<td>Attach to type:</td>
 								<td><select wicket:id="attachType"></select></td>
+							</tr>
+							<tr>
+								<td>Attach to feature:</td>
+								<td><select wicket:id="attachFeature"></select></td>
+							</tr>
+							<tr>
+								<td>Type:</td>
+								<td><select wicket:id="type"></select></td>
 							</tr>
 						</table>
 					</fieldset>
@@ -84,8 +92,7 @@
 								<td><input type="checkbox" wicket:id="allowSTacking" /></td>
 							</tr>
 							<tr>
-								<td style="vertical-align: top;">Allow crossing sentence
-									boundary:</td>
+								<td style="vertical-align: top;">Allow crossing sentence boundary:</td>
 								<td><input type="checkbox" wicket:id="crossSentence" /></td>
 							</tr>
 							<tr>
@@ -118,28 +125,29 @@
 						<legend>Feature details</legend>
 						<table class="hfill">
 							<tr>
-								<td>Type:</td>
-								<td><select wicket:id="type"></select></td>
-							</tr>
-							<tr>
 								<td>Short Description:</td>
-								<td><input class="hfill" type="text" wicket:id="uiName" /></td>
+								<td ><input class="hfill" type="text" wicket:id="uiName" /></td>
 							</tr>
 							<tr>
 								<td style="vertical-align: top;">Description:</td>
-								<td><textarea wicket:id="description" rows="2"></textarea></td>
+								<td><textarea 
+										wicket:id="description" rows="2"></textarea></td>
 							</tr>
 							<tr>
 								<td style="vertical-align: top;">Enabled:</td>
 								<td><input type="checkbox" wicket:id="enabled" /></td>
 							</tr>
-								<tr>
-								<td style="vertical-align: top;">Show:</td>
-								<td><input type="checkbox" wicket:id="visible" /></td>
+							<tr>
+								<td>Tagset:</td>
+								<td ><select wicket:id="tagSet"></select></td>
 							</tr>
 							<tr>
-								<td><label>TagSet:</label></td>
-								<td class="hfill"><select wicket:id="tagset"></select></td>
+								<td>Name:</td>
+								<td ><input type="text" wicket:id="name" /></td>
+							</tr>
+							<tr>
+								<td>Type:</td>
+								<td><select wicket:id="type"></select></td>
 							</tr>
 						</table>
 					</fieldset>

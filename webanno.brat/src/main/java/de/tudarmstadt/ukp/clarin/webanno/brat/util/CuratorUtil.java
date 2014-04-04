@@ -44,10 +44,11 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotator;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationOption;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.CasDiff;
@@ -350,7 +351,7 @@ public class CuratorUtil
             }
             if (newState != null) {
                 String type = entity.getType() + "_(" + newState.name() + ")";
-                String label = entity.getType().substring(entity.getType().indexOf("_") + 1);
+                String label = TypeUtil.getLabel(entity.getType());
 
                 entity.setType(type);
                 boolean hasArc = false;
@@ -445,8 +446,8 @@ public class CuratorUtil
         }
         if (newState != null) {
             String type = relation.getType() + "_(" + newState.name() + ")";
-            String label = relation.getType().replace(WebAnnoConst.DEP_PREFIX, "")
-                    .replace(WebAnnoConst.COREFERENCE_PREFIX, "");
+            String label = relation.getType().replace(AnnotationTypeConstant.DEP_PREFIX, "")
+                    .replace(AnnotationTypeConstant.COREFERENCE_PREFIX, "");
             relation.setType(type);
             return getRelation(type, label, newState, Arrays.asList(new String[] { arcTarget }));
         }

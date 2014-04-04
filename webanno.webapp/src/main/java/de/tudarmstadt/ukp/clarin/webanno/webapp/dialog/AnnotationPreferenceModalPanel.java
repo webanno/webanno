@@ -113,12 +113,9 @@ public class AnnotationPreferenceModalPanel
                             List<TagSet> tagSets = annotationService.listTagSets(bModel
                                     .getProject());
                             List<TagSet> corefTagSets = new ArrayList<TagSet>();
-                            List<TagSet> noFeature = new ArrayList<TagSet>();
                             for (TagSet tagSet : tagSets) {
-                                if (tagSet.getFeature() == null || tagSet.getLayer() == null) {
-                                    noFeature.add(tagSet);
-                                }
-                                else if (tagSet.getLayer().getType().equals("chain")) {
+                                if (tagSet.getType().getName().equals("coreference type")
+                                        || tagSet.getType().getName().equals("coreference")) {
                                     corefTagSets.add(tagSet);
                                 }
                             }
@@ -127,7 +124,6 @@ public class AnnotationPreferenceModalPanel
                                     || bModel.getMode().equals(Mode.CURATION)) {
                                 tagSets.removeAll(corefTagSets);
                             }
-                            tagSets.removeAll(noFeature);
                             return tagSets;
                             // return
                             // annotationService.listTagSets(bratAnnotatorModel.getProject());
@@ -136,6 +132,7 @@ public class AnnotationPreferenceModalPanel
                     setChoiceRenderer(new ChoiceRenderer<TagSet>("name", "id"));
                 }
             });
+
 
             // Add a Checkbox to enable/disable automatic page navigations while annotating
             add(new CheckBox("scrollPage"));
@@ -159,7 +156,7 @@ public class AnnotationPreferenceModalPanel
                         ProjectUtil.savePreference(bModel, repository);
                     }
                     catch (FileNotFoundException e) {
-                        error("Preference file not found");
+                      error("Preference file not found");
                     }
                     catch (IOException e) {
                         error("Preference file not found");

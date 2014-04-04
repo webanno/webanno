@@ -580,7 +580,6 @@ public class CorrectionPage
 
                     finish.setModelObject(bratAnnotatorModel);
                     target.add(finish.setOutputMarkupId(true));
-                    target.add(documentNamePanel);
                     mergeVisualizer.reloadContent(target);
                 }
             }
@@ -655,7 +654,6 @@ public class CorrectionPage
 
                 finish.setModelObject(bratAnnotatorModel);
                 target.add(finish.setOutputMarkupId(true));
-                target.add(documentNamePanel);
                 mergeVisualizer.reloadContent(target);
             }
         }.add(new InputBehavior(new KeyType[] { KeyType.Shift, KeyType.Page_down }, EventType.click)));
@@ -967,6 +965,7 @@ public class CorrectionPage
                     annotationDocument.setUser(logedInUser.getUsername());
                     annotationDocument.setProject(bratAnnotatorModel.getProject());
                 }
+                repository.createAnnotationDocument(annotationDocument);
 
                 BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
                         logedInUser, repository);
@@ -986,7 +985,6 @@ public class CorrectionPage
             if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
                 jCas = repository.getCorrectionDocumentContent(bratAnnotatorModel.getDocument());
                 // remove all annotation so that the user can correct from the auto annotation
-
                 AnnotationDocument annotationDocument;
                 // if annotation Document created out side of correction project (such as
                 // Monitoring)
@@ -1003,6 +1001,8 @@ public class CorrectionPage
                     annotationDocument.setProject(bratAnnotatorModel.getProject());
                 }
 
+                repository.createAnnotationDocument(annotationDocument);
+
                 BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
                         logedInUser, repository);
             }
@@ -1017,7 +1017,6 @@ public class CorrectionPage
                         logedInUser, repository);
             }
         }
-
         if (bratAnnotatorModel.getSentenceAddress() == -1
                 || bratAnnotatorModel.getDocument().getId() != currentDocumentId
                 || bratAnnotatorModel.getProject().getId() != currentprojectId) {

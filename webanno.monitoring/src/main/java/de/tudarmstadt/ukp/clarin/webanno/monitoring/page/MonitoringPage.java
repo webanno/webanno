@@ -64,7 +64,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.CurationPanel;
@@ -635,10 +635,10 @@ public class MonitoringPage
                 .listProjectUsersWithPermissions(project, PermissionLevel.USER);
         double[][] results = new double[users.size()][users.size()];
         if (tagSets.getModelObject() != null
-                && !tagSets.getModelObject().getLayer().getName()
-                        .equals(WebAnnoConst.COREFERENCE)) {
+                && !tagSets.getModelObject().getType().getName()
+                        .equals(AnnotationTypeConstant.COREFERENCE)) {
 
-            TypeAdapter adapter = TypeUtil.getAdapter(tagSets.getModelObject(), annotationService);
+            TypeAdapter adapter = TypeUtil.getAdapter(tagSets.getModelObject().getType());
 
             // assume all users finished only one document
             double[][] multipleDocumentsFinished = new double[users.size()][users.size()];
@@ -757,7 +757,7 @@ public class MonitoringPage
                         @Override
                         public Object getDisplayValue(MiraTemplate aObject)
                         {
-                            return "[" + aObject.getTrainTagSet().getLayer().getName() + "] "
+                            return "[" + aObject.getTrainTagSet().getType().getName() + "] "
                                     + aObject.getTrainTagSet().getName();
                         }
                     });
