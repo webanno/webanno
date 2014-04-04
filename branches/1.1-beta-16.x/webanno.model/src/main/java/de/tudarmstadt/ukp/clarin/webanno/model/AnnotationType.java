@@ -56,7 +56,7 @@ public class AnnotationType
     @Column(name = "id")
     private long id;
 
-    @Column(nullable = false)
+   // @Column(nullable = false)
     private String uiName;
 
     @Column(nullable = false)

@@ -96,10 +96,10 @@ public class AnnotationServiceImpl
         }
 
         entityManager.persist(aType);
-        RepositoryServiceDbData.createLog(aType.getProject(), aUser.getUsername()).info(
+      /*  RepositoryServiceDbData.createLog(aType.getProject(), aUser.getUsername()).info(
                 " Added tagset  [" + aType.getName() + "] with ID [" + aType.getId() + "]");
         RepositoryServiceDbData.createLog(aType.getProject(), aUser.getUsername())
-                .removeAllAppenders();
+                .removeAllAppenders();*/
     }
 
     @Override
