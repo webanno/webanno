@@ -165,9 +165,9 @@ public class CorrectionPage
                     curationContainer.setBratAnnotatorModel(bratAnnotatorModel);
                     setCurationSegmentBeginEnd();
 
-                    CuratorUtil.updatePanel(aTarget, this, curationContainer,
-                            mergeVisualizer, repository, annotationSelectionByUsernameAndAddress,
-                            curationSegment, annotationService, jsonConverter);
+                    CuratorUtil.updatePanel(aTarget, this, curationContainer, mergeVisualizer,
+                            repository, annotationSelectionByUsernameAndAddress, curationSegment,
+                            annotationService, jsonConverter);
                 }
                 catch (UIMAException e) {
                     error(ExceptionUtils.getRootCause(e));
@@ -378,7 +378,7 @@ public class CorrectionPage
         });
 
         add(new AnnotationLayersModalPanel("annotationLayersModalPanel",
-                new Model<BratAnnotatorModel>(bratAnnotatorModel) )
+                new Model<BratAnnotatorModel>(bratAnnotatorModel))
         {
             private static final long serialVersionUID = -4657965743173979437L;
 
@@ -766,7 +766,8 @@ public class CorrectionPage
                     catch (ClassNotFoundException e) {
                         error(e.getMessage());
                     }
-                    catch (IOException e) {;
+                    catch (IOException e) {
+                        ;
                         error(e.getMessage());
                     }
                     catch (BratAnnotationException e) {
@@ -942,18 +943,28 @@ public class CorrectionPage
         catch (IOException e) {
             throw e;
         }
-     // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
+        // Get information to be populated to bratAnnotatorModel from the JCAS of the logged in user
         // or from the previous correction document
         catch (DataRetrievalFailureException e) {
             if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
                 jCas = repository.getCorrectionDocumentContent(bratAnnotatorModel.getDocument());
                 // remove all annotation so that the user can correct from the auto annotation
 
-                AnnotationDocument annotationDocument = new AnnotationDocument();
-                annotationDocument.setDocument(bratAnnotatorModel.getDocument());
-                annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
-                annotationDocument.setUser(logedInUser.getUsername());
-                annotationDocument.setProject(bratAnnotatorModel.getProject());
+                AnnotationDocument annotationDocument;
+                // if annotation Document created out side of correction project (such as
+                // Monitoring)
+                if (repository.existsAnnotationDocument(bratAnnotatorModel.getDocument(),
+                        logedInUser)) {
+                    annotationDocument = repository.getAnnotationDocument(
+                            bratAnnotatorModel.getDocument(), logedInUser);
+                }
+                else {
+                    annotationDocument = new AnnotationDocument();
+                    annotationDocument.setDocument(bratAnnotatorModel.getDocument());
+                    annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
+                    annotationDocument.setUser(logedInUser.getUsername());
+                    annotationDocument.setProject(bratAnnotatorModel.getProject());
+                }
                 repository.createAnnotationDocument(annotationDocument);
 
                 BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
@@ -974,12 +985,22 @@ public class CorrectionPage
             if (repository.existsCorrectionDocument(bratAnnotatorModel.getDocument())) {
                 jCas = repository.getCorrectionDocumentContent(bratAnnotatorModel.getDocument());
                 // remove all annotation so that the user can correct from the auto annotation
+                AnnotationDocument annotationDocument;
+                // if annotation Document created out side of correction project (such as
+                // Monitoring)
+                if (repository.existsAnnotationDocument(bratAnnotatorModel.getDocument(),
+                        logedInUser)) {
+                    annotationDocument = repository.getAnnotationDocument(
+                            bratAnnotatorModel.getDocument(), logedInUser);
+                }
+                else {
+                    annotationDocument = new AnnotationDocument();
+                    annotationDocument.setDocument(bratAnnotatorModel.getDocument());
+                    annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
+                    annotationDocument.setUser(logedInUser.getUsername());
+                    annotationDocument.setProject(bratAnnotatorModel.getProject());
+                }
 
-                AnnotationDocument annotationDocument = new AnnotationDocument();
-                annotationDocument.setDocument(bratAnnotatorModel.getDocument());
-                annotationDocument.setName(bratAnnotatorModel.getDocument().getName());
-                annotationDocument.setUser(logedInUser.getUsername());
-                annotationDocument.setProject(bratAnnotatorModel.getProject());
                 repository.createAnnotationDocument(annotationDocument);
 
                 BratAnnotatorUtility.clearJcasAnnotations(jCas, bratAnnotatorModel.getDocument(),
@@ -1059,9 +1080,9 @@ public class CorrectionPage
     private void update(AjaxRequestTarget target)
     {
         try {
-            CuratorUtil.updatePanel(target, automateView, curationContainer,
-                    mergeVisualizer, repository, annotationSelectionByUsernameAndAddress,
-                    curationSegment, annotationService, jsonConverter);
+            CuratorUtil.updatePanel(target, automateView, curationContainer, mergeVisualizer,
+                    repository, annotationSelectionByUsernameAndAddress, curationSegment,
+                    annotationService, jsonConverter);
         }
         catch (UIMAException e) {
             error(ExceptionUtils.getRootCauseMessage(e));
