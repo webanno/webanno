@@ -2,7 +2,7 @@
 
 All-in-one version which does not require a database server or tomcat to be set up.
 
-Just start with: java -Xmx1g -jar -Dwebanno.home=/my/webanno/home webanno-XXX-standalone.jar (found in [https://code.google.com/p/webanno/downloads/list] )
+Just start with: java -Xmx1g -Dwebanno.home=/my/webanno/home -jar webanno-XXX-standalone.jar (found in [https://code.google.com/p/webanno/downloads/list] )
 
 Mind to replace /my/webanno/home with the full path (not relative path!) of a folder where WebAnno can store its data.
 
