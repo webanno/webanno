@@ -26,7 +26,7 @@ $ cd /opt
 $ tomcat6-instance-create -p 18080 -c 18005 webanno
 $ chown -R www-data /opt/webanno
 }}}
-Now we have the /opt/webanno/ apache tomcat installation. You will put the webanno.war file in the /opt/webanno/webapps/ folder
+Now we have the /opt/webanno/ apache tomcat installation. You will put the <font color="red"> *webanno.war*</font>  file in the /opt/webanno/webapps/ folder. If you get the war file in different name, such as Webanno-1.1-beta-10.war, *PLEASE RE-NAME IT TO* <font color="red">*webanno.war*</font>
    * Configure the startup script. Edit `/etc/init.d/webanno` and add the following contents:SampleData
 {{{
 #!/bin/sh
