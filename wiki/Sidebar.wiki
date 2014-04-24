@@ -4,7 +4,7 @@
   * [WebAnnoStandalone StandAlone Installation]
   * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
-` * *[Annotation]
+  * *[Annotation]
   * *[Curation]
   * *[Correction]
   * *[Automation]
