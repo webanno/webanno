@@ -67,6 +67,29 @@ Choose a document by clicking on “Dateien auswählen”. Please mind the forma
 The imported documents can be seen in the frame below.
 To delete a document from the project, you have to click on it and then click on “Delete” in the right lower corner.
 
+==== Layer administration ====
+To administer the layers, click on "Layer". A frame showing all existing layers in this project will appear. The colouring of the layers signal the following: 
+
+green: default annotation layer, enabled
+
+blue: personal annotation layer, enabled
+
+red: disabled annotation layer
+
+By default, only the default layer will be displayed as enabled. 
+To disable a layer, which means that it will not be shown to the users of the project, first select the layer by clicking on it. The following frames will open. 
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/layer1.JPG" width="600"/>
+
+In the first frame, there is field "Enabled", which can be ticked or unticked. By unticking the field it can be made invisible to the users.
+
+===== New Layer Creation =====
+To create a new layer, select "Create Layer" in the "Layers" frame. Then, the following frame will be displayed.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/layer1.JPG" width="600"/>
+
+The only obligatory field in this frame is the "Layer name". The tick after enabled signals whether the layer is shown to the users of the project, as it was already explained above.
+
 ==== Tagset administration ====
 
 To administer the tagsets, click on the tab “Tagsets” in the project pane. 
