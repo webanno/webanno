@@ -81,14 +81,29 @@ To disable a layer, which means that it will not be shown to the users of the pr
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/layer1.JPG" width="600"/>
 
-In the first frame, there is field "Enabled", which can be ticked or unticked. By unticking the field it can be made invisible to the users.
+In the first frame, there is field "Enabled", which can be ticked or unticked. By unticking the field it can be made invisible to the users. Layers cannot simply be deleted.
 
 ===== New Layer Creation =====
+
 To create a new layer, select "Create Layer" in the "Layers" frame. Then, the following frame will be displayed.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/layer1.JPG" width="600"/>
 
-The only obligatory field in this frame is the "Layer name". The tick after enabled signals whether the layer is shown to the users of the project, as it was already explained above.
+The only obligatory field in this frame is the "Layer name". Above, the user can give a description to the new layer. The tick after enabled signals whether the layer is shown to the users of the project, as it was already explained above.
+
+In the frame "Technical Properties", the user may select the type of annation that will be made with this layer: span, relation or chain.
+Span annotations cover an optional range of characters - tokens, words or sentences.
+
+Relation and chain annotations are used for annotating links between two spans.
+
+For relation and chain annotations the type of the spans which are to be connected can be chosen in the field "Attach to layer". Here only non-default layers are displayed. To create a relation or chain annotation, first the span annotation needs to be created.
+
+In the last frame, "Behaviours", other properties of the annotation may be selected. The first field, "Lock to token offsets", gives the possiblity to bind the annotation to a token.
+The next field, "Allow stacking", gives the possibility to make several annotations over one range.
+The third field, "Allow crossing sentence boundary" gives the possibility to annotate a range covering more than one sentence. 
+After clicking on "Save layer" only changes in the first frame ("Properties") may be made. After the layer has been saved, it will be displayed in the Layer frame.
+
+To be able to make annotations with this layer, features need to be added. This can be done by choosing the layer and clicking on "New feature" in the "Feature overview" frame. Then the following frame will be displayed:
 
 ==== Tagset administration ====
 
