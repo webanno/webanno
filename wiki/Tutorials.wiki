@@ -250,4 +250,4 @@ Go to the tab set “Layers” and fill it like shown below:
 
 Afterwards click on “New feature” and fill the fields as shown in the image. Notice that no tagset is added, as a layer like this allows free annotation tags.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut22.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut22.JPG" width="300"/>
