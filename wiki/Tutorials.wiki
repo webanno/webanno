@@ -184,7 +184,7 @@ Mode: Indicative, Imperative, Conjunctive
 
 To create the noun layer, first click on “Create Layer” in the “Layers” tab set. Then fill in the frames as shown in the following image.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut10.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut10.JPG" width="300"/>
 
 Then click on “Save layer” and go to Tagsets tabset. There, click on “Create tagset”, then fill in the fields as shown in the right frame in the image below. 
 
