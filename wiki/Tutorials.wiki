@@ -226,7 +226,7 @@ Then go back to “Layers”, choose “OpinionComponents”, click on “New fe
 
 Now create the layer indicating the polarity of the references. Create a new layer, filling the fields as shown below:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut18.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut18.JPG" width="300"/>
 
 Here crossing boundaries of sentences may be crossed, as the opinion target may be mentioned in other sentences than categorizing words.
 
