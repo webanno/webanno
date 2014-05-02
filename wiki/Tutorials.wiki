@@ -222,7 +222,7 @@ Now go to the tab set “Tagsets”, click on “Create tagset”and fill the fi
 
 Then go back to “Layers”, choose “OpinionComponents”, click on “New feature” and fill the fields in the newly appeared frame as shown below:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut17.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut17.JPG" width="300"/>
 
 Now create the layer indicating the polarity of the references. Create a new layer, filling the fields as shown below:
 
