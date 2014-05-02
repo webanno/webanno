@@ -73,7 +73,7 @@ After saving the tagset, it will be displayed in the “Tagsets“ frame. To cre
 
 Two frames will appear, the filled out example of “Prefix“ is shown below. “Stem“ and “Suffix“ are created in the same way. After clicking on “Save tag“ it will appear in the in the “Tags“ frame.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut3.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut3.JPG" width="600"/>
 .
 
 To create new tags, click “Create Tag“ in the “Tagsets“ frame. Add the tags “Prefix“,“Stem“ and “Suffix“ to the tagset.
