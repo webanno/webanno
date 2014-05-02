@@ -85,7 +85,7 @@ Then go back to the tab set “Layers“, select the layer “Morphology“ and 
 
 The following frame will appear, and shall be filled in in the shown way for the morphological annotation:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut5.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut5.JPG" width="300"/>
 
 
 The internal object type that is chosen is “String“ ASK WHY. The enabled button makes sure, that the  users are able to make this annotation, the show button whether already made annotations with this feature will be shown to the user. Choose the Morphology tagset that you just created in TagSet. Again, before saving the feature, make sure you chose the right type and tagset, and this cannot be changed afterwards.
