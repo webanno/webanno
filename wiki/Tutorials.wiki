@@ -212,7 +212,7 @@ For this kind of annotation, again two layers will be created. One layer will an
 
 To create the first layer, first select the “Layers” and click “Create layer”, then fill in the fields like shown in the image below.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut15.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut15.JPG" width="300"/>
 
 Multiple tokens may be annotated with one tag, as words like “very” or “much”, but also “not” may change or amplify the meaning of the categorizing words.
 
