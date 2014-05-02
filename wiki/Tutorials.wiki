@@ -188,7 +188,7 @@ To create the noun layer, first click on “Create Layer” in the “Layers” 
 
 Then click on “Save layer” and go to Tagsets tabset. There, click on “Create tagset”, then fill in the fields as shown in the right frame in the image below. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut11.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut11.JPG" width="600"/>
 
 Then click on “Save tagset” and choose the “Gender” tagset in the “Tagsets” frame. Then create the tags that are shown in the bottom of the image. Click on “Create tag”, enter the name, then click “Save tag”. 
 
