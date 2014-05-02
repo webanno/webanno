@@ -236,7 +236,7 @@ Now go to the “Tagsets” and create the tagset with the tags “positive” a
 
 Afterwards go back to “Layers”, click “New feature” in the right frame and fill the new frame as shown below:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut20.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut20.JPG" width="300"/>
 
 
 
