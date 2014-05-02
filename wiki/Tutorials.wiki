@@ -49,7 +49,7 @@ Setting the layer properties
 
 The following settings need to be made to create a layer, which will make morphological annotation of prefixes, stems and suffixes possible:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut1.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut1.JPG" width="300"/>
 
 
 
