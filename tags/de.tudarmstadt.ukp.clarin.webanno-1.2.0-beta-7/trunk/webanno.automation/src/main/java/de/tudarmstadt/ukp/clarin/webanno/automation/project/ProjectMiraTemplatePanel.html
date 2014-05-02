@@ -1,0 +1,100 @@
+<!--
+#Copyright 2014
+#Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
+#Technische Universität Darmstadt
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<wicket:panel>
+	<table class="hfill">
+		<tr>
+			<td style="vertical-align: top" width="30%">
+				<form wicket:id="miraTrainLayerSelectionForm">
+					<fieldset class="ui-widget-content ui-corner-all">
+						<legend>Select automation layer</legend>
+						<select wicket:id="features"></select>
+					</fieldset>
+				</form>
+				<p></p>
+				<form wicket:id="applyForm" style="background: olive">
+					<fieldset class="ui-widget-content ui-corner-all">
+						<div class="buttons">
+							<input type="submit" wicket:id="layerDetails" /> <input
+								type="submit" wicket:id="addOtherLayer" /> <input type="submit"
+								wicket:id="apply" />
+						</div>
+					</fieldset>
+				</form>
+			</td>
+			<td style="vertical-align: top" width="50%">
+				<table>
+					<tr>
+						<td style="vertical-align: top" width="50%">
+							<form wicket:id="miraTemplateDetailForm">
+								<fieldset class="ui-widget-content ui-corner-all">
+									<legend>Automation layer details </legend>
+									<table>
+										<tr>
+											<td>predict this page :</td>
+											<td><input type="checkbox" wicket:id="predictInThisPage" /></td>
+										</tr>
+										<tr>
+											<td>coppy annotation:</td>
+											<td><input type="checkbox"
+												wicket:id="annotateAndPredict" /></td>
+										</tr>
+										<tr>
+											<td>
+												<div class="buttons">
+													<input type="submit" wicket:id="save" />
+
+												</div>
+											</td>
+											<td></td>
+										</tr>
+									</table>
+								</fieldset>
+							</form>
+						</td>
+						<td style="vertical-align: top" width="50%"><span
+							wicket:id="trainFeatureDocumentsPanel"></span></td>
+					</tr>
+					<tr>
+						<td style="vertical-align: top" width="50%">
+							<form wicket:id="otherFeatureDeatilForm">
+								<fieldset class="ui-widget-content ui-corner-all">
+									<legend>Use other layers as training feature </legend>
+								<table>
+									<tr>
+										<td>Select layer :</td>
+										<td><select class="hfill" wicket:id="features"></select></td>
+									</tr>
+									<tr>
+										<td>Selected layers :</td>
+										<td><select class="hfill" wicket:id="selectedFeatures"></select></td>
+									</tr>
+								</table>
+								</fieldset>
+							</form>
+						</td>
+						<td style="vertical-align: top" width="50%"><span
+							wicket:id="otherTrainFeatureDocumentsPanel"></span></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</wicket:panel>
+</html>
