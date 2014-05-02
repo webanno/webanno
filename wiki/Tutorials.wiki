@@ -114,11 +114,11 @@ To create the tagset, go to Tagset and first click on “Create Tagset”, then 
 
 After doing so, create the tags as they are shown above in the “Tags” frame. The descriptions of the six tags were taken from the guidelines mentioned above.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/propbank.JPG" width="800"/>[http://verbs.colorado.edu/~mpalmer/projects/ace/EPB-annotation-guidelines.pdf Bonial et al. 2012, p.3]
+<img src="https://webanno.googlecode.com/svn/wiki/images/propbank.JPG" width="300"/>[http://verbs.colorado.edu/~mpalmer/projects/ace/EPB-annotation-guidelines.pdf Bonial et al. 2012, p.3]
 
 Having created the tagset, go back to “Layers” and choose the “VerbSpan” layer. Then click on “New feature” in the “Feature overview” frame and fill it like shown in the image below:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut8.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut8.JPG" width="300"/>
 
 Now the relation layer shall be created. For this, fill the “Properties” layer like shown below after clicking on “Create Layer”.
 
