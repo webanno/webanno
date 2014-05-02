@@ -102,7 +102,7 @@ As this layer is supposed to be able to annotate relations of token spans, its c
 
 To do so, go to the “Layers” tab set on the Projects page and click on “Create Layer”, then fill in the fields as shown in the image below.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut6.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut6.JPG" width="300"/>
 
 
 In this layer, the annotation should be bound to a token, which is done with tick next to “Lock to token offsets” in “Bahaviour”.
