@@ -80,7 +80,7 @@ To create new tags, click “Create Tag“ in the “Tagsets“ frame. Add the t
 
 Then go back to the tab set “Layers“, select the layer “Morphology“ and click on “New feature“ in the  Feature overview.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut4.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut4.JPG" width="200"/>
 
 
 The following frame will appear, and shall be filled in in the shown way for the morphological annotation:
