@@ -67,7 +67,7 @@ Be careful not to press “Save layer“ before having set the right properties,
 
 After having created the layer, the tagset has to be constructed. For this, go to the tab set “Tagset“. Then, click on “Create tagset“ as signalled by 1) in the following image. Then fill in the fields like shown above and click on “Save tagset“ as shown by 2) in the image.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut2.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut2.JPG" width="600"/>
 
 After saving the tagset, it will be displayed in the “Tagsets“ frame. To create the tags, select the tagset in in the frame by clicking on it.
 
