@@ -138,49 +138,7 @@ In German, nouns and articles can be changed according to gender, number and cas
 
 The  “Noun” layer creation will be shown in detail, the other layers can be be made accordingly. A table which shows the morphological features to produce the layers is provided below.
 
-Part of Speech
-
-Noun
-
-Verb
-
-Adjectives/Adverbs
-
-Changed Category
-
-Gender: Feminine, Masculine,
-
-Neuter
-
-Person: 1st, 2nd, 3rd
-
-Degree: Regular, Comparative, Superlative
-
-Changed Category
-
-Number: Singular, Plural
-
-Number: Singular, Plural
-
-
-
-Changed Category
-
-Case: Nominative, Genitive, Dative, Accusative
-
-Tense: Future, Present , Past(there are more specific tenses in the German laguage; these are just for presentation  purposes)
-
-
-
-Changed Category
-
-
-
-Mode: Indicative, Imperative, Conjunctive
-
-
-
-
+<img src="https://webanno.googlecode.com/svn/wiki/images/table.JPG" width="300"/>
 
 To create the noun layer, first click on “Create Layer” in the “Layers” tab set. Then fill in the frames as shown in the following image.
 
