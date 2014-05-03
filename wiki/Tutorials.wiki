@@ -257,9 +257,11 @@ In order to show how relation annotation works, examples of the layer similar to
 
 The PropBank similar layer annotates verbs and its arguments.
 Before annotating the relation itself, the components need to be annotated. First mark the verb - "haben" - in the 3rd sentence. Then choose the "VerbSpan" in "Layer" and "Verb" as the component in "Features". 
-Afterwards mark 
+Afterwards mark "Wir" as "Arg0" (agent), "seit einigen Monaten" as "ArgM" (modifier) and "diese Kaffeemaschine" as "Arg2" (instrument)and "in Gebrauch" as "Arg3" (attribute). The result of annotating the sentence looks like this:
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno8.JPG" width="500"/>
 
+Now all arguments should be related to the verb. To combine an argument to the verb, 
 
 
 
