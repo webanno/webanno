@@ -138,7 +138,7 @@ In German, nouns and articles can be changed according to gender, number and cas
 
 The  “Noun” layer creation will be shown in detail, the other layers can be be made accordingly. A table which shows the morphological features to produce the layers is provided below.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/table.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/table.JPG" width="600"/>
 
 To create the noun layer, first click on “Create Layer” in the “Layers” tab set. Then fill in the frames as shown in the following image.
 
