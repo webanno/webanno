@@ -1,8 +1,6 @@
-#summary One-sentence summary of this page.
+#summary Here the tutorial for some of WebAnno's functions are offered.
 
-= Introduction =
 
-Here the tutorial for some of WebAnno's functions are offered
 
 ==Table of Contents== 
 <wiki:toc/>
