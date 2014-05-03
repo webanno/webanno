@@ -7,7 +7,7 @@ Here the tutorial for some of WebAnno's functions are offered
 ==Table of Contents== 
 <wiki:toc/>
 
-= Annotation Project =
+= Annotation Project Creation =
 
 This a tutorial which leads through the annotation function. It will show how to create an annotation  project, how to upload documents, how to create personalized layers and tagsets, how to annotate the documents with the given layers and how to export projects.
 
@@ -212,3 +212,5 @@ Go to the tab set “Layers” and fill it like shown below:
 Afterwards click on “New feature” and fill the fields as shown in the image. Notice that no tagset is added, as a layer like this allows free annotation tags.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut22.JPG" width="300"/>
+
+=Annonation=
