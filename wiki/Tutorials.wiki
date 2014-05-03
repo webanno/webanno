@@ -12,7 +12,7 @@ This a tutorial which leads through the annotation function. It will show how to
 
 
 
-Setting the project
+== Setting the project ==
 
 If you have any problems with these steps, see the following instructions with screenshots http://code.google.com/p/webanno/wiki/Projects.
 
@@ -22,13 +22,13 @@ To create a new project,  click on “Projects“, then on “Create Projects“
 
 
 
-Upload the document
+== Upload the document == 
 
 Click on the tab page “Documents“, choose the “Plain text“ format, click on “Choose file“ and choose the uploaded “infile.txt“, then click “Import document“. Now the file should be visible in the Documents frame.
 
 
 
-Layers administration
+== Layers administration ==
 
 By clicking on the tab page “Layers“ the first time, only the default layers offered by WebAnno will be displayed – Coreference, Dependency, Lemma, Named Entity and POS.
 
@@ -36,14 +36,14 @@ This tutorial will demonstrate how to create personalized layers by reproducing 
 
 
 
-Free Layer Creation
+== *Free Layer Creation* ==
 
 First click on “Create Layer“ in the right bottom of the “Layers“ frame, like shown in the following screenshot:
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/choseLayers.JPG" width="800"/>
 
 
-Morphological Layer
+===Morphological Layer===
 
 Setting the layer properties
 
@@ -94,7 +94,7 @@ The internal object type that is chosen is “String“ ASK WHY. The enabled but
 
 
 
-Predicate relation annotation
+===Predicate relation layer==
 
 In this layer, a possibility to rebuilt the annotations that were made in PropBank (for guidelines of PropBank, see [http://verbs.colorado.edu/~mpalmer/projects/ace/EPB-annotation-guidelines.pdf Bonial et al. 2012], is shown. Summarizing, in this corpus, predicates and their arguments are annotated according to their role towards the argument. 
 
@@ -130,7 +130,7 @@ Now in “Technical Properties” the “Relation” type is chosen and the laye
 
 
 
-Morphological Feature Annotation
+=== Morphological Feature Layer ===
 
 In this layer, morphological features of the German langue will be made possible. This layer is similar to the annotations that were used in the TIGER project (see [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/TIGERCorpus/annotation/tiger_scheme-morph.pdf Crysmann et al.]).
 
@@ -164,7 +164,7 @@ After doing so, go back to “Layers”, choose the “Nouns” layer and add th
 
 
 
-OpinionAnnotation
+=== Opinion Layer ===
 
 For this kind of annotation, again two layers will be created. One layer will annotate spans indicating the opinion target and the words referencing it. The other layer will combine those with a positive or negative polarity,
 
@@ -198,7 +198,7 @@ Afterwards go back to “Layers”, click “New feature” in the right frame a
 
 
 
-Metainformation annotation
+===Metainformation Layer===
 
 In this part it will be shown how to produce a layer in which several free annotations may be added to several tokens, as for example needed when annotating facts about persons.
 
