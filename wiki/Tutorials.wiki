@@ -230,14 +230,19 @@ If you see less sentences than shown in the image, you may change this by clicki
 
 == Span Annotation ==
 
-For span annotation, we will show how to annotate POS and Morphology. Then you may annotate any span annotation layer you like. In the end of this tutorial you will be shown an example of how all annotations may be made.
+For span annotation, we will show how to annotate POS and Morphology. Then you may annotate any span annotation layer you like. For clarity, the annotations shown below show only the annotation level that is explained. In the end of this tutorial you will be shown an example of how all annotations may be made.
 
-For POS annotation, first mark a span that you want to annotate by marking it with the left mouse tab (Notice, that as this layer is locked to a token, the whole token will be annotated, even if only a part of it was marked). In the following examplary image the first word, "Wir" was marked. The frame shown below will open. In the field "Layers", choose "POS" and "PPER" as a POSvalue. You may also type or start typing the values in, which will make it quicker.
+For POS annotation, first mark a span that you want to annotate by marking it with the left mouse tab (Notice, that as this layer is locked to a token, the whole token will be annotated, even if only a part of it was marked). In the following examplary image the first word, "Wir" was marked. The frame shown below will open. In the field "Layers", choose "POS" and "PPER" as a POSvalue. You may also type or start typing the values in, which will make it quicker. The annotation tag set is STTS [http://www.sfs.uni-tuebingen.de/resources/stts-1999.pdf Schiller et al., 1999]
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno3.JPG" width="300"/>
 
 After choosing the described annotation, click "Annotate". Now the sentence should look like shown below:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno3.JPG" width="500"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno4.JPG" width="500"/>
+
+The fully annotated sentence should look like this:
+
+
+
 
  
