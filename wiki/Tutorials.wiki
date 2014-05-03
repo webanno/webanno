@@ -242,6 +242,18 @@ After choosing the described annotation, click "Annotate". Now the sentence shou
 
 The fully annotated sentence should look like this:
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno5.JPG" width="500"/>
+
+For the example of morphological annotation, we will take the second word, _haben_, as the first is a complete stem. Now take care that you mark only what you want to annotate, as this time not the whole token will be chosen. As this is an irregular verb, we will mark "ha" as the stem. After choosing it with the left mouse button, choose the "Morphology" layer and "stem" as the morphology feature and click "Annotate". Afterwards mark "en" as suffix" in the same way. The annotation should look like this:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno6.JPG" width="500"/>
+
+The fully morphologically annotated sentence looks like this:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno7.JPG" width="500"/>
+
+
+
 
 
 
