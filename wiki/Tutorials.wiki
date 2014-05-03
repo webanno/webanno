@@ -236,6 +236,8 @@ For POS annotation, first mark a span that you want to annotate by marking it wi
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno3.JPG" width="300"/>
 
-After choosing the described annotation, click "Annotate".
+After choosing the described annotation, click "Annotate". Now the sentence should look like shown below:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno3.JPG" width="500"/>
 
  
