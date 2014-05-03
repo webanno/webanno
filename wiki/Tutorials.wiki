@@ -210,3 +210,32 @@ Afterwards click on “New feature” and fill the fields as shown in the image.
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut22.JPG" width="300"/>
 
 =Annotation=
+In this chapter the different annotation layers will be shown. 
+
+==Uploading Project==
+If you have not created the Annotation Project as it was described in the previous chapter, you may download the resulting project from here.
+
+To import the project, go to the "Projects" page, upload the file after clicking on the upload button and click "Import project". Now "FreeAnnoTutorial" should be visible in the "Projects" frame.
+
+== Annotating ==
+Go to the "Annotation" page, which can be reached from the Home page. A dialogue will be opened. Choose the project "FreeAnnoTutorial" in the left frame and "infile.txt" on the right frame, as shown in the image below. The first two lines are the source.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno1.JPG" width="300"/>
+
+After clicking on "Open", the following view will be visible:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno2.JPG" width="300"/>
+
+If you see less sentences than shown in the image, you may change this by clicking on "Settings" and changing the number in "Number of sentences". You may also choose only those layers, that you want to annotate here.
+
+== Span Annotation ==
+
+For span annotation, we will show how to annotate POS and Morphology. Then you may annotate any span annotation layer you like. In the end of this tutorial you will be shown an example of how all annotations may be made.
+
+For POS annotation, first mark a span that you want to annotate by marking it with the left mouse tab (Notice, that as this layer is locked to a token, the whole token will be annotated, even if only a part of it was marked). In the following examplary image the first word, "Wir" was marked. The frame shown below will open. In the field "Layers", choose "POS" and "PPER" as a POSvalue. You may also type or start typing the values in, which will make it quicker.
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno3.JPG" width="300"/>
+
+After choosing the described annotation, click "Annotate".
+
+ 
