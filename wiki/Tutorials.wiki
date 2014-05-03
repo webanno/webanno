@@ -9,9 +9,7 @@ Here the tutorial for some of WebAnno's functions are offered
 
 = Annotation Project Creation =
 
-This a tutorial which leads through the annotation function. It will show how to create an annotation  project, how to upload documents, how to create personalized layers and tagsets, how to annotate the documents with the given layers and how to export projects.
-
-
+This a tutorial which leads through the annotation function. It will show how to create an annotation  project, how to upload documents and how to create personalized layers and tagsets. How to annotate the documents with the given layers will be shown in the next chapter.
 
 
 
