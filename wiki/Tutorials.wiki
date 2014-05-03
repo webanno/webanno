@@ -213,4 +213,4 @@ Afterwards click on “New feature” and fill the fields as shown in the image.
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut22.JPG" width="300"/>
 
-=Annonation=
+=Annotation=
