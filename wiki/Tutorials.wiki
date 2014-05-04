@@ -270,6 +270,7 @@ The creation of an OpinionComponent span annotation is like the span annotation 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno9.JPG" width="500"/>
  
+
 After clicking on "Ok" the annotation should look like this:
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno10.JPG" width="800"/>
