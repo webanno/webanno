@@ -224,7 +224,7 @@ Go to the "Annotation" page, which can be reached from the Home page. A dialogue
 
 After clicking on "Open", the following view will be visible:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno2.JPG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno2.JPG" width="800"/>
 
 If you see less sentences than shown in the image, you may change this by clicking on "Settings" and changing the number in "Number of sentences". You may also choose only those layers, that you want to annotate here.
 
@@ -272,6 +272,6 @@ The creation of an OpinionComponent span annotation is like the span annotation 
  
 After clicking on "Ok" the annotation should look like this:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno10.JPG" width="500"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno10.JPG" width="800"/>
 
  
