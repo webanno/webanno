@@ -220,11 +220,11 @@ To import the project, go to the "Projects" page, upload the file after clicking
 == Annotating ==
 Go to the "Annotation" page, which can be reached from the Home page. A dialogue will be opened. Choose the project "FreeAnnoTutorial" in the left frame and "infile.txt" on the right frame, as shown in the image below. The first two lines are the source.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno1.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno1.JPG" width="400"/>
 
 After clicking on "Open", the following view will be visible:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno2.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno2.JPG" width="600"/>
 
 If you see less sentences than shown in the image, you may change this by clicking on "Settings" and changing the number in "Number of sentences". You may also choose only those layers, that you want to annotate here.
 
