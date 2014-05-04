@@ -283,4 +283,9 @@ For this, mark "Kaffeemaschine" (3rd sentence), "Sie" (4th sentence) and "sie" (
 
 When going over with the mouse over one component of the chain, the preceeding and the following component and their links will be highlighted.
 
+In the image above, additionally to the described layers, some of the sentence were annotated on the Noun, Named Entity and MetaInformation layer. An examplary image is provided above:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno12.JPG" width="800"/>
+
+
  
