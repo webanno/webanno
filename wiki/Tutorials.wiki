@@ -275,4 +275,12 @@ After clicking on "Ok" the annotation should look like this:
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno10.JPG" width="800"/>
 
+Chain annotation
+The chain annotation is similar to the relation annotation. The difference is that it combines more than two components. The exemplary layer chosen here is "Coreference". 
+For this, mark "Kaffeemaschine" (3rd sentence), "Sie" (4th sentence) and "sie" (also 4th sentence) as "nam" in the "Coreference" layer. Then click on Kaffeemaschine" and pull the upcoming arrow till "Sie". Choose "anaphoric" as annotation. Do the same between "Sie" and "sie". The following image shows the resulting annotation:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno11.JPG" width="800"/>
+
+When going over with the mouse over one component of the chain, the preceeding and the following component and their links will be highlighted.
+
  
