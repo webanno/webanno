@@ -78,4 +78,4 @@ Make examples
 
 The other kind of annotation that is supported by WebAnno is Arc. The arcs can be made within one sentence and their types are chosen out of a tagset. Dependency arcs are defined between POS. Every POS is allowed to have only one head. Co-reference arcs are defined between co-reference-anchors. All transitivly combined anchors build a colour-coded lexical chain.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/anno_span_many.JPG" width="400"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/anno_span_many.JPG" width="800"/>
