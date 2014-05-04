@@ -92,7 +92,7 @@ The internal object type that is chosen is “String“ ASK WHY. The enabled but
 
 
 
-
+<wiki:comment>
 ===Predicate relation layer==
 
 In this layer, a possibility to rebuilt the annotations that were made in PropBank (for guidelines of PropBank, see [http://verbs.colorado.edu/~mpalmer/projects/ace/EPB-annotation-guidelines.pdf Bonial et al. 2012], is shown. Summarizing, in this corpus, predicates and their arguments are annotated according to their role towards the argument. 
@@ -125,7 +125,7 @@ Now the relation layer shall be created. For this, fill the “Properties” lay
 
 Now in “Technical Properties” the “Relation” type is chosen and the layer is attached to the “VerbSpan” layer that was just created. Do not forget to save the the layer.
 
-
+</wiki:comment>
 
 
 
