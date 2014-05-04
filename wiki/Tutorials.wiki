@@ -265,7 +265,13 @@ Afterwards mark "Wir" as "Arg0" (agent), "seit einigen Monaten" as "ArgM" (modif
 Now all arguments should be related to the verb. To combine an argument to the verb, 
 </wiki:comment>
 
+To create an Opinion layer annotation, first the opinion target and the opinion references have to be annotated as spans. Then they are combined.
+The creation of an OpinionComponent span annotation is like the span annotation layers that were described above. Mark "Kaffeemaschine", choose the layer "OpinionComponent" and "Opinion target" as a feature and click "Annotate". Now mark "schnell" (in the 4th sentence) as "Target reference" in the same layer. Now click on the "Target reference" annotation (not the word "schnell") and pull the upcoming arrow to the "Opinion target" annotation (not the word "Kaffeemaschine"). A new frame will appear. In this, the annotation tag of the relation may be chosen. In our case, the "OpinionPolarity" is "positive". The resulting filled frame is shown below:
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno9.JPG" width="500"/>
+ 
+After clicking on "Ok" the annotation should look like this:
 
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut_anno10.JPG" width="500"/>
 
  
