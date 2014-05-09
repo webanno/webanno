@@ -6,4 +6,11 @@
 Answer goes here
 <font color="red">
   * *Können in WebAnno auch Metadaten mitverwaltet bzw. gespeichert werden Im Falle unserer Daten verwenden wir u.a. IDs für einzelne Postings und deren Autoren.* </font>
-Answer goes here
+
+<font color="red">
+  * *I like to see kappa measure per documents, how can I do that.* </font>
+Kappa is computed for every user and every documents they have finished. If you like per document kappa, 1) copy your project (export it from project settings) 2) mark all documents except the one you like its kappa in state of "in progress, (the play button)), and select the layer
+
+<font color="red">
+  * *I have started curation after some users have finished. If new users finished annotation, the curation result is not as I expected.* </font>
+The best thing to do is to wait untill all users finish annotation before starting curations. If new annotation documents finished, press the re-merge button but you will loose the previous curated results!
