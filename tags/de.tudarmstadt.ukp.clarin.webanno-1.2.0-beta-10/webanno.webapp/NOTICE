@@ -1,0 +1,37 @@
+The following icon sets are licensed under a Creative Commons Attribution 3.0 License.(licenses/CC_BY_3.0.txt)
+  
+categories.png
+cog.png
+data_table.png
+document_export.png
+document_page_last.png
+document_page_next.png
+document_page_previous.png
+document_page.png
+drawer_open.png
+help.png
+home_page.png
+setting_tools.png
+statistics.png
+ukp-logo.png
+user_go.png
+
+
+The following files are under the the MIT license (licences/MIT.txt)
+These files are originally from the BRAT project
+
+src/main/webapp/static/style.css
+
+src/main/webapp/fonts/Astloch-Bold.ttf
+src/main/webapp/fonts/Liberation_Sans-Regular.ttf
+src/main/webapp/fonts/PT_Sans-Caption-Web-Regular.ttf
+
+
+
+The following files are under the Creative Commons Attribution 2.5 licnse (licences/CC_BY_2_5.txt)
+
+src/main/webapp/js/css_browser_selector.js
+
+
+
+ukp-logo.png
