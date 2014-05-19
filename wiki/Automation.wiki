@@ -1,4 +1,4 @@
-#summary Describes the functionality of automated annotation
+#summary Describes the functionality of automated annotation. Will be accessible soon.
 
 = Automation =
 This functionality gives the possibility to choose features and documents, which can be used for training of all layers that are offered in WebAnno (lemma, NER, POS and co-ref).
