@@ -6,6 +6,9 @@ You can either select one of the existing projects for editing, or click “Crea
 
 *Although correction and automation projects function similarly, the management differs after the creation of the document. For further description, look at the corresponding chapters.*
 
+==Table of Contents== 
+<wiki:toc/>
+
 === Create a New Project ===
 
 Only superadmins are allowed to create projects.	
@@ -68,6 +71,8 @@ The imported documents can be seen in the frame below.
 To delete a document from the project, you have to click on it and then click on “Delete” in the right lower corner.
 
 ==== Layer administration ====
+This feature is currently under development and looks different in the currently available version. The new version will be released soon.
+
 To administer the layers, click on "Layer". A frame showing all existing layers in this project will appear. The colouring of the layers signal the following: 
 
 green: default annotation layer, enabled
