@@ -70,3 +70,10 @@ You can partially restored the database using the data on the file system, but i
 *Restore project assignments*
    * Go to the monitoring web interface and re-assign documents to users as you desire. This information is currently not recoverable from the project log
    * Mind that also the annotation state is lost, all documents will appear as *new* for every user. However, since the annotations themselves are saved on the file system, not in the database, they are still there.
+
+=safari automatically extract WebAnno Project=
+===Problem===
+When exporting the whole Webnno project, my browser automatically extract it. This hinders Webanno to properly import the exported project if the extracted files are re-zipped
+
+===solution===
+make sure that you have turnned of "Automatically open safe file types" in Safari to avoid unpacking the exported project on download.
