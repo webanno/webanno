@@ -450,7 +450,7 @@ public class BratAnnotator
             openAnnotationDialog.setTitle("Edit Arc Annotation");
             openAnnotationDialog.setContent(new ArcAnnotationModalWindowPanel(openAnnotationDialog
                     .getContentId(), openAnnotationDialog, getModelObject(), originSpanId,
-                    originSpanType, targetSpanId, targetSpanType, selectedArcId, selectedArcType));
+                    targetSpanId, selectedArcId));
         }
 
         openAnnotationDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()

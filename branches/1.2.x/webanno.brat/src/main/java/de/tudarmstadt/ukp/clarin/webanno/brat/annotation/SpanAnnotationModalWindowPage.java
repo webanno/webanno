@@ -634,28 +634,28 @@ public class SpanAnnotationModalWindowPage
         this.beginOffset = annoFs.getBegin();
         this.endOffset = annoFs.getEnd();
 
-        this.selectedLayer = annotationService.getLayer(annoFs.getType().getName(),
-                WebAnnoConst.SPAN_TYPE, bratAnnotatorModel.getProject());
+        String type = annoFs.getType().getName();
 
-        if (selectedLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-            for (AnnotationFeature feature : annotationService.listAnnotationFeature(selectedLayer)) {
-                if (feature.getName().equals(WebAnnoConst.COREFERENCE_TYPE_FEATURE)) {
-                    this.selectedFeatureValues.put(feature, null);
-                    break;
-                }
-            }
+        if (type.endsWith("Chain")) {
+            type = type.substring(0, type.length() - 5);
         }
-        else {
-            for (AnnotationFeature feature : annotationService.listAnnotationFeature(selectedLayer)) {
-                if (feature.isEnabled() || feature.isVisible()) {
-                    Feature annoFeature = annoFs.getType().getFeatureByBaseName(feature.getName());
-                    this.selectedFeatureValues.put(feature,
-                            annoFs.getFeatureValueAsString(annoFeature));
-                }
-
-            }
+        else if (type.endsWith("Link")) {
+            type = type.substring(0, type.length() - 4);
         }
 
+        this.selectedLayer = annotationService.getLayer(type, bratAnnotatorModel.getProject());
+
+        for (AnnotationFeature feature : annotationService.listAnnotationFeature(selectedLayer)) {
+            if (feature.getName().equals(WebAnnoConst.COREFERENCE_RELATION_FEATURE)) {
+              continue;
+            }
+            if (feature.isEnabled() || feature.isVisible()) {
+                Feature annoFeature = annoFs.getType().getFeatureByBaseName(feature.getName());
+                this.selectedFeatureValues
+                        .put(feature, annoFs.getFeatureValueAsString(annoFeature));
+            }
+
+        }
         layersModel = new Model<AnnotationLayer>(selectedLayer);
 
         this.annotationDialogForm = new AnnotationDialogForm("annotationDialogForm", modalWindow);
