@@ -42,6 +42,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationOption;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.CasDiff;
@@ -304,12 +305,9 @@ public class CurationBuilder
             if(layer.getName().equals(Token.class.getName())){
                 continue;
             }
-            if(layer.getName().equals("de.tudarmstadt.ukp.dkpro.core.api.coref.type.Coreference")){
+            if (layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
                 continue;
             }
-           /* if (layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-                continue;
-            }*/
             entryTypes.add(getAdapter(layer, annotationService).getAnnotationType(
                     mergeJCas.getCas()));
         }
