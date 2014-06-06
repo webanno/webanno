@@ -65,7 +65,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
@@ -320,29 +319,13 @@ public class ProjectTagSetsPanel
                                     // the fourth key is the tagset language
                                     else if (i == 3) {
                                         tagsetLanguage = key;
-                                        // Create the type, if not exist
-                                        AnnotationLayer type = null;
-                                        if (!annotationService.existsType(tagsetTypeName,
-                                                tagsetType)) {
-                                            type = new AnnotationLayer();
-                                            type.setDescription(tagsetTypeDescription.replace(
-                                                    "\\n", "\n"));
-                                            type.setName(tagsetTypeName);
-                                            type.setType(tagsetType);
-                                            annotationService.createLayer(type, user);
-                                        }
-                                        // type exist, get it
-                                        else {
-                                            type = annotationService.getLayer(tagsetTypeName,
-                                                    project);
-                                        }
                                         // remove and replace the tagset if it
                                         // exist
                                         if (annotationService.existsTagSet(tagSetName, project)) {
-                                            /*
-                                             * annotationService .removeTagSet(annotationService
-                                             * .getTagSet(type, project));
-                                             */
+
+                                            annotationService.removeTagSet(annotationService
+                                                    .getTagSet(tagSetName, project));
+
                                         }
                                         tagSet = new de.tudarmstadt.ukp.clarin.webanno.model.TagSet();
                                         tagSet.setName(tagSetName);
@@ -379,7 +362,7 @@ public class ProjectTagSetsPanel
                 private void createTagSet(Project project, User user, TagSet importedTagSet)
                     throws IOException
                 {
-                    if (annotationService.existsTagSet(project)) {
+                    if (annotationService.existsTagSet(importedTagSet.getName(), project)) {
                         annotationService.removeTagSet(annotationService.getTagSet(
                                 importedTagSet.getName(), project));
                     }
