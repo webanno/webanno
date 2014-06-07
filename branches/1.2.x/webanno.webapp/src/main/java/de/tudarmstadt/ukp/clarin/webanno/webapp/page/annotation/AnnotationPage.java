@@ -491,6 +491,9 @@ public class AnnotationPage
                         aTarget.add(feedbackPanel);
                         annotator.reloadContent(aTarget);
                         aTarget.add(numberOfPages);
+                        gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                                bratAnnotatorModel.getSentenceAddress())+1);
+                        aTarget.add(gotoPageTextField);
                     }
 
                     else {
@@ -530,6 +533,9 @@ public class AnnotationPage
                         aTarget.add(feedbackPanel);
                         annotator.reloadContent(aTarget);
                         aTarget.add(numberOfPages);
+                        gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                                bratAnnotatorModel.getSentenceAddress())+1);
+                        aTarget.add(gotoPageTextField);
                     }
                     else {
                         aTarget.appendJavaScript("alert('This is First Page!')");
@@ -566,6 +572,9 @@ public class AnnotationPage
                         aTarget.add(feedbackPanel);
                         annotator.reloadContent(aTarget);
                         aTarget.add(numberOfPages);
+                        gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                                bratAnnotatorModel.getSentenceAddress())+1);
+                        aTarget.add(gotoPageTextField);
                     }
                     else {
                         aTarget.appendJavaScript("alert('This is first page!')");
@@ -606,6 +615,9 @@ public class AnnotationPage
                         aTarget.add(feedbackPanel);
                         annotator.reloadContent(aTarget);
                         aTarget.add(numberOfPages);
+                        gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                                bratAnnotatorModel.getSentenceAddress())+1);
+                        aTarget.add(gotoPageTextField);
                     }
                     else {
                         aTarget.appendJavaScript("alert('This is last Page!')");
@@ -644,6 +656,9 @@ public class AnnotationPage
                     aTarget.add(feedbackPanel);
                     annotator.reloadContent(aTarget);
                     aTarget.add(numberOfPages);
+                    gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                            bratAnnotatorModel.getSentenceAddress())+1);
+                    aTarget.add(gotoPageTextField);
                 }
                 else {
                     aTarget.appendJavaScript("alert('This sentence is on the same page!')");
@@ -707,6 +722,9 @@ public class AnnotationPage
                     aTarget.add(feedbackPanel);
                     annotator.reloadContent(aTarget);
                     aTarget.add(numberOfPages);
+                    gotoPageTextField.setModelObject(BratAjaxCasUtil.getFirstSentenceNumber(jCas,
+                            bratAnnotatorModel.getSentenceAddress())+1);
+                    aTarget.add(gotoPageTextField);
                 }
                 else {
                     aTarget.appendJavaScript("alert('This sentence is on the same page!')");
