@@ -80,7 +80,7 @@ public class WebannoCustomTsvWriter
     public static final String PARAM_FILENAME_SUFFIX = "filenameSuffix";
     @ConfigurationParameter(name = PARAM_FILENAME_SUFFIX, mandatory = true, defaultValue = ".tsv")
     private String filenameSuffix;
-    
+
     public static final String MULTIPLE_SPAN_ANNOTATIONS = "multipleSpans";
     @ConfigurationParameter(name = MULTIPLE_SPAN_ANNOTATIONS, mandatory = true, defaultValue = {})
     private List<String>multipleSpans;
@@ -262,6 +262,7 @@ public class WebannoCustomTsvWriter
         int sentId = 1;
         for (Sentence sentence : select(aJCas, Sentence.class)) {
             IOUtils.write("#id=" + sentId++ + "\n", aOs, aEncoding);
+            System.out.println(sentence.getCoveredText());
             IOUtils.write("#text=" + sentence.getCoveredText().replace("\n", "") + "\n", aOs,
                     aEncoding);
             for (Token token : selectCovered(Token.class, sentence)) {
@@ -354,7 +355,7 @@ public class WebannoCustomTsvWriter
             boolean previous = false; // exists previous annotation, place-holed O-_ should be kept
             for (Token token : selectCovered(Token.class, annoFs)) {
                 if (annoFs.getBegin() <= token.getBegin() && annoFs.getEnd() >= token.getEnd()) {
-                    String annotation = annoFs.getFeatureValueAsString(aFeature);         
+                    String annotation = annoFs.getFeatureValueAsString(aFeature);
                     if (annotation == null) {
                         annotation = "_";
                     }
