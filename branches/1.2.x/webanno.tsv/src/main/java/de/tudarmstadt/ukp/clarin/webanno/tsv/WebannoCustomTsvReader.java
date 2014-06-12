@@ -295,7 +295,7 @@ public class WebannoCustomTsvReader
                 for (String annotation : multipleAnnotations.split("\\|")) {
                     // If annotation is not on multpile spans
                     if (!(annotation.startsWith("B-") || annotation.startsWith("I-") || annotation
-                            .startsWith("O-")) && !annotation.equals("_")) {
+                            .startsWith("O-")) && !(annotation.equals("_"))||annotation.equals("O")) {
                         AnnotationFS newAnnotation = aJcas.getCas().createAnnotation(layer,
                                 aTokenStart, aTokenStart + aToken.length());
                         newAnnotation.setFeatureValueFromString(feature, annotation);

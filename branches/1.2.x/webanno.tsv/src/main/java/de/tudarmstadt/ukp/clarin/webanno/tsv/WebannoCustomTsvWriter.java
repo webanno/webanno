@@ -24,6 +24,7 @@ import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class WebannoCustomTsvWriter
 
     public static final String MULTIPLE_SPAN_ANNOTATIONS = "multipleSpans";
     @ConfigurationParameter(name = MULTIPLE_SPAN_ANNOTATIONS, mandatory = true, defaultValue = {})
-    private List<String>multipleSpans;
+    private List<String> multipleSpans;
 
     private final String DEPENDENT = "Dependent";
     private final String GOVERNOR = "Governor";
@@ -167,14 +168,14 @@ public class WebannoCustomTsvWriter
 
         // all span annotation first
 
-        Set<Feature> spanFeatures = new LinkedHashSet<Feature>();
-       allTypes: for (Type type : allTypes) {
+        Map<Feature, Type> spanFeatures = new LinkedHashMap<Feature, Type>();
+        allTypes: for (Type type : allTypes) {
             if (type.getFeatures().size() == 0) {
                 continue;
             }
             for (Feature feature : type.getFeatures()) {
                 // coreference annotation not supported
-                if(feature.getShortName().equals(FIRST) || feature.getShortName().equals(NEXT)){
+                if (feature.getShortName().equals(FIRST) || feature.getShortName().equals(NEXT)) {
                     continue allTypes;
                 }
             }
@@ -185,7 +186,7 @@ public class WebannoCustomTsvWriter
                         || feature.toString().equals("uima.tcas.Annotation:end")) {
                     continue;
                 }
-                spanFeatures.add(feature);
+                spanFeatures.put(feature, type);
                 IOUtils.write(" | " + feature.getShortName(), aOs, aEncoding);
             }
         }
@@ -215,7 +216,7 @@ public class WebannoCustomTsvWriter
         allTypes: for (Type type : allTypes) {
             for (Feature feature : type.getFeatures()) {
                 // coreference annotation not supported
-                if(feature.getShortName().equals(FIRST) || feature.getShortName().equals(NEXT)){
+                if (feature.getShortName().equals(FIRST) || feature.getShortName().equals(NEXT)) {
                     continue allTypes;
                 }
             }
@@ -270,10 +271,15 @@ public class WebannoCustomTsvWriter
                         + "\t", aOs, aEncoding);
 
                 // all span annotations on this token
-                for (Feature feature : spanFeatures) {
+                for (Feature feature : spanFeatures.keySet()) {
                     String annos = allAnnos.get(feature).get(token.getAddress());
                     if (annos == null) {
-                        IOUtils.write("_\t", aOs, aEncoding);
+                        if (multipleSpans.contains(spanFeatures.get(feature).getName())) {
+                            IOUtils.write("O\t", aOs, aEncoding);
+                        }
+                        else {
+                            IOUtils.write("_\t", aOs, aEncoding);
+                        }
                     }
                     else {
                         IOUtils.write(annos + "\t", aOs, aEncoding);
@@ -361,38 +367,39 @@ public class WebannoCustomTsvWriter
                     }
                     if (aTokenAnnoMap.get(token.getAddress()) == null) {
                         if (previous) {
-                            if(!multipleSpans.contains(aType.getName())){
-                            	 aTokenAnnoMap.put(token.getAddress(),  annotation);
+                            if (!multipleSpans.contains(aType.getName())) {
+                                aTokenAnnoMap.put(token.getAddress(), annotation);
                             }
-                            else{
-                            aTokenAnnoMap.put(token.getAddress(), "O-_|" + (first ? "B-" : "I-")
-                                    + annotation);
-                            first = false;
+                            else {
+                                aTokenAnnoMap.put(token.getAddress(), "O-_|"
+                                        + (first ? "B-" : "I-") + annotation);
+                                first = false;
                             }
                         }
                         else {
-                        	 if(!multipleSpans.contains(aType.getName())){
-                        		 aTokenAnnoMap.put(token.getAddress(),  annotation);
-                             }
-                             else{
-                            aTokenAnnoMap.put(token.getAddress(), (first ? "B-" : "I-")
-                                    + annotation);
-                            first = false;
-                             }
+                            if (!multipleSpans.contains(aType.getName())) {
+                                aTokenAnnoMap.put(token.getAddress(), annotation);
+                            }
+                            else {
+                                aTokenAnnoMap.put(token.getAddress(), (first ? "B-" : "I-")
+                                        + annotation);
+                                first = false;
+                            }
                         }
                     }
                     else {
-                    	 if(!multipleSpans.contains(aType.getName())){
-                    		 aTokenAnnoMap.put(token.getAddress(), aTokenAnnoMap.get(token.getAddress())
-                                     + "|" + annotation);
-                             previous = true;
-                         }
-                         else{
-                        aTokenAnnoMap.put(token.getAddress(), aTokenAnnoMap.get(token.getAddress())
-                                + "|" + (first ? "B-" : "I-") + annotation);
-                        first = false;
-                        previous = true;
-                         }
+                        if (!multipleSpans.contains(aType.getName())) {
+                            aTokenAnnoMap.put(token.getAddress(),
+                                    aTokenAnnoMap.get(token.getAddress()) + "|" + annotation);
+                            previous = true;
+                        }
+                        else {
+                            aTokenAnnoMap.put(token.getAddress(),
+                                    aTokenAnnoMap.get(token.getAddress()) + "|"
+                                            + (first ? "B-" : "I-") + annotation);
+                            first = false;
+                            previous = true;
+                        }
                     }
 
                 }
@@ -432,7 +439,7 @@ public class WebannoCustomTsvWriter
                     }
                     else {
                         aRelAnnoMap.put(token.getAddress(), aRelAnnoMap.get(token.getAddress())
-                                + "|" +  annotation);
+                                + "|" + annotation);
                         first = false;
                     }
                 }
