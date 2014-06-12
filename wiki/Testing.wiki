@@ -1,4 +1,4 @@
-#summary This is an open plan for WebAnno, suggesting some actions. If needed, feel free to extend.
+#summary This is an open testing plan for WebAnno, suggesting some actions. If needed, feel free to extend.
 
 
 =Import/Export=
