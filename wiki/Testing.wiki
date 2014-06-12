@@ -1,11 +1,12 @@
 #summary This is an open plan for WebAnno, suggesting some actions. If needed, feel free to extend.
 
-= Introduction =
 
 =Import/Export=
 ==Projects=0
 Import/Export whole Annotation/ 
+
 			Automation/ 
+
 			Correction project
 ==Layers==
 Import/Export span layer
