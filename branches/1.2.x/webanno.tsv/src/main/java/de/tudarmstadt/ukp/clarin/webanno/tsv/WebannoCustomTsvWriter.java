@@ -263,7 +263,6 @@ public class WebannoCustomTsvWriter
         int sentId = 1;
         for (Sentence sentence : select(aJCas, Sentence.class)) {
             IOUtils.write("#id=" + sentId++ + "\n", aOs, aEncoding);
-            System.out.println(sentence.getCoveredText());
             IOUtils.write("#text=" + sentence.getCoveredText().replace("\n", "") + "\n", aOs,
                     aEncoding);
             for (Token token : selectCovered(Token.class, sentence)) {
