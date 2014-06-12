@@ -5,7 +5,7 @@
 ==Projects==
 Import/Export whole 
 
-Annotation/ 
+			Annotation/ 
 
 			Automation/ 
 
@@ -23,7 +23,8 @@ Import/Export tagset
 ==Files==
 (best do the file while testing the other functionalities of the corresponding page):
 
-Import/Export Annotation/
+Import/Export 
+		Annotation/
 
 		Curation/
 
