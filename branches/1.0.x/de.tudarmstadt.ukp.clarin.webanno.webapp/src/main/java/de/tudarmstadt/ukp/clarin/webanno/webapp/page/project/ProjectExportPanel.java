@@ -402,14 +402,11 @@ public class ProjectExportPanel
         else {
 
             exportProjectSettings(aProjectModel.getObject(), projectSettings, exportTempDir);
+            progress = 9;
             exportSourceDocuments(aProjectModel.getObject(), exportTempDir);
-            progress = 10;
             exportAnnotationDocuments(aProjectModel.getObject(), exportTempDir);
-            progress = progress + 1;
             exportProjectLog(aProjectModel.getObject(), exportTempDir);
-            progress = progress + 1;
             exportGuideLine(aProjectModel.getObject(), exportTempDir);
-            progress = progress + 1;
             exportProjectMetaInf(aProjectModel.getObject(), exportTempDir);
             progress = 90;
             exportCuratedDocuments(aProjectModel.getObject(), exportTempDir);
@@ -441,10 +438,12 @@ public class ProjectExportPanel
         // Get all the source documents from the project
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = projectRepository
                 .listSourceDocuments(aProject);
-
+        int i = 1;
         for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
             FileUtils.copyFileToDirectory(projectRepository.exportSourceDocument(sourceDocument),
                     sourceDocumentDir);
+            progress = (int) Math.ceil(((double) i)/documents.size()*10.0);
+            i++;
         }
     }
 
@@ -466,7 +465,8 @@ public class ProjectExportPanel
         // Get all the source documents from the project
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = projectRepository
                 .listSourceDocuments(aProject);
-
+        int initProgress = progress-1;
+        int i = 1;
         for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
 
             File curationCasDir = new File(aCopyDir + CURATION_AS_SERIALISED_CAS
@@ -512,6 +512,8 @@ public class ProjectExportPanel
                     FileUtils.forceDelete(correctionFile);
                 }
             }
+            progress = initProgress+ (int) Math.ceil(((double) i)/documents.size()*10.0);
+            i++;
         }
     }
 
@@ -573,6 +575,8 @@ public class ProjectExportPanel
     {
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = projectRepository
                 .listSourceDocuments(aProject);
+        int i = 1;
+        int initProgress = progress;
         for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
             for (de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument annotationDocument : projectRepository
                     .listAnnotationDocuments(sourceDocument)) {
@@ -611,7 +615,8 @@ public class ProjectExportPanel
                     }
                 }
             }
-            progress = progress + 1;
+            progress = initProgress + (int) Math.ceil(((double) i)/documents.size()*80.0);
+            i++;
         }
 
     }
