@@ -433,13 +433,29 @@ public class WebannoCustomTsvWriter
                         annotation = "_";
                     }
                     if (aRelAnnoMap.get(token.getAddress()) == null) {
-                        aRelAnnoMap.put(token.getAddress(), annotation);
-                        first = false;
+
+                        if (!multipleSpans.contains(aType.getName())) {
+
+                            aRelAnnoMap.put(token.getAddress(), annotation);
+                        }
+                        else {
+
+                            aRelAnnoMap.put(token.getAddress(), (first ? "B-" : "I-") + annotation);
+                            first = false;
+                        }
                     }
                     else {
-                        aRelAnnoMap.put(token.getAddress(), aRelAnnoMap.get(token.getAddress())
-                                + "|" + annotation);
-                        first = false;
+
+                        if (!multipleSpans.contains(aType.getName())) {
+                            aRelAnnoMap.put(token.getAddress(), aRelAnnoMap.get(token.getAddress())
+                                    + "|" + annotation);
+                        }
+                        else {
+                            aRelAnnoMap.put(token.getAddress(), aRelAnnoMap.get(token.getAddress())
+                                    + "|" + annotation);
+                            first = false;
+                        }
+
                     }
                 }
             }

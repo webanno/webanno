@@ -121,15 +121,26 @@ public class WebannoCustomTsvReader
                 text.append("\n");
                 continue;
             }
+            // sentence
             if (line.startsWith("#text=")) {
                 continue;
             }
             if (line.startsWith("#id=")) {
                 continue;// it is a comment line
             }
-
             if (line.startsWith("#")) {
                 columns = getLayerAndFeature(aJcas, columns, spanLayers, relationayers, line);
+                continue;
+            }
+            // some times, the sentence in #text= might have a new line which break this reader,
+            // so skip such lines
+            if(!Character.isDigit(line.split(" ")[0].charAt(0))){
+                continue;
+            }
+
+            // If we are still unulucky, the line starts with a number from the sentence but not
+            // a token number, check if it didn't in the format NUM-NUM
+            if(!Character.isDigit(line.split("-")[1].charAt(0))){
                 continue;
             }
 
@@ -295,7 +306,7 @@ public class WebannoCustomTsvReader
                 for (String annotation : multipleAnnotations.split("\\|")) {
                     // If annotation is not on multpile spans
                     if (!(annotation.startsWith("B-") || annotation.startsWith("I-") || annotation
-                            .startsWith("O-")) && !(annotation.equals("_"))||annotation.equals("O")) {
+                            .startsWith("O-")) && !(annotation.equals("_")||annotation.equals("O"))) {
                         AnnotationFS newAnnotation = aJcas.getCas().createAnnotation(layer,
                                 aTokenStart, aTokenStart + aToken.length());
                         newAnnotation.setFeatureValueFromString(feature, annotation);
