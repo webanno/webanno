@@ -1,6 +1,6 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
+= WAR and Standalone JAR file downlods=
 
 As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
 Before proceeding, please read the README files
