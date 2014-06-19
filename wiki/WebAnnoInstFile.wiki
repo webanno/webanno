@@ -1,6 +1,6 @@
 #summary One-sentence summary of this page.
 
-= WAR and Standalone JAR file downlods=
+= [https://webanno.googlecode.com/svn/files/webanno-2.0.0-beta-5.war WAR] and [https://webanno.googlecode.com/svn/files/webanno-2.0.0-beta-5-standalone.jar Standalone JAR] file downlods=
 
 As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
 Before proceeding, please read the README files
