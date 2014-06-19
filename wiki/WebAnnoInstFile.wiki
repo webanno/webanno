@@ -1,0 +1,8 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
+Before proceeding, please read the README files
+Download the WAR file from here
+Download the Standalone JAR file from here
