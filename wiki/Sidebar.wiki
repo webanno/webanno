@@ -1,6 +1,7 @@
 #sidebar none
 
 *User documentation*
+  * [WebAnnoInstFile Webanno War and Standalone files]
   * [WebAnnoStandalone StandAlone Installation]
   * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
