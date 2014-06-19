@@ -4,5 +4,5 @@
 
 As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
 Before proceeding, please read the README files
-Download the WAR file from here
-Download the Standalone JAR file from here
+Download the WAR file from [https://webanno.googlecode.com/svn/files/webanno-2.0.0-beta-5.war here]
+Download the Standalone JAR file from [https://webanno.googlecode.com/svn/files/webanno-2.0.0-beta-5-standalone.jar here]
