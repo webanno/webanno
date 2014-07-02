@@ -14,6 +14,7 @@
   * *[Manage_Users]
   * *[Tutorials Tutorials]
   * [Testing Testing_plan]
+  * [OutputFormat WebAnno's supported formats]
   * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
   * [UserGuideJune User's Guide Latest (under dev)]
   * [QuickInstallOsX Quick installation guide for advanced users]
