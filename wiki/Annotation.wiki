@@ -43,7 +43,7 @@ button      , so that the document may be further processed. If the button above
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation4.jpg" width="600"/>
 
-Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation. The layer can be selected on the left side of the frame. The Tag can be selected out of the right box, containing the tags of the tagset. One can also type in the initial letters and chose the needed tag. In the case of lemma annotation, a lemma can be typed into the box on the right. 
+Annotation of spans works by selecting the span, or double-clicking on a word. This opens the annotation dialog, where you can add a new annotation. The layer can be selected on the left side of the frame. The tag can be selected out of the right box, containing the tags of the tagset. One can also type in the initial letters and chose the needed tag. In the case of lemma annotation, a lemma can be typed into the box on the right. 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/annotation_edit.JPG" width="400"/> 
 
