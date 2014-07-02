@@ -27,15 +27,6 @@ The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *
   * *PAGE UP*: move to previous page , if not already in the first page
   * *SHIFT+PgUp* and *SHIFT+PgDn*: go to previous/next document in project, if available
 
-
-===Availability and saving of annotated documents==
-Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button. The following frame will appear:
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/anno_export.JPG" width="400"/> 
-
-Choose the your preferred format. Please take note of the facts that the plain text format does not contain any annotations and that the files in the binary format need to be unpacked before further usage. For further information on the formats provided in WebAnno, please consult the corresponding chapter [http://code.google.com/p/webanno/wiki/OutputFormat?ts=1404307042&updated=OutputFormat WebAnno's supported formats].
-
-The document will be saved to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
 A click on the “Help” Button displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
 When you are finished with annotating or curating a document, please click on the “Done” 
 button      , so that the document may be further processed. If the button above the “Done” is a cross symbol, it means the documents has already been finished. If the symbol has a tick, it is still open.
@@ -54,6 +45,16 @@ Link annotations (between POS tags) are created by selecting the starting POS-ta
 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/anno_pos_span.JPG" width="600"/> 
+
+===Availability and saving of annotated documents==
+Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button. The following frame will appear:
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/anno_export.JPG" width="400"/> 
+
+Choose the your preferred format. Please take note of the facts that the plain text format does not contain any annotations and that the files in the binary format need to be unpacked before further usage. For further information on the formats provided in WebAnno, please consult the corresponding chapter [http://code.google.com/p/webanno/wiki/OutputFormat?ts=1404307042&updated=OutputFormat WebAnno's supported formats].
+
+The document will be saved to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
+
 
 
 ===Annotation Layers===
