@@ -1,6 +1,8 @@
 #summary Describes the annotation functionality of WebAnno
 
-== Annotation ==
+= Annotation =
+
+== Opening and Organizing the Annotation page ==
 
 When navigating to the *Annotation* page, a dialogue opens that allows you to select a project, and a document within the project. If you want to open a different project or document later, click on *Open* button to open the dialog.
 
@@ -12,7 +14,7 @@ Once the document is opened, a default of 10 sentences are loaded on the annotat
 
 The first option allows you to select an Annotation Layer you are displayed during annotation. The second option allows you to specify the number of sentences that will be displayed on one page. The last option allows you to select autoscroll while annotating. Autoscroll scrolls automatically forward by putting the last annotated sentence in the middle.
 
-===Annotation Navigation===
+==Annotation Navigation==
 
 
 
@@ -46,7 +48,7 @@ Link annotations (between POS tags) are created by selecting the starting POS-ta
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/anno_pos_span.JPG" width="600"/> 
 
-===Availability and saving of annotated documents==
+==Availability and saving of annotated documents==
 Annotations are always immediately persistent in the backend database. Thus, it is not necessary to  save the annotations explicitly. Also, losing the connection through network issues or timeouts does not cause data loss. To obtain a local copy of the current document, click on *export* button. The following frame will appear:
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/anno_export.JPG" width="400"/> 
@@ -57,7 +59,7 @@ The document will be saved to your local disk, and can be re-imported via adding
 
 
 
-===Annotation Layers===
+==Annotation Layers==
 Concerning annotation, WebAnno supports six layers:
 Span annotations support NE, lemma, POS, and co-referance. Several annotation layers may be selected. 
 
