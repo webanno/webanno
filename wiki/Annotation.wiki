@@ -1,6 +1,8 @@
 #summary Describes the annotation functionality of WebAnno
 
 = Annotation =
+==Table of Contents== 
+<wiki:toc/>
 
 == Opening and Organizing the Annotation page ==
 
