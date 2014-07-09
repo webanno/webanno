@@ -14,3 +14,32 @@ Kappa is computed for every user and every documents they have finished. If you 
 <font color="red">
   * *I have started curation after some users have finished. If new users finished annotation, the curation result is not as I expected.* </font>
 The best thing to do is to wait untill all users finish annotation before starting curations. If new annotation documents finished, press the re-merge button but you will loose the previous curated results!
+
+<font color="red">
+  * *dear WebAnno-Group, I would like to ask you one question according to WebAnno:
+I am using the standalone version of the WebAnno-Tool (2.0.0-beta-5).
+Issue:
+I have several annotations of the same file in tsv-format and I would
+like to see the differences among them and curate them. These
+annotations are maden for the same base txt-file, with the same
+Layer-set, but in different projects.
+
+*Question:*
+Is there any possibility to make a new project which would entail all
+these annotations, so that I can compare and curate them?
+I do not see any proposed way in WebAnno for this approach, but I was
+very glad, if you could tell me a way to realize it.*</font>
+
+If you already make those annotations in different projects, there is no
+easy way getting the annotations in one project and curate them.
+In such scenario, usually do the following.
+  # create *n* users, at least one user per number of files you have in different projects
+  # export your annotations using binary format (It will export as zip file) from all projects. Get the filename.ser from the zip file and rename it as *userN*.ser
+  #In the current project you like to use, login with all users and open the file (this will create the binary file for each of users but without annotations)
+  # Go to your webanno directory, the one you set it during standalone version startup and navigate the to document directory. It should be webannoDIR/repository/project/projectID/document/documentID/annotation.
+  # Copy now all the binday files you have exported and renamed by user name in step 2 above under the folder *..../annotation*/
+  # Now, login using each user and mark the file as finished.
+  # go to curation and open the file. you should see all annotations of
+user with disagreements
+
+We will see if we can automate this process in the future webanno versions 
