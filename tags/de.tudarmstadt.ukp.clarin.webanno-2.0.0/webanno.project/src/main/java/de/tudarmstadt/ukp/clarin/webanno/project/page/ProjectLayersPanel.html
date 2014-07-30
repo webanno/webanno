@@ -1,0 +1,193 @@
+<!--
+#Copyright 2012
+#Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
+#Technische Universität Darmstadt
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<wicket:panel>
+	<table class="hfill">
+		<tr>
+			<td style="vertical-align: top" width="20%">
+
+				<form wicket:id="layerSelectionForm">
+					<div wicket:id=openHelpDialog></div>
+					<fieldset class="ui-widget-content ui-corner-all">
+						<legend>Layers</legend>
+
+						<div>
+							<select wicket:id="layerSelection" size="10"
+								style="font-weight: bold; width: 300px; height: 230px">
+								<span wicket:id="layers">
+									<option wicket:id="layer"></option>
+							</span>
+							</select>
+						</div>
+						<div class="buttons">
+							<input type="submit" wicket:id="create" />
+						</div>
+					</fieldset>
+				</form>
+				<form wicket:id="importLayerForm">
+					<fieldset class="ui-widget-content ui-corner-all labels-left">
+						<legend>Import layer</legend>
+						<table class="hfill">
+							<tr>
+								<td><label>Files:</label></td>
+								<td class="hfill"><input wicket:id="content" type="file"
+									multiple /></td>
+							</tr>
+						</table>
+						<div class="buttons">
+							<input type="submit" wicket:id="import" />
+						</div>
+					</fieldset>
+				</form>
+			</td>
+
+			<td style="vertical-align: top" width="40%">
+				<form wicket:id="layerDetailForm">
+					<fieldset class="ui-widget-content ui-corner-all labels-left">
+						<legend>Properties</legend>
+						<table class="hfill">
+							<tr>
+								<td><a wicket:id="showLayerPropertyModal"
+									title="Show details">? </a></td>
+							</tr>
+							<tr>
+								<td style="color:red">Layer name:</td>
+								<td><input class="hfill" type="text" wicket:id="uiName" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;">Description:</td>
+								<td><textarea wicket:id="description" rows="2"></textarea></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;">Enabled:</td>
+								<td><input type="checkbox" wicket:id="enabled" /></td>
+							</tr>
+						</table>
+					</fieldset>
+					<fieldset class="ui-widget-content ui-corner-all labels-left">
+						<legend>Technical Properties</legend>
+						<table class="hfill">
+							<tr>
+								<td></td>
+								<a wicket:id="showLayerTechnicalPropertyModal"
+									title="Show details">? </a>
+							</tr>
+							<tr>
+								<td style="color:red" >Type:</td>
+								<td><select wicket:id="type" ></select></td>
+							</tr>
+							<tr>
+								<td>Attach to layer:</td>
+								<td><select wicket:id="attachType"></select></td>
+							</tr>
+						</table>
+					</fieldset>
+					<fieldset class="ui-widget-content ui-corner-all labels-left">
+						<legend>Behaviors</legend>
+						<table>
+							<tr>
+								<td><a wicket:id="showlayerBehaviorModal"
+									title="Show details">? </a></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;"><span
+									wicket:id="lockToTokenOffsetLabel"></span></td>
+								<td><input type="checkbox" wicket:id="lockToTokenOffset" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;"><span
+									wicket:id="allowSTackingLabel"></span></td>
+								<td><input type="checkbox" wicket:id="allowSTacking" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;"><span
+									wicket:id="crossSentenceLabel"></span></td>
+								<td><input type="checkbox" wicket:id="crossSentence" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;"><span
+									wicket:id="multipleTokensLabel"></span></td>
+								<td><input type="checkbox" wicket:id="multipleTokens" /></td>
+							</tr>
+						</table>
+					</fieldset>
+
+					<div class="buttons">
+						<input type="submit" wicket:id="save" /> <input type="submit"
+							wicket:id="export" value="Export layer" />
+					</div>
+
+				</form>
+			</td>
+			<td style="vertical-align: top" width="40%">
+				<form wicket:id="featureSelectionForm">
+					<fieldset class="ui-widget-content ui-corner-all">
+						<legend>Feature overview</legend>
+						<div class="hfill">
+							<select class="hfill" wicket:id="feature" size="10"></select>
+						</div>
+						<div class="buttons">
+							<input type="submit" wicket:id="new" />
+						</div>
+					</fieldset>
+				</form>
+				<form wicket:id="featureDetailForm">
+					<fieldset class="ui-widget-content ui-corner-all labels-left">
+						<legend>Feature details</legend>
+						<table class="hfill">
+							<tr>
+								<td><a wicket:id="showfeatureDetailModal"
+									title="Show details">? </a></td>
+							</tr>
+							<tr>
+								<td style="color:red" >Type:</td>
+								<td><select wicket:id="type"></select></td>
+							</tr>
+							<tr>
+								<td style="color:red" >Feature name:</td>
+								<td><input class="hfill" type="text" wicket:id="uiName" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;">Description:</td>
+								<td><textarea wicket:id="description" rows="2"></textarea></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;">Enabled:</td>
+								<td><input type="checkbox" wicket:id="enabled" /></td>
+							</tr>
+							<tr>
+								<td style="vertical-align: top;">Show:</td>
+								<td><input type="checkbox" wicket:id="visible" /></td>
+							</tr>
+							<tr>
+								<td><label>TagSet: </label></td>
+								<td class="hfill"><select wicket:id="tagset"></select></td>
+							</tr>
+						</table>
+					</fieldset>
+					<div class="buttons">
+						<input type="submit" wicket:id="save" />
+					</div>
+
+				</form>
+			</td>
+		</tr>
+	</table>
+</wicket:panel>
+</html>
