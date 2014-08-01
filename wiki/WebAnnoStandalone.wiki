@@ -17,6 +17,6 @@ You can start with the SampleProjects to explore some of the functionalities.
 
 *Note:* If you have previously used an older version of the WebAnno standalone, make sure to clean up the temporary installation before running the new version:
 
-   * On OS X: `rm -R $TMPDIR/winstoneEmbeddedWAR`
+   * On OS X: `rm -R "$TMPDIR/winstoneEmbeddedWAR"`
    * On Linux: `rm -R /tmp/winstoneEmbeddedWAR`
    * On Windows: _don't have a Windows around right now to check_
