@@ -119,6 +119,10 @@ The field "Enabled" shows whether the feature can be chosen by users.
 The field "Show" shows whether the feature is shown to the user.
 A tagset may be chosen in the last field. Only non-default tagsets may be chosen. Tagsets may be created in the "Tagsets" frame above. The next chapter explains how to create new tagsets in detail.
 
+
+*Please take care that when working with non-custom layers, they have to be ex- and imported, if you want to use the resulting files in e.g. correction projects.*
+
+
 ==== Tagset administration ====
 
 To administer the tagsets, click on the tab “Tagsets” in the project pane. 
