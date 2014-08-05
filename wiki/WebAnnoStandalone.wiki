@@ -19,4 +19,4 @@ You can start with the SampleProjects to explore some of the functionalities.
 
    * On OS X: `rm -R "$TMPDIR/winstoneEmbeddedWAR"`
    * On Linux: `rm -R /tmp/winstoneEmbeddedWAR`
-   * On Windows: _don't have a Windows around right now to check_
+   * On Windows: remove the `winstoneEmbeddedWAR` that should be somewhere under `C:\Users\<username>\AppData\Local\Temp`
