@@ -28,7 +28,7 @@ It gives you the possibility to decide, whether annotations chosen later on on t
 
 Here you may choose the format of the target layer and optionally add some feature layers on which you want to train.
 
-In the tab "Target layer" you may upload training files containing the target layer in WebAnno Export formats (WebAnno CPH TEI reader, plain text, binary format, XMI format, old WebAnno Format, WebAnno Format, Weblicht TCF Format, for more information on these formats, see [Format https://code.google.com/p/webanno/wiki/Format?ts=1407336468&updated=Format]). 
+In the tab "Target layer" you may upload training files containing the target layer in WebAnno Export formats (WebAnno CPH TEI reader, plain text, binary format, XMI format, old WebAnno Format, WebAnno Format, Weblicht TCF Format, for more information on these formats, see [https://code.google.com/p/webanno/wiki/Format?ts=1407336468&updated=Format Format]). 
 
 In the next tab "TAB-SEP target", you may upload training files containing the target layer in a tab-separated format, which is structured by writing each single word in a line together with its target tag, separated by a tab. Sentences are separated by blank lines. 
 
