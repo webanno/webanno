@@ -14,4 +14,4 @@ To manage the automation process, choose the Automation frame. The following fra
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/auto1.PNG" width="600"/>
 
-If you want to train a non-custom layer, please make sure you uploaded it in the Layer frame (for instructions to do so, see )
+If you want to train a non-custom layer, please make sure you uploaded it in the Layer frame (for instructions to do so, see [https://code.google.com/p/webanno/wiki/Projects#New_Layer_Creation New Layer Creation])
