@@ -12,6 +12,18 @@ The documents, that are to be annotated, have to be uploaded in the frame "Docum
 
 To manage the automation process, choose the Automation frame. The following frame will appear:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/auto1.PNG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/auto2.PNG" width="600"/>
 
-If you want to train a non-custom layer, please make sure you uploaded it in the Layer frame (for instructions to do so, see [https://code.google.com/p/webanno/wiki/Projects#New_Layer_Creation New Layer Creation])
+First choose your target layer in the "Select automation layer" frame.
+If you want to train a non-custom layer, please make sure you created or imported it in the Layer frame (for instructions to do so, see [https://code.google.com/p/webanno/wiki/Projects#New_Layer_Creation New Layer Creation]).
+
+<wiki:comment>
+The following frame will appear in the right frame:
+<img src="https://webanno.googlecode.com/svn/wiki/images/auto3.PNG" width="600"/>
+
+It gives you the possibility to decide, whether annotations chosen later on on the Automation page will be automatically changed to this annotation or not. After choosing this feature, the following frame will be displayed:
+</wiki:comment>
+
+<img src="https://webanno.googlecode.com/svn/wiki/images/auto4.PNG" width="600"/>
+
+Here you may choose the format of the target layer and optionally add some feature layers on which you want to train.
