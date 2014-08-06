@@ -10,33 +10,8 @@ The documents, that are to be annotated, have to be uploaded in the frame "Docum
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/automation1.JPG" width="600"/>
 
-To manage the automation process, choose the Automation frame. Click on "Create template" in the "Templates" frame to create a model for your automated annotation.
+To manage the automation process, choose the Automation frame. The following frame will appear:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation2.JPG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/auto1.PNG" width="600"/>
 
-Two new windows shall now pop up. "Feature selection" allows you to choose the features that you want your template to have. 
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation3.JPG" width="300"/>
-
-In the first sub-frame called "Morphological features", you may select between different n-grams and capitalization. The second frame provides the possibility to select the feature of word n-grams (left in the frame) and label n-grams (right in the frame). Both features regard the preceding tokens of the current token.
-In the third frame, one may select Automation Preferences. By selecting the limit of prediction staying on this page, you may limit the amount of autmated sentences. Next, one has to specify the layer to be trained. The feature below allows to choose annotations of other layers as feature for training the current layer. By ticking the feature below, you select the option to predict labels based on your annotations. After selecting the desired features, press "Save template".
-
-Now training documents for the automation may be uploaded. Please take care of having the labels, which you have chosen as features in the previous step, present. 
-
-<wiki:comment>
-Also, the documents need to be formatted like WebAnno outputs annotated docs.
-</wiki:comment>
-
-Select the format of documents that you want to upload, click on "Select document" and select the document, then click "Import". Take care to select the data format that your files are going to have.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation5.JPG" width="200"/>
-
-After having selected all features, click on "Start" in the "Automation/Prediction" frame. The process of automatic annotation takes some time, depending on the size of your training set.
-
-<img src="https://webanno.googlecode.com/svn/wiki/images/automation4.JPG" width="100"/>
-
-When this process finished, the automatic annotations may be observed on the Automation page. Select the Project and a document, after navigating to the Automation page. Then you are presented two frames, the lower one showing the automated annotation, the upper the annotations that were chosen by you. 
-
-One may chose annotations to be in the "Annotation Frame" by clicking on the annotation in the "Automated Frame". To make a new annotation, mark the span in the "Annotation Frame" and proceed to annotate as described in [https://code.google.com/p/webanno/wiki/Annotation Annotaton].
-If you want to delete a chosen annotation, also do as descibed in [https://code.google.com/p/webanno/wiki/Annotation Annotaton].
- 
+If you want to train a non-custom layer, please make sure you uploaded it in the Layer frame (for instructions to do so, see )
