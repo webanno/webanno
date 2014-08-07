@@ -36,10 +36,11 @@ Here, you can navigate to one of the currently eight options:
  
 ===[https://code.google.com/p/webanno/wiki/Annotation Annotation]===
 
+The page to perform annotations
 
-===[https://code.google.com/p/webanno/wiki/Annotation Annotation]=== - The page to perform annotations
+===[https://code.google.com/p/webanno/wiki/Curation Curation]===
 
-===  * *[https://code.google.com/p/webanno/wiki/Curation Curation]*=== -  Compare and merge annotations from multiple users (only for _curators_)
+Compare and merge annotations from multiple users (only for _curators_)
 
 
   * *[https://code.google.com/p/webanno/wiki/Correction Correction]* - Correcting automatic annotation (under development)
