@@ -32,9 +32,10 @@ Upon navigating to the !WebAnno page, the login screen opens. Please enter your 
 After login, you will be presented with the WebAnno overview screen. This screen can be reached at any time from within the GUI by clicking on the *Home* link in the left upper corner. 
 
 
-Here, you can navigate to one of the currently eight options: 
-  * *[https://code.google.com/p/webanno/wiki/Annotation Annotation]* - The page to perform annotations
-  * *[https://code.google.com/p/webanno/wiki/Curation Curation]* -  Compare and merge annotations from multiple users (only for _curators_)
+Here, you can navigate to one of the currently eight options:
+ 
+===  * *[https://code.google.com/p/webanno/wiki/Annotation Annotation]* === - The page to perform annotations
+===  * *[https://code.google.com/p/webanno/wiki/Curation Curation]*=== -  Compare and merge annotations from multiple users (only for _curators_)
   * *[https://code.google.com/p/webanno/wiki/Correction Correction]* - Correcting automatic annotation (under development)
   * *[https://code.google.com/p/webanno/wiki/Automation Automation]* - Creating automatically annotated data
   * *[https://code.google.com/p/webanno/wiki/Projects Projects]* - Set up or change annotation projects (only for _administrators_)
