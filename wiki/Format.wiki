@@ -1,13 +1,10 @@
 #summary Currently under development
 
 = Introduction =
+WebAnno supports several formats for in- and export, which will be explained in detail in the corresponding chapters.
 
 
 
+= Plain text =
+Plain text is the simple .txt text format and is supported for in- and export in WebAnno. Please note that plain text does not contain any annotation.
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
