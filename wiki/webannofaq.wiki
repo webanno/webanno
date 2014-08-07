@@ -3,9 +3,16 @@
 *Nach Durchsicht der Infos auf der WebAnno-Website hätten wir bereits zwei Fragen, zu denen wir uns über eine Antwort sehr freuen würden:*
 <font color="red">
   * *Wenn bei der PoS-Annotation via WebAnno die Annotatoren Segmentierungsfehler in der zugrundeliegenden Textbasis entdecken, besteht dsann die Möglichkleit, diese Fehler direkt über WebAnno zu korrigieren (d.h. Segmentierungen in der Textbasis zu ändern)? M.a.W.: Ist die Tokenebene nach dem Einspielen des Textes in die Datenbank fixiert oder nicht?* </font>
-Answer goes here
+TRANSLATION: Is there a way to chanke tokenization or sentence segmentation directly in WebAnno?
+
+Unfortunately, this is not supported in the current version and has to be done outside of WebAnno.
+
 <font color="red">
   * *Können in WebAnno auch Metadaten mitverwaltet bzw. gespeichert werden Im Falle unserer Daten verwenden wir u.a. IDs für einzelne Postings und deren Autoren.* </font>
+
+TRANSLATION: Is there a way to add metadata, such as IDs for postings or their authors, and to show them during annotation?
+
+There is no built-in mechanism. However, you can add the IDs and authorship information as span annotations and import them. Regarding IDs, it is possible to maintain IDs in additional layers in the TCF file format. They will be retained and available in the exported TCF file after annotation, but not shown.
 
 <font color="red">
   * *I like to see kappa measure per documents, how can I do that.* </font>
