@@ -7,3 +7,5 @@ Selection of projects that use !WebAnno for their annotation needs
   * [http://www.ceres.rub.de/en/project/forschungsprojekte/senereko-en/ SeNeReKo]  
   * [http://www.linguistics.rub.de/~krasselt/research.html PhD dissertation on mechanisms of language change]
   * [https://www.truffls.de/ Truffls]
+
+Search for _!WebAnno_ on [http://scholar.google.de/scholar?q=%22WebAnno%22 Google Scholar].
