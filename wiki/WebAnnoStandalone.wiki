@@ -2,7 +2,7 @@
 
 All-in-one version which does not require a database server or tomcat to be set up.
 
-Get the standalone jar from the [https://code.google.com/p/webanno/downloads/list downloads] and start it with: 
+Get the standalone jar from the [WebAnnoInstFile downloads] and start it with: 
 {{{
 java -Xmx1g -Dwebanno.home=/my/webanno/home -jar webanno-XXX-standalone.jar
 }}}
