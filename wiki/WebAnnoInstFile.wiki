@@ -2,7 +2,7 @@
 
 Before proceeding, please read the [https://code.google.com/p/webanno/source/browse/files/README.txt README] files
 
-   * [https://webanno.googlecode.com/svn/files/webanno.war WebAnno 2 WAR-archive] for deployment in Tomcat 
-   * [https://webanno.googlecode.com/svn/files/webanno-2-standalone.jar WebAnno 2 executable JAR]
+   * [https://webanno.googlecode.com/svn/files/webanno-2-standalone.jar WebAnno 2 executable JAR] - [WebAnnoStandalone Installation instructions]
+   * [https://webanno.googlecode.com/svn/files/webanno.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions] 
 
 As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
