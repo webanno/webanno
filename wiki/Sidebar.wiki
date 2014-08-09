@@ -1,8 +1,8 @@
 #sidebar none
 
 *User documentation*
-  * [WebAnnoInstFile Webanno WAR and Standalone JAR files]
-  * [WebAnnoStandalone StandAlone Installation]
+  * [WebAnnoInstFile Downloads]
+  * [WebAnnoStandalone Standalone Installation]
   * [InstallationGuide User's Installation Guide]
   * [UserGuide User's Guide]
   * *[Annotation]
