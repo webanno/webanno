@@ -2,7 +2,9 @@
 
 Before proceeding, please read the [https://code.google.com/p/webanno/source/browse/files/README.txt README] files
 
-   * [https://webanno.googlecode.com/svn/files/webanno-2-standalone.jar WebAnno 2 executable JAR] - [WebAnnoStandalone Installation instructions]
-   * [https://webanno.googlecode.com/svn/files/webanno.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions] 
+   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.8-standalone.jar WebAnno 2 executable JAR] - [WebAnnoStandalone Installation instructions]
+   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.8.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions] 
+
+You can subscribe to notifications for new releases via !BinTray:  <a href="https://bintray.com/webanno/downloads/webanno2/_latestVersion"><img src="https://api.bintray.com/packages/webanno/downloads/webanno2/images/download.png"/></a>
 
 As Google is no more supporting uploading file to the Downloads Section, the WAR and Standalone JAR files are included in the svn.
