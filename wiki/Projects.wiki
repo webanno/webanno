@@ -92,7 +92,7 @@ In the first frame, there is field "Enabled", which can be ticked or unticked. B
 
 To create a new layer, select "Create Layer" in the "Layers" frame. Then, the following frame will be displayed.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/layer2.JPG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/layer2.JPG" width="200"/>
 
 The only obligatory field in this frame is the "Layer name". Above, the user can give a description to the new layer. The tick after enabled signals whether the layer is shown to the users of the project, as it was already explained above.
 
@@ -110,7 +110,7 @@ After clicking on "Save layer" only changes in the first frame ("Properties") ma
 
 To be able to make annotations with this layer, features need to be added. This can be done by choosing the layer and clicking on "New feature" in the "Feature overview" frame. Then the following frame will be displayed:
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/layer3.JPG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/layer3.JPG" width="200"/>
 
 In this frame details of the features may be chosen. 
 In the first field, the user may choose between different object types the tags of the feature are going to have (string, integer, float or boolean).
