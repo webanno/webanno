@@ -159,7 +159,7 @@ Now create the the tagset for “Case”. The results of doing so are shown belo
 
 After doing so, go back to “Layers”, choose the “Nouns” layer and add the tagsets. For this, click on “New feature” in the “Feature overview” frame. The filled fields for “Gender” are shown below. The other tagsets, “Number” and “Case”, are added in the same way.
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/tut13.JPG" width="300"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/tut13.JPG" width="200"/>
 
 
 
