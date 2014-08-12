@@ -163,9 +163,6 @@ Uploaded guidelines are displayed in the second frame – “Guideline documents
 To delete a guideline document, click on it and then on “Delete” in the right lower corner of the frame.
 
 === Delete Project ===
-<wiki:comment>
-project10.jpg here 
-</wiki:comment>
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/project10.jpg" width="600"/>
 
