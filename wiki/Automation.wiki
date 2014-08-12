@@ -48,7 +48,7 @@ To see the tags that were automatically created during the previously described,
 Then select a project and a file, analogically to Annotation. The page, which is demonstrated below will be displayed. 
 The navigation, export and the marking of finished documents is the same as in [https://code.google.com/p/webanno/wiki/Annotation Annotation].
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/auto5.PNG" width="600"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/auto6.PNG" width="600"/>
 
 In the lower part, you see two horizontal frames, the lower one showing the automatatically created annotation. 
 By clicking on the tags, they are selected and therefore appear in the upper frame "Annotation". You may see that 
