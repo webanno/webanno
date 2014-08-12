@@ -147,7 +147,7 @@ To add a new tag, you have to click on “Create tag” in “Tag details”. Th
 
 To create an own tagset, click on "Create tagset" and fill in the fields that will be displayed in the new frame. Only the first field is obligatory. Adding new tags works the same way as described for already existing tagsets. If you want to have a free annotation, as it could be used for lemma or meta information annotation, do not add any tags. 
 
-<img src="https://webanno.googlecode.com/svn/wiki/images/new_tagset.JPG" width="800"/>
+<img src="https://webanno.googlecode.com/svn/wiki/images/new_tagset.JPG" width="400"/>
 
 To export a tagset, choose the format of the export at the bottom of the frame and click "Export tagset".
 
