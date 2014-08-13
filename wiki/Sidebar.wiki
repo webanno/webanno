@@ -1,6 +1,6 @@
 #sidebar none
 
-*Installation*
+* Installation
   * [WebAnnoInstFile Downloads]
   * [WebAnnoStandalone Standalone]
   * [InstallationGuide Server-based]
