@@ -7,8 +7,7 @@
     * [upgradeprocedure Upgrade guide]
     * [SampleProjects Example projects]
     * [QuickInstallOsX Quick installation guide for advanced users]
-  * User documentation
-    * [UserGuide User's Guide]
+  * [UserGuide User documentation]
     * [Annotation]
     * [Curation]
     * [Correction]
@@ -19,7 +18,6 @@
     * [Tutorials Tutorials]
     * [Format WebAnno's supported formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
-    * [UserGuideJune User's Guide Latest (under dev)]
   * Developer documentation
     * [DevInstallationGuide Developer's Installation Guide]
     * [Testing Testing_plan]
