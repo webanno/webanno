@@ -1,38 +1,35 @@
 #sidebar none
 
-*User documentation*
+*Installation*
   * [WebAnnoInstFile Downloads]
-  * [WebAnnoStandalone Installation - Standalone]
-  * [InstallationGuide Installation - Server-based]
+  * [WebAnnoStandalone Standalone]
+  * [InstallationGuide Server-based]
+  * [upgradeprocedure Upgrade guide]
+  * [SampleProjects Example projects]
+  * [QuickInstallOsX Quick installation guide for advanced users]
+
+*User documentation*
   * [UserGuide User's Guide]
-  * *[Annotation]
-  * *[Curation]
-  * *[Correction]
-  * *[Automation]
-  * *[Projects]
-  * *[Monitoring]
-  * *[Manage_Users]
-  * *[Tutorials Tutorials]
-  * [Testing Testing_plan]
+     *[Annotation]
+     *[Curation]
+     *[Correction]
+     *[Automation]
+     *[Projects]
+     *[Monitoring]
+     *[Manage_Users]
+     *[Tutorials Tutorials]
   * [Format WebAnno's supported formats]
   * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
   * [UserGuideJune User's Guide Latest (under dev)]
-  * [QuickInstallOsX Quick installation guide for advanced users]
 
 *Developer documentation*
   * [DevInstallationGuide Developer's Installation Guide]
-
-*Sample Data*
-  * [Sampledata Sample Data]
-  * [SampleProjects Sample Projects for release 1.0.0]
+  * [Testing Testing_plan]
 
 *!WebAnno FAQ*
-  * [webannofaq WebAnno FAQ]
-  * [troubleshooting]
-  * [knownIssues]
-
-*Upgrade Procedure*
-  * [upgradeprocedure Upgrade Procedure]
+  * [webannofaq FAQ]
+  * [troubleshooting Trouble shooting]
+  * [knownIssues Known issues]
 
 *Reference Users*
   * [ProjectsUsingWebAnno Projects using WebAnno]
