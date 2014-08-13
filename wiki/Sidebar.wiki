@@ -2,8 +2,8 @@
 
 *User documentation*
   * [WebAnnoInstFile Downloads]
-  * [WebAnnoStandalone Standalone Installation]
-  * [InstallationGuide User's Installation Guide]
+  * [WebAnnoStandalone Installation - Standalone]
+  * [InstallationGuide Installation - Server-based]
   * [UserGuide User's Guide]
   * *[Annotation]
   * *[Curation]
