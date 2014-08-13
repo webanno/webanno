@@ -12,7 +12,7 @@ This a tutorial which leads through the annotation function. It will show how to
 
 == Setting the project ==
 
-If you have any problems with these steps, see the following instructions with screenshots http://code.google.com/p/webanno/wiki/Projects.
+If you have any problems with these steps, see the following instructions with screenshots [Projects].
 
 
 
