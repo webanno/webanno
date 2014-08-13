@@ -1,8 +1,9 @@
 #summary Sample Data
+#labels Deprecated
 
 = Introduction =
 
-For qucik test, you can download the war file ( 	de.tudarmstadt.ukp.clarin.webanno.webapp-0.2.0.war) and the sample Zip file (webanno-stable.zip) 
+For quick test, you can download the war file ( 	de.tudarmstadt.ukp.clarin.webanno.webapp-0.2.0.war) and the sample Zip file (webanno-stable.zip) 
 
 
 = Details =
