@@ -6,7 +6,7 @@
     * [InstallationGuide Server-based]
     * [upgradeprocedure Upgrade guide]
     * [SampleProjects Example projects]
-    * [QuickInstallOsX Quick installation guide for advanced users]
+    * [QuickInstallOsX Quick install guide: OS X]
   * [UserGuide User documentation]
     * [Annotation]
     * [Curation]
