@@ -1,8 +1,7 @@
 #summary Here the tutorial for some of WebAnno's functions are offered. The download files will soon be offered.
 
+<h2>Table of Contents</h2>
 
-
-==Table of Contents== 
 <wiki:toc/>
 
 = Annotation Project Creation =
