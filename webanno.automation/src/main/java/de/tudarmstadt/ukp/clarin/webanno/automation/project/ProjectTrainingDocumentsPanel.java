@@ -22,7 +22,6 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -41,18 +40,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.automation.util.TabSepDocModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
+import de.tudarmstadt.ukp.clarin.webanno.model.MiraTemplate;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 
 /**
  * A Panel used to add Documents to the selected {@link Project}
- *
+ * 
  * @author Seid Muhie Yimam
- *
+ * 
  */
 public class ProjectTrainingDocumentsPanel
     extends Panel
@@ -62,7 +59,7 @@ public class ProjectTrainingDocumentsPanel
     @SpringBean(name = "annotationService")
     private AnnotationService annotationService;
     @SpringBean(name = "documentRepository")
-    private RepositoryService repository;
+    private RepositoryService projectRepository;
 
     private ArrayList<String> documents = new ArrayList<String>();
     private ArrayList<String> selectedDocuments = new ArrayList<String>();
@@ -73,26 +70,19 @@ public class ProjectTrainingDocumentsPanel
     private ArrayList<String> readableFormats;
     private String selectedFormat;
     private Model<Project> selectedProjectModel;
-    private AnnotationFeature feature;
+    private MiraTemplate miraTemplate;
     private DropDownChoice<String> readableFormatsChoice;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public ProjectTrainingDocumentsPanel(String id, Model<Project> aProjectModel,
-            final Model<TabSepDocModel> aTabsDocModel, Model<AnnotationFeature> afeatureModel)
+            Model<MiraTemplate> aTemplateModel)
     {
         super(id);
         this.selectedProjectModel = aProjectModel;
-        feature = afeatureModel.getObject();
+        miraTemplate = aTemplateModel.getObject();
         try {
-            if (aTabsDocModel.getObject().isTabSep()) {
-                readableFormats = new ArrayList<String>(
-                        Arrays.asList(new String[] { WebAnnoConst.TAB_SEP }));
-                selectedFormat = WebAnnoConst.TAB_SEP;
-            }
-            else {
-                readableFormats = new ArrayList<String>(repository.getReadableFormatLabels());
-                selectedFormat = readableFormats.get(0);
-            }
+            readableFormats = new ArrayList<String>(projectRepository.getReadableFormatLabels());
+            selectedFormat = readableFormats.get(0);
         }
         catch (IOException e) {
             error("Properties file not found or key not int the properties file " + ":"
@@ -105,17 +95,7 @@ public class ProjectTrainingDocumentsPanel
         add(fileUpload = new FileUploadField("content", new Model()));
 
         add(readableFormatsChoice = new DropDownChoice<String>("readableFormats", new Model(
-                selectedFormat), readableFormats)
-        {
-
-            private static final long serialVersionUID = 2476274669926250023L;
-
-            @Override
-            public boolean isEnabled()
-            {
-                return !aTabsDocModel.getObject().isTabSep();
-            }
-        });
+                selectedFormat), readableFormats));
 
         add(new Button("import", new ResourceModel("label"))
         {
@@ -138,7 +118,7 @@ public class ProjectTrainingDocumentsPanel
                 for (FileUpload documentToUpload : uploadedFiles) {
                     String fileName = documentToUpload.getClientFileName();
 
-                    if (repository.existsSourceDocument(project, fileName)) {
+                    if (projectRepository.existsSourceDocument(project, fileName)) {
                         error("Document " + fileName + " already uploaded ! Delete "
                                 + "the document if you want to upload again");
                         continue;
@@ -149,43 +129,20 @@ public class ProjectTrainingDocumentsPanel
 
                         String username = SecurityContextHolder.getContext().getAuthentication()
                                 .getName();
-                        User user = repository.getUser(username);
+                        User user = projectRepository.getUser(username);
 
                         SourceDocument document = new SourceDocument();
                         document.setName(fileName);
                         document.setProject(project);
 
                         document.setTrainingDocument(true);
-                        // Since new training document is added, all
-                        // non-tarining document should be
-                        // re-annotated
-                        for (SourceDocument sd : repository.listSourceDocuments(project)) {
-                            if (!sd.isTrainingDocument()) {
-                                sd.setProcessed(false);
-                            }
-                        }
+                        document.setTemplate(miraTemplate);
 
-                        for (SourceDocument sd : repository.listTabSepDocuments(project)) {
-                            if (!sd.isTrainingDocument()) {
-                                sd.setProcessed(false);
-                            }
-                        }
-                        // If this document is tab-sep and used as a feature itself, no need to add
-                        // a feature to the document
-                        if (aTabsDocModel.getObject().isTraining()
-                                || !aTabsDocModel.getObject().isTabSep()) {
-                            document.setFeature(feature);
-                        }
-                        if (aTabsDocModel.getObject().isTabSep()) {
-                            document.setFormat(selectedFormat);
-                        }
-                        else {
-                            String reader = repository.getReadableFormatId(readableFormatsChoice
-                                    .getModelObject());
-                            document.setFormat(reader);
-                        }
-                        repository.createSourceDocument(document, user);
-                        repository.uploadSourceDocument(uploadFile, document, user);
+                        String reader = projectRepository.getReadableFormatId(readableFormatsChoice
+                                .getModelObject());
+                        document.setFormat(reader);
+                        projectRepository.createSourceDocument(document, user);
+                        projectRepository.uploadSourceDocument(uploadFile, document, user);
                         info("File [" + fileName + "] has been imported successfully!");
                     }
                     catch (ClassNotFoundException e) {
@@ -217,30 +174,11 @@ public class ProjectTrainingDocumentsPanel
                         Project project = selectedProjectModel.getObject();
                         documents.clear();
                         if (project.getId() != 0) {
-                            if (aTabsDocModel.getObject().isTabSep()) {
-                                for (SourceDocument document : repository
-                                        .listTabSepDocuments(project)) {
-                                    // This is tab-sep training document to the target layer
-                                    if (aTabsDocModel.getObject().isTraining()
-                                            && document.getFeature() != null) {
-                                        documents.add(document.getName());
-                                    }
-                                    // this is tab-sep training document used as a feature
-                                    else if (!aTabsDocModel.getObject().isTraining()
-                                            && document.getFeature() == null) {
-                                        documents.add(document.getName());
-                                    }
-
-                                }
-
-                            }
-                            else {
-                                for (SourceDocument document : repository
-                                        .listSourceDocuments(project)) {
-                                    if (document.getFeature() != null
-                                            && document.getFeature().equals(feature)) {
-                                        documents.add(document.getName());
-                                    }
+                            for (SourceDocument document : projectRepository
+                                    .listSourceDocuments(project)) {
+                                if (document.getTemplate() != null
+                                        && document.getTemplate().equals(miraTemplate)) {
+                                    documents.add(document.getName());
                                 }
                             }
                         }
@@ -258,17 +196,13 @@ public class ProjectTrainingDocumentsPanel
             public void onSubmit()
             {
                 Project project = selectedProjectModel.getObject();
-                boolean isTrain = false;
                 for (String document : selectedDocuments) {
                     try {
                         String username = SecurityContextHolder.getContext().getAuthentication()
                                 .getName();
-                        User user = repository.getUser(username);
-                        SourceDocument srDoc = repository.getSourceDocument(project, document);
-                        if(srDoc.isTrainingDocument()){
-                        	isTrain = true;
-                        }
-                        repository.removeSourceDocument(srDoc, user);
+                        User user = projectRepository.getUser(username);
+                        projectRepository.removeSourceDocument(
+                                projectRepository.getSourceDocument(project, document), user);
                     }
                     catch (IOException e) {
                         error("Error while removing a document document "
@@ -276,16 +210,7 @@ public class ProjectTrainingDocumentsPanel
                     }
                     documents.remove(document);
                 }
-                // If the deleted document is training document, re-training an automation should be possible again
-                if(isTrain){
-                	List<SourceDocument> docs = repository.listSourceDocuments(project);
-                		docs.addAll(repository.listTabSepDocuments(project));
-                	for(SourceDocument srDoc:docs){
-                		srDoc.setProcessed(false);
-                	}
-                }
             }
         });
     }
-    
 }

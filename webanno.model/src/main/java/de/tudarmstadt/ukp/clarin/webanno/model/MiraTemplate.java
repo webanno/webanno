@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -38,7 +37,7 @@ import javax.persistence.UniqueConstraint;
  *
  */
 @Entity
-@Table(name = "mira_template", uniqueConstraints = { @UniqueConstraint(columnNames = { "trainFeature" }) })
+@Table(name = "mira_template", uniqueConstraints = { @UniqueConstraint(columnNames = { "trainTagSet" }) })
 public class MiraTemplate
     implements Serializable
 {
@@ -48,22 +47,41 @@ public class MiraTemplate
     @GeneratedValue
     private long id;
 
-    private boolean automationStarted = false;
+    private boolean capitalized;
+    private boolean containsNumber = true;
+
+    private boolean prefix1 = true;
+    private boolean prefix2 = true;
+    private boolean prefix3 = true;
+    private boolean prefix4 = true;
+    private boolean prefix5 = true;
+
+    private boolean suffix1 = true;
+    private boolean suffix2 = true;
+    private boolean suffix3 = true;
+    private boolean suffix4 = true;
+    private boolean suffix5 = true;
+
+    private int ngram = 3;
+    private int bigram;
+
+    /**
+     * Limit prediction only to this page while automatic annotation
+     */
+
+    private boolean predictInThisPage;
 
     /**
      * Train {@link TagSet} used for MIRA prediction
      */
     @ManyToOne
-    @JoinColumn(name = "trainFeature")
-    private AnnotationFeature trainFeature;
+    @JoinColumn(name = "trainTagSet")
+    private TagSet trainTagSet;
     /**
-     * {@link TagSet} used as a feature for the trainFeature
+     * {@link TagSet} used as a feature for the trainTagSet
      */
-    @ManyToMany(fetch=FetchType.EAGER)
-    private Set<AnnotationFeature> otherFeatures = new HashSet<AnnotationFeature>();
-
-    private boolean currentLayer = false;// The current training layer for this mira template
-
+    @ManyToMany
+    private Set<TagSet> featureTagSets = new HashSet<TagSet>();
     /**
      * Annotate the Automate view while annotating
      */
@@ -74,24 +92,174 @@ public class MiraTemplate
      */
     private String result = "";
 
-    public AnnotationFeature getTrainFeature()
+    public boolean isCapitalized()
     {
-        return trainFeature;
+        return capitalized;
     }
 
-    public void setTrainFeature(AnnotationFeature trainFeature)
+    public void setCapitalized(boolean capitalized)
     {
-        this.trainFeature = trainFeature;
+        this.capitalized = capitalized;
     }
 
-    public Set<AnnotationFeature> getOtherFeatures()
+    public boolean isContainsNumber()
     {
-        return otherFeatures;
+        return containsNumber;
     }
 
-    public void setOtherFeatures(Set<AnnotationFeature> otherFeatures)
+    public void setContainsNumber(boolean containsNumber)
     {
-        this.otherFeatures = otherFeatures;
+        this.containsNumber = containsNumber;
+    }
+
+    public boolean isPrefix1()
+    {
+        return prefix1;
+    }
+
+    public void setPrefix1(boolean prefix1)
+    {
+        this.prefix1 = prefix1;
+    }
+
+    public boolean isPrefix2()
+    {
+        return prefix2;
+    }
+
+    public void setPrefix2(boolean prefix2)
+    {
+        this.prefix2 = prefix2;
+    }
+
+    public boolean isPrefix3()
+    {
+        return prefix3;
+    }
+
+    public void setPrefix3(boolean prefix3)
+    {
+        this.prefix3 = prefix3;
+    }
+
+    public boolean isPrefix4()
+    {
+        return prefix4;
+    }
+
+    public void setPrefix4(boolean prefix4)
+    {
+        this.prefix4 = prefix4;
+    }
+
+    public boolean isPrefix5()
+    {
+        return prefix5;
+    }
+
+    public void setPrefix5(boolean prefix5)
+    {
+        this.prefix5 = prefix5;
+    }
+
+    public boolean isSuffix1()
+    {
+        return suffix1;
+    }
+
+    public void setSuffix1(boolean suffix1)
+    {
+        this.suffix1 = suffix1;
+    }
+
+    public boolean isSuffix2()
+    {
+        return suffix2;
+    }
+
+    public void setSuffix2(boolean suffix2)
+    {
+        this.suffix2 = suffix2;
+    }
+
+    public boolean isSuffix3()
+    {
+        return suffix3;
+    }
+
+    public void setSuffix3(boolean suffix3)
+    {
+        this.suffix3 = suffix3;
+    }
+
+    public boolean isSuffix4()
+    {
+        return suffix4;
+    }
+
+    public void setSuffix4(boolean suffix4)
+    {
+        this.suffix4 = suffix4;
+    }
+
+    public boolean isSuffix5()
+    {
+        return suffix5;
+    }
+
+    public void setSuffix5(boolean suffix5)
+    {
+        this.suffix5 = suffix5;
+    }
+
+    public int getNgram()
+    {
+        return ngram;
+    }
+
+    public void setNgram(int ngram)
+    {
+        this.ngram = ngram;
+    }
+
+    public int getBigram()
+    {
+        return bigram;
+    }
+
+    public void setBigram(int bigram)
+    {
+        this.bigram = bigram;
+    }
+
+    public boolean isPredictInThisPage()
+    {
+        return predictInThisPage;
+    }
+
+    public void setPredictInThisPage(boolean predictInThisPage)
+    {
+        this.predictInThisPage = predictInThisPage;
+    }
+
+    public TagSet getTrainTagSet()
+    {
+        return trainTagSet;
+    }
+
+    public void setTrainTagSet(TagSet trainTagSet)
+    {
+        this.trainTagSet = trainTagSet;
+    }
+
+    public Set<TagSet> getFeatureTagSets()
+    {
+        return featureTagSets;
+    }
+
+    public void setFeatureTagSets(Set<TagSet> featureTagSets)
+    {
+        this.featureTagSets = featureTagSets;
     }
 
     public long getId()
@@ -124,33 +292,13 @@ public class MiraTemplate
         this.result = result;
     }
 
-
-
-    public boolean isCurrentLayer() {
-		return currentLayer;
-	}
-
-	public void setCurrentLayer(boolean currentLayer) {
-		this.currentLayer = currentLayer;
-	}
-
-	public boolean isAutomationStarted()
-    {
-        return automationStarted;
-    }
-
-    public void setAutomationStarted(boolean automationStarted)
-    {
-        this.automationStarted = automationStarted;
-    }
-
     @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
         result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + ((trainFeature == null) ? 0 : trainFeature.hashCode());
+        result = prime * result + ((trainTagSet == null) ? 0 : trainTagSet.hashCode());
         return result;
     }
 
@@ -170,12 +318,12 @@ public class MiraTemplate
         if (id != other.id) {
             return false;
         }
-        if (trainFeature == null) {
-            if (other.trainFeature != null) {
+        if (trainTagSet == null) {
+            if (other.trainTagSet != null) {
                 return false;
             }
         }
-        else if (!trainFeature.equals(other.trainFeature)) {
+        else if (!trainTagSet.equals(other.trainTagSet)) {
             return false;
         }
         return true;

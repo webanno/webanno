@@ -56,8 +56,8 @@ public class YesNoFinishModalPanel
 
     private BratAnnotatorModel bratAnnotatorModel;
 
-    public YesNoFinishModalPanel(String aId, BratAnnotatorModel aOpenDocumentModel,
-            ModalWindow aModalWindow, Mode aSubject)
+    public YesNoFinishModalPanel(String aId, BratAnnotatorModel aOpenDocumentModel, ModalWindow aModalWindow,
+            Mode aSubject)
     {
         super(aId);
         this.bratAnnotatorModel = aOpenDocumentModel;
@@ -102,21 +102,14 @@ public class YesNoFinishModalPanel
                             repository.createAnnotationDocument(annotationDocument);
                         }
                         catch (IOException e) {
-                            error("Unable to get the LOG file");
+                           error("Unable to get the LOG file");
                         }
 
                     }
                     else {
-                        if (bratAnnotatorModel.getDocument().getState()
-                                .equals(SourceDocumentState.CURATION_FINISHED)) {
-                            bratAnnotatorModel.getDocument().setState(
-                                    SourceDocumentState.CURATION_IN_PROGRESS);
-                        }
-                        else {
-                            bratAnnotatorModel.getDocument().setState(
-                                    SourceDocumentState.CURATION_FINISHED);
-                            bratAnnotatorModel.getDocument().setProcessed(false);
-                        }
+
+                        bratAnnotatorModel.getDocument().setState(
+                                SourceDocumentState.CURATION_FINISHED);
                         try {
                             repository.createSourceDocument(bratAnnotatorModel.getDocument(), user);
                         }

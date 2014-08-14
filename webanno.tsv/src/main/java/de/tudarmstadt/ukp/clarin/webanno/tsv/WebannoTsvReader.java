@@ -40,7 +40,6 @@ import org.apache.uima.util.Level;
 
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
@@ -62,7 +61,6 @@ public class WebannoTsvReader
     extends JCasResourceCollectionReader_ImplBase
 {
 
-    private String  fileName;
     public void convertToCas(JCas aJCas, InputStream aIs, String aEncoding)
         throws IOException
 
@@ -77,8 +75,6 @@ public class WebannoTsvReader
 
         List<Integer> firstTokenInSentence = new ArrayList<Integer>();
 
-        DocumentMetaData documentMetadata = DocumentMetaData.get(aJCas);
-        fileName = documentMetadata.getDocumentTitle();
         setAnnotations(aIs, aEncoding, text, tokens, pos, lemma, namedEntity, dependencyFunction,
                 dependencyDependent, firstTokenInSentence);
 
@@ -258,7 +254,7 @@ public class WebannoTsvReader
             }
             if (count != 9) {// not a proper TSV file
                 getUimaContext().getLogger().log(Level.INFO, "This is not a valid TSV File");
-                throw new IOException(fileName + " This is not a valid TSV File");
+                throw new IOException("This is not a valid TSV File");
             }
             StringTokenizer lineTk = new StringTokenizer(line, "\t");
 
@@ -288,7 +284,8 @@ public class WebannoTsvReader
                 pos.put(tokenNumber, lineTk.nextToken());
                 String ne = lineTk.nextToken();
                 lineTk.nextToken();// make it compatible with prev WebAnno TSV reader
-                namedEntity.put(tokenNumber, (ne.equals("_")||ne.equals("-")) ? "O" : ne);
+                namedEntity.put(tokenNumber, ne.equals("_") ? "O" : ne);
+                ;
                 String dependentValue = lineTk.nextToken();
                 if (NumberUtils.isDigits(dependentValue)) {
                     int dependent = Integer.parseInt(dependentValue);
@@ -347,7 +344,7 @@ public class WebannoTsvReader
                 if (ne.equals("O")) {// for annotations such as B_LOC|O|I_PER and the like
                     index++;
                 }
-                else if (ne.startsWith("B_") || ne.startsWith("B-")) {
+                else if (ne.startsWith("B_")) {
                     NamedEntity outNamedEntity = new NamedEntity(aJCas, aJcasTokens.get("t_" + i)
                             .getBegin(), aJcasTokens.get("t_" + i).getEnd());
                     outNamedEntity.setValue(ne.substring(2));
@@ -355,7 +352,7 @@ public class WebannoTsvReader
                     indexedNeAnnos.put(index, outNamedEntity);
                     index++;
                 }
-                else if (ne.startsWith("I_")||ne.startsWith("I-")) {
+                else if (ne.startsWith("I_")) {
                     NamedEntity outNamedEntity = indexedNeAnnos.get(index);
                     outNamedEntity.setEnd(aJcasTokens.get("t_" + i).getEnd());
                     outNamedEntity.addToIndexes();

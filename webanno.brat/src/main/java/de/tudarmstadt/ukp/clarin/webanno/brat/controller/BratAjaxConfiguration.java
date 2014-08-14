@@ -17,140 +17,179 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst.CHAIN_TYPE;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst.RELATION_TYPE;
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.EntityType;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.RelationType;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceLink;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 /**
- * Generation of brat type definitions.
+ *
+ * Configuring The brat JSON collection information responses getting tags from DB
  *
  * @author Seid Muhie Yimam
+ *
  */
 public class BratAjaxConfiguration
 {
+
     /**
-     * Generates brat type definitions from the WebAnno layer definitions.
-     * 
-     * @param aAnnotationLayers the layers
-     * @param aAnnotationService the annotation service
-     * @return the brat type definitions
+     * Get all the tags from the database, differentiate as pos,dependency, named entity... and
+     * build the entity/relation types accordingly.
+     * {@link de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS} is an {@link EntityType}
+     * where {@link Dependency} is a child {@link EntityType} ({@code arc}). {@link NamedEntity} is
+     * an {@link EntityType} without a child (no {@code arc}). {@link CoreferenceChain} is
+     * {@link EntityType} with a child {@link CoreferenceLink}s.
+     *
+     * @return {@link Set<{@link EntityType }>}
      */
-    public static Set<EntityType> buildEntityTypes(List<AnnotationLayer> aAnnotationLayers,
-            AnnotationService aAnnotationService)
+    public Set<EntityType> configureVisualizationAndAnnotation(List<Tag> aTags, boolean aStaticColor)
     {
-        // Sort layers
-        List<AnnotationLayer> layers = new ArrayList<AnnotationLayer>(aAnnotationLayers);
-        Collections.sort(layers, new Comparator<AnnotationLayer>()
-        {
-            @Override
-            public int compare(AnnotationLayer o1, AnnotationLayer o2)
-            {
-                return o1.getName().compareTo(o2.getName());
+        Set<EntityType> entityTypes = new HashSet<EntityType>();
+
+        List<String> poses = new ArrayList<String>();
+
+        List<String> dependency = new ArrayList<String>();
+
+        List<String> namedEntity = new ArrayList<String>();
+
+        List<String> corefRelType = new ArrayList<String>();
+
+        List<String> coreference = new ArrayList<String>();
+
+        for (Tag tag : aTags) {
+            if (tag.getTagSet().getType().getName().equals(AnnotationTypeConstant.POS)) {
+                poses.add(tag.getName());
             }
-        });
-        
-        // Scan through the layers once to remember which layers attach to which layers
-        Map<AnnotationLayer, AnnotationLayer> attachingLayers = new LinkedHashMap<AnnotationLayer, AnnotationLayer>();
-        for (AnnotationLayer layer : layers) {
-            if (layer.getType().equals(CHAIN_TYPE)) {
-                attachingLayers.put(layer, layer);
+            else if (tag.getTagSet().getType().getName().equals(AnnotationTypeConstant.DEPENDENCY)) {
+                dependency.add(tag.getName());
             }
-            else if (layer.getType().equals(RELATION_TYPE)) {
-                // FIXME This implies that at most one relation layer can attach to a span layer
-                attachingLayers.put(layer.getAttachType(), layer);
+            else if (tag.getTagSet().getType().getName().equals(AnnotationTypeConstant.NAMEDENTITY)) {
+                namedEntity.add(tag.getName());
             }
+            else if (tag.getTagSet().getType().getName()
+                    .equals(AnnotationTypeConstant.COREFRELTYPE)) {
+                corefRelType.add(tag.getName());
+            }
+            else if (tag.getTagSet().getType().getName().equals(AnnotationTypeConstant.COREFERENCE)) {
+                coreference.add(tag.getName());
+            }
+
         }
 
-        // Now build the actual configuration
-        Set<EntityType> entityTypes = new LinkedHashSet<EntityType>();
-        for (AnnotationLayer layer : layers) {
-            configureLayer(aAnnotationService, entityTypes, layer,
-                    attachingLayers.get(layer));
+        Collections.sort(poses);
+        Collections.sort(dependency);
+        Collections.sort(namedEntity);
+        Collections.sort(coreference);
+        Collections.sort(corefRelType);
+
+        List<EntityType> posChildren = getChildren(AnnotationTypeConstant.POS_PREFIX,
+                AnnotationTypeConstant.DEP_PREFIX, poses, dependency, "red", "yellow", "blue",
+                "green", aStaticColor);
+        EntityType posType = new EntityType(AnnotationTypeConstant.POS_PARENT,
+                AnnotationTypeConstant.POS_PARENT, true, "", "red", "blue", "blue",
+                new ArrayList<String>(), posChildren, new ArrayList<String>(),
+                new ArrayList<RelationType>(), aStaticColor);
+
+        if (poses.size() > 0) {
+            entityTypes.add(posType);
+        }
+
+        List<EntityType> corefChildren = getChildren(AnnotationTypeConstant.COREFRELTYPE_PREFIX,
+                AnnotationTypeConstant.COREFERENCE_PREFIX, corefRelType, coreference, "red",
+                "blue", "blue", "", aStaticColor);
+        EntityType corefType = new EntityType(AnnotationTypeConstant.COREFERENCE_PARENT,
+                AnnotationTypeConstant.COREFERENCE_PARENT, true, "", "red", "blue", "blue",
+                new ArrayList<String>(), corefChildren, new ArrayList<String>(),
+                new ArrayList<RelationType>(), aStaticColor);
+        if (corefRelType.size() > 0) {
+            entityTypes.add(corefType);
+        }
+
+        List<EntityType> neChildren = getChildren(AnnotationTypeConstant.NAMEDENTITY_PREFIX, "",
+                namedEntity, new ArrayList<String>(), "black", "cyan", "green", "", aStaticColor);
+        EntityType neEntityType = new EntityType(AnnotationTypeConstant.NAMEDENTITY_PARENT,
+                AnnotationTypeConstant.NAMEDENTITY_PARENT, true, "", "black", "cyan", "green",
+                new ArrayList<String>(), neChildren, new ArrayList<String>(),
+                new ArrayList<RelationType>(), aStaticColor);
+
+        if (namedEntity.size() > 0) {
+            entityTypes.add(neEntityType);
         }
 
         return entityTypes;
     }
-    
-    private static void configureLayer(AnnotationService aAnnotationService,
-            Set<EntityType> aEntityTypes, AnnotationLayer aLayer,
-            AnnotationLayer aAttachingLayer)
+
+    /**
+     * returns {@link EntityType} which will be used as a child {@link EntityType} which are
+     * properties/labels of an arc
+     *
+     * @param spansList
+     *            list of possible {@code spans } to be used as {@code targets}.
+     * @param aArcList
+     *            all {@code arc labels} used as label on the {@code arc}
+     * @param aFgColor
+     *            foreground color of the arc
+     * @param aBgcolor
+     *            background color of the arc
+     * @param aBorderColoer
+     *            border color of the arc
+     * @return {@link List< {@link EntityType }>}
+     */
+    private List<EntityType> getChildren(String aParentPrefix, String aChildPrefix,
+            List<String> spansList, List<String> aArcList, String aFgColor, String aBgcolor,
+            String aBorderColoer, String aArcColor, boolean aStaticColor)
     {
-        // FIXME This is a hack! Actually we should check the type of the attachFeature when
-        // determine which layers attach to with other layers. Currently we only use attachType,
-        // but do not follow attachFeature if it is set.
-        if (aLayer.isBuiltIn() && aLayer.getName().equals(POS.class.getName())) {
-            aAttachingLayer = aAnnotationService.getLayer(Dependency.class.getName(),
-                    aLayer.getProject());
-        }
-        
-        String bratTypeName = TypeUtil.getBratTypeName(aLayer);
-        
-        // FIXME this is a hack because the chain layer consists of two UIMA types, a "Chain"
-        // and a "Link" type. ChainAdapter always seems to use "Chain" but some places also
-        // still use "Link" - this should be cleaned up so that knowledge about "Chain" and
-        // "Link" types is local to the ChainAdapter and not known outside it!
-        if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-            bratTypeName += ChainAdapter.CHAIN;
-        }
+        List<EntityType> children = new ArrayList<EntityType>();
 
-        EntityType entityType;
-        if (aLayer.isBuiltIn() && aLayer.getName().equals(POS.class.getName())) {
-            entityType = new EntityType(aLayer.getName(), bratTypeName);
+        List<String> arcTargets = new ArrayList<String>();
+        for (String span : spansList) {
+            arcTargets.add(aParentPrefix + span);
         }
-        else if (aLayer.isBuiltIn() && aLayer.getName().equals(NamedEntity.class.getName())) {
-            entityType = new EntityType(aLayer.getName(), bratTypeName);
-        }
-        else if (aLayer.isBuiltIn() && aLayer.getName().equals(Lemma.class.getName())) {
-            entityType = new EntityType(aLayer.getName(), bratTypeName);
-        }
+        for (String span : spansList) {
+            List<RelationType> arcs = new ArrayList<RelationType>();
+            Iterator<String> arcTypesResultIterator = aArcList.iterator();
+            while (arcTypesResultIterator.hasNext()) {
+                String arcLabels = arcTypesResultIterator.next();
 
-        // custom layers
-        else {
-            entityType = new EntityType(aLayer.getName(), bratTypeName);
-        }
+                // 12 classes of colors to differentiate Co-reference chains
+                if (aParentPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
 
-        if (aAttachingLayer != null) {
-            String attachingLayerBratTypeName = TypeUtil.getBratTypeName(aAttachingLayer);
-            // FIXME this is a hack because the chain layer consists of two UIMA types, a "Chain"
-            // and a "Link" type. ChainAdapter always seems to use "Chain" but some places also
-            // still use "Link" - this should be cleaned up so that knowledge about "Chain" and
-            // "Link" types is local to the ChainAdapter and not known outside it!
-            if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-                attachingLayerBratTypeName += ChainAdapter.CHAIN;
+                    String[] colors = new String[] { "#00FF00", "#0000A0", "#FF0000", "#800080 ",
+                            "#F000FF", "#00FFFF ", "#FF00FF ", "#8D38C9", "#8D38C9", "#736AFF",
+                            "#C11B17", "#800000" };
+                    int i = 1;
+                    for (String color : colors) {
+                        RelationType arc = new RelationType(color, "triangle,5",
+                                Arrays.asList(arcLabels), i + aChildPrefix + arcLabels, arcTargets,
+                                "");
+                        arcs.add(arc);
+                        i++;
+                    }
+                }
+                else {
+                    RelationType arc = new RelationType(aArcColor, "triangle,5",
+                            Arrays.asList(arcLabels), aChildPrefix + arcLabels, arcTargets, "");
+                    arcs.add(arc);
+                }
             }
-            
-            // Handle arrow-head styles depending on linkedListBehavior
-            String arrowHead;
-            if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE) && !aLayer.isLinkedListBehavior()) {
-                arrowHead = "none";
-            }
-            else {
-                arrowHead = "triangle,5";
-            }
-            
-            RelationType arc = new RelationType(aAttachingLayer.getName(),
-                    attachingLayerBratTypeName, bratTypeName, null, arrowHead);
-            entityType.setArcs(asList(arc));
-        }
 
-        aEntityTypes.add(entityType);
+            EntityType entityTpe = new EntityType(span, aParentPrefix + span, false, "", aFgColor,
+                    aBgcolor, aBorderColoer, Arrays.asList(span), new ArrayList<EntityType>(),
+                    new ArrayList<String>(), arcs, aStaticColor);
+            children.add(entityTpe);
+        }
+        return children;
     }
+
 }

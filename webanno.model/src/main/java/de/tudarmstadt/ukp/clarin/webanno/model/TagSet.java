@@ -2,13 +2,13 @@
  * Copyright 2012
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *  
  *  http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,15 +28,13 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.ForeignKey;
 /**
  * A persistence object for a TagSet
  * @author Seid Muhie Yimam
  *
  */
 @Entity
-@Table(name = "tag_set", uniqueConstraints = { @UniqueConstraint(columnNames = { "name","project" }) })
+@Table(name = "tag_set", uniqueConstraints = { @UniqueConstraint(columnNames = { "type","project" }) })
 public class TagSet
     implements Serializable
 {
@@ -45,6 +43,10 @@ public class TagSet
     @Id
     @GeneratedValue
     private long id;
+
+    @ManyToOne
+    @JoinColumn(name = "type")
+    AnnotationType type;
 
     @ManyToOne
     @JoinColumn(name = "project")
@@ -58,8 +60,6 @@ public class TagSet
     @Lob
     private String description;
 
-    private boolean createTag = true;
-
     public long getId()
     {
         return id;
@@ -68,6 +68,16 @@ public class TagSet
     public void setId(long aId)
     {
         id = aId;
+    }
+
+    public AnnotationType getType()
+    {
+        return type;
+    }
+
+    public void setType(AnnotationType aType)
+    {
+        type = aType;
     }
 
     public String getName()
@@ -111,23 +121,13 @@ public class TagSet
         project = aProject;
     }
 
-    public boolean isCreateTag()
-    {
-        return createTag;
-    }
-
-    public void setCreateTag(boolean createTag)
-    {
-        this.createTag = createTag;
-    }
-
     @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((project == null) ? 0 : project.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -152,15 +152,14 @@ public class TagSet
         else if (!name.equals(other.name)) {
             return false;
         }
-        if (project == null) {
-            if (other.project != null) {
+        if (type == null) {
+            if (other.type != null) {
                 return false;
             }
         }
-        else if (!project.equals(other.project)) {
+        else if (!type.equals(other.type)) {
             return false;
         }
         return true;
     }
-
 }

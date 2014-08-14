@@ -1054,7 +1054,7 @@ public class CrowdSourcePage
 
                 jCas = repository.getJCasFromFile(repository
                         .getSourceDocumentContent(sourceDocument), repository.getReadableFormats()
-                        .get(sourceDocument.getFormat()), sourceDocument);
+                        .get(sourceDocument.getFormat()));
                 repository.createAnnotationDocumentContent(jCas, sourceDocument, user);
                 jCases.add(jCas);
             }
@@ -1326,7 +1326,7 @@ public class CrowdSourcePage
                     @Override
                     protected void onEvent(AjaxRequestTarget aTarget)
                     {
-                        selectedCrowdJob = repository.getCrowdJob(value, selectedProject);
+                        selectedCrowdJob = repository.getCrowdJob(value);
                         SelectionModel selectionModel = new SelectionModel();
                         selectionModel.name = selectedCrowdJob.getName();
                         selectionModel.apiKey = selectedCrowdJob.getApiKey();

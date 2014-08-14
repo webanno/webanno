@@ -23,7 +23,7 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
@@ -65,19 +65,18 @@ public interface AnnotationService
         throws IOException;
 
     /**
-     * creates a type which will be a span, chain, or arc(relation) type. Currently the annotation
-     * types are highly highly tied with the tagsets, one tagset per type. POS, Names Entity, and
-     * coreference links are span types while coreference chains and dependency parsings are
-     * arc(relation) types.
+     * creates a type which will be a span, chain, or arc(relation) type. Currently the annotation types are
+     * highly highly tied with the tagsets, one tagset per type. POS, Names Entity, and coreference
+     * links are span types while coreference chains and dependency parsings are arc(relation)
+     * types.
      *
      * @param type
      * @throws IOException
      */
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void createLayer(AnnotationLayer type, User user)
-        throws IOException;
+    void createType(AnnotationType type,  User user) throws IOException;
 
-    void createFeature(AnnotationFeature feature);
+    void createFeature(AnnotationFeature feature) ;
 
     /**
      * gets a {@link Tag} using its name and a {@link TagSet}
@@ -94,33 +93,28 @@ public interface AnnotationService
     boolean existsTag(String tagName, TagSet tagSet);
 
     /**
-     * Check if a {@link TagSet} with this name exists
+     * Check is a {@link TagSet} exists
      */
-    boolean existsTagSet(String name, Project project);
+    boolean existsTagSet(AnnotationType type, Project project);
 
     /**
-     * check if a {@link TagSet} in this {@link Project} exists
+     * check if an {@link AnnotationType} exists with this name and type in this {@link Project}
      */
-    boolean existsTagSet(Project project);
-
-    /**
-     * check if an {@link AnnotationLayer} exists with this name and type in this {@link Project}
-     */
-    boolean existsLayer(String name, String type, Project project);
+    boolean existsLayer(String name , String type, Project project);
 
     /**
      *
      * Check if this {@link AnnotationFeature} already exists
      */
-    boolean existsFeature(String name, AnnotationLayer type);
+    boolean existsFeature(String name , AnnotationType type, TagSet tagSet, Project project);
 
     /**
-     * get a {@link TagSet} with this name in a {@link Project}
+     * get a {@link TagSet} by its type and its project
      *
      * @param tagName
      * @return {@link TagSet}
      */
-    TagSet getTagSet(String name, Project project);
+    TagSet getTagSet(AnnotationType type, Project project);
 
     /**
      * Get Tagset by its ID
@@ -128,68 +122,40 @@ public interface AnnotationService
     TagSet getTagSet(long id);
 
     /**
-     * Get an annotation layer using its id
+     * Get an {@link AnnotationType}
      */
-    AnnotationLayer getLayer(long id);
+    AnnotationType getType(String name, String type);
 
     /**
-     * Get an {@link AnnotationLayer}
-     */
-    AnnotationLayer getLayer(String name, Project project);
-
-    /**
-     * Get a {@link AnnotationFeature} name using its ID. Used for updating annotations as it is
-     * represented <id><type>
-     *
-     * @param id
-     * @return
-     */
-    AnnotationFeature getFeature(long id);
-
-    /**
-     * Get an {@link AnnotationFeature} using its name
-     */
-    AnnotationFeature getFeature(String name, AnnotationLayer type);
-    /**
-     * Check if an {@link AnnotationLayer} already exists.
+     * Check if an {@link AnnotationType} already exists.
      */
     boolean existsType(String name, String type);
 
     /**
-     * Initialize the project with default {@link AnnotationLayer}, {@link TagSet}s, and {@link Tag}
-     * s. This is done per Project. For older projects, this method is used to import old tagsets
-     * and convert to the new scheme.
+     * Initialize the project with default {@link AnnotationType}, {@link TagSet}s, and {@link Tag}
+     * s. This is done per Project
      *
      * @param aProject
      * @throws IOException
      */
-    void initializeTypesForProject(Project project, User user, String[] postags,
-            String[] posTagDescriptions, String[] depTags, String[] depTagDescriptions,
-            String[] neTags, String[] neTagDescriptions, String[] corefTypeTags,
-            String[] corefRelTags)
+    void initializeTypesForProject(Project project, User user)
         throws IOException;
 
     /**
-     * list all {@link AnnotationLayer} in the system
+     * list all {@link AnnotationType} in the system
      *
      * @return {@link List<AnnotationType>}
      */
-    List<AnnotationLayer> listAnnotationType();
+    List<AnnotationType> listAnnotationType();
 
     /**
      * List all annotation types in a project
      */
-    List<AnnotationLayer> listAnnotationLayer(Project project);
-
+    List<AnnotationType> listAnnotationType(Project project);
     /**
-     * List all the features in a {@link AnnotationLayer} for this {@link Project}
+     * List all the features in a {@link AnnotationType} for this {@link Project}
      */
-    List<AnnotationFeature> listAnnotationFeature(AnnotationLayer type);
-
-    /**
-     * List all features in the project
-     */
-    List<AnnotationFeature> listAnnotationFeature(Project project);
+    List<AnnotationFeature> listAnnotationFeature(Project project, AnnotationType type);
 
     /**
      * list all {@link Tag} in the system
@@ -213,9 +179,8 @@ public interface AnnotationService
      */
     List<TagSet> listTagSets();
 
-
     /**
-     * List all {@link TagSet }s in a {@link Project}
+     * List all {@link TagSet }s in a project
      *
      * @param project
      * @return
@@ -236,31 +201,4 @@ public interface AnnotationService
      * @param tagset
      */
     void removeTagSet(TagSet tagset);
-
-    /**
-     *
-     * Should be called with care. Only when a project hosting this feature is removed
-     */
-    void removeAnnotationFeature(AnnotationFeature feature);
-
-    /**
-     *
-     * Should be called with care. Only when a project hosting this layer is removed
-     */
-    void removeAnnotationLayer(AnnotationLayer type);
-
-    void createPOSLayer(Project project, User user, String[] postags, String[] posTagDescriptions)
-        throws IOException;
-
-    void createDepLayer(Project project, User user, String[] depTags, String[] depTagDescriptions)
-        throws IOException;
-
-    void createNeLayer(Project project, User user, String[] neTags, String[] neTagDescriptions)
-        throws IOException;
-
-    void createCorefLayer(Project project, User user, String[] corefTypeTags, String[] corefRelTags)
-        throws IOException;
-
-    void createLemmaLayer(Project project, User user)
-        throws IOException;
 }

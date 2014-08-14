@@ -2,13 +2,13 @@
  * Copyright 2012
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *  
  *  http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,11 +34,11 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.message.BeanAsArraySerializer;
  *
  */
 @JsonSerialize(using = BeanAsArraySerializer.class)
-@JsonPropertyOrder(value = { "id", "type", "arguments", "labelText", "color" })
+@JsonPropertyOrder(value = { "id", "type", "arguments" })
 public class Relation
 {
     private int id;
-
+    
     /**
      * The type of the relation between two spans
      */
@@ -47,27 +47,19 @@ public class Relation
     /**
      * The initial/destination span annotations as shown in the example above
      */
-    private List<Argument> arguments = new ArrayList<Argument>();
+    List<Argument> arguments = new ArrayList<Argument>();
 
-    // WEBANNO EXTENSION BEGIN
-    private String labelText;
-    private String color;
-    // WEBANNO EXTENSION END
-    
     public Relation()
     {
         // Nothing to do
     }
 
-    public Relation(int aId, String aType, List<Argument> aArguments, String aLabelText,
-            String aColor)
+    public Relation(int aId, String aType, List<Argument> aArguments)
     {
         super();
         id = aId;
         type = aType;
         arguments = aArguments;
-        labelText = aLabelText;
-        color = aColor;
     }
 
     public int getId()
@@ -98,25 +90,5 @@ public class Relation
     public void setArguments(List<Argument> aArguments)
     {
         arguments = aArguments;
-    }
-
-    public void setLabelText(String aLabelText)
-    {
-        labelText = aLabelText;
-    }
-    
-    public String getLabelText()
-    {
-        return labelText;
-    }
-
-    public String getColor()
-    {
-        return color;
-    }
-
-    public void setColor(String aColor)
-    {
-        color = aColor;
     }
 }

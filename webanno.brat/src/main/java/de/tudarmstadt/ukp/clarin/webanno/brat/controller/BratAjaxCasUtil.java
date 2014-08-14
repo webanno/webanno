@@ -30,15 +30,14 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
-import org.apache.uima.cas.impl.FeatureStructureImpl;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -61,13 +60,9 @@ public class BratAjaxCasUtil
      * @param b
      * @return
      */
-    public static boolean isSame(FeatureStructure a, FeatureStructure b)
+    public static boolean isSame(Annotation a, Annotation b)
     {
-        if (a == null || b == null) {
-            return false;
-        }
-        
-        return getAddr(a) == getAddr(b);
+        return a.getAddress() == b.getAddress();
     }
 
     /**
@@ -115,11 +110,6 @@ public class BratAjaxCasUtil
      * }
      */
 
-    public static int getAddr(FeatureStructure aFS)
-    {
-        return ((FeatureStructureImpl) aFS).getAddress();
-    }
-    
     public static AnnotationFS selectByAddr(JCas aJCas, int aAddress)
     {
         return selectByAddr(aJCas, AnnotationFS.class, aAddress);
@@ -182,7 +172,7 @@ public class BratAjaxCasUtil
      *            the JCas type.
      * @param jCas
      *            a JCas containing the annotation.
-     * @param layer
+     * @param type
      *            a UIMA type.
      * @param begin
      *            begin offset.
@@ -572,70 +562,5 @@ public class BratAjaxCasUtil
             seletedTextSb.append(token.getCoveredText() + " ");
         }
         return seletedTextSb.toString();
-    }
-    
-    /**
-     * Set a feature value.
-     * 
-     * @param aFS
-     *            the feature structure.
-     * @param aFeature
-     *            the feature within the annotation whose value to set. If this parameter is
-     *            {@code null} then nothing happens.
-     * @param aValue
-     *            the feature value.
-     */
-   public static void setFeature(FeatureStructure aFS, AnnotationFeature aFeature, String aValue)
-    {
-        if (aFeature != null) {
-            Feature labelFeature = aFS.getType().getFeatureByBaseName(aFeature.getName());
-            aFS.setFeatureValueFromString(labelFeature, aValue);
-        }
-    }
-   
-   /**
-    * Set a feature value.
-    * 
-    * @param aFS
-    *            the feature structure.
-    * @param aFeatureName
-    *            the feature within the annotation whose value to set.
-    * @param aValue
-    *            the feature value.
-    */
-  public static void setFeature(FeatureStructure aFS, String aFeatureName, String aValue)
-   {
-       Feature labelFeature = aFS.getType().getFeatureByBaseName(aFeatureName);
-       aFS.setFeatureValueFromString(labelFeature, aValue);
-   }
-  
-    /**
-     * Set a feature value.
-     * 
-     * @param aFS
-     *            the feature structure.
-     * @param aFeatureName
-     *            the feature within the annotation whose value to set.
-     * @param aValue
-     *            the feature value.
-     */
-    public static void setFeatureFS(FeatureStructure aFS, String aFeatureName,
-            FeatureStructure aValue)
-    {
-        Feature labelFeature = aFS.getType().getFeatureByBaseName(aFeatureName);
-        aFS.setFeatureValue(labelFeature, aValue);
-    }
-    
-    /**
-     * Get a feature value.
-     * 
-     * @param aFS
-     *            the feature structure.
-     * @param aFeatureName
-     *            the feature within the annotation whose value to set.
-     */
-    public static FeatureStructure getFeatureFS(FeatureStructure aFS, String aFeatureName)
-    {
-        return aFS.getFeatureValue(aFS.getType().getFeatureByBaseName(aFeatureName));
     }
 }

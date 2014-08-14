@@ -30,18 +30,4 @@ public class BratAnnotationException
         super(message);
     }
 
-    public BratAnnotationException()
-    {
-        super();
-    }
-
-    public BratAnnotationException(String aMessage, Throwable aCause)
-    {
-        super(aMessage, aCause);
-    }
-
-    public BratAnnotationException(Throwable aCause)
-    {
-        super(aCause);
-    }
 }

@@ -18,6 +18,8 @@
 package de.tudarmstadt.ukp.clarin.webanno.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,27 +27,26 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
-
 /**
  * A persistence object for an annotation feature. One or more features can be defined per
- * {@link AnnotationLayer}. At least one feature must be defined which serves as the “label feature”.
+ * {@link AnnotationType}. At least one feature must be defined which serves as the “label feature”.
  * Additional features may be defined. Features have a type which can either be String, integer,
  * float, or boolean. To control the values that a String feature assumes, it can be associated with
  * a tagset. If the feature is defined on a span type, it is also possible to add a feature of
  * another span type which then serves as a label type for the first one
- *
+ * 
  * @author Seid Muhie Yimam
  * @author Richard Eckart de Castilho
- *
+ * 
  */
 @Entity
 @Table(name = "annotation_feature", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "annotation_type", "name", "project" }) })
+        "annotation_type", "name", "tagset", "project" }) })
 public class AnnotationFeature
     implements Serializable
 {
@@ -57,20 +58,16 @@ public class AnnotationFeature
     private long id;
 
     private String type;
-
     @ManyToOne
-    @ForeignKey(name = "none")
     @JoinColumn(name = "annotation_type")
-    private AnnotationLayer layer;
+    private AnnotationType layer;
+    @ManyToOne
+    @JoinColumn(name = "tagset")
+    private TagSet tagSet;
 
     @ManyToOne
     @JoinColumn(name = "project")
     private Project project;
-
-    @ManyToOne
-    @ForeignKey(name = "none")
-    @JoinColumn(name = "tag_set")
-    private TagSet tagset;
 
     @Column(nullable = false)
     private String uiName;
@@ -78,36 +75,29 @@ public class AnnotationFeature
     @Lob
     private String description;
 
-    private boolean enabled = true;
+    private boolean enabled;
 
     @Column(nullable = false)
     private String name;
 
-    private boolean visible = true;
+    private String featureType;
 
     public long getId()
     {
         return id;
     }
 
+
     public void setId(long id)
     {
         this.id = id;
     }
 
-    /**
-     *
-     * the type of feature (string, integer, float, boolean, or a span type used as a label)
-     */
     public String getType()
     {
         return type;
     }
 
-    /**
-     *
-     * the type of feature (string, integer, float, boolean, or a span type used as a label)
-     */
     public void setType(String type)
     {
         this.type = type;
@@ -116,7 +106,7 @@ public class AnnotationFeature
     /**
      * the type with which the feature is associated.
      */
-    public AnnotationLayer getLayer()
+    public AnnotationType getLayer()
     {
         return layer;
     }
@@ -124,9 +114,19 @@ public class AnnotationFeature
     /**
      * the type with which the feature is associated.
      */
-    public void setLayer(AnnotationLayer layer)
+    public void setLayer(AnnotationType layer)
     {
         this.layer = layer;
+    }
+
+    public TagSet getTagSet()
+    {
+        return tagSet;
+    }
+
+    public void setTagSet(TagSet tagSet)
+    {
+        this.tagSet = tagSet;
     }
 
     public Project getProject()
@@ -156,7 +156,7 @@ public class AnnotationFeature
     }
 
     /**
-     *
+     * 
      * a description of the feature.
      */
 
@@ -166,7 +166,7 @@ public class AnnotationFeature
     }
 
     /**
-     *
+     * 
      * a description of the feature.
      */
     public void setDescription(String description)
@@ -175,7 +175,7 @@ public class AnnotationFeature
     }
 
     /**
-     *
+     * 
      * whether the type is available in the UI (outside of the project settings)
      */
     public boolean isEnabled()
@@ -184,7 +184,7 @@ public class AnnotationFeature
     }
 
     /**
-     *
+     * 
      * whether the type is available in the UI (outside of the project settings)
      */
     public void setEnabled(boolean enabled)
@@ -194,7 +194,7 @@ public class AnnotationFeature
 
     /**
      * the name of the feature in the UIMA type system.
-     *
+     * 
      */
 
     public String getName()
@@ -204,92 +204,29 @@ public class AnnotationFeature
 
     /**
      * the name of the feature in the UIMA type system.
-     *
+     * 
      */
     public void setName(String name)
     {
         this.name = name;
     }
 
-    public boolean isVisible()
+    /**
+     * 
+     * the type of feature (string, integer, float, boolean, or a span type used as a label)
+     */
+    public String getFeatureType()
     {
-        return visible;
+        return featureType;
     }
 
-    public void setVisible(boolean visible)
+    /**
+     * 
+     * the type of feature (string, integer, float, boolean, or a span type used as a label)
+     */
+    public void setFeatureType(String featureType)
     {
-        this.visible = visible;
+        this.featureType = featureType;
     }
-
-    public TagSet getTagset()
-    {
-        return tagset;
-    }
-
-    public void setTagset(TagSet tagset)
-    {
-        this.tagset = tagset;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((layer == null) ? 0 : layer.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((project == null) ? 0 : project.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        AnnotationFeature other = (AnnotationFeature) obj;
-        if (layer == null) {
-            if (other.layer != null) {
-                return false;
-            }
-        }
-        else if (!layer.equals(other.layer)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        }
-        else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (project == null) {
-            if (other.project != null) {
-                return false;
-            }
-        }
-        else if (!project.equals(other.project)) {
-            return false;
-        }
-        if (type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        }
-        else if (!type.equals(other.type)) {
-            return false;
-        }
-        return true;
-    }
-
 
 }

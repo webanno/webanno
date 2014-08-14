@@ -26,7 +26,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -56,10 +55,6 @@ public class WelcomePage
 {
     @SpringBean(name = "documentRepository")
     private RepositoryService repository;
-
-    @SpringBean(name = "annotationService")
-    private AnnotationService annotationService;
-
 
     AjaxLink<Void> projectSettings;
     AjaxLink<Void> curation;
@@ -192,10 +187,6 @@ public class WelcomePage
             @Override
             public void onClick(AjaxRequestTarget target)
             {
-            	if(repository.listProjects().size() ==0){
-            		error("No project is created yet.");
-            		return;
-            	}
                 setResponsePage(MonitoringPage.class);
             }
         };

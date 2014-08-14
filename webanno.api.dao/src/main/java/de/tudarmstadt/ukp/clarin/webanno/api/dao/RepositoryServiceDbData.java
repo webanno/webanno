@@ -17,13 +17,11 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst.CHAIN_TYPE;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst.RELATION_TYPE;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.apache.commons.io.IOUtils.copyLarge;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngine;
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createPrimitive;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createPrimitiveDescription;
 import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
 
 import java.beans.PropertyDescriptor;
@@ -34,7 +32,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,7 +57,6 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -79,14 +75,9 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.metadata.TypeDescription;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.resource.metadata.impl.TypeSystemDescription_impl;
-import org.apache.uima.util.CasCreationUtils;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.BeanWrapper;
@@ -94,19 +85,18 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.api.UserDao;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
-import de.tudarmstadt.ukp.clarin.webanno.model.AutomationStatus;
 import de.tudarmstadt.ukp.clarin.webanno.model.CrowdJob;
 import de.tudarmstadt.ukp.clarin.webanno.model.MiraTemplate;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -119,9 +109,12 @@ import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import de.tudarmstadt.ukp.dkpro.core.api.io.ResourceCollectionReaderBase;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.io.bincas.SerializedCasReader;
 import de.tudarmstadt.ukp.dkpro.core.io.bincas.SerializedCasWriter;
 import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
@@ -168,9 +161,6 @@ public class RepositoryServiceDbData
     @Resource(name = "formats")
     private Properties readWriteFileFormats;
 
-    @Resource(name = "helpFile")
-    private Properties helpProperiesFile;
-
     private static final String PROJECT = "/project/";
     private static final String MIRA = "/mira/";
     private static final String MIRA_TEMPLATE = "/template/";
@@ -183,7 +173,8 @@ public class RepositoryServiceDbData
 
     private static final String TEMPLATE = "/crowdtemplates/";
 
-    private static final String HELP_FILE = "/help.properties";
+    private static final String CURATION_USER = "CURATION_USER";
+    private static final String CORRECTION_USER = "CORRECTION_USER";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -236,8 +227,7 @@ public class RepositoryServiceDbData
             throw new IOException("Cannot renamed file [" + aFrom + "] to [" + aTo + "]");
         }
 
-        // We are not sure if File is mutable. This makes sure we get a new file
-        // in any case.
+        // We are not sure if File is mutable. This makes sure we get a new file in any case.
         return new File(aTo.getPath());
     }
 
@@ -254,16 +244,6 @@ public class RepositoryServiceDbData
                 + aDocument.getId() + ANNOTATION);
         FileUtils.forceMkdir(annotationFolder);
         return annotationFolder;
-    }
-
-    @Override
-    public File getDocumentFolder(SourceDocument aDocument)
-        throws IOException
-    {
-        File sourceDocFolder = new File(dir, PROJECT + aDocument.getProject().getId() + DOCUMENT
-                + aDocument.getId() + SOURCE);
-        FileUtils.forceMkdir(sourceDocFolder);
-        return sourceDocFolder;
     }
 
     @Override
@@ -545,15 +525,17 @@ public class RepositoryServiceDbData
             String aFileName, Mode aMode)
         throws UIMAException, IOException, ClassNotFoundException
     {
+        File exportTempDir = File.createTempFile("webanno", "export");
+        File exportFile;
+        exportTempDir.delete();
+        exportTempDir.mkdirs();
+
         File annotationFolder = getAnnotationFolder(aDocument);
         String serializedCaseFileName;
-        // for Correction, it will export the corrected document (of the logged
-        // in user)
+        // for Correction, it will export the corrected document (of the logged in user)
         // (CORRECTION_USER.ser is
-        // the automated result displayed for the user to correct it, not the
-        // final result)
-        // for automation, it will export either the corrected cocument
-        // (Annotated) or the automated
+        // the automated result displayed for the user to correct it, not the final result)
+        // for automation, it will export either the corrected cocument (Annotated) or the automated
         // document
         if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.AUTOMATION)
                 || aMode.equals(Mode.CORRECTION)) {
@@ -561,43 +543,22 @@ public class RepositoryServiceDbData
         }
         // The merge result will be exported
         else {
-            serializedCaseFileName = WebAnnoConst.CURATION_USER + ".ser";
+            serializedCaseFileName = CURATION_USER + ".ser";
         }
 
         CollectionReader reader = CollectionReaderFactory
-                .createReader(SerializedCasReader.class, SerializedCasReader.PARAM_SOURCE_LOCATION,
+                .createCollectionReader(SerializedCasReader.class, SerializedCasReader.PARAM_PATH,
                         annotationFolder, SerializedCasReader.PARAM_PATTERNS, new String[] { "[+]"
                                 + serializedCaseFileName });
         if (!reader.hasNext()) {
             throw new FileNotFoundException("Annotation file [" + serializedCaseFileName
                     + "] not found in [" + annotationFolder + "]");
         }
-        List<AnnotationLayer> layers = annotationService
-                .listAnnotationLayer(aDocument.getProject());
-        List<String> multipleSpans = new ArrayList<String>();
-        for (AnnotationLayer layer : layers) {
-            if (layer.isMultipleTokens()) {
-                multipleSpans.add(layer.getName());
-            }
-        }
-        
-        File exportTempDir = File.createTempFile("webanno", "export");
-        exportTempDir.delete();
-        exportTempDir.mkdirs();
-        
-        AnalysisEngineDescription writer;
-        if (aWriter.getName()
-                .equals("de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoCustomTsvWriter")) {
-            writer = createEngineDescription(aWriter,
-                    JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, exportTempDir,
-                    JCasFileWriter_ImplBase.PARAM_STRIP_EXTENSION, true, "multipleSpans",
-                    multipleSpans);
-        }
-        else {
-            writer = createEngineDescription(aWriter,
-                    JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, exportTempDir,
-                    JCasFileWriter_ImplBase.PARAM_STRIP_EXTENSION, true);
-        }
+
+        AnalysisEngineDescription writer = createPrimitiveDescription(aWriter,
+                JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, exportTempDir,
+                JCasFileWriter_ImplBase.PARAM_STRIP_EXTENSION, true);
+
         CAS cas = JCasFactory.createJCas().getCas();
         reader.getNext(cas);
         // Get the original TCF file and preserve it
@@ -620,44 +581,58 @@ public class RepositoryServiceDbData
                 .toExternalForm());
 
         // update the cas first
-        upgrade(cas, aDocument.getProject());
+        upgrade(cas);
         // update with the correct tagset name
-        List<AnnotationFeature> features = annotationService.listAnnotationFeature(project);
-        for (AnnotationFeature feature : features) {
-
-            TagSet tagSet = feature.getTagset();
-            if (tagSet == null) {
-                continue;
-            }
-            else if (!feature.getLayer().getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-                BratAjaxCasUtil.updateCasWithTagSet(cas, feature.getLayer().getName(),
+        List<AnnotationType> types = annotationService.listAnnotationType(project);
+        for (AnnotationType annotationType : types) {
+            TagSet tagSet = annotationService.getTagSet(annotationType, project);
+            if (annotationType.getName().equals(AnnotationTypeConstant.NAMEDENTITY)) {
+                BratAjaxCasUtil.updateCasWithTagSet(cas, NamedEntity.class.getName(),
                         tagSet.getName());
             }
+            else if (annotationType.getName().equals(AnnotationTypeConstant.POS)) {
+                BratAjaxCasUtil.updateCasWithTagSet(cas, POS.class.getName(), tagSet.getName());
+            }
+            else if (annotationType.getName().equals(AnnotationTypeConstant.DEPENDENCY)) {
+                BratAjaxCasUtil.updateCasWithTagSet(cas, Dependency.class.getName(),
+                        tagSet.getName());
+            }
+            /*
+             * else if (annotationType.getName().equals(AnnotationTypeConstant.COREFRELTYPE)) {
+             * BratAjaxCasUtil.updateCasWithTagSet(cas, CoreferenceLink.class.getName(),
+             * tagSet.getName()); } else if
+             * (annotationType.getName().equals(AnnotationTypeConstant.COREFERENCE)) {
+             * BratAjaxCasUtil.updateCasWithTagSet(cas, CoreferenceChain.class.getName(),
+             * tagSet.getName()); }
+             */
         }
 
         runPipeline(cas, writer);
 
         createLog(project, aUser).info(
                 " Exported file [" + aDocument.getName() + "] with ID [" + aDocument.getId()
-                        + "] from project [" + project.getId() + "]");
+                        + "] from Project[" + project.getId() + "]");
         createLog(project, aUser).removeAllAppenders();
 
-        File exportFile;
         if (exportTempDir.listFiles().length > 1) {
-            exportFile = new File(exportTempDir.getAbsolutePath() + ".zip");
             try {
-                DaoUtils.zipFolder(exportTempDir, exportFile);
+                DaoUtils.zipFolder(exportTempDir,
+                        new File(exportTempDir.getAbsolutePath() + ".zip"));
             }
             catch (Exception e) {
-                createLog(project, aUser).info("Unable to create zip File");
+                createLog(project, aUser).info("Unable to create Zip File");
             }
+            exportFile = new File(exportTempDir.getParent(), exportTempDir.getName() + ".zip");
+            FileUtils.forceDelete(exportTempDir);
+
+            return exportFile;
         }
-        else {
-            exportFile = new File(exportTempDir.getParent(), exportTempDir.listFiles()[0].getName());
-            FileUtils.copyFile(exportTempDir.listFiles()[0], exportFile);
-        }
+        exportFile = new File(exportTempDir.getParent(), exportTempDir.listFiles()[0].getName());
+        FileUtils.copyFile(exportTempDir.listFiles()[0], exportFile);
         FileUtils.forceDelete(exportTempDir);
+
         return exportFile;
+
     }
 
     @Override
@@ -804,12 +779,10 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional
-    public CrowdJob getCrowdJob(String aName, Project aProjec)
+    public CrowdJob getCrowdJob(String aName)
     {
-        return entityManager
-                .createQuery("FROM CrowdJob WHERE name = :name AND project = :project",
-                        CrowdJob.class).setParameter("name", aName)
-                .setParameter("project", aProjec).getSingleResult();
+        return entityManager.createQuery("FROM CrowdJob WHERE name = :name", CrowdJob.class)
+                .setParameter("name", aName).getSingleResult();
     }
 
     @Override
@@ -954,8 +927,7 @@ public class RepositoryServiceDbData
     {
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aDocument.getProject());
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return new ArrayList<AnnotationDocument>();
         }
@@ -974,8 +946,7 @@ public class RepositoryServiceDbData
 
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aProject);
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return 0;
         }
@@ -1000,8 +971,7 @@ public class RepositoryServiceDbData
     {
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aProject);
-        // Bail out already. HQL doesn't seem to like queries with an empty
-        // parameter right of "in"
+        // Bail out already. HQL doesn't seem to like queries with an empty parameter right of "in"
         if (users.isEmpty()) {
             return new ArrayList<AnnotationDocument>();
         }
@@ -1089,33 +1059,9 @@ public class RepositoryServiceDbData
     @Transactional(noRollbackFor = NoResultException.class)
     public List<SourceDocument> listSourceDocuments(Project aProject)
     {
-        List<SourceDocument> sourceDocuments = entityManager
+        return entityManager
                 .createQuery("FROM SourceDocument where project =:project", SourceDocument.class)
                 .setParameter("project", aProject).getResultList();
-        List<SourceDocument> tabSepDocuments = new ArrayList<SourceDocument>();
-        for (SourceDocument sourceDocument : sourceDocuments) {
-            if (sourceDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
-                tabSepDocuments.add(sourceDocument);
-            }
-        }
-        sourceDocuments.removeAll(tabSepDocuments);
-        return sourceDocuments;
-    }
-
-    @Override
-    @Transactional(noRollbackFor = NoResultException.class)
-    public List<SourceDocument> listTabSepDocuments(Project aProject)
-    {
-        List<SourceDocument> sourceDocuments = entityManager
-                .createQuery("FROM SourceDocument where project =:project", SourceDocument.class)
-                .setParameter("project", aProject).getResultList();
-        List<SourceDocument> tabSepDocuments = new ArrayList<SourceDocument>();
-        for (SourceDocument sourceDocument : sourceDocuments) {
-            if (sourceDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
-                tabSepDocuments.add(sourceDocument);
-            }
-        }
-        return tabSepDocuments;
     }
 
     @Override
@@ -1137,21 +1083,6 @@ public class RepositoryServiceDbData
     }
 
     @Override
-    public Properties loadHelpContents()
-        throws FileNotFoundException, IOException
-    {
-        if (new File(dir.getAbsolutePath() + HELP_FILE).exists()) {
-            Properties property = new Properties();
-            property.load(new FileInputStream(new File(dir.getAbsolutePath() + HELP_FILE)));
-            return property;
-        }
-        else {
-            return helpProperiesFile;
-        }
-
-    }
-
-    @Override
     @Transactional
     public void removeProject(Project aProject, User aUser)
         throws IOException
@@ -1165,25 +1096,12 @@ public class RepositoryServiceDbData
             removeSourceDocument(document, aUser);
         }
 
-        for (SourceDocument document : listTabSepDocuments(aProject)) {
-            removeSourceDocument(document, aUser);
-        }
-
         for (MiraTemplate template : listMiraTemplates(aProject)) {
             removeMiraTemplate(template);
         }
 
-        for (AnnotationFeature feature : annotationService.listAnnotationFeature(aProject)) {
-            annotationService.removeAnnotationFeature(feature);
-        }
-
-        // remove the layers too
-        for (AnnotationLayer layer : annotationService.listAnnotationLayer(aProject)) {
-            annotationService.removeAnnotationLayer(layer);
-        }
-
-        for (TagSet tagSet : annotationService.listTagSets(aProject)) {
-            annotationService.removeTagSet(tagSet);
+        for (TagSet tagset : annotationService.listTagSets(aProject)) {
+            annotationService.removeTagSet(tagset);
         }
 
         // remove the project directory from the file system
@@ -1242,10 +1160,9 @@ public class RepositoryServiceDbData
     public void removeCurationDocumentContent(SourceDocument aSourceDocument, String aUsername)
         throws IOException
     {
-        if (new File(getAnnotationFolder(aSourceDocument), WebAnnoConst.CURATION_USER + ".ser")
-                .exists()) {
-            FileUtils.forceDelete(new File(getAnnotationFolder(aSourceDocument),
-                    WebAnnoConst.CURATION_USER + ".ser"));
+        if (new File(getAnnotationFolder(aSourceDocument), CURATION_USER + ".ser").exists()) {
+            FileUtils.forceDelete(new File(getAnnotationFolder(aSourceDocument), CURATION_USER
+                    + ".ser"));
 
             createLog(aSourceDocument.getProject(), aUsername).info(
                     " Removed Curated document from  project [" + aSourceDocument.getProject()
@@ -1351,8 +1268,7 @@ public class RepositoryServiceDbData
                 + aUsername;
         // append existing preferences for the other mode
         if (new File(propertiesPath, annotationPreferencePropertiesFileName).exists()) {
-            // aSubject = aSubject.equals(Mode.ANNOTATION) ? Mode.CURATION :
-            // Mode.ANNOTATION;
+            // aSubject = aSubject.equals(Mode.ANNOTATION) ? Mode.CURATION : Mode.ANNOTATION;
             for (Entry<Object, Object> entry : loadUserSettings(aUsername, aProject).entrySet()) {
                 String key = entry.getKey().toString();
                 // Maintain other Modes of annotations confs than this one
@@ -1376,54 +1292,10 @@ public class RepositoryServiceDbData
     }
 
     @Override
-    public <T> void saveHelpContents(T aConfigurationObject)
-        throws IOException
-    {
-        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(aConfigurationObject);
-        Properties property = new Properties();
-        for (PropertyDescriptor value : wrapper.getPropertyDescriptors()) {
-            if (wrapper.getPropertyValue(value.getName()) == null) {
-                continue;
-            }
-            property.setProperty(value.getName(), wrapper.getPropertyValue(value.getName())
-                    .toString());
-        }
-        File helpFile = new File(dir.getAbsolutePath() + HELP_FILE);
-        if (helpFile.exists()) {
-            FileUtils.forceDeleteOnExit(helpFile);
-        }
-        else {
-            helpFile.createNewFile();
-        }
-        property.store(new FileOutputStream(helpFile), null);
-
-    }
-
-    @Override
     @Transactional
     public void uploadSourceDocument(File aFile, SourceDocument aDocument, User aUser)
         throws IOException
     {
-        try {
-            if (aDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
-                if (!isTabSepFileFormatCorrect(aFile)) {
-                    removeSourceDocument(aDocument, aUser);
-                    throw new IOException(
-                            "This TAB-SEP file is not in correct format. It should have two columns separated by TAB!");
-                }
-            }
-            else {
-                getJCasFromFile(aFile, getReadableFormats().get(aDocument.getFormat()), aDocument);
-            }
-        }
-        catch (IOException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            removeSourceDocument(aDocument, aUser);
-            throw new IOException(e.getMessage(), e);
-        }
-
         String path = dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + DOCUMENT
                 + aDocument.getId() + SOURCE;
         FileUtils.forceMkdir(new File(path));
@@ -1480,7 +1352,7 @@ public class RepositoryServiceDbData
     {
         try {
             File targetPath = getAnnotationFolder(aDocument);
-            AnalysisEngine writer = AnalysisEngineFactory.createEngine(
+            AnalysisEngine writer = AnalysisEngineFactory.createPrimitive(
                     SerializedCasWriter.class, SerializedCasWriter.PARAM_TARGET_LOCATION,
                     targetPath, SerializedCasWriter.PARAM_USE_DOCUMENT_ID, true);
             DocumentMetaData md;
@@ -1619,7 +1491,7 @@ public class RepositoryServiceDbData
     public void createCorrectionDocumentContent(JCas aJcas, SourceDocument aDocument, User aUser)
         throws IOException
     {
-        createAnnotationContent(aDocument, aJcas, WebAnnoConst.CORRECTION_USER, aUser);
+        createAnnotationContent(aDocument, aJcas, CORRECTION_USER, aUser);
     }
 
     @Override
@@ -1627,14 +1499,14 @@ public class RepositoryServiceDbData
     public void createCurationDocumentContent(JCas aJcas, SourceDocument aDocument, User aUser)
         throws IOException
     {
-        createAnnotationContent(aDocument, aJcas, WebAnnoConst.CURATION_USER, aUser);
+        createAnnotationContent(aDocument, aJcas, CURATION_USER, aUser);
     }
 
     @Override
     public JCas getCorrectionDocumentContent(SourceDocument aDocument)
         throws UIMAException, IOException, ClassNotFoundException
     {
-        return getAnnotationContent(aDocument, WebAnnoConst.CORRECTION_USER);
+        return getAnnotationContent(aDocument, CORRECTION_USER);
     }
 
     @Override
@@ -1642,7 +1514,7 @@ public class RepositoryServiceDbData
         throws UIMAException, IOException, ClassNotFoundException
     {
 
-        return getAnnotationContent(aDocument, WebAnnoConst.CURATION_USER);
+        return getAnnotationContent(aDocument, CURATION_USER);
     }
 
     /**
@@ -1676,17 +1548,15 @@ public class RepositoryServiceDbData
 
             // Save current version
             try {
-                // Make a backup of the current version of the file before
-                // overwriting
+                // Make a backup of the current version of the file before overwriting
                 if (currentVersion.exists()) {
                     renameFile(currentVersion, oldVersion);
                 }
 
-                // Now write the new version to "<username>.ser" or
-                // CURATION_USER.ser
+                // Now write the new version to "<username>.ser" or CURATION_USER.ser
                 writeContent(aDocument, aJcas, aUserName);
                 createLog(aDocument.getProject(), aUser.getUsername()).info(
-                        "Updated annotation file [" + aDocument.getName() + "] " + "with ID ["
+                        " Updated annotation file [" + aDocument.getName() + "] " + "with ID ["
                                 + aDocument.getId() + "] in project ID ["
                                 + aDocument.getProject().getId() + "]");
                 createLog(aDocument.getProject(), aUser.getUsername()).removeAllAppenders();
@@ -1699,8 +1569,7 @@ public class RepositoryServiceDbData
             catch (IOException e) {
                 // If we could not save the new version, restore the old one.
                 FileUtils.forceDelete(currentVersion);
-                // If this is the first version, there is no old version, so do
-                // not restore anything
+                // If this is the first version, there is no old version, so do not restore anything
                 if (oldVersion.exists()) {
                     renameFile(oldVersion, currentVersion);
                 }
@@ -1710,8 +1579,7 @@ public class RepositoryServiceDbData
 
             // Manage history
             if (backupInterval > 0) {
-                // Determine the reference point in time based on the current
-                // version
+                // Determine the reference point in time based on the current version
                 long now = currentVersion.lastModified();
 
                 // Get all history files for the current user
@@ -1723,8 +1591,7 @@ public class RepositoryServiceDbData
                     @Override
                     public boolean accept(File aFile)
                     {
-                        // Check if the filename matches the pattern given
-                        // above.
+                        // Check if the filename matches the pattern given above.
                         return matcher.reset(aFile.getName()).matches();
                     }
                 });
@@ -1736,15 +1603,13 @@ public class RepositoryServiceDbData
                 boolean historyFileCreated = false;
                 File historyFile = new File(annotationFolder, username + ".ser." + now + ".bak");
                 if (history.length == 0) {
-                    // If there is no history yet but we should keep history,
-                    // then we create a
+                    // If there is no history yet but we should keep history, then we create a
                     // history file in any case.
                     FileUtils.copyFile(currentVersion, historyFile);
                     historyFileCreated = true;
                 }
                 else {
-                    // Check if the newest history file is significantly older
-                    // than the current one
+                    // Check if the newest history file is significantly older than the current one
                     File latestHistory = history[history.length - 1];
                     if (latestHistory.lastModified() + backupInterval < now) {
                         FileUtils.copyFile(currentVersion, historyFile);
@@ -1754,8 +1619,7 @@ public class RepositoryServiceDbData
 
                 // Prune history based on number of backup
                 if (historyFileCreated) {
-                    // The new version is not in the history, so we keep that in
-                    // any case. That
+                    // The new version is not in the history, so we keep that in any case. That
                     // means we need to keep one less.
                     int toKeep = Math.max(backupKeepNumber - 1, 0);
                     if ((backupKeepNumber > 0) && (toKeep < history.length)) {
@@ -1776,7 +1640,7 @@ public class RepositoryServiceDbData
                             FileUtils.forceDelete(file);
                             createLog(aDocument.getProject(), aUser.getUsername()).info(
                                     "Removed surplus history file [" + file.getName() + "] "
-                                            + "for document with ID [" + aDocument.getId()
+                                            + " for document with ID [" + aDocument.getId()
                                             + "] in project ID [" + aDocument.getProject().getId()
                                             + "]");
                             createLog(aDocument.getProject(), aUser.getUsername())
@@ -1823,17 +1687,9 @@ public class RepositoryServiceDbData
             String file = aUsername + ".ser";
 
             try {
-
-                TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                        .createTypeSystemDescription();
-                List<TypeSystemDescription> projectTypes = getProjectTypes(aDocument.getProject());
-                projectTypes.add(builtInTypes);
-                TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
-
-                CAS cas = JCasFactory.createJCas(allTypes).getCas();
-
-                CollectionReader reader = CollectionReaderFactory.createReader(
-                        SerializedCasReader.class, SerializedCasReader.PARAM_SOURCE_LOCATION,
+                CAS cas = JCasFactory.createJCas().getCas();
+                CollectionReader reader = CollectionReaderFactory.createCollectionReader(
+                        SerializedCasReader.class, SerializedCasReader.PARAM_PATH,
                         annotationFolder, SerializedCasReader.PARAM_PATTERNS, new String[] { "[+]"
                                 + file });
                 if (!reader.hasNext()) {
@@ -1872,8 +1728,7 @@ public class RepositoryServiceDbData
                 .setParameter("project", aProject).setParameter("level", PermissionLevel.USER)
                 .getResultList();
 
-        // check if the username is in the Users database (imported projects
-        // might have username
+        // check if the username is in the Users database (imported projects might have username
         // in the ProjectPermission entry while it is not in the Users database
         List<String> notInUsers = new ArrayList<String>();
         for (String user : users) {
@@ -1890,35 +1745,23 @@ public class RepositoryServiceDbData
     public void upgradeCasAndSave(SourceDocument aDocument, Mode aMode, String aUsername)
         throws IOException
     {
-        User user = getUser(aUsername);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = getUser(username);
         if (existsAnnotationDocument(aDocument, user)) {
             AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, user);
             try {
-                if (aMode.equals(Mode.ANNOTATION)) {
+                if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.AUTOMATION)
+                        || aMode.equals(Mode.CORRECTION)) {
                     CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
-                    upgrade(cas, aDocument.getProject());
+                    upgrade(cas);
                     createAnnotationDocumentContent(cas.getJCas(),
                             annotationDocument.getDocument(), user);
-                }
-                else if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
-                    CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
-                    upgrade(cas, aDocument.getProject());
-                    createAnnotationDocumentContent(cas.getJCas(),
-                            annotationDocument.getDocument(), user);
-
-                    CAS corrCas = getCorrectionDocumentContent(aDocument).getCas();
-                    upgrade(corrCas, aDocument.getProject());
-                    createCorrectionDocumentContent(corrCas.getJCas(), aDocument, user);
                 }
                 else {
-                    CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
-                    upgrade(cas, aDocument.getProject());
-                    createAnnotationDocumentContent(cas.getJCas(),
-                            annotationDocument.getDocument(), user);
-
-                    CAS curCas = getCurationDocumentContent(aDocument).getCas();
-                    upgrade(curCas, aDocument.getProject());
-                    createCurationDocumentContent(curCas.getJCas(), aDocument, user);
+                    CAS cas = getCurationDocumentContent(aDocument).getCas();
+                    upgrade(cas);
+                    createCurationDocumentContent(cas.getJCas(), aDocument, user);
                 }
 
             }
@@ -1936,25 +1779,18 @@ public class RepositoryServiceDbData
                 // exists to be upgraded while there are annotation documents
             }
             createLog(aDocument.getProject(), aUsername).info(
-                    "Upgraded an annotation file [" + aDocument.getName() + "] " + "with ID ["
+                    " upgraded an annotation file [" + aDocument.getName() + "] " + "with ID ["
                             + aDocument.getId() + "] in project ID ["
                             + aDocument.getProject().getId() + "]");
             createLog(aDocument.getProject(), aUsername).removeAllAppenders();
         }
     }
 
-    public void upgrade(CAS aCas, Project aProject)
+    public static void upgrade(CAS aCas)
         throws UIMAException, IOException
     {
-
-        TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = getProjectTypes(aProject);
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
-
         // Prepare template for new CAS
-        CAS newCas = JCasFactory.createJCas(allTypes).getCas();
+        CAS newCas = JCasFactory.createJCas().getCas();
         CASCompleteSerializer serializer = Serialization.serializeCASComplete((CASImpl) newCas);
 
         // Save old type system
@@ -2021,22 +1857,22 @@ public class RepositoryServiceDbData
         throws IOException
     {
         JCas jCas;
-        // change the state of the source document to in progress
+        // change the state of the source document to inprogress
         aDocument.setState(SourceDocumentStateTransition
                 .transition(SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS));
 
+        if (!existsAnnotationDocument(aDocument, aUser)) {
+            aAnnotationDocument = new AnnotationDocument();
+            aAnnotationDocument.setDocument(aDocument);
+            aAnnotationDocument.setName(aDocument.getName());
+            aAnnotationDocument.setUser(aUser.getUsername());
+            aAnnotationDocument.setProject(aProject);
+            createAnnotationDocument(aAnnotationDocument);
+        }
+
         try {
             jCas = getJCasFromFile(getSourceDocumentContent(aDocument),
-                    getReadableFormats().get(aDocument.getFormat()), aDocument);
-
-            if (!existsAnnotationDocument(aDocument, aUser)) {
-                aAnnotationDocument = new AnnotationDocument();
-                aAnnotationDocument.setDocument(aDocument);
-                aAnnotationDocument.setName(aDocument.getName());
-                aAnnotationDocument.setUser(aUser.getUsername());
-                aAnnotationDocument.setProject(aProject);
-                createAnnotationDocument(aAnnotationDocument);
-            }
+                    getReadableFormats().get(aDocument.getFormat()));
         }
         catch (UIMAException e) {
             throw new IOException(e);
@@ -2044,38 +1880,22 @@ public class RepositoryServiceDbData
         catch (ClassNotFoundException e) {
             throw new IOException(e);
         }
-        catch (Exception e) {
-            throw new IOException(e.getMessage() != null ? e.getMessage()
-                    : "This is an invalid file. The reader for the document " + aDocument.getName()
-                            + " can't read this " + aDocument.getFormat() + " file type");
-        }
+
         createAnnotationDocumentContent(jCas, aDocument, aUser);
         return jCas;
     }
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public JCas getJCasFromFile(File aFile, Class aReader, SourceDocument aDocument)
+    public JCas getJCasFromFile(File aFile, Class aReader)
         throws UIMAException, IOException
     {
-        TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
-                .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = getProjectTypes(aDocument.getProject());
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
+        CAS cas = JCasFactory.createJCas().getCas();
 
-        CAS cas = JCasFactory.createJCas(allTypes).getCas();
-
-        /*
-         * List<AnnotationLayer> layers =
-         * annotationService.listAnnotationLayer(aDocument.getProject()); List<String> multipleSpans
-         * = new ArrayList<String>(); for(AnnotationLayer layer:layers){
-         * if(layer.isMultipleTokens()) multipleSpans.add(layer.getName()); }
-         */
-        CollectionReader reader = CollectionReaderFactory.createReader(aReader,
-                ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION, aFile.getParentFile()
-                        .getAbsolutePath(), ResourceCollectionReaderBase.PARAM_PATTERNS,
-                new String[] { "[+]" + aFile.getName() }/* , "multipleSpans", multipleSpans */);
+        CollectionReader reader = CollectionReaderFactory.createCollectionReader(aReader,
+                ResourceCollectionReaderBase.PARAM_PATH, aFile.getParentFile().getAbsolutePath(),
+                ResourceCollectionReaderBase.PARAM_PATTERNS,
+                new String[] { "[+]" + aFile.getName() });
         if (!reader.hasNext()) {
             throw new FileNotFoundException("Annotation file [" + aFile.getName()
                     + "] not found in [" + aFile.getPath() + "]");
@@ -2085,7 +1905,7 @@ public class RepositoryServiceDbData
         boolean hasTokens = JCasUtil.exists(jCas, Token.class);
         boolean hasSentences = JCasUtil.exists(jCas, Sentence.class);
         if (!hasTokens || !hasSentences) {
-            AnalysisEngine pipeline = createEngine(createEngineDescription(
+            AnalysisEngine pipeline = createPrimitive(createPrimitiveDescription(
                     BreakIteratorSegmenter.class, BreakIteratorSegmenter.PARAM_CREATE_TOKENS,
                     !hasTokens, BreakIteratorSegmenter.PARAM_CREATE_SENTENCES, !hasSentences));
             pipeline.process(cas.getJCas());
@@ -2136,26 +1956,15 @@ public class RepositoryServiceDbData
     }
 
     @Override
-    public File getMiraModel(AnnotationFeature aFeature, boolean aOtherLayer,
-            SourceDocument aDocument)
+    public File getMiraModel(TagSet aTagset)
     {
-        if (aDocument != null) {
-            return new File(getMiraDir(aFeature), aDocument.getId() + "- "
-                    + aDocument.getProject().getId() + "-model");
-        }
-        else if (aOtherLayer) {
-            return new File(getMiraDir(aFeature), aFeature.getId() + "-model");
-        }
-        else {
-            return new File(getMiraDir(aFeature), aFeature.getLayer().getId() + "-"
-                    + aFeature.getId() + "-model");
-        }
+        return new File(getMiraDir(aTagset), aTagset.getName() + "-model");
     }
 
     @Override
-    public File getMiraDir(AnnotationFeature aFeature)
+    public File getMiraDir(TagSet aTagset)
     {
-        return new File(dir, PROJECT + aFeature.getProject().getId() + MIRA);
+        return new File(dir, PROJECT + aTagset.getProject().getId() + MIRA);
     }
 
     @Override
@@ -2173,22 +1982,21 @@ public class RepositoryServiceDbData
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
-    public MiraTemplate getMiraTemplate(AnnotationFeature aFeature)
+    public MiraTemplate getMiraTemplate(TagSet aTagSet)
     {
 
         return entityManager
-                .createQuery("FROM MiraTemplate WHERE trainFeature =:trainFeature",
-                        MiraTemplate.class).setParameter("trainFeature", aFeature)
-                .getSingleResult();
+                .createQuery("FROM MiraTemplate WHERE trainTagSet =:trainTagSet",
+                        MiraTemplate.class).setParameter("trainTagSet", aTagSet).getSingleResult();
     }
 
     @Override
-    public boolean existsMiraTemplate(AnnotationFeature aFeature)
+    public boolean existsMiraTemplate(TagSet tagSet)
     {
         try {
             entityManager
-                    .createQuery("FROM MiraTemplate WHERE trainFeature =:trainFeature",
-                            MiraTemplate.class).setParameter("trainFeature", aFeature)
+                    .createQuery("FROM MiraTemplate WHERE trainTagSet =:trainTagSet",
+                            MiraTemplate.class).setParameter("trainTagSet", tagSet)
                     .getSingleResult();
             return true;
         }
@@ -2202,11 +2010,10 @@ public class RepositoryServiceDbData
     public List<MiraTemplate> listMiraTemplates(Project aProject)
     {
         List<MiraTemplate> allTenplates = entityManager.createQuery(
-                "FROM MiraTemplate ORDER BY trainFeature ASC ", MiraTemplate.class).getResultList();
+                "FROM MiraTemplate ORDER BY trainTagSet ASC ", MiraTemplate.class).getResultList();
         List<MiraTemplate> templatesInThisProject = new ArrayList<MiraTemplate>();
         for (MiraTemplate miraTemplate : allTenplates) {
-            if (miraTemplate.getTrainFeature() != null
-                    && miraTemplate.getTrainFeature().getProject().getId() == aProject.getId()) {
+            if (miraTemplate.getTrainTagSet().getProject().getId() == aProject.getId()) {
                 templatesInThisProject.add(miraTemplate);
             }
         }
@@ -2217,128 +2024,6 @@ public class RepositoryServiceDbData
     @Transactional
     public void removeMiraTemplate(MiraTemplate aTemplate)
     {
-        try {
-            removeAutomationStatus(getAutomationStatus(aTemplate));
-        }
-        catch (NoResultException e) {
-            // do nothing - automation was not started and no status created for this template
-        }
         entityManager.remove(aTemplate);
-    }
-
-    @Override
-    @Transactional
-    public void removeAutomationStatus(AutomationStatus aStstus)
-    {
-
-        entityManager.remove(aStstus);
-    }
-
-    List<TypeSystemDescription> getProjectTypes(Project aProject)
-    {
-
-        // Create a new type system from scratch
-        List<TypeSystemDescription> types = new ArrayList<TypeSystemDescription>();
-        for (AnnotationLayer type : annotationService.listAnnotationLayer(aProject)) {
-            if (type.getType().equals("span") && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
-                TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-                List<AnnotationFeature> features = annotationService.listAnnotationFeature(type);
-                for (AnnotationFeature feature : features) {
-                    td.addFeature(feature.getName(), "", feature.getType());
-                }
-
-                types.add(tsd);
-            }
-            else if (type.getType().equals(RELATION_TYPE) && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
-                TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-                AnnotationLayer attachType = type.getAttachType();
-
-                td.addFeature("Dependent", "", attachType.getName());
-                td.addFeature("Governor", "", attachType.getName());
-
-                List<AnnotationFeature> features = annotationService.listAnnotationFeature(type);
-                for (AnnotationFeature feature : features) {
-                    td.addFeature(feature.getName(), "", feature.getType());
-                }
-
-                types.add(tsd);
-            }
-            else if (type.getType().equals(CHAIN_TYPE) && !type.isBuiltIn()) {
-                TypeSystemDescription tsdchains = new TypeSystemDescription_impl();
-                TypeDescription tdChains = tsdchains.addType(type.getName() + "Chain", "",
-                        CAS.TYPE_NAME_ANNOTATION);
-                tdChains.addFeature("first", "", type.getName() + "Link");
-                types.add(tsdchains);
-
-                TypeSystemDescription tsdLink = new TypeSystemDescription_impl();
-                TypeDescription tdLink = tsdLink.addType(type.getName() + "Link", "",
-                        CAS.TYPE_NAME_ANNOTATION);
-                tdLink.addFeature("next", "", type.getName() + "Link");
-                tdLink.addFeature("referenceType", "", CAS.TYPE_NAME_STRING);
-                tdLink.addFeature("referenceRelation", "", CAS.TYPE_NAME_STRING);
-                types.add(tsdLink);
-            }
-        }
-
-        return types;
-    }
-
-    @Override
-    @Transactional
-    public void createAutomationStatus(AutomationStatus aStatus)
-    {
-        entityManager.persist(aStatus);
-
-    }
-
-    @Override
-    public boolean existsAutomationStatus(MiraTemplate aTemplate)
-    {
-        try {
-            entityManager
-                    .createQuery("FROM AutomationStatus WHERE template =:template",
-                            AutomationStatus.class).setParameter("template", aTemplate)
-                    .getSingleResult();
-            return true;
-        }
-        catch (NoResultException ex) {
-            return false;
-
-        }
-    }
-
-    @Override
-    public AutomationStatus getAutomationStatus(MiraTemplate aTemplate)
-    {
-        return entityManager
-                .createQuery("FROM AutomationStatus WHERE template =:template",
-                        AutomationStatus.class).setParameter("template", aTemplate)
-                .getSingleResult();
-
-    }
-
-    /**
-     * Check if a TAB-Sep training file is in correct format before importing
-     */
-    private boolean isTabSepFileFormatCorrect(File aFile)
-    {
-        try {
-            LineIterator it = new LineIterator(new FileReader(aFile));
-            while (it.hasNext()) {
-                String line = it.next();
-                if (line.trim().length() == 0) {
-                    continue;
-                }
-                if (line.split("\t").length != 2) {
-                    return false;
-                }
-            }
-        }
-        catch (Exception e) {
-            return false;
-        }
-        return true;
     }
 }

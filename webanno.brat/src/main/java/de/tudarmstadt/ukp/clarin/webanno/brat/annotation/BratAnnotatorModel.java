@@ -18,15 +18,10 @@
 package de.tudarmstadt.ukp.clarin.webanno.brat.annotation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -45,98 +40,84 @@ public class BratAnnotatorModel
 {
     private static final long serialVersionUID = 1078613192789450714L;
 
-	/**
-	 * The Project the annotator working on
-	 */
-	private Project project;
-	
-	/**
-	 * The source document the to be annotated
-	 */
-	private SourceDocument document;
+    /**
+     * The Project the annotator working on
+     */
+    private Project project;
+    /**
+     * The source document the to be annotated
+     */
+    private SourceDocument document;
 
-	/**
-	 * The current user annotating the document
-	 */
-	private User user;
-	
-	/**
-	 * The sentence address where the display window starts with, in its UIMA
-	 * annotation
-	 */
-	private int displayWindowStartSentenceAddress = -1;
-	
-	/**
-	 * The very last sentence address in its UIMA annotation
-	 */
-	private int lastSentenceAddress;
-	
-	/**
-	 * The very first sentence address in its UIMA annotation
-	 */
-	private int firstSentenceAddress;
+    /**
+     * The current user annotating the document
+     */
+    private User user;
+    /**
+     * The sentence address where the display window starts with, in its UIMA annotation
+     */
+    private int displayWindowStartSentenceAddress = -1;
+    /**
+     * The very last sentence address in its UIMA annotation
+     */
+    private int lastSentenceAddress;
+    /**
+     * The very first sentence address in its UIMA annotation
+     */
+    private int firstSentenceAddress;
 
-	/**
-	 * The begin offset of a sentence
-	 */
-	private int sentenceBeginOffset;
-	
-	/**
-	 * The end offset of a sentence
-	 */
-	private int sentenceEndOffset;
-	
-	// Annotation preferences, to be saved in a file system
-	/**
-	 * The annotation layers available in the current project.
-	 */
-	private List<AnnotationLayer> annotationLayers = new ArrayList<AnnotationLayer>();
-	
-	/**
-	 * The number of sentences to be displayed at a time
-	 */
-	private int windowSize = 5;
+    /**
+     * The begin offset of a sentence
+     */
+    private int sentenceBeginOffset;
+    /**
+     * The end offset of a sentence
+     */
+    private int sentenceEndOffset;
+    // Annotation preferences, to be saved in a file system
+    /**
+     * The annotation layers available in the current project.
+     */
+    private HashSet<TagSet> annotationLayers = new HashSet<TagSet>();
+    /**
+     * The number of sentences to be dispalyed at atime
+     */
+    private int windowSize = 10;
 
-	/**
-	 * Used to enable/disable auto-scrolling while annotation
-	 */
-	private boolean scrollPage = true;
-	
-	/**
-	 * If the document is opened through the next/previous buttons on the
-	 * annotation page, not with the open dialog method, used to change
-	 * {@link #document}
-	 */
-	private String documentName;
-	
-	/**
-	 * The Mode of the current operations as either {@link Mode#ANNOTATION} or
-	 * as {@link Mode#CURATION}
-	 */
-	private Mode mode;
+    /**
+     * Used to enable/disable auto-scrolling while annotation
+     */
+    private boolean scrollPage;
+    /**
+     * If the document is opened through the next/previous buttons on the annotation page, not with
+     * the open dialog method, used to change {@link #document}
+     */
+    private String documentName;
+    /**
+     * The Mode of the current operations as either {@link Mode#ANNOTATION} or as
+     * {@link Mode#CURATION}
+     */
+    private Mode mode;
 
-	/**
-	 * The previously selected {@link TagSet} and {@link Tag} for a span/Arc
-	 * annotation so as toz pre-fill the type in the span/arc annotation dialog
-	 * (only for new span/arc annotations)
-	 */
-	private AnnotationLayer rememberedSpanLayer;
-	private AnnotationLayer rememberedArcLayer;
-
-    private Map<AnnotationFeature, String> rememberedSpanFeatures = new HashMap<AnnotationFeature, String>();
-    private Map<AnnotationFeature, String> rememberedArcFeatures = new HashMap<AnnotationFeature, String>();
-
-	/**
-	 * Specific message to be sent from the annotation dialog to the
-	 * {@link BratAnnotator} so that it can be displayed in the
-	 * {@link FeedbackPanel}
-	 */
+    /**
+     * The previously selected {@link TagSet} and {@link Tag} for a span/Arc annotation so as toz
+     * pre-fill the type in the span/arc annotation dialog (only for new span/arc annotations)
+     *
+     * @return
+     */
+    private TagSet rememberedSpanTagSet;
+    private TagSet rememberedArcTagSet;
+    private Tag rememberedSpanTag;
+    private Tag rememberedArcTag;
+    /**
+     * Specific message to be sent from the annotation dialog to the {@link BratAnnotator} so that
+     * it can be displayed in the {@link FeedbackPanel}
+     */
     private String message = "";
 
     private boolean annotationCleared = false;
 
-    // determine if static color for annotations will be used or we shall
-    // dynamically generate one
+    // determine if static color for annotations will be used or we shall dynamically generate one
     private boolean staticColor = true;
 
     // if it is annotation or delete operation
@@ -202,12 +183,12 @@ public class BratAnnotatorModel
         firstSentenceAddress = aFirstSentenceAddress;
     }
 
-    public List<AnnotationLayer> getAnnotationLayers()
+    public HashSet<TagSet> getAnnotationLayers()
     {
         return annotationLayers;
     }
 
-    public void setAnnotationLayers(List<AnnotationLayer> aAnnotationLayers)
+    public void setAnnotationLayers(HashSet<TagSet> aAnnotationLayers)
     {
         annotationLayers = aAnnotationLayers;
     }
@@ -252,44 +233,44 @@ public class BratAnnotatorModel
         this.mode = mode;
     }
 
-    public AnnotationLayer getRememberedSpanLayer()
+    public TagSet getRememberedSpanTagSet()
     {
-        return rememberedSpanLayer;
+        return rememberedSpanTagSet;
     }
 
-    public void setRememberedSpanLayer(AnnotationLayer rememberedSpanLayer)
+    public void setRememberedSpanTagSet(TagSet rememberedTagSet)
     {
-        this.rememberedSpanLayer = rememberedSpanLayer;
+        this.rememberedSpanTagSet = rememberedTagSet;
     }
 
-    public AnnotationLayer getRememberedArcLayer()
+    public Tag getRememberedSpanTag()
     {
-        return rememberedArcLayer;
+        return rememberedSpanTag;
     }
 
-    public void setRememberedArcLayer(AnnotationLayer rememberedArcLayer)
+    public void setRememberedSpanTag(Tag rememberedTag)
     {
-        this.rememberedArcLayer = rememberedArcLayer;
+        this.rememberedSpanTag = rememberedTag;
     }
 
-    public Map<AnnotationFeature, String> getRememberedSpanFeatures()
+    public TagSet getRememberedArcTagSet()
     {
-        return rememberedSpanFeatures;
+        return rememberedArcTagSet;
     }
 
-    public void setRememberedSpanFeatures(Map<AnnotationFeature, String> rememberedSpanFeature)
+    public void setRememberedArcTagSet(TagSet rememberedArcTagSet)
     {
-        this.rememberedSpanFeatures = rememberedSpanFeature;
+        this.rememberedArcTagSet = rememberedArcTagSet;
     }
 
-    public Map<AnnotationFeature, String> getRememberedArcFeatures()
+    public Tag getRememberedArcTag()
     {
-        return rememberedArcFeatures;
+        return rememberedArcTag;
     }
 
-    public void setRememberedArcFeatures(Map<AnnotationFeature, String> rememberedArcFeature)
+    public void setRememberedArcTag(Tag rememberedArcTag)
     {
-        this.rememberedArcFeatures = rememberedArcFeature;
+        this.rememberedArcTag = rememberedArcTag;
     }
 
     public int getSentenceBeginOffset()
@@ -351,4 +332,6 @@ public class BratAnnotatorModel
     {
         this.isAnnotate = isAnnotate;
     }
+
+
 }

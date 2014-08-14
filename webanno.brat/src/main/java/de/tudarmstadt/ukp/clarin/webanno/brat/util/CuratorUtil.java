@@ -18,12 +18,12 @@
 package de.tudarmstadt.ukp.clarin.webanno.brat.util;
 
 import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.selectByAddr;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdapter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.uima.UIMAException;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -45,13 +44,11 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotator;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxConfiguration;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.ColoringStrategy;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.SpanAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationOption;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.CasDiff;
@@ -61,23 +58,24 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.model.CurationB
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.model.CurationContainer;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.model.CurationUserSegmentForAnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.model.CurationViewForSourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetCollectionInformationResponse;
+import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Argument;
+import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Entity;
+import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Relation;
+import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.RelationType;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
  * A utility class for the curation AND Correction modules
  *
  * @author Seid Muhie Yimam
+ *
  */
 public class CuratorUtil
 {
@@ -85,6 +83,10 @@ public class CuratorUtil
 
     /**
      * Get JCAS objects of annotator where {@link CasDiff} will run on it
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws UIMAException
      */
     public static void getCases(Map<String, JCas> aJCases,
             List<AnnotationDocument> aAnnotationDocuments, RepositoryService aRepository,
@@ -108,7 +110,12 @@ public class CuratorUtil
     /**
      * Set different attributes for {@link BratAnnotatorModel} that will be used for the
      * {@link CurationViewForSourceDocument}
+     *
+     * @throws IOException
+     * @throws FileNotFoundException
+     * @throws BeansException
      */
+
     public static BratAnnotatorModel setBratAnnotatorModel(SourceDocument aSourceDocument,
             RepositoryService aRepository, CurationViewForSourceDocument aCurationSegment,
             AnnotationService aAnnotationService)
@@ -167,28 +174,22 @@ public class CuratorUtil
             Map<String, JCas> aJCases,
             List<CurationUserSegmentForAnnotationDocument> aSentences,
             BratAnnotatorModel aBratAnnotatorModel,
-            final List<AnnotationOption> aAnnotationOptions,
+            List<AnnotationOption> aAnnotationOptions,
             Map<String, Map<Integer, AnnotationSelection>> aAnnotationSelectionByUsernameAndAddress,
-            MappingJacksonHttpMessageConverter aJsonConverter,
-            AnnotationService aAnnotationService, CurationContainer aCurationContainer)
+            MappingJacksonHttpMessageConverter aJsonConverter)
         throws IOException
     {
-        List<String> usernamesSorted = new ArrayList<String>(aJCases.keySet());
+        List<String> usernamesSorted = new LinkedList<String>(aJCases.keySet());
         Collections.sort(usernamesSorted);
-        final int numUsers = usernamesSorted.size();
-
-        final Mode mode = aBratAnnotatorModel.getMode();
-        boolean isAutomationMode = mode.equals(Mode.AUTOMATION);
-        boolean isCorrectionMode = mode.equals(Mode.CORRECTION);
-        boolean isCurationMode = mode.equals(Mode.CURATION);
-
+        int numUsers = aJCases.size();
         for (String username : usernamesSorted) {
-            if (
-                    (!username.equals(CURATION_USER) && isCurationMode) ||
-                    (username.equals(CURATION_USER) && (isAutomationMode || isCorrectionMode))
-            ) {
-                // WTF?
-                final Map<Integer, AnnotationSelection> annotationSelectionByAddress = new HashMap<Integer, AnnotationSelection>();
+            if ((!username.equals(CURATION_USER) && aBratAnnotatorModel.getMode().equals(
+                    Mode.CURATION))
+                    || (username.equals(CURATION_USER) && (aBratAnnotatorModel.getMode().equals(
+                            Mode.AUTOMATION) || aBratAnnotatorModel.getMode().equals(
+                            Mode.CORRECTION)))) {
+                Map<Integer, AnnotationSelection> annotationSelectionByAddress = new HashMap<Integer, AnnotationSelection>();
+
                 for (AnnotationOption annotationOption : aAnnotationOptions) {
                     for (AnnotationSelection annotationSelection : annotationOption
                             .getAnnotationSelections()) {
@@ -203,58 +204,45 @@ public class CuratorUtil
                 JCas jCas = aJCases.get(username);
 
                 JCas userJCas = null;
-                if (isAutomationMode || isCorrectionMode) {
-                    userJCas = aJCases.get(SecurityContextHolder.getContext().getAuthentication()
-                            .getName());
-                }
-                else if (isCurationMode) {
-                    userJCas = aJCases.get(CURATION_USER);
-                }
-
-                // Save window location (WTF?!)
+                String logedUsername = SecurityContextHolder.getContext().getAuthentication()
+                        .getName();
                 int sentenceAddress = aBratAnnotatorModel.getSentenceAddress();
                 int lastSentenceAddress = aBratAnnotatorModel.getLastSentenceAddress();
+                if (aBratAnnotatorModel.getMode().equals(Mode.AUTOMATION)
+                        || aBratAnnotatorModel.getMode().equals(Mode.CORRECTION)) {
+                    userJCas = aJCases.get(logedUsername);
 
-                // Override window location
-                aBratAnnotatorModel.setSentenceAddress(getSentenceAddress(aBratAnnotatorModel,
-                        jCas, userJCas));
-                aBratAnnotatorModel.setLastSentenceAddress(getLastSentenceAddress(
-                        aBratAnnotatorModel, jCas, userJCas));
+                    aBratAnnotatorModel.setSentenceAddress(getSentenceAddress(aBratAnnotatorModel,
+                            jCas, userJCas));
+                    aBratAnnotatorModel.setLastSentenceAddress(getLastSentenceAddress(
+                            aBratAnnotatorModel, jCas, userJCas));
+                }
+                else if (aBratAnnotatorModel.getMode().equals(Mode.CURATION)) {
+                    userJCas = aJCases.get(CURATION_USER);
 
-                // Set up coloring strategy
-                ColoringStrategy curationColoringStrategy = new ColoringStrategy()
-                {
-                    @Override
-                    public String getColor(FeatureStructure aFS, String aLabel)
-                    {
-                          int address = BratAjaxCasUtil.getAddr(aFS);
-                          AnnotationSelection annotationSelection = annotationSelectionByAddress.get(address);
-                          AnnotationState newState = null;
-                          if (mode.equals(Mode.AUTOMATION) || mode.equals(Mode.CORRECTION)) {
-                              newState = getCorrectionState(annotationSelection, aAnnotationOptions, numUsers,
-                                      address);
-                          }
-                          else {
-                              newState = getCurationState(numUsers, annotationSelection);
-                          }
+                    aBratAnnotatorModel.setSentenceAddress(getSentenceAddress(aBratAnnotatorModel,
+                            jCas, userJCas));
+                    aBratAnnotatorModel.setLastSentenceAddress(getLastSentenceAddress(
+                            aBratAnnotatorModel, jCas, userJCas));
+                }
 
-                        return newState.getColorCode();
-                    }
-                };
+                GetDocumentResponse response = new GetDocumentResponse();
 
-                // Create curation view for the current user
+                BratAjaxCasController
+                        .addBratResponses(response, aBratAnnotatorModel, 0, jCas, true);
+
                 CurationUserSegmentForAnnotationDocument curationUserSegment2 = new CurationUserSegmentForAnnotationDocument();
-                curationUserSegment2.setCollectionData(getCollectionInformation(aJsonConverter,
-                        aAnnotationService, aCurationContainer));
-                curationUserSegment2.setDocumentResponse(render(jCas, aAnnotationService,
-                        aBratAnnotatorModel, aJsonConverter, curationColoringStrategy));
+                curationUserSegment2.setCollectionData(getStringCollectionData(response, jCas,
+                        annotationSelectionByAddress, username, numUsers, aJsonConverter,
+                        aBratAnnotatorModel, aAnnotationOptions));
+                curationUserSegment2.setDocumentResponse(getStringDocumentResponse(response,
+                        aJsonConverter));
                 curationUserSegment2.setUsername(username);
                 curationUserSegment2.setBratAnnotatorModel(aBratAnnotatorModel);
                 curationUserSegment2
                         .setAnnotationSelectionByUsernameAndAddress(aAnnotationSelectionByUsernameAndAddress);
-                aSentences.add(curationUserSegment2);
 
-                // Restore window location
+                aSentences.add(curationUserSegment2);
                 aBratAnnotatorModel.setSentenceAddress(sentenceAddress);
                 aBratAnnotatorModel.setLastSentenceAddress(lastSentenceAddress);
             }
@@ -263,6 +251,11 @@ public class CuratorUtil
 
     /**
      * Get the sentence address for jCas from userJCas.
+     *
+     * @param aBratAnnotatorModel
+     * @param jCas
+     * @param userJCas
+     * @return
      */
     private static int getSentenceAddress(BratAnnotatorModel aBratAnnotatorModel, JCas jCas,
             JCas userJCas)
@@ -279,69 +272,125 @@ public class CuratorUtil
     private static int getLastSentenceAddress(BratAnnotatorModel aBratAnnotatorModel, JCas jCas,
             JCas userJCas)
     {
-        Sentence sentence = selectByAddr(userJCas, Sentence.class,
+        Sentence sentence = (Sentence) userJCas.getLowLevelCas().ll_getFSForRef(
                 aBratAnnotatorModel.getLastSentenceAddress());
         List<Sentence> sentences = JCasUtil.selectCovered(jCas, Sentence.class,
                 sentence.getBegin(), sentence.getEnd());
         return sentences.get(0).getAddress();
     }
 
-    private static String render(JCas aJcas,
-            AnnotationService aAnnotationService,
-            BratAnnotatorModel aBratAnnotatorModel,
-            MappingJacksonHttpMessageConverter aJsonConverter,
-            ColoringStrategy aCurationColoringStrategy)
+    private static String getStringDocumentResponse(GetDocumentResponse aResponse,
+            MappingJacksonHttpMessageConverter aJsonConverter)
         throws IOException
     {
-        GetDocumentResponse response = new GetDocumentResponse();
-
-        // Render invisible baseline annotations (sentence, tokens)
-        SpanAdapter.renderTokenAndSentence(aJcas, response, aBratAnnotatorModel);
-
-        // Render visible (custom) layers
-        for (AnnotationLayer layer : aBratAnnotatorModel.getAnnotationLayers()) {
-            if (
-                    layer.getName().equals(Token.class.getName()) ||
-                    layer.getName().equals(Sentence.class.getName()) ||
-                    WebAnnoConst.CHAIN_TYPE.equals(layer.getType())
-            ) {
-                continue;
-            }
-
-            List<AnnotationFeature> features = aAnnotationService.listAnnotationFeature(layer);
-            List<AnnotationFeature> invisibleFeatures = new ArrayList<AnnotationFeature>();
-            for(AnnotationFeature feature:features){
-                if(!feature.isVisible()){
-                    invisibleFeatures.add(feature);
-                }
-            }
-            features.removeAll(invisibleFeatures);
-            TypeAdapter adapter = getAdapter(layer);
-            adapter.render(aJcas, features, response, aBratAnnotatorModel,
-                    aCurationColoringStrategy);
-        }
-
+        String docData = "{}";
+        // Serialize BRAT object model to JSON
         StringWriter out = new StringWriter();
         JsonGenerator jsonGenerator = aJsonConverter.getObjectMapper().getJsonFactory()
                 .createJsonGenerator(out);
-        jsonGenerator.writeObject(response);
-        return out.toString();
+        jsonGenerator.writeObject(aResponse);
+        docData = out.toString();
+        return docData;
     }
 
-    private static String getCollectionInformation(
-            MappingJacksonHttpMessageConverter aJsonConverter,
-            AnnotationService aAnnotationService, CurationContainer aCurationContainer)
+    private static String getStringCollectionData(GetDocumentResponse response, JCas jCas,
+            Map<Integer, AnnotationSelection> annotationSelectionByAddress, String username,
+            int numUsers, MappingJacksonHttpMessageConverter aJsonConverter,
+            BratAnnotatorModel aBratAnnotatorModel, List<AnnotationOption> aAnnotationOptions)
         throws IOException
     {
-        GetCollectionInformationResponse info = new GetCollectionInformationResponse();
-        info.setEntityTypes(BratAjaxConfiguration.buildEntityTypes(aCurationContainer
-                .getBratAnnotatorModel().getAnnotationLayers(), aAnnotationService));
+        Map<String, Map<String, Object>> entityTypes = new HashMap<String, Map<String, Object>>();
 
+        getEntityTypes(response, annotationSelectionByAddress, numUsers, entityTypes,
+                aAnnotationOptions, aBratAnnotatorModel.getMode());
+
+        Map<Object, Object> collection = new HashMap<Object, Object>();
+        collection.put("entity_types", entityTypes.values());
+
+        String collData = "{}";
         StringWriter out = new StringWriter();
         JsonGenerator jsonGenerator = aJsonConverter.getObjectMapper().getJsonFactory()
                 .createJsonGenerator(out);
-        jsonGenerator.writeObject(info);
-        return out.toString();
+        jsonGenerator.writeObject(collection);
+        collData = out.toString();
+        return collData;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void getEntityTypes(GetDocumentResponse response,
+            Map<Integer, AnnotationSelection> annotationSelectionByAddress, int numUsers,
+            Map<String, Map<String, Object>> entityTypes,
+            List<AnnotationOption> aAnnotationOptions, Mode aMode)
+    {
+        Map<Integer, String> targetAnnotations = new HashMap<Integer, String>();
+        for (Entity entity : response.getEntities()) {
+            int address = entity.getId();
+            AnnotationSelection annotationSelection = annotationSelectionByAddress.get(address);
+            AnnotationState newState = null;
+            if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
+                newState = getCorrectionState(annotationSelection, aAnnotationOptions, numUsers,
+                        address);
+            }
+            else {
+                newState = getCurationState(numUsers, annotationSelection);
+            }
+            targetAnnotations.put(entity.getId(), entity.getType() + "_(" + newState.name() + ")");
+        }
+        for (Entity entity : response.getEntities()) {
+            // check if either address of entity has no changes ...
+            // ... or if entity has already been clicked on
+            int address = entity.getId();
+            AnnotationSelection annotationSelection = annotationSelectionByAddress.get(address);
+            AnnotationState newState = null;
+            if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
+                newState = getCorrectionState(annotationSelection, aAnnotationOptions, numUsers,
+                        address);
+            }
+            else {
+                newState = getCurationState(numUsers, annotationSelection);
+            }
+            if (newState != null) {
+                String type = entity.getType() + "_(" + newState.name() + ")";
+                String label = TypeUtil.getLabel(entity.getType());
+
+                entity.setType(type);
+                boolean hasArc = false;
+                for (Relation relation : response.getRelations()) {
+                    Argument argument = relation.getArguments().get(0);
+                    if (argument.getToken() == entity.getId()) {// has outgoing
+                                                                // arc
+                        hasArc = true;
+                        List<RelationType> relations = getRelationTypes(response,
+                                annotationSelectionByAddress, numUsers, relation,
+                                targetAnnotations.get(relation.getArguments().get(1).getToken()),
+                                aAnnotationOptions, aMode, entity);
+                        Map<String, Object> enityTypeWithArcs = CuratorUtil.getEntity(type,
+                                label, newState);
+                        if (entityTypes.get(type) == null
+                                || (entityTypes.get(type) != null && entityTypes.get(type).get(
+                                        "arcs") == null)) {
+                            enityTypeWithArcs.put("arcs", relations);
+                            entityTypes.put(type, enityTypeWithArcs);
+                        }
+                        else {
+                            List<RelationType> enityTypeWithArcsOld = (List<RelationType>) entityTypes
+                                    .get(type).get("arcs");
+                            enityTypeWithArcsOld.addAll(relations);
+                            enityTypeWithArcs.put("arcs", enityTypeWithArcsOld);
+                            entityTypes.put(type, enityTypeWithArcs);
+                        }
+
+                    }
+                }
+                if (!hasArc) {
+                    if (entityTypes.get(type) == null
+                            || (entityTypes.get(type) != null && entityTypes.get(type).get("arcs") == null)) {
+                        entityTypes.put(type, CuratorUtil.getEntity(type, label, newState));
+                    }
+                }
+            }
+
+        }
     }
 
     private static AnnotationState getCurationState(int numUsers,
@@ -380,6 +429,57 @@ public class CuratorUtil
         return newState;
     }
 
+    private static List<RelationType> getRelationTypes(GetDocumentResponse response,
+            Map<Integer, AnnotationSelection> annotationSelectionByAddress, int numUsers,
+            Relation relation, String arcTarget, List<AnnotationOption> aAnnotationOptions,
+            Mode aMode, Entity aEntity)
+    {
+        int address = relation.getId();
+        AnnotationSelection annotationSelection = annotationSelectionByAddress.get(address);
+        AnnotationState newState = null;
+        if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
+            newState = getCorrectionState(annotationSelection, aAnnotationOptions, numUsers,
+                    address);
+        }
+        else {
+            newState = getCurationState(numUsers, annotationSelection);
+        }
+        if (newState != null) {
+            String type = relation.getType() + "_(" + newState.name() + ")";
+            String label = relation.getType().replace(AnnotationTypeConstant.DEP_PREFIX, "")
+                    .replace(AnnotationTypeConstant.COREFERENCE_PREFIX, "");
+            relation.setType(type);
+            return getRelation(type, label, newState, Arrays.asList(new String[] { arcTarget }));
+        }
+        return new ArrayList<RelationType>();
+    }
+
+    public static Map<String, Object> getEntity(String type, String label,
+            AnnotationState annotationState)
+    {
+        Map<String, Object> entityType = new HashMap<String, Object>();
+        entityType.put("type", type);
+        entityType.put("labels", new String[] { label });
+        String color = annotationState.getColorCode();
+        entityType.put("bgColor", color);
+        entityType.put("borderColor", "darken");
+        return entityType;
+    }
+
+    public static List<RelationType> getRelation(String type, String label,
+            AnnotationState annotationState, List<String> arcTargets)
+    {
+        List<RelationType> arcs = new ArrayList<RelationType>();
+        // if in AGREEMENT, make the arc color black in stead of light black
+        if (annotationState.equals(AnnotationState.AGREE)) {
+            annotationState = AnnotationState.AGREE_ARC;
+        }
+        RelationType arc = new RelationType(annotationState.getColorCode(), "triangle,5",
+                Arrays.asList(label), type, arcTargets, "");
+        arcs.add(arc);
+        return arcs;
+    }
+
     private static AnnotationState getCorrectionState(AnnotationSelection annotationSelection,
             List<AnnotationOption> aAnnotationOptions, int numUsers, int address)
     {
@@ -389,7 +489,7 @@ public class CuratorUtil
             for (AnnotationSelection annotationSelection2 : annotationOption2
                     .getAnnotationSelections()) {
                 if (annotationSelection2.getAddressByUsername().containsKey(CURATION_USER)
-                        && annotationSelection2.getAddressByUsername().get(CURATION_USER).equals(address)) {
+                        && annotationSelection2.getAddressByUsername().get(CURATION_USER) == address) {
                     annotationOption = annotationOption2;
                     break;
                 }
@@ -485,7 +585,7 @@ public class CuratorUtil
         }
 
         CuratorUtil.populateCurationSentences(jCases, sentences, bratAnnotatorModel,
-                annotationOptions, aAnnotationSelectionByUsernameAndAddress, aJsonConverter, aAnnotationService, aCurationContainer);
+                annotationOptions, aAnnotationSelectionByUsernameAndAddress, aJsonConverter);
         // update sentence list on the right side
         aParent.setModelObject(sentences);
         if (aCurationContainer.getBratAnnotatorModel().getMode().equals(Mode.CURATION)) {

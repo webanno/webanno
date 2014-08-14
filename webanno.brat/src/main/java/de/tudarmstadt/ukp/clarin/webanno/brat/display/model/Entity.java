@@ -17,8 +17,6 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.display.model;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,37 +31,27 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.message.BeanAsArraySerializer;
  * = 1128
  *
  * @author Seid Muhie Yimam
+ *
  */
 @JsonSerialize(using = BeanAsArraySerializer.class)
-@JsonPropertyOrder(value = { "id", "type", "offsets", "labelText", "color" })
+@JsonPropertyOrder(value = { "id", "type", "offsets" })
 public class Entity
 {
     private int id;
     private String type;
-    private List<Offsets> offsets = new ArrayList<Offsets>();
-    // WEBANNO EXTENSION BEGIN
-    private String labelText;
-    private String color;
-    // WEBANNO EXTENSION END
+    List<Offsets> offsets = new ArrayList<Offsets>();
 
     public Entity()
     {
         // Nothing to do
     }
 
-    public Entity(int aId, String aType, Offsets aOffsets, String aLabelText, String aColor)
-    {
-        this(aId, aType, asList(aOffsets), aLabelText, aColor);
-    }
-
-    public Entity(int aId, String aType, List<Offsets> aOffsets, String aLabelText, String aColor)
+    public Entity(int aId, String aType, List<Offsets> aOffsets)
     {
         super();
         id = aId;
         type = aType;
         offsets = aOffsets;
-        labelText = aLabelText;
-        color = aColor;
     }
 
     public int getId()
@@ -96,23 +84,4 @@ public class Entity
         offsets = aOffsets;
     }
 
-    public void setLabelText(String aLabelText)
-    {
-        labelText = aLabelText;
-    }
-    
-    public String getLabelText()
-    {
-        return labelText;
-    }
-
-    public String getColor()
-    {
-        return color;
-    }
-
-    public void setColor(String aColor)
-    {
-        color = aColor;
-    }
 }

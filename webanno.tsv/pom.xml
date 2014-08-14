@@ -20,25 +20,13 @@
 	<parent>
 		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 		<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
-		<version>2.1.0-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno.tsv</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimafit-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
@@ -61,12 +49,8 @@
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.io-asl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.coref-asl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.metadata-asl</artifactId>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

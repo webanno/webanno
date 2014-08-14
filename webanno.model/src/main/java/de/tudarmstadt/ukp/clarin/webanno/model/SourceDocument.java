@@ -31,7 +31,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -74,8 +73,7 @@ public class SourceDocument
     private boolean trainingDocument = false;
     private boolean processed = false;
     @ManyToOne
-    @ForeignKey(name = "none")
-    AnnotationFeature feature; // if it is a training document, for which Template (layer)
+    MiraTemplate template; // if it is a training document, for which Template (layer)
 
     public long getId()
     {
@@ -203,13 +201,14 @@ public class SourceDocument
         this.processed = processed;
     }
 
-	public AnnotationFeature getFeature() {
-		return feature;
-	}
+    public MiraTemplate getTemplate()
+    {
+        return template;
+    }
 
-	public void setFeature(AnnotationFeature feature) {
-		this.feature = feature;
-	}
-
+    public void setTemplate(MiraTemplate template)
+    {
+        this.template = template;
+    }
 
 }

@@ -64,15 +64,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.CurationPanel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
+import de.tudarmstadt.ukp.clarin.webanno.brat.statistics.TwoPairedKappa;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
 import de.tudarmstadt.ukp.clarin.webanno.model.MiraTemplate;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -80,14 +80,13 @@ import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.ChartImageResource;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.DynamicColumnMetaData;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.TableDataProvider;
-import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.TwoPairedKappa;
 import de.tudarmstadt.ukp.clarin.webanno.project.page.SettingsPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.support.EntityModel;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.statistics.agreement.TwoRaterKappaAgreement;
 
 /**
@@ -129,7 +128,7 @@ public class MonitoringPage
     private final Image annotatorsProgressImage;
     private final Image annotatorsProgressPercentageImage;
     private final Image overallProjectProgressImage;
-    private  TrainingResultForm trainingResultForm;
+    private final TrainingResultForm trainingResultForm;
 
     private Label overview;
     private DefaultDataTable<?> annotationDocumentStatusTable;
@@ -137,7 +136,7 @@ public class MonitoringPage
     private final Label projectName;
     private AgreementForm agreementForm;
     private final AnnotationTypeSelectionForm annotationTypeSelectionForm;
-    private ListChoice<AnnotationFeature> features;
+    private ListChoice<TagSet> tagSets;
     private transient Map<SourceDocument, Map<User, JCas>> documentJCases;
 
     private String result;
@@ -150,7 +149,7 @@ public class MonitoringPage
 
         monitoringDetailForm = new MonitoringDetailForm("monitoringDetailForm");
 
-        agreementForm = new AgreementForm("agreementForm", new Model<AnnotationLayer>(),
+        agreementForm = new AgreementForm("agreementForm", new Model<AnnotationType>(),
                 new Model<Project>());
         agreementForm.setVisible(false);
         add(agreementForm);
@@ -187,13 +186,6 @@ public class MonitoringPage
 
         List<List<String>> userAnnotationDocumentLists = new ArrayList<List<String>>();
         List<SourceDocument> dc = repository.listSourceDocuments(project);
-        List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-        for (SourceDocument sdc : dc) {
-            if (sdc.isTrainingDocument()) {
-                trainingDoc.add(sdc);
-            }
-        }
-        dc.removeAll(trainingDoc);
         for (int j = 0; j < repository.listProjectUsersWithPermissions(project).size(); j++) {
             List<String> userAnnotationDocument = new ArrayList<String>();
             userAnnotationDocument.add("");
@@ -221,7 +213,6 @@ public class MonitoringPage
                 .add(annotatorsProgressPercentageImage).add(projectName)
                 .add(annotationDocumentStatusTable));
         annotationDocumentStatusTable.setVisible(false);
-
     }
 
     private class ProjectSelectionForm
@@ -283,15 +274,6 @@ public class MonitoringPage
                             PermissionLevel.USER);
                     List<SourceDocument> sourceDocuments = repository
                             .listSourceDocuments(aNewSelection);
-
-                    List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-                    for (SourceDocument sdc : sourceDocuments) {
-                        if (sdc.isTrainingDocument()) {
-                            trainingDoc.add(sdc);
-                        }
-                    }
-                    sourceDocuments.removeAll(trainingDoc);
-
                     documentJCases = getJCases(users, sourceDocuments);
 
                     if (aNewSelection == null) {
@@ -303,7 +285,12 @@ public class MonitoringPage
                     annotationTypeSelectionForm.setVisible(true);
                     monitoringDetailForm.setVisible(true);
 
-                    updateTrainingResultForm(aNewSelection);
+                    if (aNewSelection.getMode().equals(Mode.AUTOMATION)) {
+                        trainingResultForm.setVisible(true);
+                    }
+                    else {
+                        trainingResultForm.setVisible(false);
+                    }
                     result = "";
 
                     annotationTypeSelectionForm.setModelObject(new SelectionModel());
@@ -314,8 +301,9 @@ public class MonitoringPage
                     final Map<String, Integer> annotatorsProgress = new TreeMap<String, Integer>();
                     final Map<String, Integer> annotatorsProgressInPercent = new TreeMap<String, Integer>();
                     final Project project = aNewSelection;
+                    List<SourceDocument> documents = repository.listSourceDocuments(project);
 
-                    final int totalDocuments = sourceDocuments.size();
+                    final int totalDocuments = documents.size();
 
                     // Annotator's Progress
                     if (project != null) {
@@ -354,8 +342,7 @@ public class MonitoringPage
 
                     // Add a timestamp row for every user.
                     List<String> projectTimeStamp = new ArrayList<String>();
-                    projectTimeStamp.add(LAST_ACCESS + LAST_ACCESS_ROW); // first
-                                                                         // column
+                    projectTimeStamp.add(LAST_ACCESS + LAST_ACCESS_ROW); // first column
                     if (repository.existsProjectTimeStamp(aNewSelection)) {
                         projectTimeStamp.add(LAST_ACCESS
                                 + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(repository
@@ -378,7 +365,7 @@ public class MonitoringPage
 
                     userAnnotationDocumentStatusList.add(projectTimeStamp);
 
-                    for (SourceDocument document : sourceDocuments) {
+                    for (SourceDocument document : documents) {
                         List<String> userAnnotationDocuments = new ArrayList<String>();
                         userAnnotationDocuments.add(DOCUMENT + document.getName());
 
@@ -459,42 +446,23 @@ public class MonitoringPage
         public AnnotationTypeSelectionForm(String id)
         {
             super(id, new CompoundPropertyModel<SelectionModel>(new SelectionModel()));
-            add(features = new ListChoice<AnnotationFeature>("features")
+            add(tagSets = new ListChoice<TagSet>("tagSets")
             {
                 private static final long serialVersionUID = 1L;
 
                 {
-                    setChoices(new LoadableDetachableModel<List<AnnotationFeature>>()
+                    setChoices(new LoadableDetachableModel<List<TagSet>>()
                     {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected List<AnnotationFeature> load()
+                        protected List<TagSet> load()
                         {
-                            List<AnnotationFeature> features = annotationService
-                                    .listAnnotationFeature((projectSelectionForm.getModelObject().project));
-                            List<AnnotationFeature> unusedFeatures = new ArrayList<AnnotationFeature>();
-                            for (AnnotationFeature feature : features) {
-                                if (feature.getLayer().getName().equals(Token.class.getName())
-                                        || feature.getLayer().getName()
-                                                .equals(WebAnnoConst.COREFERENCE_LAYER)) {
-                                    unusedFeatures.add(feature);
-                                }
-                            }
-                            features.removeAll(unusedFeatures);
-                            return features;
+                            return annotationService.listTagSets(projectSelectionForm
+                                    .getModelObject().project);
                         }
                     });
-                    setChoiceRenderer(new ChoiceRenderer<AnnotationFeature>()
-                    {
-                        private static final long serialVersionUID = -3370671999669664776L;
-
-                        @Override
-                        public Object getDisplayValue(AnnotationFeature aObject)
-                        {
-                            return aObject.getLayer().getUiName()+" : " + aObject.getUiName();
-                        }
-                    });
+                    setChoiceRenderer(new ChoiceRenderer<TagSet>("name", "id"));
                     setNullValid(false);
 
                 }
@@ -505,7 +473,7 @@ public class MonitoringPage
                     return "";
                 }
             });
-            features.add(new OnChangeAjaxBehavior()
+            tagSets.add(new OnChangeAjaxBehavior()
             {
                 private static final long serialVersionUID = 7492425689121761943L;
 
@@ -561,15 +529,7 @@ public class MonitoringPage
                 int finished = 0;
                 int ignored = 0;
                 int totalDocs = 0;
-                List<SourceDocument> documents = repository.listSourceDocuments(aProject);
-                List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-                for (SourceDocument sdc : documents) {
-                    if (sdc.isTrainingDocument()) {
-                        trainingDoc.add(sdc);
-                    }
-                }
-                documents.removeAll(trainingDoc);
-                for (SourceDocument document : documents) {
+                for (SourceDocument document : repository.listSourceDocuments(aProject)) {
                     totalDocs++;
                     if (repository.isAnnotationFinished(document, user)) {
                         finished++;
@@ -612,7 +572,7 @@ public class MonitoringPage
         private static final long serialVersionUID = -1L;
 
         public Project project;
-        public AnnotationFeature features;
+        public TagSet tagSets;
     }
 
     private class MonitoringDetailForm
@@ -634,7 +594,7 @@ public class MonitoringPage
         private static final long serialVersionUID = 344165080600348157L;
 
         @SuppressWarnings({ "unchecked" })
-        public AgreementForm(String id, Model<AnnotationLayer> aType, Model<Project> aProject)
+        public AgreementForm(String id, Model<AnnotationType> aType, Model<Project> aProject)
 
         {
             super(id);
@@ -660,19 +620,10 @@ public class MonitoringPage
     private void updateAgreementForm()
     {
         agreementForm.remove();
-        agreementForm = new AgreementForm("agreementForm", new Model<AnnotationLayer>(),
+        agreementForm = new AgreementForm("agreementForm", new Model<AnnotationType>(),
                 new Model<Project>());
         add(agreementForm);
         agreementForm.setVisible(true);
-    }
-    
-    private void updateTrainingResultForm(Project aProject)
-    {
-    	trainingResultForm.remove();
-    	 trainingResultForm = new TrainingResultForm("trainingResultForm");
-    	 add(trainingResultForm);
-         trainingResultForm.setVisible(aProject.getMode().equals(Mode.AUTOMATION));
-         
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -683,9 +634,11 @@ public class MonitoringPage
         List<User> users = repository
                 .listProjectUsersWithPermissions(project, PermissionLevel.USER);
         double[][] results = new double[users.size()][users.size()];
-        if (features.getModelObject() != null) {
+        if (tagSets.getModelObject() != null
+                && !tagSets.getModelObject().getType().getName()
+                        .equals(AnnotationTypeConstant.COREFERENCE)) {
 
-            TypeAdapter adapter = TypeUtil.getAdapter(features.getModelObject().getLayer());
+            TypeAdapter adapter = TypeUtil.getAdapter(tagSets.getModelObject().getType());
 
             // assume all users finished only one document
             double[][] multipleDocumentsFinished = new double[users.size()][users.size()];
@@ -696,20 +649,11 @@ public class MonitoringPage
             }
 
             List<SourceDocument> sourceDocuments = repository.listSourceDocuments(project);
-            List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-            for (SourceDocument sdc : sourceDocuments) {
-                if (sdc.isTrainingDocument()) {
-                    trainingDoc.add(sdc);
-                }
-            }
-            sourceDocuments.removeAll(trainingDoc);
 
-            // a map that contains list of finished annotation documents for a
-            // given user
+            // a map that contains list of finished annotation documents for a given user
             Map<User, List<SourceDocument>> finishedDocumentLists = new HashMap<User, List<SourceDocument>>();
             for (User user : users) {
                 List<SourceDocument> finishedDocuments = new ArrayList<SourceDocument>();
-
                 for (SourceDocument document : sourceDocuments) {
                     AnnotationDocument annotationDocument = repository.getAnnotationDocument(
                             document, user);
@@ -720,8 +664,7 @@ public class MonitoringPage
                 finishedDocumentLists.put(user, finishedDocuments);
             }
 
-            results = computeKappa(users, adapter, features.getModelObject().getName(),
-                    finishedDocumentLists, documentJCases);
+            results = computeKappa(users, adapter, finishedDocumentLists, documentJCases);
 
             // Users with some annotations of this type
 
@@ -769,136 +712,27 @@ public class MonitoringPage
     {
         private static final long serialVersionUID = 1037668483966897381L;
 
-        ListChoice<MiraTemplate> selectedTemplate;
+        ListChoice<MiraTemplate> resultChoice;
+        Label resultLabel;
 
         public TrainingResultForm(String id)
         {
             super(id, new CompoundPropertyModel<ResultMOdel>(new ResultMOdel()));
 
-            add(new Label("resultLabel", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
+            add(resultLabel = (Label) new Label("resultLabel",
+                    new LoadableDetachableModel<String>()
+                    {
+                        private static final long serialVersionUID = 891566759811286173L;
 
-                @Override
-                protected String load()
-                {
-                    return result;
+                        @Override
+                        protected String load()
+                        {
+                            return result;
 
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("annoDocs", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        return repository.getAutomationStatus(template).getAnnoDocs() + "";
-                    }
-                    else {
-                        return "";
-                    }
-
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("trainDocs", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        return repository.getAutomationStatus(template).getTrainDocs() + "";
-                    }
-                    else {
-                        return "";
-                    }
-
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("totalDocs", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        return repository.getAutomationStatus(template).getTotalDocs() + "";
-                    }
-                    else {
-                        return "";
-                    }
-
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("startTime", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        return repository.getAutomationStatus(template).getStartime().toString();
-                    }
-                    else {
-                        return "";
-                    }
-
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("endTime", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        if (repository.getAutomationStatus(template).getEndTime()
-                                .equals(repository.getAutomationStatus(template).getStartime())) {
-                            return "---";
                         }
-                        return repository.getAutomationStatus(template).getEndTime().toString();
-                    }
-                    else {
-                        return "";
-                    }
+                    }).setOutputMarkupId(true));
 
-                }
-            }).setOutputMarkupId(true));
-
-            add(new Label("status", new LoadableDetachableModel<String>()
-            {
-                private static final long serialVersionUID = 891566759811286173L;
-
-                @Override
-                protected String load()
-                {
-                    MiraTemplate template = selectedTemplate.getModelObject();
-                    if (template != null && repository.existsAutomationStatus(template)) {
-                        return repository.getAutomationStatus(template).getStatus().getName();
-                    }
-                    else {
-                        return "";
-                    }
-
-                }
-            }).setOutputMarkupId(true));
-            add(selectedTemplate = new ListChoice<MiraTemplate>("layerResult")
+            add(resultChoice = new ListChoice<MiraTemplate>("layerResult")
             {
                 private static final long serialVersionUID = 1L;
 
@@ -923,12 +757,8 @@ public class MonitoringPage
                         @Override
                         public Object getDisplayValue(MiraTemplate aObject)
                         {
-                            return "["
-                                    + aObject.getTrainFeature().getLayer().getUiName()
-                                    + "] "
-                                    + (aObject.getTrainFeature().getTagset() == null ? aObject
-                                            .getTrainFeature().getUiName() : aObject
-                                            .getTrainFeature().getTagset().getName());
+                            return "[" + aObject.getTrainTagSet().getType().getName() + "] "
+                                    + aObject.getTrainTagSet().getName();
                         }
                     });
                     setNullValid(false);
@@ -940,7 +770,7 @@ public class MonitoringPage
                     return "";
                 }
             });
-            selectedTemplate.add(new OnChangeAjaxBehavior()
+            resultChoice.add(new OnChangeAjaxBehavior()
             {
                 private static final long serialVersionUID = 7492425689121761943L;
 
@@ -948,7 +778,7 @@ public class MonitoringPage
                 protected void onUpdate(AjaxRequestTarget aTarget)
                 {
                     result = getModelObject().layerResult.getResult();
-                    aTarget.add(TrainingResultForm.this);
+                    aTarget.add(resultLabel);
                 }
             }).setOutputMarkupId(true).setOutputMarkupId(true);
         }
@@ -960,12 +790,6 @@ public class MonitoringPage
     {
         private static final long serialVersionUID = 3611186385198494181L;
         public MiraTemplate layerResult;
-        public String annoDocs;
-        public String trainDocs;
-        public String totalDocs;
-        public String startTime;
-        public String endTime;
-        public String status;
 
     }
 
@@ -973,11 +797,11 @@ public class MonitoringPage
      * Compute kappa using the {@link TwoRaterKappaAgreement}. The matrix of kappa result is
      * computed for a user against every other users if and only if both users have finished the
      * same document <br>
-     * The result is per {@link AnnotationLayer} for all {@link Tag}s
+     * The result is per {@link AnnotationType} for all {@link Tag}s
      */
 
     public static double[][] computeKappa(List<User> users, TypeAdapter adapter,
-            String aLabelFeatureName, Map<User, List<SourceDocument>> finishedDocumentLists,
+            Map<User, List<SourceDocument>> finishedDocumentLists,
             Map<SourceDocument, Map<User, JCas>> documentJCases)
     {
         double[][] results = new double[users.size()][users.size()];
@@ -991,16 +815,14 @@ public class MonitoringPage
             }
             int userInColumn = 0;
             for (User user2 : users) {
-                if (user1.getUsername().equals(user2.getUsername())) {// no need
-                                                                      // to
+                if (user1.getUsername().equals(user2.getUsername())) {// no need to
                                                                       // compute
                     // with itself, diagonal one
                     results[userInRow][userInColumn] = 1.0;
                     userInColumn++;
                     continue;
                 }
-                else if (rowUsers.contains(user2)) {// already done, upper
-                                                    // part of
+                else if (rowUsers.contains(user2)) {// already done, upper part of
                                                     // matrix
                     userInColumn++;
                     continue;
@@ -1018,9 +840,9 @@ public class MonitoringPage
                     // sameDocuments finished (intersection of anno docs)
                     user1Documents.retainAll(user2Documents);
                     for (SourceDocument document : user1Documents) {
-                        twoPairedKappa.getStudy(adapter.getAnnotationTypeName(), aLabelFeatureName,
-                                user1, user2, allUserAnnotations, document,
-                                documentJCases.get(document));
+                        twoPairedKappa.getStudy(adapter.getAnnotationTypeName(),
+                                adapter.getLabelFeatureName(), user1, user2, allUserAnnotations,
+                                document, documentJCases.get(document));
 
                     }
                 }
@@ -1073,9 +895,6 @@ public class MonitoringPage
                             .getState().equals(AnnotationDocumentState.NEW))) {
                         try {
                             JCas jCas = repository.getAnnotationDocumentContent(annotationDocument);
-                            repository.upgradeCasAndSave(document, document.getProject().getMode(),
-                                    user.getUsername());
-                            jCas = repository.getAnnotationDocumentContent(annotationDocument);
                             jCases.put(user, jCas);
                         }
                         catch (UIMAException e) {
@@ -1115,8 +934,7 @@ public class MonitoringPage
         plot.setInsets(new RectangleInsets(UnitType.ABSOLUTE, 0, 20, 0, 20));
         plot.getRangeAxis().setRange(0.0, aMaxValue);
         ((NumberAxis) plot.getRangeAxis()).setNumberFormatOverride(new DecimalFormat("0"));
-        // For documents lessan 10, avoid repeating the number of documents such
-        // as 0 0 1 1 1
+        // For documents lessan 10, avoid repeating the number of documents such as 0 0 1 1 1
         // NumberTickUnit automatically determin the range
         if (!aIsPercentage && aMaxValue <= 10) {
             TickUnits standardUnits = new TickUnits();
@@ -1131,8 +949,7 @@ public class MonitoringPage
         BarRenderer renderer = new BarRenderer();
         renderer.setBarPainter(new StandardBarPainter());
         renderer.setShadowVisible(false);
-        // renderer.setGradientPaintTransformer(new
-        // StandardGradientPaintTransformer(
+        // renderer.setGradientPaintTransformer(new StandardGradientPaintTransformer(
         // GradientPaintTransformType.HORIZONTAL));
         renderer.setSeriesPaint(0, Color.BLUE);
         chart.getCategoryPlot().setRenderer(renderer);

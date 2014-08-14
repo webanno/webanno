@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
+import java.util.Set;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.FeatureStructure;
@@ -35,12 +35,11 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationOption;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.brat.curation.CasDiff;
@@ -48,9 +47,9 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.CurationPanel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.util.CasDiffException;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -69,9 +68,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  */
 public class CurationBuilder
 {
-
-    @Resource(name = "annotationService")
-    private static AnnotationService annotationService;
 
     private final RepositoryService repository;
     int sentenceNumber;
@@ -107,11 +103,10 @@ public class CurationBuilder
 
         AnnotationDocument randomAnnotationDocument = null;
 
-        // get the correction/automation JCas for the logged in user
+        // get the correction JCas for the logged in user
         if (aBratAnnotatorModel.getMode().equals(Mode.AUTOMATION)
                 || aBratAnnotatorModel.getMode().equals(Mode.CORRECTION)) {
-            jCases = listJcasesforCorrection(randomAnnotationDocument, sourceDocument,
-                    aBratAnnotatorModel.getMode());
+            jCases = listJcasesforCorrection(randomAnnotationDocument, sourceDocument);
             String username = jCases.keySet().iterator().next();
             updateSegment(aBratAnnotatorModel, segmentBeginEnd, segmentNumber, segmentText,
                     segmentAdress, jCases.get(username), username);
@@ -119,8 +114,7 @@ public class CurationBuilder
         }
         else {
 
-            jCases = listJcasesforCuration(finishedAnnotationDocuments, randomAnnotationDocument,
-                    aBratAnnotatorModel.getMode());
+            jCases = listJcasesforCuration(finishedAnnotationDocuments, randomAnnotationDocument);
             for (String username : jCases.keySet()) {
                 JCas jCas = jCases.get(username);
                 updateSegment(aBratAnnotatorModel, segmentBeginEnd, segmentNumber, segmentText,
@@ -153,7 +147,7 @@ public class CurationBuilder
                 annotationOptions = CasDiff.doDiff(entryTypes, jCases, begin, end);
             }
             catch (Exception e) {
-                throw new CasDiffException(e.getMessage(), e);
+                throw new CasDiffException(e.getMessage());
             }
 
             Boolean hasDiff = false;
@@ -193,7 +187,7 @@ public class CurationBuilder
     }
 
     public Map<String, JCas> listJcasesforCorrection(AnnotationDocument randomAnnotationDocument,
-            SourceDocument aDocument, Mode aMode)
+            SourceDocument aDocument)
         throws UIMAException, ClassNotFoundException, IOException
     {
         Map<String, JCas> jCases = new HashMap<String, JCas>();
@@ -201,14 +195,13 @@ public class CurationBuilder
                 .getName());
         randomAnnotationDocument = repository.getAnnotationDocument(aDocument, user);
 
-        repository.upgradeCasAndSave(aDocument, aMode, user.getUsername());
         JCas jCas = repository.getAnnotationDocumentContent(randomAnnotationDocument);
         jCases.put(user.getUsername(), jCas);
         return jCases;
     }
 
     public Map<String, JCas> listJcasesforCuration(List<AnnotationDocument> annotationDocuments,
-            AnnotationDocument randomAnnotationDocument, Mode aMode)
+            AnnotationDocument randomAnnotationDocument)
         throws UIMAException, ClassNotFoundException, IOException
     {
         Map<String, JCas> jCases = new HashMap<String, JCas>();
@@ -222,14 +215,13 @@ public class CurationBuilder
             if (randomAnnotationDocument == null) {
                 randomAnnotationDocument = annotationDocument;
             }
-            repository.upgradeCasAndSave(annotationDocument.getDocument(), aMode, username);
             JCas jCas = repository.getAnnotationDocumentContent(annotationDocument);
             jCases.put(username, jCas);
         }
         return jCases;
     }
 
-    public JCas getMergeCas(BratAnnotatorModel aBratAnnotatorModel, SourceDocument aDocument,
+    public JCas getMergeCas(BratAnnotatorModel aBratAnnotatorModel, SourceDocument sourceDocument,
             Map<String, JCas> jCases, AnnotationDocument randomAnnotationDocument)
         throws UIMAException, ClassNotFoundException, IOException, BratAnnotationException
     {
@@ -237,14 +229,10 @@ public class CurationBuilder
         try {
             if (aBratAnnotatorModel.getMode().equals(Mode.AUTOMATION)
                     || aBratAnnotatorModel.getMode().equals(Mode.CORRECTION)) {
-                repository.upgradeCasAndSave(aDocument, aBratAnnotatorModel.getMode(),
-                        aBratAnnotatorModel.getUser().getUsername());
-                mergeJCas = repository.getCorrectionDocumentContent(aDocument);
+                mergeJCas = repository.getCorrectionDocumentContent(sourceDocument);
             }
             else {
-                repository.upgradeCasAndSave(aDocument, aBratAnnotatorModel.getMode(),
-                        aBratAnnotatorModel.getUser().getUsername());
-                mergeJCas = repository.getCurationDocumentContent(aDocument);
+                mergeJCas = repository.getCurationDocumentContent(sourceDocument);
             }
         }
         // Create jcas, if it could not be loaded from the file system
@@ -256,7 +244,7 @@ public class CurationBuilder
                         randomAnnotationDocument);
             }
             else {
-                mergeJCas = createMergeCas(mergeJCas, randomAnnotationDocument, jCases, -1, -1,
+                mergeJCas = createMergeCas(mergeJCas, randomAnnotationDocument, jCases,-1, -1,
                         aBratAnnotatorModel.getAnnotationLayers());
             }
         }
@@ -303,18 +291,16 @@ public class CurationBuilder
         }
     }
 
-    public static List<Type> getEntryTypes(JCas mergeJCas, List<AnnotationLayer> aLayers)
+    public static List<Type> getEntryTypes(JCas mergeJCas, Set<TagSet> aTagSets)
     {
         List<Type> entryTypes = new LinkedList<Type>();
 
-        for (AnnotationLayer layer : aLayers) {
-            if (layer.getName().equals(Token.class.getName())) {
+        for (TagSet tagSet : aTagSets) {
+            if (tagSet.getType().getName().equals(AnnotationTypeConstant.COREFERENCE)
+                    || tagSet.getType().getName().equals(AnnotationTypeConstant.COREFRELTYPE)) {
                 continue;
             }
-            if (layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-                continue;
-            }
-            entryTypes.add(getAdapter(layer).getAnnotationType(mergeJCas.getCas()));
+            entryTypes.add(getAdapter(tagSet.getType()).getAnnotationType(mergeJCas.getCas()));
         }
         return entryTypes;
     }
@@ -329,7 +315,7 @@ public class CurationBuilder
      * @throws BratAnnotationException
      */
     public JCas createMergeCas(JCas mergeJCas, AnnotationDocument randomAnnotationDocument,
-            Map<String, JCas> jCases, int aBegin, int aEnd, List<AnnotationLayer> aAnnotationLayers)
+            Map<String, JCas> jCases, int aBegin, int aEnd, Set<TagSet> aAnnotationLayers  )
         throws UIMAException, ClassNotFoundException, IOException, BratAnnotationException
     {
         User userLoggedIn = repository.getUser(SecurityContextHolder.getContext()
@@ -339,7 +325,7 @@ public class CurationBuilder
         int numUsers = jCases.size();
         mergeJCas = repository.getAnnotationDocumentContent(randomAnnotationDocument);
 
-        entryTypes = getEntryTypes(mergeJCas, aAnnotationLayers);
+        entryTypes = getEntryTypes(mergeJCas,aAnnotationLayers);
         jCases.put(CurationPanel.CURATION_USER, mergeJCas);
 
         List<AnnotationOption> annotationOptions = null;

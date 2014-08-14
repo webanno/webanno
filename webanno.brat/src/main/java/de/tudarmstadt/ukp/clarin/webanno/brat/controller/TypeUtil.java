@@ -17,104 +17,254 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
-import org.apache.uima.cas.text.AnnotationFS;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
+import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceLink;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 /**
- * Utility Class for {@link TypeAdapter} with static methods such as geting
- * {@link TypeAdapter} based on its {@link CAS} {@link Type}
+ * Utility Class for {@link TypeAdapter} with static methods such as geting {@link TypeAdapter}
+ * based on its {@link CAS} {@link Type}
  *
  * @author Richard Eckart de Castilho
  * @author Seid Muhie Yimam
+ *
  */
 public final class TypeUtil
 {
-	private TypeUtil() {
-		// No instances
-	}
-
-    public static TypeAdapter getAdapter(AnnotationLayer aLayer)
+    private TypeUtil()
     {
-        if (aLayer.getType().equals(WebAnnoConst.SPAN_TYPE)) {
-            SpanAdapter adapter = new SpanAdapter(aLayer);
-            adapter.setLockToTokenOffsets(aLayer.isLockToTokenOffset());
-            adapter.setAllowStacking(aLayer.isAllowStacking());
-            adapter.setAllowMultipleToken(aLayer.isMultipleTokens());
-            adapter.setCrossMultipleSentence(aLayer.isCrossSentence());
-            return adapter;
-        }
-        else if (aLayer.getType().equals(WebAnnoConst.RELATION_TYPE)) {
-            ArcAdapter adapter = new ArcAdapter(aLayer, aLayer.getId(), aLayer.getName(), "Dependent",
-                    "Governor", aLayer.getAttachFeature() == null ? null : aLayer
-                            .getAttachFeature().getName(), aLayer.getAttachType().getName());
+        // No instances
+    }
 
-            adapter.setCrossMultipleSentence(aLayer.isCrossSentence());
-            adapter.setAllowStacking(aLayer.isAllowStacking());
-            
-            return adapter;
-            // default is chain (based on operation, change to CoreferenceLinK)
-        }
-        else if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-            ChainAdapter adapter = new ChainAdapter(aLayer, aLayer.getId(), aLayer.getName()
-                    + ChainAdapter.CHAIN, aLayer.getName(), "first", "next");
-            
-            adapter.setLinkedListBehavior(aLayer.isLinkedListBehavior());
-            
-            return adapter;
+    public static List<TypeAdapter> listTypeAdapters()
+    {
+       return Arrays.asList(new TypeAdapter[]{SpanAdapter.getPosAdapter(),
+               SpanAdapter.getNamedEntityAdapter(),ArcAdapter.getDependencyAdapter(),
+               ChainAdapter.getCoreferenceChainAdapter(), ChainAdapter.getCoreferenceLinkAdapter()});
+    }
 
+    public static TypeAdapter getAdapter(Type aType)
+    {
+
+        if (aType.getName().equals(POS.class.getName())) {
+            return SpanAdapter.getPosAdapter();
+        }
+
+        else if (aType.getName().equals(NamedEntity.class.getName())) {
+            return SpanAdapter.getNamedEntityAdapter();
+        }
+        else if (aType.getName().equals(Dependency.class.getName())) {
+            return ArcAdapter.getDependencyAdapter();
+        }
+        else if (aType.getName().equals(CoreferenceChain.class.getName())) {
+            return ChainAdapter.getCoreferenceChainAdapter();
+        }
+        else if (aType.getName().equals(CoreferenceLink.class.getName())) {
+            return ChainAdapter.getCoreferenceLinkAdapter();
         }
         else {
-            throw new IllegalArgumentException("No adapter for type with name [" + aLayer.getName()
-                    + "]");
+            throw new IllegalArgumentException("No adapter for type with UIMA name ["
+                    + aType.getName() + "]");
         }
     }
+
+    public static TypeAdapter getAdapter(AnnotationType aType)
+    {
+        String name = aType.getName();
+
+        if (name.equals(AnnotationTypeConstant.POS)) {
+            return SpanAdapter.getPosAdapter();
+        }
+        else if (name.equals(AnnotationTypeConstant.LEMMA)) {
+            return SpanAdapter.getLemmaAdapter();
+        }
+        else if (name.equals(AnnotationTypeConstant.NAMEDENTITY)) {
+            return SpanAdapter.getNamedEntityAdapter();
+        }
+        else if (name.equals(AnnotationTypeConstant.DEPENDENCY)) {
+            return ArcAdapter.getDependencyAdapter();
+        }
+        else if (name.equals(AnnotationTypeConstant.COREFERENCE)) {
+            return ChainAdapter.getCoreferenceChainAdapter();
+        }
+        else if (name.equals(AnnotationTypeConstant.COREFRELTYPE)) {
+            return ChainAdapter.getCoreferenceLinkAdapter();
+        }
+        else {
+            throw new IllegalArgumentException("No adapter for type with name [" + name + "]");
+        }
+    }
+
+    public static TypeAdapter getAdapter(String aPrefix)
+    {
+        TypeAdapter[] adapterList = new TypeAdapter[] { SpanAdapter.getLemmaAdapter(),
+                SpanAdapter.getNamedEntityAdapter(), SpanAdapter.getPosAdapter(),
+
+                ChainAdapter.getCoreferenceChainAdapter(),
+                ChainAdapter.getCoreferenceLinkAdapter(),
+
+                ArcAdapter.getDependencyAdapter() };
+
+        Map<String, TypeAdapter> adapters = new HashMap<String, TypeAdapter>();
+        for (TypeAdapter adapter : adapterList) {
+            adapters.put(adapter.getTypeId(), adapter);
+        }
+
+        TypeAdapter result = adapters.get(aPrefix);
+        if (result == null) {
+            throw new IllegalArgumentException("No adapter for prefix [" + aPrefix + "]");
+        }
+
+        return result;
+    }
+
     /**
-     * Construct the label text used in the brat user interface.
+     * Get the annotation type, using the request sent from brat. If the request have type POS_NN,
+     * the the annotation type is POS
+     *
+     * @param aType
+     *            the type sent from brat annotation as request while annotating
      */
-    public static String getBratLabelText(TypeAdapter aAdapter, AnnotationFS aFs,
-            List<AnnotationFeature> aFeatures)
+    public static String getLabelPrefix(String aType)
     {
-        StringBuilder bratLabelText = new StringBuilder();
-        for (AnnotationFeature feature : aFeatures) {
-
-            if (!(feature.isEnabled()) && !(feature.isVisible())) {
-                continue;
-            }
-
-            Feature labelFeature = aFs.getType().getFeatureByBaseName(feature.getName());
-
-            if (bratLabelText.length() > 0) {
-                bratLabelText.append(TypeAdapter.FEATURE_SEPARATOR);
-            }
-
-            bratLabelText.append(StringUtils.defaultString(aFs
-                    .getFeatureValueAsString(labelFeature)));
-        }
-
-        if (bratLabelText.length() > 0) {
-            return bratLabelText.toString();
+        String annotationType;
+        if (Character.isDigit(aType.charAt(0))) {
+            annotationType = aType.substring(0, aType.indexOf("_") + 1).replaceAll("[0-9]+", "");
         }
         else {
-            // If there are no label features at all, then use the layer UI name
-            return "(" + aAdapter.getLayer().getUiName() + ")";
+            annotationType = aType.substring(0, aType.indexOf("_") + 1);
+        }
+        return annotationType;
+    }
+
+    /**
+     * Get the annotation type the way it is used in Brat visualization page (PREFIX+Type), such as
+     * (POS_+NN)
+     */
+    public static String getQualifiedLabel(Tag aSelectedTag)
+    {
+        String annotationType = "";
+        if (aSelectedTag.getTagSet().getType().getName().equals(AnnotationTypeConstant.POS)) {
+            annotationType = AnnotationTypeConstant.POS_PREFIX + aSelectedTag.getName();
+        }
+        else if (aSelectedTag.getTagSet().getType().getName()
+                .equals(AnnotationTypeConstant.DEPENDENCY)) {
+            annotationType = AnnotationTypeConstant.DEP_PREFIX + aSelectedTag.getName();
+        }
+        else if (aSelectedTag.getTagSet().getType().getName()
+                .equals(AnnotationTypeConstant.NAMEDENTITY)) {
+            annotationType = AnnotationTypeConstant.NAMEDENTITY_PREFIX + aSelectedTag.getName();
+        }
+        else if (aSelectedTag.getTagSet().getType().getName()
+                .equals(AnnotationTypeConstant.COREFRELTYPE)) {
+            annotationType = AnnotationTypeConstant.COREFRELTYPE_PREFIX + aSelectedTag.getName();
+        }
+        else if (aSelectedTag.getTagSet().getType().getName()
+                .equals(AnnotationTypeConstant.COREFERENCE)) {
+            annotationType = AnnotationTypeConstant.COREFERENCE_PREFIX + aSelectedTag.getName();
+        }
+        return annotationType;
+    }
+
+    public static TypeAdapter getAdapter(TagSet aTagSet)
+    {
+        if (aTagSet.getType().getName().equals(AnnotationTypeConstant.POS)) {
+            return SpanAdapter.getPosAdapter();
+        }
+        else if (aTagSet.getType().getName()
+                .equals(AnnotationTypeConstant.DEPENDENCY)) {
+            return ArcAdapter.getDependencyAdapter();
+        }
+        else if (aTagSet.getType().getName()
+                .equals(AnnotationTypeConstant.NAMEDENTITY)) {
+            return SpanAdapter.getNamedEntityAdapter();
+        }
+        else if (aTagSet.getType().getName()
+                .equals(AnnotationTypeConstant.COREFRELTYPE)) {
+            return ChainAdapter.getCoreferenceLinkAdapter();
+        }
+        else if (aTagSet.getType().getName()
+                .equals(AnnotationTypeConstant.COREFERENCE)) {
+            return ChainAdapter.getCoreferenceChainAdapter();
+        }
+        else {
+            throw new IllegalArgumentException("No adapter for type with name [" + aTagSet.getName() + "]");
         }
     }
 
-    public static String getBratTypeName(TypeAdapter aAdapter)
+    /**
+     * Get label of annotation (arc or span value) If the request have type POS_NN, the the actual
+     * annotation value is NN
+     *
+     * @param aQualifiedLabel
+     *            the full label sent from brat annotation as request while annotating
+     */
+    public static String getLabel(String aQualifiedLabel)
     {
-        return aAdapter.getTypeId() + "_" + aAdapter.getAnnotationTypeName();
+        String type;
+        if (Character.isDigit(aQualifiedLabel.charAt(0))) {
+            type = aQualifiedLabel.substring(aQualifiedLabel
+                    .indexOf(AnnotationTypeConstant.PREFIX_SEPARATOR) + 1);
+        }
+        else {
+            type = aQualifiedLabel.substring(aQualifiedLabel
+                    .indexOf(AnnotationTypeConstant.PREFIX_SEPARATOR) + 1);
+        }
+        return type;
     }
 
-    public static String getBratTypeName(AnnotationLayer aLayer)
+    /**
+     * Get the annotation layer name for arc {@link AnnotationType} such as
+     * {@link AnnotationTypeConstant#DEPENDENCY} or {@link AnnotationTypeConstant#COREFERENCE} based
+     * on the origin span type. This is assumed that an arc is drawn only from single span type such
+     * as from {@link POS}. For Free Annotation type, the method should be changed.
+     */
+    public static String getArcLayerName(String aPrefix)
     {
-        return aLayer.getId() + "_" + aLayer.getName();
+        String layer = "";
+        if (aPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            layer = AnnotationTypeConstant.DEPENDENCY;
+        }
+        else if (aPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            layer = AnnotationTypeConstant.COREFERENCE;
+        }
+        return layer;
+    }
+
+    /**
+     * Get the annotation layer name for span {@link AnnotationType} such as
+     * {@link AnnotationTypeConstant#NAMEDENTITY} or {@link AnnotationTypeConstant#COREFRELTYPE}. If
+     * this name is changed in the database, the {@link AnnotationTypeConstant} constants also
+     * should be updated!
+     */
+    public static String getSpanLayerName(String aPrefix)
+    {
+        String layer = "";
+        if (aPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            layer = AnnotationTypeConstant.POS;
+        }
+        else if (aPrefix.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
+            layer = AnnotationTypeConstant.NAMEDENTITY;
+        }
+        else if (aPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            layer = AnnotationTypeConstant.COREFRELTYPE;
+        }
+        else if (aPrefix.equals("")) {// no prefix for lemma
+            layer = AnnotationTypeConstant.LEMMA;
+        }
+        return layer;
     }
 }

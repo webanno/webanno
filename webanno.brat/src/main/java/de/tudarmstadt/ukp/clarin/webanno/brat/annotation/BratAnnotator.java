@@ -20,12 +20,15 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.annotation;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,22 +40,24 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.IRequestParameters;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.codehaus.jackson.JsonGenerator;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.OffsetsList;
 import de.tudarmstadt.ukp.clarin.webanno.brat.util.BratAnnotatorUtility;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
@@ -67,24 +72,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 public class BratAnnotator
     extends Panel
 {
-    private static final String ACTION_ARC_OPEN_DIALOG = "arcOpenDialog";
-    private static final String ACTION_GET_COLLECTION_INFORMATION = "getCollectionInformation";
-    private static final String ACTION_GET_DOCUMENT = "getDocument";
-    private static final String ACTION_LOAD_CONF = "loadConf";
-    private static final String ACTION_SPAN_OPEN_DIALOG = "spanOpenDialog";
-    private static final String ACTION_STORE_SVG = "storeSVG";
-    private static final String ACTION_WHOAMI = "whoami";
-
-    private static final String PARAM_ACTION = "action";
-    private static final String PARAM_ARC_ID = "arcId";
-    private static final String PARAM_ID = "id";
-    private static final String PARAM_OFFSETS = "offsets";
-    private static final String PARAM_SPAN_TEXT = "spanText";
-    private static final String PARAM_TARGET_SPAN_ID = "targetSpanId";
-    private static final String PARAM_TARGET_TYPE = "targetType";
-    private static final String PARAM_ORIGIN_SPAN_ID = "originSpanId";
-    private static final String PARAM_ORIGIN_TYPE = "originType";
-
     private static final long serialVersionUID = -1537506294440056609L;
 
     private WebMarkupContainer vis;
@@ -102,16 +89,17 @@ public class BratAnnotator
 
     private String collection = "";
 
-    private String selectedSpanText, offsets;
-    private Integer selectedSpanID, selectedArcId;
+    String selectedSpan, offsets, selectedSpanType, selectedArcType;
+    Integer selectedSpanID, selectedArcId;
 
-    private Integer originSpanId, targetSpanId;
+    Integer originSpanId, targetSpanId;
     private boolean closeButtonClicked;// check if the annotation dialog has a change
 
     private String originSpanType = null, targetSpanType = null;
 
-    private int beginOffset;
-    private int endOffset;
+    int beginOffset;
+    int endOffset;
+    boolean annotate;
 
     /**
      * Data models for {@link BratAnnotator}
@@ -158,8 +146,8 @@ public class BratAnnotator
         final ModalWindow openAnnotationDialog;
         add(openAnnotationDialog = new ModalWindow("openAnnotationDialog"));
         openAnnotationDialog.setOutputMarkupId(true);
-        openAnnotationDialog.setInitialWidth(550);
-        openAnnotationDialog.setInitialHeight(340);
+        openAnnotationDialog.setInitialWidth(450);
+        openAnnotationDialog.setInitialHeight(280);
         openAnnotationDialog.setResizable(true);
         openAnnotationDialog.setWidthUnit("px");
         openAnnotationDialog.setHeightUnit("px");
@@ -206,23 +194,24 @@ public class BratAnnotator
                         annotationService);
 
                 try {
-                    final String action = request.getParameterValue(PARAM_ACTION).toString();
-
-                    if (action.equals(ACTION_WHOAMI)) {
+                    if (request.getParameterValue("action").toString().equals("whoami")) {
                         result = controller.whoami();
                     }
-                    else if (action.equals(ACTION_STORE_SVG)) {
+                    else if (request.getParameterValue("action").toString().equals("storeSVG")) {
                         result = controller.storeSVG();
                     }
-                    else if (action.equals(ACTION_SPAN_OPEN_DIALOG)) {
-                        if (request.getParameterValue(PARAM_ID).toString() == null) {
+                    else if (request.getParameterValue("action").toString()
+                            .equals("spanOpenDialog")) {
+
+                        if (request.getParameterValue("id").toString() == null) {
                             selectedSpanID = -1;
                         }
                         else {
-                            selectedSpanID = request.getParameterValue(PARAM_ID).toInt();
+                            selectedSpanID = request.getParameterValue("id").toInt();
+                            selectedSpanType = request.getParameterValue("type").toString();
                         }
 
-                        offsets = request.getParameterValue(PARAM_OFFSETS).toString();
+                        offsets = request.getParameterValue("offsets").toString();
                         OffsetsList offsetLists = jsonConverter.getObjectMapper().readValue(
                                 offsets, OffsetsList.class);
 
@@ -242,11 +231,8 @@ public class BratAnnotator
                             endOffset = fs.getEnd();
                         }
 
-                        selectedSpanText = request.getParameterValue(PARAM_SPAN_TEXT).toString();
-                        /*
-                         * selectedSpan = BratAjaxCasUtil .getSelectedText(jCas, beginOffset,
-                         * endOffset);
-                         */
+                        selectedSpan = BratAjaxCasUtil
+                                .getSelectedText(jCas, beginOffset, endOffset);
 
                         if (BratAnnotatorUtility.isDocumentFinished(repository, getModelObject())) {
                             error("This document is already closed. Please ask admin to re-open");
@@ -258,19 +244,20 @@ public class BratAnnotator
                         result = controller.loadConf();
                     }
 
-                    else if (action.equals(ACTION_ARC_OPEN_DIALOG)) {
+                    else if (request.getParameterValue("action").toString().equals("arcOpenDialog")) {
 
                         Session.get().getFeedbackMessages().clear();
-                        originSpanType = request.getParameterValue(PARAM_ORIGIN_TYPE).toString();
-                        originSpanId = request.getParameterValue(PARAM_ORIGIN_SPAN_ID).toInteger();
-                        targetSpanType = request.getParameterValue(PARAM_TARGET_TYPE).toString();
-                        targetSpanId = request.getParameterValue(PARAM_TARGET_SPAN_ID).toInteger();
+                        originSpanType = request.getParameterValue("originType").toString();
+                        originSpanId = request.getParameterValue("originSpanId").toInteger();
+                        selectedArcType = request.getParameterValue("arcType").toString();
+                        targetSpanType = request.getParameterValue("targetType").toString();
+                        targetSpanId = request.getParameterValue("targetSpanId").toInteger();
 
-                        if (request.getParameterValue(PARAM_ARC_ID).toString() == null) {
+                        if (request.getParameterValue("arcId").toString() == null) {
                             selectedArcId = -1;
                         }
                         else {
-                            selectedArcId = request.getParameterValue(PARAM_ARC_ID).toInt();
+                            selectedArcId = request.getParameterValue("arcId").toInt();
                         }
 
                         if (BratAnnotatorUtility.isDocumentFinished(repository, getModelObject())) {
@@ -283,18 +270,23 @@ public class BratAnnotator
 
                         result = controller.loadConf();
                     }
-                    else if (action.equals(ACTION_LOAD_CONF)) {
+                    else if (request.getParameterValue("action").toString().equals("loadConf")) {
                         result = controller.loadConf();
                     }
-                    else if (action.equals(ACTION_GET_COLLECTION_INFORMATION)
+                    else if (request.getParameterValue("action").toString()
+                            .equals("getCollectionInformation")
                             && getModelObject().getProject() != null) {
-                        result = controller.getCollectionInformation(getModelObject()
-                                .getAnnotationLayers());
+                        result = controller.getCollectionInformation(getModelObject().getProject()
+                                .getName(), getModelObject().getAnnotationLayers(),
+                                getModelObject().isStaticColor());
 
                     }
-                    else if (action.equals(ACTION_GET_DOCUMENT)) {
-                        result = controller.getDocumentResponse(getModelObject(), 0, jCas, true);
+
+                    else if (request.getParameterValue("action").toString().equals("getDocument")) {
+                        result = BratAnnotatorUtility.getDocument(jCas, repository,
+                                annotationService, getModelObject());
                     }
+
                 }
                 catch (ClassNotFoundException e) {
                     error("Invalid reader: " + e.getMessage());
@@ -339,27 +331,36 @@ public class BratAnnotator
         add(controller);
 
     }
+
     /**
      * opens the {@link SpanAnnotationModalWindowPage} in a {@link ModalWindow}
      */
 
     private void openSpanAnnotationDialog(final ModalWindow openAnnotationDialog,
-            AjaxRequestTarget aTarget,final int aBeginOffset, final int aEndOffset)
+            AjaxRequestTarget aTarget, final int aBeginOffset, final int aEndOffset)
     {
-
         closeButtonClicked = false;
-        if (selectedSpanID == -1) {// new annotation
-            openAnnotationDialog.setTitle("New Span Annotation");
-            openAnnotationDialog.setContent(new  SpanAnnotationModalWindowPage(openAnnotationDialog
-                    .getContentId(),openAnnotationDialog,
-                    getModelObject(), selectedSpanText, aBeginOffset, aEndOffset));
-        }
-        else {
-            openAnnotationDialog.setTitle("Edit Span Annotation");
-            openAnnotationDialog.setContent(new SpanAnnotationModalWindowPage(openAnnotationDialog
-                    .getContentId(), openAnnotationDialog,
-                    getModelObject(), selectedSpanID));
-        }
+        openAnnotationDialog.setPageCreator(new ModalWindow.PageCreator()
+        {
+            private static final long serialVersionUID = -2827824968207807739L;
+
+            @Override
+            public Page createPage()
+            {
+                if (selectedSpanID == -1) {// new annotation
+                    openAnnotationDialog.setTitle("New Span Annotation");
+                    return new SpanAnnotationModalWindowPage(openAnnotationDialog,
+                            getModelObject(), selectedSpan, aBeginOffset, aEndOffset);
+                }
+                else {
+                    openAnnotationDialog.setTitle("Edit Span Annotation");
+                    return new SpanAnnotationModalWindowPage(openAnnotationDialog,
+                            getModelObject(), selectedSpan, aBeginOffset, aEndOffset,
+                            selectedSpanType, selectedSpanID);
+                }
+            }
+
+        });
 
         openAnnotationDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
         {
@@ -368,7 +369,33 @@ public class BratAnnotator
             @Override
             public void onClose(AjaxRequestTarget aTarget)
             {
+                // A hack to rememeber the wicket combobox DropDown display value
+                HttpSession session = ((ServletWebRequest) RequestCycle.get().getRequest())
+                        .getContainerRequest().getSession();
+                BratAnnotatorModel model = (BratAnnotatorModel) session.getAttribute("model");
+                if (model != null) {
+                    // setModelObject(model);
+                    getModelObject().setSentenceAddress(model.getSentenceAddress());
+
+                    getModelObject().setSentenceBeginOffset(model.getSentenceBeginOffset());
+                    getModelObject().setSentenceEndOffset(model.getSentenceEndOffset());
+
+                    getModelObject().setRememberedSpanTagSet(model.getRememberedSpanTagSet());
+                    getModelObject().setRememberedSpanTag(model.getRememberedSpanTag());
+
+                    getModelObject().setAnnotate(model.isAnnotate());
+                    getModelObject().setMessage(model.getMessage());
+
+                }
+
                 if (!closeButtonClicked) {
+                    if (selectedSpanID == -1) {
+                        onAnnotate(getModelObject(), beginOffset, endOffset);
+                    }
+                    if (!getModelObject().isAnnotate()
+                            && getModelObject().getProject().getMode().equals(Mode.AUTOMATION)) {
+                        onDelete(getModelObject(), beginOffset, endOffset);
+                    }
                     onChange(aTarget, getModelObject());
                     reloadContent(aTarget);
                 }
@@ -377,12 +404,8 @@ public class BratAnnotator
         });
         // open the annotation dialog if only there is
         // span annotation layer (from the settings button) selected
-        for (AnnotationLayer layer : getModelObject().getAnnotationLayers()) {
-            /*
-             * if (layer.getFeature() == null) { continue; }
-             */
-            if (layer.getType().equals(WebAnnoConst.SPAN_TYPE)
-                    || layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
+        for (TagSet tagSet : getModelObject().getAnnotationLayers()) {
+            if (tagSet.getType().getType().equals(AnnotationTypeConstant.SPAN_TYPE)) {
                 openAnnotationDialog.show(aTarget);
                 break;
             }
@@ -407,7 +430,7 @@ public class BratAnnotator
             openAnnotationDialog.setTitle("Edit Arc Annotation");
             openAnnotationDialog.setContent(new ArcAnnotationModalWindowPanel(openAnnotationDialog
                     .getContentId(), openAnnotationDialog, getModelObject(), originSpanId,
-                    targetSpanId, selectedArcId));
+                    originSpanType, targetSpanId, targetSpanType, selectedArcId, selectedArcType));
         }
 
         openAnnotationDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
@@ -426,12 +449,8 @@ public class BratAnnotator
         });
         // open the annotation dialog if only there is
         // span annotation layer (from the settings button) selected
-        for (AnnotationLayer layer : getModelObject().getAnnotationLayers()) {
-            /*
-             * if (layer.getFeature() == null) { continue; }
-             */
-            if (layer.getType().equals(WebAnnoConst.SPAN_TYPE)
-                    || layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
+        for (TagSet tagSet : getModelObject().getAnnotationLayers()) {
+            if (tagSet.getType().getType().equals(AnnotationTypeConstant.SPAN_TYPE)) {
                 openAnnotationDialog.show(aTarget);
                 break;
             }

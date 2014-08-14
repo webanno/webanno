@@ -17,7 +17,8 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.display.model;
 
-import java.util.Arrays;
+import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,30 +50,28 @@ public class RelationType
         // Nothing to do
     }
 
-    // allow similar colors per layer
-    // FIXME we must not have such global states (public static)
-    // public static HashMap<String, Color> typeToColor = new HashMap<String, Color>();
+    public static HashMap<String, Color> typeToColor = new HashMap<String, Color>();
 
-    public RelationType(String aName, String aType, String aTarget)
-    {
-        this(aName, aType, aTarget, null, "triangle,5");
-    }
-    
-    public RelationType(String aName, String aType, String aTarget, String aColor)
-    {
-        this(aName, aType, aTarget, aColor, "triangle,5");
-    }
-    
-    public RelationType(String aName, String aType, String aTarget, String aColor,
-            String aArrowHead)
-    {
-        this(aColor, aArrowHead, Arrays.asList(aName), aType, Arrays.asList(aTarget), "");
-    }
-    
     public RelationType(String aColor, String aArrowHead, List<String> aLabels, String aType,
-            List<String> aTargets, String aDashArray)
+            List<String> aTargets, String aDashArray/*, boolean aStaticColor*/)
     {
         super();
+
+      /*  if(!aStaticColor){
+        Color goodBgColor;
+        if (typeToColor.containsKey(aType)) {
+            goodBgColor = typeToColor.get(aType);
+        }
+        else {
+            goodBgColor = TagColor.generateDifferingPastelColor(typeToColor.values());
+            typeToColor.put(aType, goodBgColor);
+        }
+
+        color =  TagColor.encodeRGB(goodBgColor);
+        }
+        else{
+            color = aColor;
+        }*/
         color = aColor;
         arrowHead = aArrowHead;
         labels = aLabels;

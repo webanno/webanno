@@ -19,7 +19,6 @@ package de.tudarmstadt.ukp.clarin.webanno.model.export;
 
 import java.util.Date;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
@@ -30,7 +29,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
  *
  */
 @JsonPropertyOrder(value = { "name", "user", "state","timestamp" })
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class AnnotationDocument
 {
     @JsonProperty("name")
@@ -41,9 +39,6 @@ public class AnnotationDocument
     AnnotationDocumentState state;
     @JsonProperty("timestamp")
     private Date timestamp;
-    
-    @JsonProperty("sentence_accessed")
-    private int sentenceAccessed = 0;
 
     public String getName()
     {
@@ -77,12 +72,6 @@ public class AnnotationDocument
     {
         this.timestamp = timestamp;
     }
-	public int getSentenceAccessed() {
-		return sentenceAccessed;
-	}
-	public void setSentenceAccessed(int sentenceAccessed) {
-		this.sentenceAccessed = sentenceAccessed;
-	}
 
 
 }

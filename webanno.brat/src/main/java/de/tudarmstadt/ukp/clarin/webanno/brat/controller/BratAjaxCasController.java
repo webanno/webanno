@@ -21,13 +21,16 @@ import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdap
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.MultiValueMap;
@@ -43,17 +46,16 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.message.ImportDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.LoadConfResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.StoreSvgResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.WhoamiResponse;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
+import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
 import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceLink;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 /**
@@ -68,6 +70,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
  */
 public class BratAjaxCasController
 {
+
     public static final String MIME_TYPE_XML = "application/xml";
     public static final String PRODUCES_JSON = "application/json";
     public static final String PRODUCES_XML = "application/xml";
@@ -77,7 +80,7 @@ public class BratAjaxCasController
     private RepositoryService repository;
 
     @Resource(name = "annotationService")
-    private static AnnotationService annotationService;
+    private AnnotationService annotationService;
 
     private Log LOG = LogFactory.getLog(getClass());
 
@@ -88,7 +91,7 @@ public class BratAjaxCasController
 
     public BratAjaxCasController(RepositoryService aRepository, AnnotationService aAnnotationService)
     {
-        annotationService = aAnnotationService;
+        this.annotationService = aAnnotationService;
         this.repository = aRepository;
     }
 
@@ -187,19 +190,72 @@ public class BratAjaxCasController
      * types such as {@link Dependency}, {@link CoreferenceChain}
      *
      * @see <a href="http://brat.nlplab.org/index.html">Brat</a>
+     * @param aCollection
+     * @param aRequest
+     * @return
+     * @throws UIMAException
+     * @throws IOException
      */
-    public GetCollectionInformationResponse getCollectionInformation(
-            List<AnnotationLayer> aAnnotationLayers)
+
+    public GetCollectionInformationResponse getCollectionInformation(String aCollection,
+            HashSet<TagSet> aAnnotationLayers, boolean aStaticColor)
+
     {
+        LOG.info("AJAX-RPC: getCollectionInformation");
+
+        LOG.info("Collection: " + aCollection);
+
+        Project project = new Project();
+        if (!aCollection.equals("/")) {
+            project = repository.getProject(aCollection.replace("/", ""));
+        }
+        // Get list of TagSets configured in BRAT UI
+
+        // Get The tags of the tagset
+        // merge all of them
+        List<Tag> tagLists = new ArrayList<Tag>();
+
+        List<String> tagSetNames = new ArrayList<String>();
+        for (TagSet tagSet : aAnnotationLayers) {
+            List<Tag> tag = annotationService.listTags(tagSet);
+            tagLists.addAll(tag);
+            tagSetNames.add(tagSet.getType().getName());
+        }
+
         GetCollectionInformationResponse info = new GetCollectionInformationResponse();
-        info.setEntityTypes(BratAjaxConfiguration.buildEntityTypes(aAnnotationLayers,
-                annotationService));
+        BratAjaxConfiguration configuration = new BratAjaxConfiguration();
+        info.setEntityTypes(configuration.configureVisualizationAndAnnotation(tagLists, aStaticColor));
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = repository.getUser(username);
+        if (aCollection.equals("/")) {
+            for (Project projects : repository.listProjects()) {
+                if (ProjectUtil.isMember(projects, repository, user)) {
+                    info.addCollection(projects.getName());
+                }
+            }
+        }
+        else {
+
+            project = repository.getProject(aCollection.replace("/", ""));
+
+            for (SourceDocument document : repository.listSourceDocuments(project)) {
+                info.addDocument(document.getName());
+            }
+            info.addCollection("../");
+        }
+        // The norm_search_dialog seems required in the annotation page.
+        // This will be removed when our own open dialog is implemented
+        info.setSearchConfig(new ArrayList<String[]>());
+
+        LOG.info("Done.");
         return info;
     }
 
     public GetDocumentTimestampResponse getDocumentTimestamp(String aCollection, String aDocument)
     {
         LOG.info("AJAX-RPC: getDocumentTimestamp");
+
         LOG.info("Collection: " + aCollection);
         LOG.info("Document: " + aDocument);
 
@@ -209,6 +265,8 @@ public class BratAjaxCasController
 
     /**
      * Returns the JSON representation of the document for brat visualizer
+     *
+     * @throws ClassNotFoundException
      */
 
     public GetDocumentResponse getDocumentResponse(BratAnnotatorModel aBratAnnotatorModel,
@@ -220,64 +278,110 @@ public class BratAjaxCasController
         LOG.info("Collection: " + aBratAnnotatorModel.getDocument().getName());
 
         GetDocumentResponse response = new GetDocumentResponse();
-        render(response, aBratAnnotatorModel, aAnnotationOffsetStart, aJCas, aIsGetDocument);
+        addBratResponses(response, aBratAnnotatorModel, aAnnotationOffsetStart, aJCas,
+                aIsGetDocument);
 
         return response;
     }
 
     /**
+     * Add a span annotation to CAS
+     */
+    public void createSpanAnnotation(JCas aJCas, int aAnnotationOffsetStart,
+            int aAnnotationOffsetEnd, String aQualifiedLabel, AnnotationFS aOriginFs,
+            AnnotationFS aTargetFs)
+        throws BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
+            SpanAdapter.getNamedEntityAdapter().add(aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            SpanAdapter.getPosAdapter().add(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            ChainAdapter.getCoreferenceLinkAdapter().add(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, aOriginFs, aTargetFs);
+        }
+        // else it should be lemma annotation. we don't have lemma tags and no prefixing !
+        else {
+            SpanAdapter.getLemmaAdapter().add(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+    }
+
+
+    public void deleteSpanAnnotation(JCas aJCas, int aAnnotationOffsetStart,
+            int aAnnotationOffsetEnd, String aQualifiedLabel)
+        throws BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.NAMEDENTITY_PREFIX)) {
+            SpanAdapter.getNamedEntityAdapter().delete(aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, label);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.POS_PREFIX)) {
+            SpanAdapter.getPosAdapter().delete(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+/*        else if (labelPrefix.equals(AnnotationTypeConstant.COREFRELTYPE_PREFIX)) {
+            ChainAdapter.getCoreferenceLinkAdapter().delete(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd);
+        }*/
+        // else it should be lemma annotation. we don't have lemma tags and no prefixing !
+        else {
+            SpanAdapter.getLemmaAdapter().delete(aJCas, aAnnotationOffsetStart, aAnnotationOffsetEnd,
+                    label);
+        }
+    }
+    /**
+     * Add an arc annotation to CAS
+     *
+     * @param aBratAnnotatorModel
+     *            the Brat annotation data model consisting of the source document, project,
+     *            users,...
+     */
+    public void createArcAnnotation(BratAnnotatorModel aBratAnnotatorModel, String aQualifiedLabel,
+            int aAnnotationOffsetStart, int aAnnotationOffsetEnd, AnnotationFS aOriginFs,
+            AnnotationFS aTargetFs, JCas aJCas)
+        throws ArcCrossedMultipleSentenceException, BratAnnotationException
+    {
+        String labelPrefix = TypeUtil.getLabelPrefix(aQualifiedLabel);
+        String label = TypeUtil.getLabel(aQualifiedLabel);
+
+        if (labelPrefix.equals(AnnotationTypeConstant.DEP_PREFIX)) {
+            ArcAdapter.getDependencyAdapter().add(label, aOriginFs, aTargetFs, aJCas,
+                    aBratAnnotatorModel);
+        }
+        else if (labelPrefix.equals(AnnotationTypeConstant.COREFERENCE_PREFIX)) {
+            ChainAdapter.getCoreferenceChainAdapter().add(label, aJCas, aAnnotationOffsetStart,
+                    aAnnotationOffsetEnd, aOriginFs, aTargetFs);
+        }
+    }
+
+    /**
      * wrap JSON responses to BRAT visualizer
      */
-    public static void render(GetDocumentResponse aResponse,
+    public static void addBratResponses(GetDocumentResponse aResponse,
             BratAnnotatorModel aBratAnnotatorModel, int aAnnotationOffsetStart, JCas aJCas,
             boolean aIsGetDocument)
     {
-        // Maybe this section should be moved elsewehere and the aIsGetDocument parameter should
-        // be removed, so that this method really only renders and does not additionally update
-        // the BratAnnotatorModel state? -- REC
         if (aBratAnnotatorModel.isScrollPage() && !aIsGetDocument) {
             aBratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getSentenceBeginAddress(aJCas,
                     aBratAnnotatorModel.getSentenceAddress(), aAnnotationOffsetStart,
                     aBratAnnotatorModel.getProject(), aBratAnnotatorModel.getDocument(),
                     aBratAnnotatorModel.getWindowSize()));
         }
+        SpanAdapter.renderTokenAndSentence(aJCas, aResponse, aBratAnnotatorModel);
 
-        render(aResponse, aBratAnnotatorModel, aJCas);
-    }
-
-    /**
-     * wrap JSON responses to BRAT visualizer
-     */
-    public static void render(GetDocumentResponse aResponse, BratAnnotatorModel aBModel, JCas aJCas)
-    {
-        // Render invisible baseline annotations (sentence, tokens)
-        SpanAdapter.renderTokenAndSentence(aJCas, aResponse, aBModel);
-
-        // Render visible (custom) layers
-        int i = 0;
-        for (AnnotationLayer layer : aBModel.getAnnotationLayers()) {
-            if (layer.getName().equals(Token.class.getName())
-                    || layer.getName().equals(Sentence.class.getName())
-                    || (layer.getType().equals(WebAnnoConst.CHAIN_TYPE) && (aBModel.getProject()
-                            .getMode().equals(Mode.AUTOMATION)
-                            || aBModel.getProject().getMode().equals(Mode.CORRECTION) || aBModel
-                            .getProject().getMode().equals(Mode.CURATION)))) {
-                continue;
-            }
-
-            ColoringStrategy coloringStrategy = ColoringStrategy.getBestStrategy(layer, aBModel, i);
-
-            List<AnnotationFeature> features = annotationService.listAnnotationFeature(layer);
-            List<AnnotationFeature> invisibleFeatures = new ArrayList<AnnotationFeature>();
-            for (AnnotationFeature feature : features) {
-                if (!feature.isVisible()) {
-                    invisibleFeatures.add(feature);
-                }
-            }
-            features.removeAll(invisibleFeatures);
-            TypeAdapter adapter = getAdapter(layer);
-            adapter.render(aJCas, features, aResponse, aBModel, coloringStrategy);
-            i++;
+        for (TagSet tagSet : aBratAnnotatorModel.getAnnotationLayers()) {
+            getAdapter(tagSet.getType()).render(aJCas, aResponse, aBratAnnotatorModel);
         }
     }
 }

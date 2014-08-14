@@ -18,6 +18,7 @@
 package de.tudarmstadt.ukp.clarin.webanno.project.page;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,12 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.NoResultException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -61,8 +63,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.AnnotationTypeConstant;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationType;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
@@ -71,7 +74,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.export.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.support.EntityModel;
 
 /**
- * A Panel Used to add Tagsets to a selected {@link anno}
+ * A Panel Used to add Tagsets to a selected {@link Project}
  *
  * @author Seid Muhie Yimam
  *
@@ -85,7 +88,7 @@ public class ProjectTagSetsPanel
     @SpringBean(name = "annotationService")
     private AnnotationService annotationService;
     @SpringBean(name = "documentRepository")
-    private RepositoryService repository;
+    private RepositoryService projectRepository;
 
     private List<FileUpload> uploadedFiles;
     private FileUploadField fileUpload;
@@ -107,14 +110,45 @@ public class ProjectTagSetsPanel
         this.selectedProjectModel = aProjectModel;
         tagSetSelectionForm = new TagSetSelectionForm("tagSetSelectionForm");
 
-        tagSelectionForm = new TagSelectionForm("tagSelectionForm");
-        tagSelectionForm.setVisible(false);
+        tagSelectionForm = new TagSelectionForm("tagSelectionForm")
+        {
 
-        tagSetDetailForm = new TagSetDetailForm("tagSetDetailForm");
-        tagSetDetailForm.setVisible(false);
+            private static final long serialVersionUID = -4772415754052553741L;
 
-        tagDetailForm = new TagDetailForm("tagDetailForm");
-        tagDetailForm.setVisible(false);
+            @Override
+            public boolean isVisible()
+            {
+                return tagSetSelectionForm.getModelObject().tagSet != null
+                        && tagSetSelectionForm.getModelObject().tagSet.getProject().equals(
+                                aProjectModel.getObject());
+            }
+        };
+
+        tagSetDetailForm = new TagSetDetailForm("tagSetDetailForm")
+        {
+            private static final long serialVersionUID = -920681378763978112L;
+
+            @Override
+            public boolean isVisible()
+            {
+                return tagSetSelectionForm.getModelObject().tagSet != null
+                        && tagSetSelectionForm.getModelObject().tagSet.getProject().equals(
+                                aProjectModel.getObject());
+            }
+        };
+
+        tagDetailForm = new TagDetailForm("tagDetailForm")
+        {
+            private static final long serialVersionUID = 2338721044859355652L;
+
+            @Override
+            public boolean isVisible()
+            {
+                return tagSetSelectionForm.getModelObject().tagSet != null
+                        && tagSetSelectionForm.getModelObject().tagSet.getProject().equals(
+                                aProjectModel.getObject());
+            }
+        };
 
         importTagSetForm = new ImportTagSetForm("importTagSetForm");
 
@@ -149,8 +183,8 @@ public class ProjectTagSetsPanel
                         tagSetDetailForm
                                 .setModelObject(new de.tudarmstadt.ukp.clarin.webanno.model.TagSet());
                         tagSetDetailForm.setVisible(true);
-                        tagDetailForm.setVisible(false);
                         tagSelectionForm.setVisible(false);
+                        tagDetailForm.setVisible(false);
                     }
                 }
             });
@@ -184,7 +218,7 @@ public class ProjectTagSetsPanel
                         public Object getDisplayValue(
                                 de.tudarmstadt.ukp.clarin.webanno.model.TagSet aObject)
                         {
-                            return aObject.getName();
+                            return "[" + aObject.getType().getName() + "] " + aObject.getName();
                         }
                     });
                     setNullValid(false);
@@ -195,12 +229,20 @@ public class ProjectTagSetsPanel
                         de.tudarmstadt.ukp.clarin.webanno.model.TagSet aNewSelection)
                 {
                     if (aNewSelection != null) {
+                        // TagSetSelectionForm.this.getModelObject().tagSet = new TagSet();
                         tagSetDetailForm.clearInput();
                         tagSetDetailForm.setModelObject(aNewSelection);
                         tagSetDetailForm.setVisible(true);
-                        tagSelectionForm.setVisible(true);
-                        tagDetailForm.setVisible(true);
                         TagSetSelectionForm.this.setVisible(true);
+                        // no need to add tag for lemma
+                        if (aNewSelection.getType().getName().equals(AnnotationTypeConstant.LEMMA)) {
+                            tagSelectionForm.setVisible(false);
+                            tagDetailForm.setVisible(false);
+                        }
+                        else {
+                            tagSelectionForm.setVisible(true);
+                            tagDetailForm.setVisible(true);
+                        }
 
                     }
                 }
@@ -220,7 +262,6 @@ public class ProjectTagSetsPanel
 
         }
     }
-
     private class ImportTagSetForm
         extends Form<String>
     {
@@ -247,128 +288,167 @@ public class ProjectTagSetsPanel
                     Project project = selectedProjectModel.getObject();
                     String username = SecurityContextHolder.getContext().getAuthentication()
                             .getName();
-                    User user = repository.getUser(username);
+                    User user = projectRepository.getUser(username);
 
-                    if (isEmpty(uploadedFiles)) {
+                    if (isNotEmpty(uploadedFiles)) {
+                        if (importTagsetFormat.getModelObject().equals(
+                                ExportedTagSetConstant.JSON_FORMAT)) {
+                            for (FileUpload tagFile : uploadedFiles) {
+                                InputStream tagInputStream;
+                                try {
+                                    tagInputStream = tagFile.getInputStream();
+                                    String text = IOUtils.toString(tagInputStream, "UTF-8");
+
+                                    MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
+                                    TagSet importedTagSet = jsonConverter.getObjectMapper()
+                                            .readValue(text, TagSet.class);
+                                    AnnotationType type = null;
+                                    if (!annotationService.existsType(importedTagSet.getTypeName(),
+                                            importedTagSet.getType())) {
+                                        type = new AnnotationType();
+                                        type.setDescription(importedTagSet.getTypeDescription());
+                                        type.setName(importedTagSet.getTypeName());
+                                        type.setType(importedTagSet.getType());
+                                        annotationService.createType(type, user);
+                                    }
+                                    else {
+                                        type = annotationService.getType(
+                                                importedTagSet.getTypeName(),
+                                                importedTagSet.getType());
+                                    }
+
+                                    if (importedTagSet != null) {
+
+                                        // Override existing tagset
+                                        if (annotationService.existsTagSet(type, project)) {
+                                            annotationService.removeTagSet(annotationService
+                                                    .getTagSet(type, project));
+                                        }
+                                        de.tudarmstadt.ukp.clarin.webanno.model.TagSet newTagSet = new de.tudarmstadt.ukp.clarin.webanno.model.TagSet();
+                                        newTagSet.setDescription(importedTagSet.getDescription());
+                                        newTagSet.setName(importedTagSet.getName());
+                                        newTagSet.setLanguage(importedTagSet.getLanguage());
+                                        newTagSet.setProject(project);
+                                        newTagSet.setType(type);
+                                        annotationService.createTagSet(newTagSet, user);
+                                        for (de.tudarmstadt.ukp.clarin.webanno.model.export.Tag tag : importedTagSet
+                                                .getTags()) {
+                                            Tag newTag = new Tag();
+                                            newTag.setDescription(tag.getDescription());
+                                            newTag.setName(tag.getName());
+                                            newTag.setTagSet(newTagSet);
+                                            annotationService.createTag(newTag, user);
+                                        }
+                                    }
+
+                                }
+                                catch (IOException e) {
+                                    error("Error Importing TagSet "
+                                            + ExceptionUtils.getRootCauseMessage(e));
+                                }
+                            }
+
+                        }
+                        else if (importTagsetFormat.getModelObject().equals(
+                                ExportedTagSetConstant.TAB_FORMAT)) {
+                            for (FileUpload tagFile : uploadedFiles) {
+                                InputStream tagInputStream;
+                                try {
+                                    tagInputStream = tagFile.getInputStream();
+                                    String text = IOUtils.toString(tagInputStream, "UTF-8");
+                                    Map<String, String> tabbedTagsetFromFile = ProjectUtil
+                                            .getTagSetFromFile(text);
+
+                                    Set<String> listOfTagsFromFile = tabbedTagsetFromFile.keySet();
+                                    int i = 0;
+                                    String tagSetName = "";
+                                    String tagSetDescription = "";
+                                    String tagsetLanguage = "";
+                                    String tagsetType = "";
+                                    String tagsetTypeName = "";
+                                    String tagsetTypeDescription = "";
+                                    de.tudarmstadt.ukp.clarin.webanno.model.TagSet tagSet = null;
+                                    for (String key : listOfTagsFromFile) {
+                                        // the first key is the tagset name and its description
+                                        if (i == 0) {
+                                            tagSetName = key;
+                                            tagSetDescription = tabbedTagsetFromFile.get(key);
+                                        }
+                                        // the second key is the tagset type
+                                        else if (i == 1) {
+                                            tagsetType = key;
+                                        }
+                                        // the third key is the tagset type name and its description
+                                        else if (i == 2) {
+                                            tagsetTypeName = key;
+                                            tagsetTypeDescription = tabbedTagsetFromFile.get(key);
+                                        }
+                                        // the fourth key is the tagset language
+                                        else if (i == 3) {
+                                            tagsetLanguage = key;
+                                            // Create the type, if not exist
+                                            AnnotationType type = null;
+                                            if (!annotationService.existsType(tagsetTypeName,
+                                                    tagsetType)) {
+                                                type = new AnnotationType();
+                                                type.setDescription(tagsetTypeDescription.replace(
+                                                        "\\n", "\n"));
+                                                type.setName(tagsetTypeName);
+                                                type.setType(tagsetType);
+                                                annotationService.createType(type, user);
+                                            }
+                                            // type exist, get it
+                                            else {
+                                                type = annotationService.getType(tagsetTypeName,
+                                                        tagsetType);
+                                            }
+                                            // remove and replace the tagset if it exist
+                                            if (annotationService.existsTagSet(type, project)) {
+                                                annotationService.removeTagSet(annotationService
+                                                        .getTagSet(type, project));
+                                            }
+                                            tagSet = new de.tudarmstadt.ukp.clarin.webanno.model.TagSet();
+                                            tagSet.setName(tagSetName);
+                                            tagSet.setDescription(tagSetDescription.replace("\\n",
+                                                    "\n"));
+                                            tagSet.setLanguage(tagsetLanguage);
+                                            tagSet.setProject(project);
+                                            tagSet.setType(type);
+                                            annotationService.createTagSet(tagSet, user);
+                                        }
+                                        // otherwise it is a tag entry, add the tag to the tagset
+                                        else {
+                                            Tag tag = new Tag();
+                                            tag.setDescription(tabbedTagsetFromFile.get(key)
+                                                    .replace("\\n", "\n"));
+                                            tag.setName(key);
+                                            tag.setTagSet(tagSet);
+                                            annotationService.createTag(tag, user);
+                                        }
+                                        i++;
+                                    }
+                                }
+                                catch (Exception e) {
+                                    error("Error Importing tabbed TagSet."
+                                            + ExceptionUtils.getRootCauseMessage(e));
+                                }
+                            }
+                        }
+                        tagSetSelectionForm.setModelObject(new SelectionModel());
+                        tagSelectionForm.setVisible(false);
+                        tagDetailForm.setVisible(false);
+                    }
+                    else if (isEmpty(uploadedFiles)) {
                         error("Please choose file with tagset before uploading");
-                        return;
                     }
                     else if (project.getId() == 0) {
                         error("Project not yet created, please save project Details!");
-                        return;
-                    }
-                    if (importTagsetFormat.getModelObject().equals(
-                            ExportedTagSetConstant.JSON_FORMAT)) {
-                        for (FileUpload tagFile : uploadedFiles) {
-                            InputStream tagInputStream;
-                            try {
-                                tagInputStream = tagFile.getInputStream();
-                                String text = IOUtils.toString(tagInputStream, "UTF-8");
-
-                                MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-                                TagSet importedTagSet = jsonConverter.getObjectMapper().readValue(
-                                        text, TagSet.class);
-                                createTagSet(project, user, importedTagSet);
-
-                            }
-                            catch (IOException e) {
-                                error("Error Importing TagSet "
-                                        + ExceptionUtils.getRootCauseMessage(e));
-                            }
-                        }
-
-                    }
-                    else if (importTagsetFormat.getModelObject().equals(
-                            ExportedTagSetConstant.TAB_FORMAT)) {
-                        for (FileUpload tagFile : uploadedFiles) {
-                            InputStream tagInputStream;
-                            try {
-                                tagInputStream = tagFile.getInputStream();
-                                String text = IOUtils.toString(tagInputStream, "UTF-8");
-                                Map<String, String> tabbedTagsetFromFile = ProjectUtil
-                                        .getTagSetFromFile(text);
-
-                                Set<String> listOfTagsFromFile = tabbedTagsetFromFile.keySet();
-                                int i = 0;
-                                String tagSetName = "";
-                                String tagSetDescription = "";
-                                String tagsetLanguage = "";
-                                de.tudarmstadt.ukp.clarin.webanno.model.TagSet tagSet = null;
-                                for (String key : listOfTagsFromFile) {
-                                    // the first key is the tagset name and its
-                                    // description
-                                    if (i == 0) {
-                                        tagSetName = key;
-                                        tagSetDescription = tabbedTagsetFromFile.get(key);
-                                    }
-                                    // the second key is the tagset language
-                                    else if (i == 1) {
-                                        tagsetLanguage = key;
-                                        // remove and replace the tagset if it
-                                        // exist
-                                        if (annotationService.existsTagSet(tagSetName, project)) {
-
-                                            annotationService.removeTagSet(annotationService
-                                                    .getTagSet(tagSetName, project));
-
-                                        }
-                                        tagSet = new de.tudarmstadt.ukp.clarin.webanno.model.TagSet();
-                                        tagSet.setName(tagSetName);
-                                        tagSet.setDescription(tagSetDescription
-                                                .replace("\\n", "\n"));
-                                        tagSet.setLanguage(tagsetLanguage);
-                                        tagSet.setProject(project);
-                                        annotationService.createTagSet(tagSet, user);
-                                    }
-                                    // otherwise it is a tag entry, add the tag
-                                    // to the tagset
-                                    else {
-                                        Tag tag = new Tag();
-                                        tag.setDescription(tabbedTagsetFromFile.get(key).replace(
-                                                "\\n", "\n"));
-                                        tag.setName(key);
-                                        tag.setTagSet(tagSet);
-                                        annotationService.createTag(tag, user);
-                                    }
-                                    i++;
-                                }
-                            }
-                            catch (Exception e) {
-                                error("Error Importing tabbed TagSet."
-                                        + ExceptionUtils.getRootCauseMessage(e));
-                            }
-                        }
-                    }
-                    tagSetSelectionForm.setModelObject(new SelectionModel());
-                    tagSelectionForm.setVisible(false);
-                    tagDetailForm.setVisible(false);
-                }
-
-                private void createTagSet(Project project, User user, TagSet importedTagSet)
-                    throws IOException
-                {
-                    if (annotationService.existsTagSet(importedTagSet.getName(), project)) {
-                        annotationService.removeTagSet(annotationService.getTagSet(
-                                importedTagSet.getName(), project));
                     }
 
-                    de.tudarmstadt.ukp.clarin.webanno.model.TagSet newTagSet = new de.tudarmstadt.ukp.clarin.webanno.model.TagSet();
-                    newTagSet.setDescription(importedTagSet.getDescription());
-                    newTagSet.setName(importedTagSet.getName());
-                    newTagSet.setLanguage(importedTagSet.getLanguage());
-                    newTagSet.setProject(project);
-                    annotationService.createTagSet(newTagSet, user);
-                    for (de.tudarmstadt.ukp.clarin.webanno.model.export.Tag tag : importedTagSet
-                            .getTags()) {
-                        Tag newTag = new Tag();
-                        newTag.setDescription(tag.getDescription());
-                        newTag.setName(tag.getName());
-                        newTag.setTagSet(newTagSet);
-                        annotationService.createTag(newTag, user);
-                    }
                 }
             });
         }
+
     }
 
     public class SelectionModel
@@ -391,13 +471,16 @@ public class ProjectTagSetsPanel
             super(id, new CompoundPropertyModel<de.tudarmstadt.ukp.clarin.webanno.model.TagSet>(
                     new EntityModel<de.tudarmstadt.ukp.clarin.webanno.model.TagSet>(
                             new de.tudarmstadt.ukp.clarin.webanno.model.TagSet())));
-            final Project project = selectedProjectModel.getObject();
+            // super(id);
             add(new TextField<String>("name").setRequired(true));
 
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
 
             add(new TextField<String>("language"));
-            add(new CheckBox("createTag"));
+
+            add(new DropDownChoice<AnnotationType>("type", annotationService.listAnnotationType(),
+                    new ChoiceRenderer<AnnotationType>("name")).setRequired(true));
+
             add(new Button("save", new ResourceModel("label"))
             {
                 private static final long serialVersionUID = 1L;
@@ -409,28 +492,33 @@ public class ProjectTagSetsPanel
                             .getModelObject();
 
                     if (tagSet.getId() == 0) {
-                        if (annotationService.existsTagSet(TagSetDetailForm.this.getModelObject()
-                                .getName(), project)) {
-                            error("Only one tagset per project is allowed!");
+                        if (annotationService.existsTagSet(tagSet.getType(),
+                                selectedProjectModel.getObject())) {
+                            error("Only one tagset per type per project is allowed!");
                         }
                         else {
+
                             String username = SecurityContextHolder.getContext()
                                     .getAuthentication().getName();
-                            User user = repository.getUser(username);
+                            User user = projectRepository.getUser(username);
 
                             tagSet.setProject(selectedProjectModel.getObject());
                             try {
                                 annotationService.createTagSet(tagSet, user);
-                                tagSelectionForm.setVisible(true);
-                                tagDetailForm.setVisible(true);
-                                // annotationService.createType(tagSet.getFeature().getLayer(),
-                                // user);
                             }
                             catch (IOException e) {
                                 error("unable to create Log file while creating the TagSet" + ":"
                                         + ExceptionUtils.getRootCauseMessage(e));
                             }
                             TagSetDetailForm.this.setModelObject(tagSet);
+                            if (tagSet.getType().getName().equals(AnnotationTypeConstant.LEMMA)) {
+                                tagSelectionForm.setVisible(false);
+                                tagDetailForm.setVisible(false);
+                            }
+                            else {
+                                tagSelectionForm.setVisible(true);
+                                tagDetailForm.setVisible(true);
+                            }
                         }
                     }
                 }
@@ -446,13 +534,6 @@ public class ProjectTagSetsPanel
                     de.tudarmstadt.ukp.clarin.webanno.model.TagSet tagSet = TagSetDetailForm.this
                             .getModelObject();
                     if (tagSet.getId() != 0) {
-                        for (AnnotationFeature ft : annotationService.listAnnotationFeature(tagSet
-                                .getProject())) {
-                            if (ft.getTagset() != null && ft.getTagset().equals(tagSet)) {
-                                ft.setTagset(null);
-                                annotationService.createFeature(ft);
-                            }
-                        }
                         annotationService.removeTagSet(tagSet);
                         TagSetDetailForm.this.setModelObject(null);
                         tagSelectionForm.setVisible(false);
@@ -489,6 +570,7 @@ public class ProjectTagSetsPanel
             {
                 private static final long serialVersionUID = 840863954694163375L;
 
+                @SuppressWarnings("resource")
                 @Override
                 protected File load()
                 {
@@ -507,10 +589,15 @@ public class ProjectTagSetsPanel
                         else {
                             de.tudarmstadt.ukp.clarin.webanno.model.TagSet tagSet = tagSetDetailForm
                                     .getModelObject();
-                            TagSet exTagSet = new TagSet();
-                            exTagSet.setDescription(tagSet.getDescription());
-                            exTagSet.setLanguage(tagSet.getLanguage());
-                            exTagSet.setName(tagSet.getName());
+                            TagSet exportedTagSetContent = new TagSet();
+                            exportedTagSetContent.setDescription(tagSet.getDescription());
+                            exportedTagSetContent.setLanguage(tagSet.getLanguage());
+                            exportedTagSetContent.setName(tagSet.getName());
+
+                            exportedTagSetContent.setType(tagSet.getType().getType());
+                            exportedTagSetContent.setTypeName(tagSet.getType().getName());
+                            exportedTagSetContent.setTypeDescription(tagSet.getType()
+                                    .getDescription());
 
                             List<de.tudarmstadt.ukp.clarin.webanno.model.export.Tag> exportedTags = new ArrayList<de.tudarmstadt.ukp.clarin.webanno.model.export.Tag>();
                             for (Tag tag : annotationService.listTags(tagSet)) {
@@ -520,12 +607,12 @@ public class ProjectTagSetsPanel
                                 exportedTags.add(exportedTag);
 
                             }
-                            exTagSet.setTags(exportedTags);
+                            exportedTagSetContent.setTags(exportedTags);
                             MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
                             ProjectUtil.setJsonConverter(jsonConverter);
 
                             try {
-                                ProjectUtil.generateJson(exTagSet, exportFile);
+                                ProjectUtil.generateJson(exportedTagSetContent, exportFile);
                             }
                             catch (IOException e) {
                                 error("File Path not found or No permision to save the file!");
@@ -548,6 +635,8 @@ public class ProjectTagSetsPanel
                         OutputStreamWriter osw;
                         BufferedWriter bw;
                         try {
+                            String typeDescription = tagSet.getType().getDescription() == null ? ""
+                                    : tagSet.getType().getDescription();
                             String tagSetDescription = tagSet.getDescription() == null ? ""
                                     : tagSet.getDescription();
                             os = new FileOutputStream(exportFile);
@@ -555,6 +644,9 @@ public class ProjectTagSetsPanel
                             bw = new BufferedWriter(osw);
                             bw.write(tagSet.getName() + "\t"
                                     + tagSetDescription.replace("\n", "\\n") + "\n");
+                            bw.write(tagSet.getType().getType() + "\t" + " \n");
+                            bw.write(tagSet.getType().getName() + "\t"
+                                    + typeDescription.replace("\n", "\\n") + "\n");
                             bw.write(tagSet.getLanguage() + "\t" + " \n");
                             for (Tag tag : annotationService.listTags(tagSet)) {
                                 String tagDescription = tag.getDescription() == null ? "" : tag
@@ -593,6 +685,7 @@ public class ProjectTagSetsPanel
         public TagDetailForm(String id)
         {
             super(id, new CompoundPropertyModel<Tag>(new EntityModel<Tag>(new Tag())));
+            // super(id);
             add(new TextField<String>("name").setRequired(true));
 
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
@@ -604,22 +697,18 @@ public class ProjectTagSetsPanel
                 public void onSubmit()
                 {
                     Tag tag = TagDetailForm.this.getModelObject();
-                    if (tag.getName().equals("|")) {
-                        error("[|] is not allowed!");
-                        return;
-                    }
                     if (tag.getId() == 0) {
                         tag.setTagSet(tagSetDetailForm.getModelObject());
-
-                        if (annotationService.existsTag(tag.getName(),
-                                tagSetDetailForm.getModelObject())) {
+                        try {
+                            annotationService.getTag(tag.getName(),
+                                    tagSetDetailForm.getModelObject());
                             error("This tag is already added for this tagset!");
                         }
-                        else {
+                        catch (NoResultException ex) {
 
                             String username = SecurityContextHolder.getContext()
                                     .getAuthentication().getName();
-                            User user = repository.getUser(username);
+                            User user = projectRepository.getUser(username);
 
                             try {
                                 annotationService.createTag(tag, user);
@@ -680,9 +769,6 @@ public class ProjectTagSetsPanel
                         @Override
                         protected List<Tag> load()
                         {
-                            if (tagSetDetailForm.getModelObject().getId() == 0) {
-                                return Arrays.asList(new Tag());
-                            }
                             return annotationService.listTags(tagSetDetailForm.getModelObject());
                         }
                     });

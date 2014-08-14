@@ -32,9 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
-import de.tudarmstadt.ukp.clarin.webanno.model.AutomationStatus;
 import de.tudarmstadt.ukp.clarin.webanno.model.CrowdJob;
 import de.tudarmstadt.ukp.clarin.webanno.model.MiraTemplate;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -42,6 +40,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 
 /**
@@ -236,14 +235,6 @@ public interface RepositoryService
     List<SourceDocument> listSourceDocuments(Project aProject);
 
     /**
-     * Return list of training documents that are in the TOKEN TAB FEAURE formats
-     *
-     * @param aProject
-     * @return
-     */
-    List<SourceDocument> listTabSepDocuments(Project aProject);
-
-    /**
      * ROLE_ADMINs or Projetc admins can remove source documents from a project. removing a a source
      * document also removes an annotation document related to that document
      *
@@ -269,14 +260,6 @@ public interface RepositoryService
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER','ROLE_REMOTE')")
     void uploadSourceDocument(InputStream file, SourceDocument document, User user)
         throws IOException, UIMAException;
-
-    /**
-     * Get the directory of this {@link SourceDocument} usually to read the content of the document
-     *
-     * @throws IOException
-     */
-    File getDocumentFolder(SourceDocument aDocument)
-        throws IOException;
 
     // --------------------------------------------------------------------------------------------
     // Methods related to AnnotationDocuments
@@ -320,7 +303,6 @@ public interface RepositoryService
      * @return
      */
     boolean existsCorrectionDocument(SourceDocument document);
-
     /**
      * check if the JCAS for the {@link User} and {@link SourceDocument} in this {@link Project}
      * exists It is important as {@link AnnotationDocument} entry can be populated as
@@ -332,7 +314,7 @@ public interface RepositoryService
 
     /**
      * check if there is an already automated document. This is important as automated document
-     * should appear the same among users
+     * should apear the same among users
      */
     boolean existsAutomatedDocument(SourceDocument sourceDocument);
 
@@ -677,9 +659,9 @@ public interface RepositoryService
     boolean existsCrowdJob(String name);
 
     /**
-     * Get a {@link CrowdJob} by its name in a {@link Project}
+     * Get a {@link CrowdJob} by its name
      */
-    CrowdJob getCrowdJob(String name, Project project);
+    CrowdJob getCrowdJob(String name);
 
     /**
      * Get a crowdFlower Template from the WebAnno root directory
@@ -807,22 +789,6 @@ public interface RepositoryService
         throws FileNotFoundException, IOException;
 
     // --------------------------------------------------------------------------------------------
-    // Methods related to Help file contents
-    // --------------------------------------------------------------------------------------------
-
-    /**
-     * Load contents that will be displayed as a popup window for help from a property file
-     *
-     * @throws IOException
-     * @throws FileNotFoundException
-     */
-    Properties loadHelpContents()
-        throws FileNotFoundException, IOException;
-
-    <T> void saveHelpContents(T configurationObject)
-        throws FileNotFoundException, IOException;
-
-    // --------------------------------------------------------------------------------------------
     // Methods related to anything else
     // --------------------------------------------------------------------------------------------
 
@@ -864,7 +830,7 @@ public interface RepositoryService
      * Get CAS object for the first time, from the source document using the provided reader
      */
     @SuppressWarnings("rawtypes")
-    JCas getJCasFromFile(File file, Class reader, SourceDocument aDocument)
+    JCas getJCasFromFile(File file, Class reader)
         throws UIMAException, IOException;
 
     void updateTimeStamp(SourceDocument document, User user, Mode mode)
@@ -884,15 +850,14 @@ public interface RepositoryService
     int isCrowdSourceEnabled();
 
     /**
-     * Get the a model for a given automation layer or other layers used as feature for the
-     * automation layer. model will be generated per layer
+     * Get the a model for a given annotation Layer. model will be genereated per layer
      */
-    File getMiraModel(AnnotationFeature feature, boolean otherLayer, SourceDocument document);
+    File getMiraModel(TagSet tagSet);
 
     /**
-     * Get the MIRA director where models, templates and training data will be stored
+     * Get the MIRA director where models, templates and tarining data will be stored
      */
-    File getMiraDir(AnnotationFeature feature);
+    File getMiraDir(TagSet TagSet);
 
     /**
      * Create a MIRA template and save the configurations in a database
@@ -902,26 +867,16 @@ public interface RepositoryService
     /**
      * Get the MIRA template (and hence the template configuration) for a given layer
      */
-    MiraTemplate getMiraTemplate(AnnotationFeature feature);
+    MiraTemplate getMiraTemplate(TagSet tagSet);
 
     /**
      * Check if a MIRA template is already created for this layer
      */
-    boolean existsMiraTemplate(AnnotationFeature feature);
+    boolean existsMiraTemplate(TagSet tagSet);
 
     /**
      * List all the MIRA templates created, hence know which layer do have a training conf already!
      */
     List<MiraTemplate> listMiraTemplates(Project project);
-
-    void removeMiraTemplate(MiraTemplate template);
-
-    void removeAutomationStatus(AutomationStatus status);
-
-    void createAutomationStatus(AutomationStatus status);
-
-    boolean existsAutomationStatus(MiraTemplate template);
-
-    AutomationStatus getAutomationStatus(MiraTemplate template);
-
+    void removeMiraTemplate (MiraTemplate template);
 }

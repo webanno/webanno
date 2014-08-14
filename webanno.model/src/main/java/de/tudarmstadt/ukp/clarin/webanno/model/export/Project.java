@@ -20,7 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.model.export;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
@@ -31,44 +30,31 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
  * @author Seid Muhie Yimam
  *
  */
-
-@JsonPropertyOrder(value = { "name", "description","mode","version"})
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(value = { "name", "description", "reverse", "type", "typeName",
+        "typeDescription" ,"tags","mode" })
 public class Project
 {
     @JsonProperty("name")
     String name;
     @JsonProperty("description")
     String description;
-
+    @JsonProperty("reverse")
+    boolean reverse;
     @JsonProperty("mode")
     private Mode mode = Mode.ANNOTATION;
 
     @JsonProperty("source_documents")
-    private List<SourceDocument> sourceDocuments;
+    private List<SourceDocument> sourceDocuments = new ArrayList<SourceDocument>();
 
     @JsonProperty("annotation_documents")
-    private List<AnnotationDocument> annotationDocuments;
+    private List<AnnotationDocument> annotationDocuments = new ArrayList<AnnotationDocument>();
 
 
     @JsonProperty("project_permissions")
-    private List<ProjectPermission> projectPermissions ;
+    private List<ProjectPermission> projectPermissions = new ArrayList<ProjectPermission>();
 
     @JsonProperty("tag_sets")
     private List<TagSet> tagSets = new ArrayList<TagSet>();
-
-    @JsonProperty("layers")
-    private List<AnnotationLayer> layers;
-
-    @JsonProperty("mira_templates")
-    private List<MiraTemplate> miraTemplates = new ArrayList<MiraTemplate>();
-
-    @JsonProperty("crowd_jobs")
-    private List<CrowdJob> crowdJobs = new ArrayList<CrowdJob>();
-
-
-    @JsonProperty("version")
-    private int version;
 
     public String getName()
     {
@@ -88,6 +74,16 @@ public class Project
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public boolean isReverse()
+    {
+        return reverse;
+    }
+
+    public void setReverse(boolean reverse)
+    {
+        this.reverse = reverse;
     }
 
     public List<SourceDocument> getSourceDocuments()
@@ -139,43 +135,5 @@ public class Project
     {
         this.mode = mode;
     }
-
-    public int getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(int version)
-    {
-        this.version = version;
-    }
-
-    public List<AnnotationLayer> getLayers()
-    {
-        return layers;
-    }
-
-    public void setLayers(List<AnnotationLayer> layers)
-    {
-        this.layers = layers;
-    }
-
-    public List<MiraTemplate> getMiraTemplates()
-    {
-        return miraTemplates;
-    }
-
-    public void setMiraTemplates(List<MiraTemplate> miraTemplates)
-    {
-        this.miraTemplates = miraTemplates;
-    }
-
-	public List<CrowdJob> getCrowdJobs() {
-		return crowdJobs;
-	}
-
-	public void setCrowdJobs(List<CrowdJob> crowdJobs) {
-		this.crowdJobs = crowdJobs;
-	}
 
 }

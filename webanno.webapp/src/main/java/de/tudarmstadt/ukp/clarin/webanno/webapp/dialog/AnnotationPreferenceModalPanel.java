@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,13 +42,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
 /**
  * Modal Window to configure {@link BratAnnotator#setAnnotationLayers(ArrayList),
@@ -89,56 +88,51 @@ public class AnnotationPreferenceModalPanel
             getModelObject().numberOfSentences = bModel.getWindowSize();
             getModelObject().scrollPage = bModel.isScrollPage();
             getModelObject().staticColor = bModel.isStaticColor();
-            for (AnnotationLayer layer : bModel.getAnnotationLayers()) {
-                getModelObject().annotationLayers.add(layer);
+            for (TagSet tagSet : bModel.getAnnotationLayers()) {
+                getModelObject().annotationLayers.add(tagSet);
             }
             windowSizeField = new NumberTextField<Integer>("numberOfSentences");
             windowSizeField.setType(Integer.class);
             windowSizeField.setMinimum(1);
             add(windowSizeField);
 
-            add(new CheckBoxMultipleChoice<AnnotationLayer>("annotationLayers")
+            add(new CheckBoxMultipleChoice<TagSet>("annotationLayers")
             {
                 private static final long serialVersionUID = 1L;
 
                 {
-                    setChoices(new LoadableDetachableModel<List<AnnotationLayer>>()
+                    setChoices(new LoadableDetachableModel<List<TagSet>>()
                     {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected List<AnnotationLayer> load()
+                        protected List<TagSet> load()
                         {
                             // disable corefernce annotation for correction/curation pages for 0.4.0
                             // release
-                            List<AnnotationLayer> layers = annotationService
-                                    .listAnnotationLayer(bModel.getProject());
-                            List<AnnotationLayer> corefTagSets = new ArrayList<AnnotationLayer>();
-                            List<AnnotationLayer> hideLayer = new ArrayList<AnnotationLayer>();
-                            for (AnnotationLayer layer : layers) {
-                                if(!layer.isEnabled()){
-                                    hideLayer.add(layer);
-                                    continue;
-                                }
-                                if (layer.getName().equals(Token.class.getName())) {
-                                    hideLayer.add(layer);
-                                }
-                                else if (layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-                                    corefTagSets.add(layer);
+                            List<TagSet> tagSets = annotationService.listTagSets(bModel
+                                    .getProject());
+                            List<TagSet> corefTagSets = new ArrayList<TagSet>();
+                            for (TagSet tagSet : tagSets) {
+                                if (tagSet.getType().getName().equals("coreference type")
+                                        || tagSet.getType().getName().equals("coreference")) {
+                                    corefTagSets.add(tagSet);
                                 }
                             }
 
                             if (bModel.getMode().equals(Mode.CORRECTION)
                                     || bModel.getMode().equals(Mode.CURATION)) {
-                                layers.removeAll(corefTagSets);
+                                tagSets.removeAll(corefTagSets);
                             }
-                            layers.removeAll(hideLayer);
-                            return layers;
+                            return tagSets;
+                            // return
+                            // annotationService.listTagSets(bratAnnotatorModel.getProject());
                         }
                     });
-                    setChoiceRenderer(new ChoiceRenderer<AnnotationLayer>("uiName", "id"));
+                    setChoiceRenderer(new ChoiceRenderer<TagSet>("name", "id"));
                 }
             });
+
 
             // Add a Checkbox to enable/disable automatic page navigations while annotating
             add(new CheckBox("scrollPage"));
@@ -162,7 +156,7 @@ public class AnnotationPreferenceModalPanel
                         ProjectUtil.savePreference(bModel, repository);
                     }
                     catch (FileNotFoundException e) {
-                        error("Preference file not found");
+                      error("Preference file not found");
                     }
                     catch (IOException e) {
                         error("Preference file not found");
@@ -205,7 +199,7 @@ public class AnnotationPreferenceModalPanel
         public int numberOfSentences;
         public boolean scrollPage;
         public boolean staticColor;
-        public List<AnnotationLayer> annotationLayers = new ArrayList<AnnotationLayer>();
+        public HashSet<TagSet> annotationLayers = new HashSet<TagSet>();
     }
 
     public AnnotationPreferenceModalPanel(String aId, final ModalWindow modalWindow,

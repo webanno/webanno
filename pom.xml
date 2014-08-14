@@ -10,22 +10,18 @@
 	<parent>
 		<artifactId>dkpro-parent-pom</artifactId>
 		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-		<version>9</version>
+		<version>6</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>1.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>WebAnno</name>
 	<url>http://code.google.com/p/webanno/</url>
 	<inceptionYear>2012</inceptionYear>
 	<properties>
-		<maven.compiler.target>1.6</maven.compiler.target>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<jackson.version>1.9.6</jackson.version>
-		<uima.version>2.6.0</uima.version>
-		<uimafit.version>2.1.0</uimafit.version>
+		<uima.version>2.4.2</uima.version>
 		<spring.version>3.1.4.RELEASE</spring.version>
 		<spring.security.version>3.1.4.RELEASE</spring.security.version>
 		<slf4j.version>1.6.4</slf4j.version>
@@ -34,108 +30,49 @@
 		<hibernate.version>4.1.4.Final</hibernate.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-	<dkpro.version>1.5.0</dkpro.version>
+		<dkpro.version>1.5.0</dkpro.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>ukp-oss-releases</id>
-			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-releases</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-    <dependencyManagement>
+	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.apache.uima</groupId>
-				<artifactId>uimaj-core</artifactId>
-				<version>${uima.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.uima</groupId>
-				<artifactId>uimafit-core</artifactId>
-				<version>${uimafit.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.api</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.api.dao</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.brat</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tsv</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.model</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.monitoring</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tcf</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tei</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.uima</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.webapp</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.crowdflower</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.support</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.webapp.home</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.automation</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-				<artifactId>de.tudarmstadt.ukp.clarin.webanno.project</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
@@ -166,16 +103,6 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.googlecode.wicket-jquery-ui</groupId>
-				<artifactId>jquery-ui-core</artifactId>
-				<version>1.4.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.googlecode.wicket-jquery-ui</groupId>
-				<artifactId>jquery-ui-kendo</artifactId>
-				<version>1.4.1</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging-api</artifactId>
 				<version>1.1</version>
@@ -186,33 +113,15 @@
 				<version>1.8.3</version>
 			</dependency>
 			<dependency>
-				<groupId>org.jfree</groupId>
-				<artifactId>jfreechart</artifactId>
-				<version>1.0.17</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jfree</groupId>
-				<artifactId>jcommon</artifactId>
-				<version>1.0.21</version>
-			</dependency>
-			
-			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>3.0.1</version>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-mapper-asl</artifactId>
-				<version>${jackson.version}</version>
+				<version>1.9.6</version>
 			</dependency>
-			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-core-asl</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			
 			<dependency>
 				<groupId>xerces</groupId>
 				<artifactId>xercesImpl</artifactId>
@@ -227,17 +136,6 @@
 				<groupId>xalan</groupId>
 				<artifactId>serializer</artifactId>
 				<version>2.7.1</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-core</artifactId>
-				<version>${hibernate.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
-				<version>${hibernate.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.javax.persistence</groupId>
@@ -328,6 +226,13 @@
 				<artifactId>spring-security-web</artifactId>
 				<version>${spring.security.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+				<artifactId>
+					de.tudarmstadt.ukp.clarin.webanno.crowdflower
+				</artifactId>
+				<version>1.1.0-SNAPSHOT</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
@@ -348,9 +253,9 @@
 		<module>webanno.monitoring</module>
 	</modules>
 	<scm>
-		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/trunk</developerConnection>
-		<connection>scm:svn:https://webanno.googlecode.com/svn/trunk</connection>
-		<url>https://webanno.googlecode.com/svn/trunk</url>
+		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</developerConnection>
+		<connection>scm:svn:https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</connection>
+		<url>https://webanno.googlecode.com/svn/branches/1.1-beta-16.x</url>
 	</scm>
 	<build>
 		<extensions>

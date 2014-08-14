@@ -88,14 +88,14 @@ public class FinishImage
                             && repository
                                     .getAnnotationDocument(aModel.getObject().getDocument(), user)
                                     .getState().equals(AnnotationDocumentState.FINISHED)) {
-                        return "images/accept.png";
+                        return "images/cancel.png";
                     }
                     else {
-                        return "images/inprogress.png";
+                        return "images/accept.png";
                     }
                 }
                 else {
-                    return "images/inprogress.png";
+                    return "images/accept.png";
                 }
 
             }

@@ -11,44 +11,15 @@
   <parent>
     <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
     <artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
   <artifactId>de.tudarmstadt.ukp.clarin.webanno.crowdflower</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>commons-lang</groupId>
-  		<artifactId>commons-lang</artifactId>
-  	</dependency>
-  	<dependency>
-  		<groupId>commons-logging</groupId>
-  		<artifactId>commons-logging-api</artifactId>
-  	</dependency>
-
-  	<!-- Spring dependencies -->
-  	
-  	<dependency>
-  		<groupId>org.springframework</groupId>
-  		<artifactId>spring-core</artifactId>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.springframework</groupId>
-  		<artifactId>spring-web</artifactId>
-  	</dependency>
-
-  	<!-- UIMA dependencies -->
-
-  	<dependency>
 		<groupId>org.apache.uima</groupId>
 		<artifactId>uimaj-core</artifactId>
 	</dependency>
-  	<dependency>
-  		<groupId>org.apache.uima</groupId>
-  		<artifactId>uimafit-core</artifactId>
-  	</dependency>
-  	
-  	<!-- DKPro core dependencies -->
-
-  	<dependency>
+	<dependency>
 		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 		<artifactId>de.tudarmstadt.ukp.dkpro.core.api.segmentation-asl</artifactId>
 	</dependency>
@@ -56,16 +27,13 @@
 		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 		<artifactId>de.tudarmstadt.ukp.dkpro.core.api.ner-asl</artifactId>
 	</dependency>
-  	
-  	<!-- Jackson dependencies -->
-  	
   	<dependency>
   		<groupId>org.codehaus.jackson</groupId>
   		<artifactId>jackson-mapper-asl</artifactId>
   	</dependency>
   	<dependency>
-  		<groupId>org.codehaus.jackson</groupId>
-  		<artifactId>jackson-core-asl</artifactId>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-web</artifactId>
   	</dependency>
   </dependencies>
 </project>

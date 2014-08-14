@@ -17,8 +17,6 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.project.page;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -54,7 +51,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,7 +59,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.automation.project.ProjectMiraTemplatePanel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -95,7 +90,7 @@ public class ProjectPage
     private AnnotationService annotationService;
 
     @SpringBean(name = "documentRepository")
-    private RepositoryService repository;
+    private RepositoryService projectRepository;
 
     public static ProjectSelectionForm projectSelectionForm;
     public static ProjectDetailForm projectDetailForm;
@@ -109,7 +104,6 @@ public class ProjectPage
         projectSelectionForm = new ProjectSelectionForm("projectSelectionForm");
 
         projectDetailForm = new ProjectDetailForm("projectDetailForm");
-        projectDetailForm.setOutputMarkupPlaceholderTag(true);
         projectDetailForm.setVisible(false);
 
         importProjectForm = new ImportProjectForm("importProjectForm");
@@ -140,7 +134,7 @@ public class ProjectPage
                 {
                     projectDetailForm.setModelObject(new Project());
                     projectDetailForm.setVisible(true);
-                    ProjectSelectionForm.this.setModelObject(new SelectionModel());
+                    ProjectSelectionForm.this.setVisible(true);
                     if (projectType != null) {
                         projectType.setEnabled(true);
                     }
@@ -166,10 +160,10 @@ public class ProjectPage
 
                             String username = SecurityContextHolder.getContext()
                                     .getAuthentication().getName();
-                            User user = repository.getUser(username);
+                            User user = projectRepository.getUser(username);
 
-                            List<Project> allProjects = repository.listProjects();
-                            List<Authority> authorities = repository.listAuthorities(user);
+                            List<Project> allProjects = projectRepository.listProjects();
+                            List<Authority> authorities = projectRepository.listAuthorities(user);
 
                             // if global admin, show all projects
                             for (Authority authority : authorities) {
@@ -180,7 +174,7 @@ public class ProjectPage
 
                             // else only projects she is admin of
                             for (Project project : allProjects) {
-                                if (ProjectUtil.isProjectAdmin(project, repository, user)) {
+                                if (ProjectUtil.isProjectAdmin(project, projectRepository, user)) {
                                     allowedProject.add(project);
                                 }
                             }
@@ -196,11 +190,7 @@ public class ProjectPage
                 {
                     if (aNewSelection != null) {
                         projectDetailForm.setModelObject(aNewSelection);
-                        projectDetailForm.projectModel.setObject(aNewSelection);
                         projectDetailForm.setVisible(true);
-
-                        projectDetailForm.allTabs.setSelectedTab(0);
-                        RequestCycle.get().setResponsePage(getPage());
                         ProjectSelectionForm.this.setVisible(true);
                     }
                     if (projectType != null) {
@@ -239,7 +229,7 @@ public class ProjectPage
     {
         private static final long serialVersionUID = -6361609153142402692L;
         private FileUploadField fileUpload;
-        private List<FileUpload> exportedProjects;
+        private FileUpload uploadedFile;
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public ImportProjectForm(String id)
@@ -255,17 +245,77 @@ public class ProjectPage
                 @Override
                 public void onSubmit()
                 {
-                    exportedProjects = fileUpload.getFileUploads();
-
-                    if (isEmpty(exportedProjects)) {
-                        error("Please choose appropriate project/s in zip format");
+                    uploadedFile = fileUpload.getFileUpload();
+                    if (uploadedFile == null) {
+                        error("Please choose appropriate project in zip format");
                         return;
                     }
-                    
-                    actionImportProject(exportedProjects);
+                    try {
+                        if (!ProjectUtil.isZipStream(uploadedFile.getInputStream())) {
+                            error("Invalid ZIP file");
+                            return;
+                        }
+                        File zipFfile = uploadedFile.writeToTempFile();
+                        if (!ProjectUtil.isZipValidWebanno(zipFfile)) {
+                            error("Incompatible to webanno ZIP file");
+                        }
+                        ZipFile zip = new ZipFile(zipFfile);
+                        InputStream projectInputStream = null;
+                        for (Enumeration zipEnumerate = zip.entries(); zipEnumerate
+                                .hasMoreElements();) {
+                            ZipEntry entry = (ZipEntry) zipEnumerate.nextElement();
+                            if (entry.toString().replace("/", "")
+                                    .startsWith(ProjectUtil.EXPORTED_PROJECT)
+                                    && entry.toString().replace("/", "").endsWith(".json")) {
+                                projectInputStream = zip.getInputStream(entry);
+                                break;
+                            }
+                        }
+
+                        // projectInputStream = uploadedFile.getInputStream();
+                        String text = IOUtils.toString(projectInputStream, "UTF-8");
+                        MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
+                        de.tudarmstadt.ukp.clarin.webanno.model.export.Project importedProjectSetting = jsonConverter
+                                .getObjectMapper()
+                                .readValue(
+                                        text,
+                                        de.tudarmstadt.ukp.clarin.webanno.model.export.Project.class);
+
+                        Project importedProject = ProjectUtil.createProject(importedProjectSetting,
+                                projectRepository);
+                        ProjectUtil.createSourceDocument(importedProjectSetting, importedProject,
+                                projectRepository);
+                        ProjectUtil.createAnnotationDocument(importedProjectSetting,
+                                importedProject, projectRepository);
+                        ProjectUtil.createProjectPermission(importedProjectSetting,
+                                importedProject, projectRepository);
+                        for (TagSet tagset : importedProjectSetting.getTagSets()) {
+                            ProjectUtil.createTagset(importedProject, tagset, projectRepository,
+                                    annotationService);
+                        }
+                        // add source document content
+                        ProjectUtil.createSourceDocumentContent(zip, importedProject,
+                                projectRepository);
+                        // add annotation document content
+                        ProjectUtil.createAnnotationDocumentContent(zip, importedProject,
+                                projectRepository);
+                        // create curation document content
+                        ProjectUtil.createCurationDocumentContent(zip, importedProject,
+                                projectRepository);
+                        // create project log
+                        ProjectUtil.createProjectLog(zip, importedProject, projectRepository);
+                        // create project guideline
+                        ProjectUtil.createProjectGuideline(zip, importedProject, projectRepository);
+                        // cretae project META-INF
+                        ProjectUtil.createProjectMetaInf(zip, importedProject, projectRepository);
+                    }
+                    catch (IOException e) {
+                        error("Error Importing Project " + ExceptionUtils.getRootCauseMessage(e));
+                    }
                 }
             });
         }
+
     }
 
     public class ProjectDetailForm
@@ -309,13 +359,13 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectUsersPanel(panelId, projectModel);
+                    return new ProjectUsersPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0 && visible;
+                    return project.getObject().getId() != 0 && visible;
                 }
             });
 
@@ -326,13 +376,13 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectDocumentsPanel(panelId, projectModel);
+                    return new ProjectDocumentsPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0 && visible;
+                    return project.getObject().getId() != 0 && visible;
                 }
             });
 
@@ -343,13 +393,14 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectLayersPanel(panelId, projectModel);
+                    return new ProjectLayersPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0 && visible;
+                   // return project.getObject().getId() != 0 && visible;
+                    return false;
                 }
             });
 
@@ -360,13 +411,13 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectTagSetsPanel(panelId, projectModel);
+                    return new ProjectTagSetsPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0 && visible;
+                    return project.getObject().getId() != 0 && visible;
                 }
             });
 
@@ -377,13 +428,13 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new AnnotationGuideLinePanel(panelId, projectModel);
+                    return new AnnotationGuideLinePanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0 && visible;
+                    return project.getObject().getId() != 0 && visible;
                 }
             });
 
@@ -395,16 +446,17 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectExportPanel(panelId, projectModel);
+                    return new ProjectExportPanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0;
+                    return project.getObject().getId() != 0;
 
                 }
             });
+
 
             tabs.add(new AbstractTab(new Model<String>("Automation"))
             {
@@ -414,26 +466,24 @@ public class ProjectPage
                 @Override
                 public Panel getPanel(String panelId)
                 {
-                    return new ProjectMiraTemplatePanel(panelId, projectModel);
+                    return new ProjectMiraTemplatePanel(panelId, project);
                 }
 
                 @Override
                 public boolean isVisible()
                 {
-                    return projectModel.getObject().getId() != 0
-                            && projectModel.getObject().getMode().equals(Mode.AUTOMATION) && visible;
+                    return project.getObject().getId() != 0 && project.getObject().getMode().equals(Mode.AUTOMATION);
 
                 }
             });
-            add(allTabs = (AjaxTabbedPanel) new AjaxTabbedPanel<ITab>("tabs", tabs)
-                    .setOutputMarkupPlaceholderTag(true));
+            add(allTabs = new AjaxTabbedPanel<ITab>("tabs", tabs));
             ProjectDetailForm.this.setMultiPart(true);
         }
 
         // Update the project mode, that will be shared among TABS
         // Better way of sharing data
         // http://stackoverflow.com/questions/6532178/wicket-persistent-object-between-panels
-        Model<Project> projectModel = new Model<Project>()
+        Model<Project> project = new Model<Project>()
         {
             private static final long serialVersionUID = -6394439155356911110L;
 
@@ -473,8 +523,7 @@ public class ProjectPage
                     if (!ProjectUtil.isNameValid(project.getName())) {
 
                         // Maintain already loaded project and selected Users
-                        // Hence Illegal Project modification (limited
-                        // privilege, illegal
+                        // Hence Illegal Project modification (limited privilege, illegal
                         // project
                         // name,...) preserves the original one
                         if (project.getId() != 0) {
@@ -484,27 +533,22 @@ public class ProjectPage
                         LOG.error("Project name shouldn't contain characters such as /\\*?&!$+[^]");
                         return;
                     }
-                    if (repository.existsProject(project.getName()) && project.getId() == 0) {
+                    if (projectRepository.existsProject(project.getName()) && project.getId() == 0) {
                         error("Another project with name [" + project.getName() + "] exists");
                         return;
                     }
 
-                    if (repository.existsProject(project.getName()) && project.getId() != 0) {
+                    if (projectRepository.existsProject(project.getName()) && project.getId() != 0) {
                         error("project updated with name [" + project.getName() + "]");
                         return;
                     }
                     try {
                         String username = SecurityContextHolder.getContext().getAuthentication()
                                 .getName();
-                        User user = repository.getUser(username);
-                        repository.createProject(project, user);
-                        annotationService.initializeTypesForProject(project, user, new String[] {},
-                                new String[] {}, new String[] {}, new String[] {}, new String[] {},
-                                new String[] {}, new String[] {}, new String[] {});
+                        User user = projectRepository.getUser(username);
+                        projectRepository.createProject(project, user);
+                        annotationService.initializeTypesForProject(project, user);
                         projectDetailForm.setVisible(true);
-                        SelectionModel selectionModel = new SelectionModel();
-                        selectionModel.project = project;
-                        projectSelectionForm.setModelObject(selectionModel);
                     }
                     catch (IOException e) {
                         error("Project repository path not found " + ":"
@@ -528,9 +572,9 @@ public class ProjectPage
                     try {
                         String username = SecurityContextHolder.getContext().getAuthentication()
                                 .getName();
-                        User user = repository.getUser(username);
+                        User user = projectRepository.getUser(username);
 
-                        repository.removeProject(projectDetailForm.getModelObject(), user);
+                        projectRepository.removeProject(projectDetailForm.getModelObject(), user);
                         projectDetailForm.setVisible(false);
                     }
                     catch (IOException e) {
@@ -542,84 +586,5 @@ public class ProjectPage
                 }
             });
         }
-    }
-    
-    private void actionImportProject(List<FileUpload> exportedProjects)
-    {
-        Project importedProject = new Project();
-        // import multiple projects!
-        for (FileUpload exportedProject : exportedProjects) {
-            InputStream tagInputStream;
-            try {
-                tagInputStream = exportedProject.getInputStream();
-                if (!ProjectUtil.isZipStream(tagInputStream)) {
-                    error("Invalid ZIP file");
-                    return;
-                }
-                File zipFfile = exportedProject.writeToTempFile();
-                if (!ProjectUtil.isZipValidWebanno(zipFfile)) {
-                    error("Incompatible to webanno ZIP file");
-                }
-                ZipFile zip = new ZipFile(zipFfile);
-                InputStream projectInputStream = null;
-                for (Enumeration zipEnumerate = zip.entries(); zipEnumerate.hasMoreElements();) {
-                    ZipEntry entry = (ZipEntry) zipEnumerate.nextElement();
-                    if (entry.toString().replace("/", "").startsWith(ProjectUtil.EXPORTED_PROJECT)
-                            && entry.toString().replace("/", "").endsWith(".json")) {
-                        projectInputStream = zip.getInputStream(entry);
-                        break;
-                    }
-                }
-
-                // projectInputStream =
-                // uploadedFile.getInputStream();
-                String text = IOUtils.toString(projectInputStream, "UTF-8");
-                MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-                de.tudarmstadt.ukp.clarin.webanno.model.export.Project importedProjectSetting = jsonConverter
-                        .getObjectMapper().readValue(text,
-                                de.tudarmstadt.ukp.clarin.webanno.model.export.Project.class);
-
-                importedProject = ProjectUtil.createProject(importedProjectSetting, repository);
-
-                Map<de.tudarmstadt.ukp.clarin.webanno.model.export.AnnotationFeature, AnnotationFeature> featuresMap = ProjectUtil
-                        .createLayer(importedProject, importedProjectSetting, repository,
-                                annotationService);
-                ProjectUtil.createSourceDocument(importedProjectSetting, importedProject,
-                        repository, featuresMap);
-                ProjectUtil.createMiraTemplate(importedProjectSetting, repository, featuresMap);
-                ProjectUtil.createCrowdJob(importedProjectSetting, repository, importedProject);
-
-                ProjectUtil.createAnnotationDocument(importedProjectSetting, importedProject,
-                        repository);
-                ProjectUtil.createProjectPermission(importedProjectSetting, importedProject,
-                        repository);
-                /*
-                 * for (TagSet tagset : importedProjectSetting.getTagSets()) {
-                 * ProjectUtil.createTagset(importedProject, tagset, projectRepository,
-                 * annotationService); }
-                 */
-                // add source document content
-                ProjectUtil.createSourceDocumentContent(zip, importedProject, repository);
-                // add annotation document content
-                ProjectUtil.createAnnotationDocumentContent(zip, importedProject, repository);
-                // create curation document content
-                ProjectUtil.createCurationDocumentContent(zip, importedProject, repository);
-                // create project log
-                ProjectUtil.createProjectLog(zip, importedProject, repository);
-                // create project guideline
-                ProjectUtil.createProjectGuideline(zip, importedProject, repository);
-                // cretae project META-INF
-                ProjectUtil.createProjectMetaInf(zip, importedProject, repository);
-            }
-            catch (IOException e) {
-                error("Error Importing Project " + ExceptionUtils.getRootCauseMessage(e));
-            }
-        }
-        projectDetailForm.setModelObject(importedProject);
-        SelectionModel selectedProjectModel = new SelectionModel();
-        selectedProjectModel.project = importedProject;
-        projectSelectionForm.setModelObject(selectedProjectModel);
-        projectDetailForm.setVisible(true);
-        RequestCycle.get().setResponsePage(getPage());
     }
 }

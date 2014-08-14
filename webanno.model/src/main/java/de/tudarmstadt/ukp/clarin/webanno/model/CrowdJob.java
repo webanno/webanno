@@ -23,7 +23,6 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -41,7 +40,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "crowd_job", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "name","project" }) })
+        "name" }) })
 public class CrowdJob
     implements Serializable
 {
@@ -57,11 +56,11 @@ public class CrowdJob
     private String name;
 
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "crowd_job_source_document")
     private Set<SourceDocument> documents = new HashSet<SourceDocument>();
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "crowd_job_gold_document")
     private Set<SourceDocument> goldDocuments = new HashSet<SourceDocument>();
 

@@ -23,66 +23,38 @@ import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.CAS;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.util.JCasUtil;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public class WebAnnoTsvReaderWriterTest
 {
     @Test
+
     public void test()
         throws Exception
     {
-        CollectionReader reader = createCollectionReader(WebannoCustomTsvReader.class,
-                WebannoCustomTsvReader.PARAM_PATH,
-                new File("src/test/resources/tsv/").getAbsolutePath(),
-                WebannoCustomTsvReader.PARAM_PATTERNS, new String[] { "[+]example2.tsv" });
-     
-        List<String> multipleSpans = new ArrayList<String>();
-        multipleSpans.add("de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity");
-        multipleSpans.add("de.tudarmstadt.ukp.dkpro.core.api.coref.type.Coreference");
-        AnalysisEngineDescription writer = createPrimitiveDescription(WebannoCustomTsvWriter.class,
-                WebannoCustomTsvWriter.PARAM_TARGET_LOCATION, "target/test-output",
-                WebannoCustomTsvWriter.PARAM_STRIP_EXTENSION, true, "multipleSpans", multipleSpans);
-       
+        CollectionReader reader = createCollectionReader(WebannoTsvReader.class, WebannoTsvReader.PARAM_PATH,
+                new File("src/test/resources/tsv/").getAbsolutePath(), WebannoTsvReader.PARAM_PATTERNS,
+                new String[] { "[+]example.tsv" });
+
+        AnalysisEngineDescription writer = createPrimitiveDescription(WebannoTsvWriter.class,
+                WebannoTsvWriter.PARAM_TARGET_LOCATION, "target/test-output", WebannoTsvWriter.PARAM_STRIP_EXTENSION,
+                true);
+
+    /*    AnalysisEngineDescription dumper = createPrimitiveDescription(CASDumpWriter.class,
+                CASDumpWriter.PARAM_OUTPUT_FILE, "target/test-output/dump.txt");*/
+
+      //  runPipeline(reader, writer, dumper);
         runPipeline(reader, writer);
-        
-        CollectionReader reader1 = createCollectionReader(WebannoCustomTsvReader.class,
-                WebannoCustomTsvReader.PARAM_PATH,
-                new File("src/test/resources/tsv/").getAbsolutePath(),
-                WebannoCustomTsvReader.PARAM_PATTERNS, new String[] { "[+]example2.tsv" });
-        CAS cas1 = JCasFactory.createJCas().getCas();
-        reader1.getNext(cas1);
 
-        CollectionReader reader2 = createCollectionReader(WebannoCustomTsvReader.class,
-                WebannoCustomTsvReader.PARAM_PATH,
-                new File("target/test-output/").getAbsolutePath(),
-                WebannoCustomTsvReader.PARAM_PATTERNS, new String[] { "[+]example2.tsv" });
-
-        CAS cas2 = JCasFactory.createJCas().getCas();
-        reader2.getNext(cas2);
-
-        assertEquals(JCasUtil.select(cas2.getJCas(), Token.class).size(),
-                JCasUtil.select(cas1.getJCas(), Token.class).size());
-        assertEquals(JCasUtil.select(cas2.getJCas(), POS.class).size(),
-                JCasUtil.select(cas1.getJCas(), POS.class).size());
-        assertEquals(JCasUtil.select(cas2.getJCas(), Lemma.class).size(),
-                JCasUtil.select(cas1.getJCas(), Lemma.class).size());
-        assertEquals(JCasUtil.select(cas2.getJCas(), NamedEntity.class).size(),
-                JCasUtil.select(cas1.getJCas(), NamedEntity.class).size());
-        assertEquals(JCasUtil.select(cas2.getJCas(), Sentence.class).size(),
-                JCasUtil.select(cas1.getJCas(), Sentence.class).size());
+        String reference = FileUtils.readFileToString(new File(
+                "src/test/resources/tsv/example.tsv"), "UTF-8");
+        String actual = FileUtils.readFileToString(
+                new File("target/test-output/example.tsv"), "UTF-8");
+        assertEquals(reference, actual);
     }
 }
