@@ -29,7 +29,7 @@ The arrow buttons *first page*, *next page*, *previous page*, *last page*, and *
   * *END*: jump to last sentence
   * *PAGE DOWN*: move to the next page, if not in the last page already
   * *PAGE UP*: move to previous page , if not already in the first page
-  * *SHIFT+PgUp* and *SHIFT+PgDn*: go to previous/next document in project, if available
+  * *SHIFT+!PgUp* and *SHIFT+!PgDn*: go to previous/next document in project, if available
 
 A click on the “Help” Button displays the Guidelines for the tool and “The Annotator's Guide to NER-Annotation”.
 When you are finished with annotating or curating a document, please click on the “Done” 
@@ -55,7 +55,7 @@ Annotations are always immediately persistent in the backend database. Thus, it 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/anno_export.JPG" width="400"/> 
 
-Choose your preferred format. Please take note of the facts that the plain text format does not contain any annotations and that the files in the binary format need to be unpacked before further usage. For further information on the formats provided in WebAnno, please consult the corresponding chapter [http://code.google.com/p/webanno/wiki/OutputFormat?ts=1404307042&updated=OutputFormat WebAnno's supported formats].
+Choose your preferred format. Please take note of the facts that the plain text format does not contain any annotations and that the files in the binary format need to be unpacked before further usage. For further information on the formats provided in !WebAnno, please consult the corresponding chapter [OutputFormat WebAnno's supported formats].
 
 The document will be saved to your local disk, and can be re-imported via adding the document to a project by a project administrator. Please export your data periodically, at least when finishing a document or not continuing annotations for an extended period of time. 
 
