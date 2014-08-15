@@ -8,7 +8,7 @@ You can start with the [SampleProjects example projects] to explore some of the 
 
 == Important notice == 
 
-*Note:* If you have previously used an older version of the WebAnno standalone, make sure to clean up the temporary installation before running the new version:
+*Note:* If you have previously used an older version of the !WebAnno standalone, make sure to clean up the temporary installation before running the new version:
 
    * On OS X: `rm -R "$TMPDIR/winstoneEmbeddedWAR"`
    * On Linux: `rm -R /tmp/winstoneEmbeddedWAR`
