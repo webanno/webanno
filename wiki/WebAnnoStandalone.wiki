@@ -2,7 +2,9 @@
 
 All-in-one version which does not require a database server or tomcat to be set up.
 
-Get the standalone jar from the [WebAnnoInstFile downloads] and start it with: 
+Get the standalone jar from the [WebAnnoInstFile downloads] and start it simply with a *double-click* in your file manager. !WebAnno stores its data in a folder called `.webanno` within your home folder,
+
+Alternatively, you can start !WebAnno from the command line, in particular if you wish to provide it with additional memory (here 1 GB) or if you want it to store its data in a different folder.
 {{{
 java -Xmx1g -Dwebanno.home=/my/webanno/home -jar webanno-XXX-standalone.jar
 }}}
