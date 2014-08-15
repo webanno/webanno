@@ -40,5 +40,6 @@ de.tudarmstadt.ukp.clarin.webanno.webapp.page.welcome
 de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi
 de.tudarmstadt.ukp.clarin.webanno.webapp.security
 de.tudarmstadt.ukp.clarin.webanno.webapp.security.page
+de.tudarmstadt.ukp.clarin.webanno.webapp.standalone
 de.tudarmstadt.ukp.dkpro.core.api.metadata.type
 de.tudarmstadt.ukp.webanno.type
