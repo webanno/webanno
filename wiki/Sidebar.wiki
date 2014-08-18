@@ -4,7 +4,6 @@
     * [WebAnnoInstFile Downloads]
     * [WebAnnoStandalone Standalone]
     * [InstallationGuide Server-based]
-    * [upgradeprocedure Upgrade guide]
     * [SampleProjects Example projects]
     * [QuickInstallOsX Quick install guide: OS X]
   * [UserGuide User documentation]
