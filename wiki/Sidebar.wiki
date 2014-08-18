@@ -15,7 +15,7 @@
     * [Monitoring]
     * [Manage_Users]
     * [Tutorials Tutorials]
-    * [Format WebAnno's supported formats]
+    * [Format Corpus formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
   * Developer documentation
     * [DevInstallationGuide Developer's Installation Guide]
