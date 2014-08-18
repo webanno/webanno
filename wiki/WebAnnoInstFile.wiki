@@ -4,7 +4,7 @@
    * [http://dl.bintray.com/webanno/downloads/webanno-2.0.10.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions]
    * [SampleProjects Example projects]
 
-== Upgrading from a previous version of WebAnno ==
+== Upgrading from a previous version of !WebAnno ==
 
 === Exporting/importing ===
 
