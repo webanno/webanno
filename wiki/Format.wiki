@@ -19,7 +19,7 @@ Third column: the lemma
 
 Fourth column: the POS
 
-Fifth column: Named Entity annotations in BIO(nested and multiple NE annotations separated by | Character)
+Fifth column: Named Entity annotations in BIO(nested and multiple NE annotations separated by "|" character)
 
 Sixth column: the target token for a dependency parsing <br>
 
