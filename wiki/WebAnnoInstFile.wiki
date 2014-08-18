@@ -1,10 +1,12 @@
 #summary Downloads
 
+== Downloads ==
+
    * [http://dl.bintray.com/webanno/downloads/webanno-2.0.10-standalone.jar WebAnno 2 standalone (executable JAR)] - [WebAnnoStandalone Installation instructions] 
    * [http://dl.bintray.com/webanno/downloads/webanno-2.0.10.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions]
    * [SampleProjects Example projects]
 
-== Upgrading from a previous version of !WebAnno ==
+== Upgrade from a previous version of !WebAnno ==
 
 === Exporting/importing ===
 
