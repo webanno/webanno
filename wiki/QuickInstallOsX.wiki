@@ -45,6 +45,8 @@ database.username=webanno
 database.password=t0t4llYSecreT
 }}}
 
+
+<wiki:comment> THIS IS NO LONGER REQUIRED - WebAnno comes with a default file
 Create another simple text file `/Users/JohnDoe/Library/WebAnno/formats.properties`
 
 {{{
@@ -64,6 +66,8 @@ tsv.label=TSV Format
 tsv.reader=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvReader
 tsv.writer=de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsvWriter
 }}}
+</wiki:comment>
+
 
 Fetch the WAR and place it into the webapps folder of your tomcat. Rename it to "webanno.war"
 
