@@ -16,7 +16,7 @@ You can start with the [SampleProjects example projects] to explore some of the 
    * On Linux: `rm -R /tmp/winstoneEmbeddedWAR`
    * On Windows: remove the `winstoneEmbeddedWAR` that should be somewhere under `C:\Users\<username>\AppData\Local\Temp`
 
-== Additional configuration == 
+== Optional configuration == 
 
 Alternatively, you can start !WebAnno from the command line, in particular if you wish to provide it with additional memory (here 1 GB) or if you want it to store its data in a different folder.
 {{{
