@@ -1,5 +1,5 @@
 #summary WebAnno FAQs
-
+===q1===
 *Nach Durchsicht der Infos auf der WebAnno-Website hätten wir bereits zwei Fragen, zu denen wir uns über eine Antwort sehr freuen würden:*
 <font color="red">
   * *Wenn bei der PoS-Annotation via WebAnno die Annotatoren Segmentierungsfehler in der zugrundeliegenden Textbasis entdecken, besteht dsann die Möglichkleit, diese Fehler direkt über WebAnno zu korrigieren (d.h. Segmentierungen in der Textbasis zu ändern)? M.a.W.: Ist die Tokenebene nach dem Einspielen des Textes in die Datenbank fixiert oder nicht?* </font>
@@ -7,13 +7,14 @@ TRANSLATION: Is there a way to chanke tokenization or sentence segmentation dire
 
 Unfortunately, this is not supported in the current version and has to be done outside of WebAnno.
 
+===q2===
 <font color="red">
   * *Können in WebAnno auch Metadaten mitverwaltet bzw. gespeichert werden Im Falle unserer Daten verwenden wir u.a. IDs für einzelne Postings und deren Autoren.* </font>
 
 TRANSLATION: Is there a way to add metadata, such as IDs for postings or their authors, and to show them during annotation?
 
 There is no built-in mechanism. However, you can add the IDs and authorship information as span annotations and import them. Regarding IDs, it is possible to maintain IDs in additional layers in the TCF file format. They will be retained and available in the exported TCF file after annotation, but not shown.
-
+===q3===
 <font color="red">
   * *I like to see kappa measure per documents, how can I do that.* </font>
 Kappa is computed for every user and every documents they have finished. If you like per document kappa, 1) copy your project (export it from project settings) 2) mark all documents except the one you like its kappa in state of "in progress, (the play button)), and select the layer
@@ -22,6 +23,7 @@ Kappa is computed for every user and every documents they have finished. If you 
   * *I have started curation after some users have finished. If new users finished annotation, the curation result is not as I expected.* </font>
 The best thing to do is to wait untill all users finish annotation before starting curations. If new annotation documents finished, press the re-merge button but you will loose the previous curated results!
 
+===q4===
 <font color="red">
   * *dear WebAnno-Group, I would like to ask you one question according to WebAnno:
 I am using the standalone version of the WebAnno-Tool (2.0.0-beta-5).
