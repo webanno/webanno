@@ -168,9 +168,14 @@ To delete a guideline document, click on it and then on “Delete” in the righ
 
 To delete a project, click on it in the frame “Details”. Then you are displayed the details of the project. Click on “Delete”.
 
-=== Extract Documents ===
-WebAnno gives the admin the possibility to extract whole projects or only curated documents by clicking on the corresponding buttons. The progress bar shows the progress of the download, which may take a while, depending on the size of the project.
-If you do not have any curated documents in your project, the button "Export curated documents to the file system" will not be offered.
+=== Export Documents ===
+
+WebAnno offers two modes of exporting projects:
+
+   * *Export the whole project* for the purpose of creating a backup, of migrating it to a new !WebAnno version, of migrating to a different !WebAnno instance, or simply in order to reimport it as a duplicate copy.
+   * *Export curated documents* for the purpose of getting an easy access to the final annotation results. If you do not have any curated documents in your project, this export option is not offered.
+
+*Bug note: do not leave the export page after initiating an export before the progress bar is complete or your WebAnno instance can become locked!*
 
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/export_project.JPG" width="600"/>
