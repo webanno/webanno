@@ -177,5 +177,25 @@ WebAnno offers two modes of exporting projects:
 
 *Bug note: do not leave the export page after initiating an export before the progress bar is complete or your WebAnno instance can become locked!*
 
+When exporting a whole project, the structure of the exported ZIP file is a follows:
+
+   * &lt;project ID>.json - project metadata file
+   * annotation
+      * &lt;source document name>
+         * &lt;user ID>.zip - archive containing a UIMA XMI export representing the annotations for this user
+   * annotation_ser
+      * &lt;source document name>
+         * &lt;user ID>.ser - serialized CAS file representing the annotations for this user
+   * curation
+      * &lt;source document name>
+         * CURATION_USER.ser - TSV file representing the state of curation
+   * curation_ser
+      * &lt;source document name>
+         * CURATION_USER.ser - serialized UIMA CAS representing the state of curation
+   * log
+      * &lt;project ID>.log - project log file
+   * source - folder containing the original source files
+
+Currently, !WebAnno does not allow the user to choose a specific format for bulk-exporting annotations. However, [https://groups.google.com/forum/#!msg/webanno-user/X3ShaFPXQT0/PnBzpPdXrIgJ this mailing list post] describes how [https://code.google.com/p/dkpro-core-asl/ DKPro Core] can be used to transform the UIMA CAS formats into alternative formats.   
 
 <img src="https://webanno.googlecode.com/svn/wiki/images/export_project.JPG" width="600"/>
