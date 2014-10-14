@@ -190,7 +190,7 @@ When exporting a whole project, the structure of the exported ZIP file is a foll
          * *<user ID>.ser* - serialized CAS file representing the annotations for this user
    * *curation*
       * *<source document name>*
-         * *CURATION_USER.ser* - TSV file representing the state of curation
+         * *CURATION_USER.tsv* - TSV file representing the state of curation
    * *curation_ser*
       * *<source document name>*
          * *CURATION_USER.ser* - serialized UIMA CAS representing the state of curation
