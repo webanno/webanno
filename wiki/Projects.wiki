@@ -184,7 +184,7 @@ When exporting a whole project, the structure of the exported ZIP file is a foll
    * *<project ID>.json* - project metadata file
    * *annotation*
       * *<source document name>*
-         * *<user ID>.zip* - archive containing a UIMA XMI export representing the annotations for this user
+         * *<user ID>.XXX* - file representing the annotations for this user. The file format corresponds to the format of the source document.
    * *annotation_ser*
       * *<source document name>*
          * *<user ID>.ser* - serialized CAS file representing the annotations for this user
