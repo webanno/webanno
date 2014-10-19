@@ -470,23 +470,27 @@ public class BratAnnotator
         }
     }
 
+    private String reloadScript()
+    {
+        StringBuilder script = new StringBuilder();
+        // This triggers the loading of the metadata (colors, types, etc.)
+        // Cf. BratAjaxConfiguration.buildEntityTypes(List<AnnotationLayer>, AnnotationService)
+        script.append("dispatcher.post('ajax', [{action: 'getCollectionInformation',collection: '"
+                + getCollection() + "'}, 'collectionLoaded', {collection: '" + getCollection()
+                + "',keep: true}]);");
+
+        // This one triggers the loading of the actual document data
+        script.append("dispatcher.post('current', ['" + getCollection() + "', '1234', {}, true]);");
+        return script.toString();
+    }
+    
     /**
      * Reload {@link BratAnnotator} when the Correction/Curation page is opened
      */
     public void reloadContent(IHeaderResponse aResponse)
     {
-        String[] script = new String[] { "dispatcher.post('clearSVG', []);"
-                + "dispatcher.post('current', ['"
-                + getCollection()
-                + "', '1234', {}, true]);"
-                // start ajax call, which requests the collection (and the document) from the server
-                // and renders the svg
-                + "dispatcher.post('ajax', [{action: 'getCollectionInformation',collection: '"
-                + getCollection() + "'}, 'collectionLoaded', {collection: '" + getCollection()
-                + "',keep: true}]);"
-        // + "dispatcher.post('collectionChanged');"
-        };
-        aResponse.renderOnLoadJavaScript("\n" + StringUtils.join(script, "\n"));
+        debug("Requesting reload of brat annotator with id ["+vis.getOutputMarkupId()+"]");
+        aResponse.renderOnLoadJavaScript(reloadScript());
     }
 
     /**
@@ -494,18 +498,7 @@ public class BratAnnotator
      */
     public void reloadContent(AjaxRequestTarget aTarget)
     {
-        String[] script = new String[] { "dispatcher.post('clearSVG', []);"
-                + "dispatcher.post('current', ['"
-                + getCollection()
-                + "', '1234', {}, true]);"
-                // start ajax call, which requests the collection (and the document) from the server
-                // and renders the svg
-                + "dispatcher.post('ajax', [{action: 'getCollectionInformation',collection: '"
-                + getCollection() + "'}, 'collectionLoaded', {collection: '" + getCollection()
-                + "',keep: true}]);"
-        // + "dispatcher.post('collectionChanged');"
-        };
-        aTarget.appendJavaScript("\n" + StringUtils.join(script, "\n"));
+        aTarget.appendJavaScript(reloadScript());
     }
 
     @Override
