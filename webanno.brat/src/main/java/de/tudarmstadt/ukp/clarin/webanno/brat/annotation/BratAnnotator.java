@@ -20,9 +20,8 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.annotation;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
@@ -49,13 +48,6 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.OffsetsList;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetCollectionInformationResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.LoadConfResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.ArcOpenDialogResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.SpanOpenDialogResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.StoreSvgResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.WhoamiResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.util.BratAnnotatorUtility;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -75,8 +67,14 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 public class BratAnnotator
     extends Panel
 {
-    private static final Log LOG = LogFactory.getLog(BratAnnotator.class);
-    
+    private static final String ACTION_ARC_OPEN_DIALOG = "arcOpenDialog";
+    private static final String ACTION_GET_COLLECTION_INFORMATION = "getCollectionInformation";
+    private static final String ACTION_GET_DOCUMENT = "getDocument";
+    private static final String ACTION_LOAD_CONF = "loadConf";
+    private static final String ACTION_SPAN_OPEN_DIALOG = "spanOpenDialog";
+    private static final String ACTION_STORE_SVG = "storeSVG";
+    private static final String ACTION_WHOAMI = "whoami";
+
     private static final String PARAM_ACTION = "action";
     private static final String PARAM_ARC_ID = "arcId";
     private static final String PARAM_ID = "id";
@@ -105,7 +103,7 @@ public class BratAnnotator
     private String collection = "";
 
     private String selectedSpanText, offsets;
-    private Integer selectedArcId;
+    private Integer selectedSpanID, selectedArcId;
 
     private Integer originSpanId, targetSpanId;
     private boolean closeButtonClicked;// check if the annotation dialog has a change
@@ -145,6 +143,7 @@ public class BratAnnotator
 
         if (getModelObject().getDocument() != null) {
             collection = "#" + getModelObject().getProject().getName() + "/";
+
         }
 
         vis = new WebMarkupContainer("vis");
@@ -191,17 +190,14 @@ public class BratAnnotator
 
                 try {
                     final String action = request.getParameterValue(PARAM_ACTION).toString();
-                    
-                    LOG.info("AJAX-RPC CALLED: [" + action + "]");
-                    
-                    if (action.equals(WhoamiResponse.COMMAND)) {
+
+                    if (action.equals(ACTION_WHOAMI)) {
                         result = controller.whoami();
                     }
-                    else if (action.equals(StoreSvgResponse.COMMAND)) {
+                    else if (action.equals(ACTION_STORE_SVG)) {
                         result = controller.storeSVG();
                     }
-                    else if (action.equals(SpanOpenDialogResponse.COMMAND)) {
-                        int selectedSpanID;
+                    else if (action.equals(ACTION_SPAN_OPEN_DIALOG)) {
                         if (request.getParameterValue(PARAM_ID).toString() == null) {
                             selectedSpanID = -1;
                         }
@@ -241,11 +237,12 @@ public class BratAnnotator
                         }
                         else {
                             openSpanAnnotationDialog(openAnnotationDialog, aTarget, beginOffset,
-                                    endOffset, selectedSpanID);
+                                    endOffset);
                         }
-                        result = new SpanOpenDialogResponse();
+                        result = controller.loadConf();
                     }
-                    else if (action.equals(ArcOpenDialogResponse.COMMAND)) {
+
+                    else if (action.equals(ACTION_ARC_OPEN_DIALOG)) {
 
                         Session.get().getFeedbackMessages().clear();
                         originSpanType = request.getParameterValue(PARAM_ORIGIN_TYPE).toString();
@@ -268,23 +265,21 @@ public class BratAnnotator
                             openArcAnnotationDialog(openAnnotationDialog, aTarget);
                         }
 
-                        result = new ArcOpenDialogResponse();
-                    }
-                    else if (action.equals(LoadConfResponse.COMMAND)) {
                         result = controller.loadConf();
                     }
-                    else if (action.equals(GetCollectionInformationResponse.COMMAND)
+                    else if (action.equals(ACTION_LOAD_CONF)) {
+                        result = controller.loadConf();
+                    }
+                    else if (action.equals(ACTION_GET_COLLECTION_INFORMATION)
                             && getModelObject().getProject() != null) {
                         result = controller.getCollectionInformation(getModelObject()
                                 .getAnnotationLayers());
 
                     }
-                    else if (action.equals(GetDocumentResponse.COMMAND)) {
+                    else if (action.equals(ACTION_GET_DOCUMENT)) {
                         result = controller.getDocumentResponse(getModelObject(), 0, getJCas(),
                                 true);
                     }
-                    
-                    LOG.info("AJAX-RPC DONE: [" + action + "]");
                 }
                 catch (ClassNotFoundException e) {
                     error("Invalid reader: " + e.getMessage());
@@ -295,15 +290,32 @@ public class BratAnnotator
                 catch (IOException e) {
                     error(e.getMessage());
                 }
+                StringWriter out = new StringWriter();
+                JsonGenerator jsonGenerator = null;
+                try {
+                    jsonGenerator = jsonConverter.getObjectMapper().getJsonFactory()
+                            .createJsonGenerator(out);
+                    if (result == null) {
+                        result = "test";
+                    }
 
-                // Serialize updated document to JSON
-                String json = toJson(result);
+                    jsonGenerator.writeObject(result);
+                }
+                catch (IOException e) {
+                    error("Unable to produce JSON response " + ":"
+                            + ExceptionUtils.getRootCauseMessage(e));
+                }
 
                 // Since we cannot pass the JSON directly to Brat, we attach it to the HTML element
                 // into which BRAT renders the SVG. In our modified ajax.js, we pick it up from
                 // there and then pass it on to BRAT to do the rendering.
-                aTarget.prependJavaScript("Wicket.$('" + vis.getMarkupId() + "').temp = " + json
-                        + ";");
+                aTarget.prependJavaScript("Wicket.$('" + vis.getMarkupId() + "').temp = "
+                        + out.toString() + ";");
+                // getRequestCycle().scheduleRequestHandlerAfterCurrent(
+                // new TextRequestHandler("application/json", "UTF-8", out.toString()));
+                /*
+                 * if (hasChanged) { onChange(aTarget); }
+                 */
                 aTarget.add(feedbackPanel);
             }
         };
@@ -317,11 +329,11 @@ public class BratAnnotator
      */
 
     private void openSpanAnnotationDialog(final ModalWindow openAnnotationDialog,
-            AjaxRequestTarget aTarget, final int aBeginOffset, final int aEndOffset,
-            int aSelectedSpanId)
+            AjaxRequestTarget aTarget,final int aBeginOffset, final int aEndOffset)
     {
+
         closeButtonClicked = false;
-        if (aSelectedSpanId == -1) {// new annotation
+        if (selectedSpanID == -1) {// new annotation
             openAnnotationDialog.setTitle("New Span Annotation");
             openAnnotationDialog.setContent(new  SpanAnnotationModalWindowPage(openAnnotationDialog
                     .getContentId(),openAnnotationDialog,
@@ -331,7 +343,7 @@ public class BratAnnotator
             openAnnotationDialog.setTitle("Edit Span Annotation");
             openAnnotationDialog.setContent(new SpanAnnotationModalWindowPage(openAnnotationDialog
                     .getContentId(), openAnnotationDialog,
-                    getModelObject(), aSelectedSpanId));
+                    getModelObject(), selectedSpanID));
         }
 
         openAnnotationDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
@@ -442,7 +454,7 @@ public class BratAnnotator
         if (getModelObject().getMode().equals(Mode.ANNOTATION)) { // works with the URLMonitor
             script.append(reloadScript());
         }
-
+        
         aResponse.renderOnLoadJavaScript("\n" + script.toString());
     }
 
@@ -520,26 +532,6 @@ public class BratAnnotator
     protected void onDelete(BratAnnotatorModel aModel, int aStart, int aEnd)
     {
         // Overriden in AutomationPage
-    }
-    
-    private String toJson(Object result)
-    {
-        StringWriter out = new StringWriter();
-        JsonGenerator jsonGenerator = null;
-        try {
-            jsonGenerator = jsonConverter.getObjectMapper().getJsonFactory()
-                    .createJsonGenerator(out);
-            if (result == null) {
-                result = "test";
-            }
-
-            jsonGenerator.writeObject(result);
-        }
-        catch (IOException e) {
-            error("Unable to produce JSON response " + ":"
-                    + ExceptionUtils.getRootCauseMessage(e));
-        }     
-        return out.toString();
     }
     
     private JCas getJCas()

@@ -31,8 +31,6 @@ import java.util.Map;
 import javax.persistence.NoResultException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.apache.wicket.AttributeModifier;
@@ -98,8 +96,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 public class CorrectionPage
     extends SettingsPageBase
 {
-    private static final Log LOG = LogFactory.getLog(CorrectionPage.class);    
-    
     private static final long serialVersionUID = 1378872465851908515L;
 
     @SpringBean(name = "jsonConverter")
@@ -353,6 +349,11 @@ public class CorrectionPage
                             bratAnnotatorModel.setDocument(bratAnnotatorModel.getDocument());
                             bratAnnotatorModel.setProject(bratAnnotatorModel.getProject());
 
+                            String username = SecurityContextHolder.getContext()
+                                    .getAuthentication().getName();
+
+                            repository.upgradeCasAndSave(bratAnnotatorModel.getDocument(),
+                                    Mode.CORRECTION, username);
                             loadDocumentAction();
                             setCurationSegmentBeginEnd();
                             update(target);
@@ -586,8 +587,8 @@ public class CorrectionPage
                 List<SourceDocument> listOfSourceDocuements = repository
                         .listSourceDocuments(bratAnnotatorModel.getProject());
 
-                User user = repository.getUser(SecurityContextHolder.getContext()
-                        .getAuthentication().getName());
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                User user = repository.getUser(username);
 
                 List<SourceDocument> sourceDocumentsinIgnorState = new ArrayList<SourceDocument>();
                 for (SourceDocument sourceDocument : listOfSourceDocuements) {
@@ -615,6 +616,8 @@ public class CorrectionPage
                             .get(currentDocumentIndex - 1));
 
                     try {
+                        repository.upgradeCasAndSave(bratAnnotatorModel.getDocument(),
+                                Mode.CORRECTION, bratAnnotatorModel.getUser().getUsername());
                         loadDocumentAction();
                         setCurationSegmentBeginEnd();
                         update(target);
@@ -688,6 +691,8 @@ public class CorrectionPage
                         .setDocument(listOfSourceDocuements.get(currentDocumentIndex + 1));
 
                 try {
+                    repository.upgradeCasAndSave(bratAnnotatorModel.getDocument(), Mode.CORRECTION,
+                            bratAnnotatorModel.getUser().getUsername());
                     loadDocumentAction();
                     setCurationSegmentBeginEnd();
                     update(target);
@@ -1014,19 +1019,14 @@ public class CorrectionPage
     private void loadDocumentAction()
         throws UIMAException, ClassNotFoundException, IOException, BratAnnotationException
     {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User logedInUser = repository.getUser(SecurityContextHolder.getContext()
                 .getAuthentication().getName());
-        
-        bratAnnotatorModel.setUser(logedInUser);
-        
-        repository.upgradeCasAndSave(bratAnnotatorModel.getDocument(), Mode.CORRECTION,
-                logedInUser.getUsername());
-
         JCas jCas = null;
         try {
-            AnnotationDocument annotationDocument = repository.getAnnotationDocument(
+            AnnotationDocument logedInUserAnnotationDocument = repository.getAnnotationDocument(
                     bratAnnotatorModel.getDocument(), logedInUser);
-            jCas = repository.getAnnotationDocumentContent(annotationDocument);
+            jCas = repository.getAnnotationDocumentContent(logedInUserAnnotationDocument);
 
         }
         catch (UIMAException e) {
@@ -1117,23 +1117,35 @@ public class CorrectionPage
                 || bratAnnotatorModel.getDocument().getId() != currentDocumentId
                 || bratAnnotatorModel.getProject().getId() != currentprojectId) {
 
-            bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil.getFirstSentenceAddress(jCas));
-            bratAnnotatorModel.setLastSentenceAddress(BratAjaxCasUtil.getLastSentenceAddress(jCas));
-            bratAnnotatorModel.setFirstSentenceAddress(bratAnnotatorModel.getSentenceAddress());
+            try {
+                bratAnnotatorModel
+                        .setSentenceAddress(BratAjaxCasUtil.getFirstSentenceAddress(jCas));
+                bratAnnotatorModel.setLastSentenceAddress(BratAjaxCasUtil
+                        .getLastSentenceAddress(jCas));
+                bratAnnotatorModel.setFirstSentenceAddress(bratAnnotatorModel.getSentenceAddress());
 
-            Sentence sentence = selectByAddr(jCas, Sentence.class,
-                    bratAnnotatorModel.getSentenceAddress());
-            bratAnnotatorModel.setSentenceBeginOffset(sentence.getBegin());
-            bratAnnotatorModel.setSentenceEndOffset(sentence.getEnd());
+                Sentence sentence = selectByAddr(jCas, Sentence.class,
+                        bratAnnotatorModel.getSentenceAddress());
+                bratAnnotatorModel.setSentenceBeginOffset(sentence.getBegin());
+                bratAnnotatorModel.setSentenceEndOffset(sentence.getEnd());
 
-            ProjectUtil.setAnnotationPreference(logedInUser.getUsername(), repository,
-                    annotationService, bratAnnotatorModel, Mode.CORRECTION);
-
-            LOG.debug("Configured BratAnnotatorModel for user [" + logedInUser.getUsername() + "] f:["
-                    + bratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                    + bratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                    + bratAnnotatorModel.getSentenceAddress() + "]");
+                ProjectUtil.setAnnotationPreference(username, repository, annotationService,
+                        bratAnnotatorModel, Mode.CORRECTION);
+            }
+            catch (DataRetrievalFailureException ex) {
+                throw ex;
+            }
+            catch (BeansException e) {
+                throw e;
+            }
+            catch (FileNotFoundException e) {
+                throw e;
+            }
+            catch (IOException e) {
+                throw e;
+            }
         }
+        bratAnnotatorModel.setUser(logedInUser);
 
         // if project is changed, reset some project specific settings
         if (currentprojectId != bratAnnotatorModel.getProject().getId()) {

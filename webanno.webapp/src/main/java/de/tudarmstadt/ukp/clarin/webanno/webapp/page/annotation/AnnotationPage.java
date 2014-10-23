@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.apache.wicket.AttributeModifier;
@@ -82,8 +80,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 public class AnnotationPage
     extends ApplicationPageBase
 {
-    private static final Log LOG = LogFactory.getLog(AnnotationPage.class);    
-    
     private static final long serialVersionUID = 1378872465851908515L;
     @SpringBean(name = "jsonConverter")
     private MappingJacksonHttpMessageConverter jsonConverter;
@@ -287,10 +283,10 @@ public class AnnotationPage
                             String document = bratAnnotatorModel.getDocument().getName();
                             target.add(finish.setOutputMarkupId(true));
                             // annotator.reloadContent(target);
-                            target.appendJavaScript(
-                                    "window.location.hash = '" + collection + document + "';" + 
-                                    "Wicket.Window.unloadConfirmation=false;" +
-                                    "window.location.reload()");
+                            target.appendJavaScript("window.location.hash = '"
+                                    + collection
+                                    + document
+                                    + "';Wicket.Window.unloadConfirmation=false;window.location.reload()");
                         }
                         catch (DataRetrievalFailureException e) {
                             target.add(feedbackPanel);
@@ -324,9 +320,7 @@ public class AnnotationPage
             protected void onChange(AjaxRequestTarget aTarget)
             {
                 // annotator.reloadContent(aTarget);
-                aTarget.appendJavaScript(
-                        "Wicket.Window.unloadConfirmation = false;" +
-                        "window.location.reload()");
+                aTarget.appendJavaScript("Wicket.Window.unloadConfirmation = false;window.location.reload()");
 
             }
         });
@@ -819,11 +813,6 @@ public class AnnotationPage
                     bratAnnotatorModel.getSentenceAddress());
             bratAnnotatorModel.setSentenceBeginOffset(sentence.getBegin());
             bratAnnotatorModel.setSentenceEndOffset(sentence.getEnd());
-            
-            LOG.debug("Configured BratAnnotatorModel for user [" + username
-                    + "] f:[" + bratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                    + bratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                    + bratAnnotatorModel.getSentenceAddress() + "]");
         }
 
         // if project is changed, reset some project specific settings
