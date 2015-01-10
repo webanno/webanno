@@ -387,7 +387,7 @@ public class ProjectPage
                 }
             });
 
-            tabs.add(new AbstractTab(new Model<String>("Export/Import"))
+            tabs.add(new AbstractTab(new Model<String>("Export"))
             {
 
                 private static final long serialVersionUID = 788812791376373350L;
