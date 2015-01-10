@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -123,6 +125,7 @@ public class ProjectExportPanel extends Panel {
 
 	private boolean enabled = true;
 	private boolean canceled = false;
+	private Queue<String> messages = new ConcurrentLinkedQueue<String>();
 
 	public ProjectExportPanel(String id, final Model<Project> aProjectModel) {
 		super(id);
@@ -293,6 +296,10 @@ public class ProjectExportPanel extends Panel {
 					exportProject.initiate(target, fileName);
 					downloadedFile = fileName;
 
+					while (!messages.isEmpty()) {
+					    info(messages.poll());
+					}
+					
 					enabled = true;
 					ProjectPage.visible = true;
 					target.add(ProjectPage.projectSelectionForm
@@ -595,9 +602,13 @@ public class ProjectExportPanel extends Panel {
                     Class<?> writer = repository.getWritableFormats().get(
                             sourceDocument.getFormat());
                     if (writer == null) {
-                        warn("No writer found for source document format ["
+                        String msg = "[" + sourceDocument.getName()
+                                + "] No writer found for source document format ["
                                 + sourceDocument.getFormat()
-                                + "] - export will only contain serialized CAS files.");
+                                + "] - export contains only serialized CAS files for this document.";
+                        if (!messages.contains(msg)) {
+                            messages.add(msg);
+                        }
                     }
                     if (annotationFileAsSerialisedCas.exists() && writer != null) {
 						annotationFile = repository.exportAnnotationDocument(
