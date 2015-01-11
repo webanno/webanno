@@ -28,10 +28,6 @@ body{
     height:100%;
 }
 
-.top-sticker {
-    width: 100%;
-}
-
 .labels-top label, label.top{
     white-space:nowrap;
     display: block;
@@ -144,15 +140,14 @@ select.hfill[multiple]{
  * Page header
  */
 .logo{
-    margin-left:5px;
+    margin:2px;
     float:right;
     vertical-align:middle;
-    height:59px;
+    height:64px;
 }
 
 .pageicon{
     margin:2px;
-    margin-right: 5px;
     float:left;
     vertical-align:middle;
     height:64px;
@@ -164,8 +159,6 @@ select.hfill[multiple]{
     vertical-align:middle;
     background-color:#B90F22;
     content:'<div style="clear:both"/>';
-    position: relative;
-    z-index:99;
 }
 
 .pagecontent{
@@ -198,25 +191,13 @@ select.hfill[multiple]{
     color:yellow;
 }
 
-.locationbar {
-    text-align: left; 
-    /*color: maroon;*/
-    padding-left: 1em;
-    padding-right: 1em;
-    /*border-top: 1px black solid;*/
-    border-bottom: 1px black solid;
-    margin-top: 0.2em;
-}
-
-.actionbar {
+.actionbar{
     text-align:center;
     background-color:#DFDFDF;
     vertical-align:middle;
-    box-shadow:0px 10px 10px 5px white;
-    /* margin-top:8px; */
-    margin-bottom:13px;
-    padding-top:2px;
-    /* padding-bottom:2px; */
+    box-shadow:0px 0px 5px 5px #DFDFDF;
+    margin-top:8px;
+    margin-bottom:8px;
 }
 
 .actionbar fieldset{
@@ -257,18 +238,6 @@ ul.horizontal li{
     margin-right:0.5em;
     display:inline-block;
     text-align:center;
-}
-
-a.menulink {
-    text-decoration: none;
-}
-
-a.menulink > span {
-    text-decoration: underline;
-    display: table-cell;
-    vertical-align: middle;
-    padding-left: 1em;
-    padding-right: 1em;
 }
 
 /* Caption of the icon 
@@ -484,16 +453,19 @@ td.rightContext{
     font-weight:bold;
     background:#DDDDDD;
 }
-
-ul.feedbackPanel {
+/* color scheme on explicit error */
+div.error ul.feedbackPanel{
     background-color:#fe8;
     border:1px solid #900;
     color:#900;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    text-align: left;
 }
 
+/* color scheme on explicit info */
+div.info ul.feedbackPanel{
+    background-color:#fe8;
+    border:1px solid #090;
+    color:#090;
+}
 /* left/right column arrangments for project/annotation settings */
 #left{
     position:absolute;
@@ -607,13 +579,5 @@ div.tabpanel .tab-panel {
 }
 
 tr.border_bottom td {
-	border-bottom: 2pt solid green;
-}
-
-#spinner {
-  display: none;
-  position: fixed;
-  right:10px;
-  top: 55px;
-  z-index:9999;
-}
+		border-bottom: 2pt solid green;
+	}

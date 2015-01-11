@@ -35,12 +35,6 @@ public class CreateSpanResponse
         super(COMMAND);
     }
 
-    public CreateSpanResponse(GetDocumentResponse aAnnotations)
-    {
-        super(COMMAND);
-        setAnnotations(aAnnotations);
-    }
-
     /**
      * [[ "T1"],["T2"]]
      */

@@ -134,7 +134,6 @@ public class GetDocumentResponse
 
     /**
      * Get source files for the annotations.
-     * @return the source files.
      */
     public List<String> getSourceFiles()
     {
@@ -143,7 +142,6 @@ public class GetDocumentResponse
 
     /**
      * Set source files for the annotations.
-     * @param aSourceFiles the source files.
      */
     public void setSourceFiles(List<String> aSourceFiles)
     {
@@ -152,7 +150,6 @@ public class GetDocumentResponse
 
     /**
      * Get creation time.
-     * @return the timestamp.
      */
     public long getCtime()
     {

@@ -39,7 +39,6 @@ import org.apache.uima.jcas.tcas.Annotation;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -58,9 +57,9 @@ public class BratAjaxCasUtil
      * Annotation a and annotation b are the same if the have the same address ( used for
      * {@link CoreferenceChain})
      *
-     * @param a a FS.
-     * @param b a FS.
-     * @return if both FSes are the same.
+     * @param a
+     * @param b
+     * @return
      */
     public static boolean isSame(FeatureStructure a, FeatureStructure b)
     {
@@ -73,10 +72,8 @@ public class BratAjaxCasUtil
 
     /**
      * Check if the start/end offsets of an annotation belongs to the same sentence.
-     * @param aJcas the JCAs.
-     * @param aStartOffset the start offset.
-     * @param aEndOffset the end offset.
-     * @return if start and end offsets are within the same sentence.
+     *
+     * @return
      */
     public static boolean isSameSentence(JCas aJcas, int aStartOffset, int aEndOffset)
     {
@@ -154,12 +151,6 @@ public class BratAjaxCasUtil
 
     /**
      * Get an annotation using the begin/offsets and its type
-     * 
-     * @param aJcas the JCas.
-     * @param aType the type.
-     * @param aBegin the begin offset.
-     * @param aEnd the end offset.
-     * @return the annotation FS.
      */
     public static AnnotationFS selectSingleFsAt(JCas aJcas, Type aType, int aBegin, int aEnd)
     {
@@ -174,11 +165,6 @@ public class BratAjaxCasUtil
     /**
      * Get the sentence for this CAS based on the begin and end offsets. This is basically used to
      * transform sentence address in one CAS to other sentence address for different CAS
-     * 
-     * @param aJcas the JCas.
-     * @param aBegin the begin offset.
-     * @param aEnd the end offset.
-     * @return the sentence.
      */
     public static Sentence selectSentenceAt(JCas aJcas, int aBegin, int aEnd)
     {
@@ -194,16 +180,17 @@ public class BratAjaxCasUtil
      *
      * @param <T>
      *            the JCas type.
-     * @param aJCas
+     * @param jCas
      *            a JCas containing the annotation.
-     * @param aType
+     * @param layer
      *            a UIMA type.
-     * @param aBegin
+     * @param begin
      *            begin offset.
-     * @param aEnd
+     * @param end
      *            end offset.
      * @return a return value.
      */
+
     public static <T extends Annotation> List<T> selectOverlapping(JCas aJCas,
             final Class<T> aType, int aBegin, int aEnd)
     {
@@ -252,12 +239,7 @@ public class BratAjaxCasUtil
         return lastSentenceAddress;
     }
     /**
-     * Get the current sentence based on the anotation begin/end offset
-     * 
-     * @param aJCas the JCas.
-     * @param aBegin the begin offset.
-     * @param aEnd the end offset.
-     * @return the sentence.
+     * Get the cureent sentence based on the anotation begin/end offset
      */
     public static Sentence getCurrentSentence(JCas aJCas, int aBegin, int aEnd){
         Sentence currentSentence = null;
@@ -273,9 +255,9 @@ public class BratAjaxCasUtil
     /**
      * Get the last sentence CAS address in the current display window
      *
-     * @param aJcas the JCas.
+     * @param aJcas
      * @param aFirstSentenceAddress
-     *            the CAS address of the first sentence in the display window
+     *            the CAS address of the first sentence in the dispaly window
      * @param aWindowSize
      *            the window size
      * @return The address of the last sentence address in the current display window.
@@ -301,9 +283,9 @@ public class BratAjaxCasUtil
     /**
      * Get the last sentence CAS End Offset in the current display window
      *
-     * @param aJcas the JCas.
+     * @param aJcas
      * @param aFirstSentenceAddress
-     *            the CAS address of the first sentence in the display window
+     *            the CAS address of the first sentence in the dispaly window
      * @param aWindowSize
      *            the window size
      * @return The address of the last sentence address in the current display window.
@@ -324,10 +306,7 @@ public class BratAjaxCasUtil
      *            the old sentence address
      * @param aOffSet
      *            the actual offset of the sentence.
-     * @param aProject the project.
-     * @param aDocument the document.
-     * @param aWindowSize the window size.
-     * @return the ID of the first sentence.
+     * @return
      */
     public static int getSentenceBeginAddress(JCas aJcas, int aSentenceAddress, int aOffSet,
             Project aProject, SourceDocument aDocument, int aWindowSize)
@@ -363,13 +342,12 @@ public class BratAjaxCasUtil
 
     /**
      * Move to the next page of size display window.
-     * @param aJcas the JCas.
      *
      * @param aCurrenSentenceBeginAddress
      *            The beginning sentence address of the current window.
-     * @param aWindowSize the window size.
      * @return the Beginning address of the next window
      */
+
     public static int getNextDisplayWindowSentenceBeginAddress(JCas aJcas,
             int aCurrenSentenceBeginAddress, int aWindowSize)
     {
@@ -400,12 +378,10 @@ public class BratAjaxCasUtil
 
     /**
      * Return the beginning position of the Sentence for the previous display window
-     * @param aJcas the JCas.
      *
      * @param aCurrenSentenceBeginAddress
      *            The beginning address of the current sentence of the display window
-     * @param aWindowSize the window size.
-     * @return hum?
+     * @return
      */
     public static int getPreviousDisplayWindowSentenceBeginAddress(JCas aJcas,
             int aCurrenSentenceBeginAddress, int aWindowSize)
@@ -461,9 +437,6 @@ public class BratAjaxCasUtil
 
     /**
      * Get the total number of sentences
-     * 
-     * @param aJcas the JCas.
-     * @return the number of sentences.
      */
     public static int getNumberOfPages(JCas aJcas)
     {
@@ -473,10 +446,6 @@ public class BratAjaxCasUtil
 
     /**
      * Returns the beginning address of all pages. This is used properly display<b> Page X of Y </b>
-     * 
-     * @param aJcas the JCas.
-     * @param aWindowSize the window size.
-     * @return hum?
      */
     public static List<Integer> getDisplayWindowBeginningSentenceAddresses(JCas aJcas,
             int aWindowSize)
@@ -496,10 +465,6 @@ public class BratAjaxCasUtil
     /**
      * Get the ordinal sentence number in the display window. This will be sent to brat so that it
      * will adjust the sentence number to display accordingly
-     * 
-     * @param aJcas the JCas.
-     * @param aSentenceAddress the sentence ID.
-     * @return the sentence number.
      *
      */
     public static int getFirstSentenceNumber(JCas aJcas, int aSentenceAddress)
@@ -517,9 +482,7 @@ public class BratAjaxCasUtil
 
     /**
      * Get the sentence number at this specific position
-     * @param aJcas the JCas.
-     * @param aBeginOffset the begin offset.
-     * @return the sentence number.
+     * @return
      */
     public static int getSentenceNumber(JCas aJcas, int aBeginOffset)
     {
@@ -537,9 +500,6 @@ public class BratAjaxCasUtil
 
     /**
      * Get Sentence address for this ordinal sentence number. Used to go to specific sentence number
-     * @param aJcas the JCas.
-     * @param aSentenceNumber the sentence number. 
-     * @return the ID.
      */
     public static int getSentenceAddress(JCas aJcas, int aSentenceNumber)
     {
@@ -566,10 +526,6 @@ public class BratAjaxCasUtil
 
     /**
      * A Helper method to add {@link TagsetDescription} to {@link CAS}
-     * 
-     * @param aCas the CAA.
-     * @param aLayer the layer.
-     * @param aTagSetName the tagset.
      */
     public static void updateCasWithTagSet(CAS aCas, String aLayer, String aTagSetName)
     {
@@ -605,11 +561,7 @@ public class BratAjaxCasUtil
      * aware of what is being annotated, based on
      * {@link BratAjaxCasUtil#selectOverlapping(JCas, Class, int, int)} ISSUE - Affected text not
      * correctly displayed in annotation dialog (Bug #272)
-     * 
-     * @param aJcas the JCas.
-     * @param aBeginOffset the begin offset.
-     * @param aEndOffset the end offset.
-     * @return the selected text.
+     *
      */
     public static String getSelectedText(JCas aJcas, int aBeginOffset, int aEndOffset)
     {
@@ -681,7 +633,6 @@ public class BratAjaxCasUtil
      *            the feature structure.
      * @param aFeatureName
      *            the feature within the annotation whose value to set.
-     * @return the feature value.
      */
     public static FeatureStructure getFeatureFS(FeatureStructure aFS, String aFeatureName)
     {

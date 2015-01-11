@@ -62,8 +62,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -137,12 +135,10 @@ import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
 public class RepositoryServiceDbData
     implements RepositoryService
 {
-    private final Log log = LogFactory.getLog(getClass());
-    
     public static Logger createLog(Project aProject, String aUser)
         throws IOException
     {
-        Logger logger = Logger.getLogger(RepositoryServiceDbData.class);
+        Logger logger = Logger.getLogger(RepositoryService.class);
         String targetLog = dir.getAbsolutePath() + PROJECT + "project-" + aProject.getId() + ".log";
         FileAppender apndr = new FileAppender(new PatternLayout("%d [" + aUser + "] %m%n"),
                 targetLog, true);
@@ -275,6 +271,7 @@ public class RepositoryServiceDbData
     public void createAnnotationDocumentContent(JCas aJcas, SourceDocument aDocument, User aUser)
         throws IOException
     {
+
         createAnnotationContent(aDocument, aJcas, aUser.getUsername(), aUser);
     }
 
@@ -715,6 +712,7 @@ public class RepositoryServiceDbData
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument getAnnotationDocument(SourceDocument aDocument, User aUser)
     {
+
         return entityManager
                 .createQuery(
                         "FROM AnnotationDocument WHERE document = :document AND " + "user =:user"
@@ -1681,11 +1679,6 @@ public class RepositoryServiceDbData
             User aUser)
         throws IOException
     {
-        log.debug("Updating annotation document [" + aDocument.getName() + "] " + "with ID ["
-                + aDocument.getId() + "] in project ID [" + aDocument.getProject().getId()
-                + "] for user [" + aUser.getUsername() + "]");
-        //DebugUtils.smallStack();
-       
         synchronized (lock) {
             File annotationFolder = getAnnotationFolder(aDocument);
             FileUtils.forceMkdir(annotationFolder);
@@ -1707,10 +1700,9 @@ public class RepositoryServiceDbData
                 // CURATION_USER.ser
                 writeContent(aDocument, aJcas, aUserName);
                 createLog(aDocument.getProject(), aUser.getUsername()).info(
-                        "Updated annotation document [" + aDocument.getName() + "] " + "with ID ["
+                        "Updated annotation file [" + aDocument.getName() + "] " + "with ID ["
                                 + aDocument.getId() + "] in project ID ["
-                                + aDocument.getProject().getId() + "] for user ["
-                                + aUser.getUsername() + "]");
+                                + aDocument.getProject().getId() + "]");
                 createLog(aDocument.getProject(), aUser.getUsername()).removeAllAppenders();
 
                 // If the saving was successful, we delete the old version
@@ -1838,12 +1830,6 @@ public class RepositoryServiceDbData
     private JCas getAnnotationContent(SourceDocument aDocument, String aUsername)
         throws IOException
     {
-        log.debug("Getting annotation document [" + aDocument.getName() + "] with ID ["
-                + aDocument.getId() + "] in project ID [" + aDocument.getProject().getId()
-                + "] for user [" + aUsername + "]");
-        
-        //DebugUtils.smallStack();
-        
         synchronized (lock) {
 
             File annotationFolder = getAnnotationFolder(aDocument);
@@ -1920,27 +1906,30 @@ public class RepositoryServiceDbData
     {
         User user = getUser(aUsername);
         if (existsAnnotationDocument(aDocument, user)) {
-            log.debug("Upgrading annotation document [" + aDocument.getName() + "] " + "with ID ["
-                    + aDocument.getId() + "] in project ID [" + aDocument.getProject().getId()
-                    + "] for user [" + aUsername + "] in mode [" + aMode + "]");
-            //DebugUtils.smallStack();
-            
             AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, user);
             try {
-                CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
-                upgrade(cas, aDocument.getProject());
-                createAnnotationDocumentContent(cas.getJCas(),
-                        annotationDocument.getDocument(), user);
-                
                 if (aMode.equals(Mode.ANNOTATION)) {
-                    // In this case we only need to upgrade to annotation document
+                    CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
+                    upgrade(cas, aDocument.getProject());
+                    createAnnotationDocumentContent(cas.getJCas(),
+                            annotationDocument.getDocument(), user);
                 }
                 else if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
+                    CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
+                    upgrade(cas, aDocument.getProject());
+                    createAnnotationDocumentContent(cas.getJCas(),
+                            annotationDocument.getDocument(), user);
+
                     CAS corrCas = getCorrectionDocumentContent(aDocument).getCas();
                     upgrade(corrCas, aDocument.getProject());
                     createCorrectionDocumentContent(corrCas.getJCas(), aDocument, user);
                 }
                 else {
+                    CAS cas = getAnnotationDocumentContent(annotationDocument).getCas();
+                    upgrade(cas, aDocument.getProject());
+                    createAnnotationDocumentContent(cas.getJCas(),
+                            annotationDocument.getDocument(), user);
+
                     CAS curCas = getCurationDocumentContent(aDocument).getCas();
                     upgrade(curCas, aDocument.getProject());
                     createCurationDocumentContent(curCas.getJCas(), aDocument, user);
@@ -1961,15 +1950,13 @@ public class RepositoryServiceDbData
                 // exists to be upgraded while there are annotation documents
             }
             createLog(aDocument.getProject(), aUsername).info(
-                    "Upgraded annotation document [" + aDocument.getName() + "] " + "with ID ["
+                    "Upgraded an annotation file [" + aDocument.getName() + "] " + "with ID ["
                             + aDocument.getId() + "] in project ID ["
-                            + aDocument.getProject().getId() + "] for user [" + aUsername
-                            + "] in mode [" + aMode + "]");
+                            + aDocument.getProject().getId() + "]");
             createLog(aDocument.getProject(), aUsername).removeAllAppenders();
         }
     }
 
-    @Override
     public void upgrade(CAS aCas, Project aProject)
         throws UIMAException, IOException
     {
@@ -2113,8 +2100,8 @@ public class RepositoryServiceDbData
         boolean hasSentences = JCasUtil.exists(jCas, Sentence.class);
         if (!hasTokens || !hasSentences) {
             AnalysisEngine pipeline = createEngine(createEngineDescription(
-                    BreakIteratorSegmenter.class, BreakIteratorSegmenter.PARAM_WRITE_TOKEN,
-                    !hasTokens, BreakIteratorSegmenter.PARAM_WRITE_SENTENCE, !hasSentences));
+                    BreakIteratorSegmenter.class, BreakIteratorSegmenter.PARAM_CREATE_TOKENS,
+                    !hasTokens, BreakIteratorSegmenter.PARAM_CREATE_SENTENCES, !hasSentences));
             pipeline.process(cas.getJCas());
         }
         return jCas;

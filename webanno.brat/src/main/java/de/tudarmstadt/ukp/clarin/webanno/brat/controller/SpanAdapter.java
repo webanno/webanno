@@ -81,9 +81,6 @@ public class SpanAdapter
 
     private AnnotationLayer layer;
 
-    // value NILL for a token when the training file do not have annotations provided
-    private final static String NILL = "__nill__";
-
     public SpanAdapter(AnnotationLayer aLayer)
     {
         layer = aLayer;
@@ -94,8 +91,6 @@ public class SpanAdapter
      * annotations. If this is set and a span is made across multiple tokens, then one annotation of
      * the specified type will be created for each token. If this is not set, a single annotation
      * covering all tokens is created.
-     * 
-     * @param aSingleTokenBehavior whether to enable the behavior.
      */
     public void setLockToTokenOffsets(boolean aSingleTokenBehavior)
     {
@@ -103,7 +98,6 @@ public class SpanAdapter
     }
 
     /**
-     * @return whether the behavior is enabled.
      * @see #setLockToTokenOffsets(boolean)
      */
     public boolean isLockToTokenOffsets()
@@ -277,20 +271,9 @@ public class SpanAdapter
 
     /**
      * Add new span annotation into the CAS and return the the id of the span annotation
-     * 
-     * @param aJcas
-     *            the JCas.
-     * @param aBegin
-     *            the begin offset.
-     * @param aEnd
-     *            the end offset.
-     * @param aFeature
-     *            the feature.
+     *
      * @param aValue
      *            the value of the annotation for the span
-     * @return the ID.
-     * @throws BratAnnotationException
-     *             if the annotation cannot be created/updated.
      */
     public Integer add(JCas aJcas, int aBegin, int aEnd, AnnotationFeature aFeature, String aValue)
         throws BratAnnotationException
@@ -445,17 +428,9 @@ public class SpanAdapter
     {
         Type type = getType(aJcas.getCas(), getAnnotationTypeName());
         List<String> annotations = new ArrayList<String>();
-
-        for (Token token : selectCovered(aJcas, Token.class, begin, end)) {
-            if (selectCovered(aJcas.getCas(), type, token.getBegin(), token.getEnd()).size() > 0) {
-                AnnotationFS anno = selectCovered(aJcas.getCas(), type, token.getBegin(),
-                        token.getEnd()).get(0);
-                Feature labelFeature = anno.getType().getFeatureByBaseName(aFeature.getName());
-                annotations.add(anno.getFeatureValueAsString(labelFeature));
-            }
-            else {
-                annotations.add(NILL);
-            }
+        for (AnnotationFS fs : selectCovered(aJcas.getCas(), type, begin, end)) {
+            Feature labelFeature = fs.getType().getFeatureByBaseName(aFeature.getName());
+            annotations.add(fs.getFeatureValueAsString(labelFeature));
         }
         return annotations;
     }
@@ -560,19 +535,14 @@ public class SpanAdapter
             }
         }
         else {
-            // check if annotation is on an AttachType
-            Feature attachFeature = null;
-            if (getAttachTypeName() != null) {
-                type = CasUtil.getType(aJcas.getCas(), getAttachTypeName());
-                attachFeature = type.getFeatureByBaseName(getAttachFeatureName());
-            }
-
+            Type theType = CasUtil.getType(aJcas.getCas(), getAttachTypeName());
+            Feature attachFeature = theType.getFeatureByBaseName(getAttachFeatureName());
             for (Token token : select(aJcas, Token.class)) {
                 AnnotationFS newAnnotation = aJcas.getCas().createAnnotation(type,
                         token.getBegin(), token.getEnd());
                 newAnnotation.setFeatureValueFromString(feature, aLabelValues.get(i));
                 i++;
-                if (attachFeature != null) {
+                if (getAttachFeatureName() != null) {
                     token.setFeatureValue(attachFeature, newAnnotation);
                 }
                 aJcas.getCas().addFsToIndexes(newAnnotation);

@@ -71,10 +71,12 @@ import de.tudarmstadt.ukp.clarin.webanno.model.export.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.support.EntityModel;
 
 /**
- * A Panel user to manage Tagsets.
+ * A Panel Used to add Tagsets to a selected {@link anno}
  *
  * @author Seid Muhie Yimam
+ *
  */
+
 public class ProjectTagSetsPanel
     extends Panel
 {

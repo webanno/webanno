@@ -33,7 +33,7 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -121,8 +121,8 @@ public class CurationPanel
             // add onclick handler to the browser
             // if clicked in the browser, the function
             // click.response(AjaxRequestTarget target) is called on the server side
-            tag.put("ondblclick", "Wicket.Ajax.get({'u':'" + click.getCallbackUrl() + "'})");
-            tag.put("onclick", "Wicket.Ajax.get({'u':'" + click.getCallbackUrl() + "'})");
+            tag.put("ondblclick", "wicketAjaxGet('" + click.getCallbackUrl() + "')");
+            tag.put("onclick", "wicketAjaxGet('" + click.getCallbackUrl() + "')");
         }
 
     }
@@ -130,6 +130,12 @@ public class CurationPanel
     public CurationPanel(String id, final CurationContainer curationContainer)
     {
         super(id);
+
+        final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+        add(feedbackPanel);
+        feedbackPanel.setOutputMarkupId(true);
+        feedbackPanel.add(new AttributeModifier("class", "info"));
+        feedbackPanel.add(new AttributeModifier("class", "error"));
 
         // add container for updating ajax
         final WebMarkupContainer textOuterView = new WebMarkupContainer("textOuterView");
@@ -186,7 +192,8 @@ public class CurationPanel
             @Override
             protected void onChange(AjaxRequestTarget aTarget, BratAnnotatorModel bratAnnotatorModel)
             {
-                aTarget.addChildren(getPage(), FeedbackPanel.class);
+                aTarget.add(feedbackPanel);
+                info(bratAnnotatorModel.getMessage());
                 aTarget.add(sentenceOuterView);
                 try {
                     CuratorUtil.updatePanel(aTarget, sentenceOuterView, curationContainer,
@@ -244,22 +251,21 @@ public class CurationPanel
                                         .equals(segment.getSentenceNumber()));
                             }
 
-                            JCas jCas = null;
-                            if (bratAnnotatorModel.getMode().equals(Mode.ANNOTATION)
-                                    || bratAnnotatorModel.getMode().equals(Mode.CORRECTION)
-                                    || bratAnnotatorModel.getMode().equals(
-                                            Mode.CORRECTION_MERGE)) {
-
-                                jCas = repository.readJCas(bratAnnotatorModel.getDocument(),
-                                        bratAnnotatorModel.getProject(),
-                                        bratAnnotatorModel.getUser());
-                            }
-                            else {
-                                jCas = repository.getCurationDocumentContent(bratAnnotatorModel
-                                        .getDocument());
-                            }
-
                             if (bratAnnotatorModel.isScrollPage()) {
+                                JCas jCas = null;
+                                if (bratAnnotatorModel.getMode().equals(Mode.ANNOTATION)
+                                        || bratAnnotatorModel.getMode().equals(Mode.CORRECTION)
+                                        || bratAnnotatorModel.getMode().equals(
+                                                Mode.CORRECTION_MERGE)) {
+
+                                    jCas = repository.readJCas(bratAnnotatorModel.getDocument(),
+                                            bratAnnotatorModel.getProject(),
+                                            bratAnnotatorModel.getUser());
+                                }
+                                else {
+                                    jCas = repository.getCurationDocumentContent(bratAnnotatorModel
+                                            .getDocument());
+                                }
                                 bratAnnotatorModel.setSentenceAddress(BratAjaxCasUtil
                                         .getSentenceBeginAddress(jCas,
                                                 bratAnnotatorModel.getSentenceAddress(),
@@ -284,15 +290,6 @@ public class CurationPanel
                             textOuterView.addOrReplace(textListView);
                             aTarget.add(textOuterView);
                             aTarget.add(sentenceOuterView);
-                            
-                            // Wicket-level rendering of annotator because it becomes visible
-                            // after selecting a document
-                            aTarget.add(mergeVisualizer);
-
-                            // brat-level initialization and rendering of document
-                            mergeVisualizer.bratInit(aTarget);
-                            mergeVisualizer.bratRender(aTarget, jCas);
-                            
                         }
                         catch (UIMAException e) {
                             error(ExceptionUtils.getRootCause(e));
@@ -337,19 +334,16 @@ public class CurationPanel
     {
 
     }
-    
     @Override
     public void renderHead(IHeaderResponse response)
     {
-        super.renderHead(response);
-        
         if (firstLoad) {
             firstLoad = false;
         }
         else if (bratAnnotatorModel.getProject() != null) {
             // mergeVisualizer.setModelObject(bratAnnotatorModel);
             mergeVisualizer.setCollection("#" + bratAnnotatorModel.getProject().getName() + "/");
-            mergeVisualizer.bratInitRenderLater(response);
+            mergeVisualizer.reloadContent(response);
         }
     }
 }

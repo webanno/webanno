@@ -25,6 +25,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -77,6 +79,8 @@ public class BratAjaxCasController
     @Resource(name = "annotationService")
     private static AnnotationService annotationService;
 
+    private Log LOG = LogFactory.getLog(getClass());
+
     public BratAjaxCasController()
     {
 
@@ -91,12 +95,13 @@ public class BratAjaxCasController
     /**
      * This Method, a generic Ajax call serves the purpose of returning expected export file types.
      * This only will be called for Larger annotation documents
-     * 
-     * @param aParameters the parameters.
+     *
+     * @param aParameters
      * @return export file type once in a while!!!
      */
     public StoreSvgResponse ajaxCall(MultiValueMap<String, String> aParameters)
     {
+        LOG.info("AJAX-RPC: storeSVG");
         StoreSvgResponse storeSvgResponse = new StoreSvgResponse();
         ArrayList<Stored> storedList = new ArrayList<Stored>();
         Stored stored = new Stored();
@@ -107,28 +112,35 @@ public class BratAjaxCasController
 
         storeSvgResponse.setStored(storedList);
 
+        LOG.info("Done.");
         return storeSvgResponse;
     }
 
     /**
      * a protocol which returns the logged in user
-     * 
-     * @return the response.
+     *
+     * @param aParameters
+     * @return
      */
     public WhoamiResponse whoami()
     {
+        LOG.info("AJAX-RPC: whoami");
+
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        LOG.info("Done.");
         return new WhoamiResponse(username);
     }
 
     /**
      * a protocol to retunr the expected file type for annotation document exporting . Currently, it
      * returns only tcf file type where in the future svg and pdf types are to be supported
-     * 
-     * @return the response.
+     *
+     * @return
      */
     public StoreSvgResponse storeSVG()
     {
+        LOG.info("AJAX-RPC: storeSVG");
         StoreSvgResponse storeSvgResponse = new StoreSvgResponse();
         ArrayList<Stored> storedList = new ArrayList<Stored>();
         Stored stored = new Stored();
@@ -139,24 +151,32 @@ public class BratAjaxCasController
 
         storeSvgResponse.setStored(storedList);
 
+        LOG.info("Done.");
         return storeSvgResponse;
     }
 
     public ImportDocumentResponse importDocument(String aCollection, String aDocId, String aText,
             String aTitle, HttpServletRequest aRequest)
     {
+        LOG.info("AJAX-RPC: importDocument");
         ImportDocumentResponse importDocument = new ImportDocumentResponse();
         importDocument.setDocument(aDocId);
+        LOG.info("Done.");
         return importDocument;
     }
 
     /**
      * some BRAT UI global configurations such as {@code textBackgrounds}
-     * 
-     * @return the response.
+     *
+     * @param aParameters
+     * @return
      */
+
     public LoadConfResponse loadConf()
     {
+        LOG.info("AJAX-RPC: loadConf");
+
+        LOG.info("Done.");
         return new LoadConfResponse();
     }
 
@@ -165,9 +185,6 @@ public class BratAjaxCasController
      * includes List {@link Tag}s and {@link TagSet}s It includes information about span types
      * {@link POS}, {@link NamedEntity}, and {@link CoreferenceLink#getReferenceType()} and relation
      * types such as {@link Dependency}, {@link CoreferenceChain}
-     * 
-     * @param aAnnotationLayers the layers.
-     * @return the response.
      *
      * @see <a href="http://brat.nlplab.org/index.html">Brat</a>
      */
@@ -182,25 +199,26 @@ public class BratAjaxCasController
 
     public GetDocumentTimestampResponse getDocumentTimestamp(String aCollection, String aDocument)
     {
+        LOG.info("AJAX-RPC: getDocumentTimestamp");
+        LOG.info("Collection: " + aCollection);
+        LOG.info("Document: " + aDocument);
+
+        LOG.info("Done.");
         return new GetDocumentTimestampResponse();
     }
 
     /**
      * Returns the JSON representation of the document for brat visualizer
-     * 
-     * @param aBratAnnotatorModel the annotator model.
-     * @param aAnnotationOffsetStart the begin offset.
-     * @param aJCas the JCas.
-     * @param aIsGetDocument hum?
-     * @return the response
-     * @throws UIMAException if a conversion error occurs.
-     * @throws IOException if an I/O error occurs.
-     * @throws ClassNotFoundException if a DKPro Core reader/writer cannotbe loaded.
      */
+
     public GetDocumentResponse getDocumentResponse(BratAnnotatorModel aBratAnnotatorModel,
             int aAnnotationOffsetStart, JCas aJCas, boolean aIsGetDocument)
         throws UIMAException, IOException, ClassNotFoundException
     {
+        LOG.info("AJAX-RPC: getDocument");
+
+        LOG.info("Collection: " + aBratAnnotatorModel.getDocument().getName());
+
         GetDocumentResponse response = new GetDocumentResponse();
         render(response, aBratAnnotatorModel, aAnnotationOffsetStart, aJCas, aIsGetDocument);
 
@@ -209,12 +227,6 @@ public class BratAjaxCasController
 
     /**
      * wrap JSON responses to BRAT visualizer
-     * 
-     * @param aResponse the response.
-     * @param aBratAnnotatorModel the annotator model.
-     * @param aAnnotationOffsetStart the begin offset.
-     * @param aJCas the JCas.
-     * @param aIsGetDocument hum?
      */
     public static void render(GetDocumentResponse aResponse,
             BratAnnotatorModel aBratAnnotatorModel, int aAnnotationOffsetStart, JCas aJCas,
@@ -230,19 +242,13 @@ public class BratAjaxCasController
                     aBratAnnotatorModel.getWindowSize()));
         }
 
-        render(aResponse, aBratAnnotatorModel, aJCas, annotationService);
+        render(aResponse, aBratAnnotatorModel, aJCas);
     }
 
     /**
      * wrap JSON responses to BRAT visualizer
-     * 
-     * @param aResponse the response.
-     * @param aBModel the annotator model.
-     * @param aJCas the JCas.
-     * @param aAnnotationService the annotation service.s
      */
-    public static void render(GetDocumentResponse aResponse, BratAnnotatorModel aBModel,
-            JCas aJCas, AnnotationService aAnnotationService)
+    public static void render(GetDocumentResponse aResponse, BratAnnotatorModel aBModel, JCas aJCas)
     {
         // Render invisible baseline annotations (sentence, tokens)
         SpanAdapter.renderTokenAndSentence(aJCas, aResponse, aBModel);
@@ -261,7 +267,7 @@ public class BratAjaxCasController
 
             ColoringStrategy coloringStrategy = ColoringStrategy.getBestStrategy(layer, aBModel, i);
 
-            List<AnnotationFeature> features = aAnnotationService.listAnnotationFeature(layer);
+            List<AnnotationFeature> features = annotationService.listAnnotationFeature(layer);
             List<AnnotationFeature> invisibleFeatures = new ArrayList<AnnotationFeature>();
             for (AnnotationFeature feature : features) {
                 if (!feature.isVisible()) {

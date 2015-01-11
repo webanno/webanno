@@ -182,22 +182,12 @@ public class ArcAdapter
 
     /**
      * Update the CAS with new/modification of arc annotations from brat
-     * 
-     * @param aOriginFs
-     *            the origin FS.
-     * @param aTargetFs
-     *            the target FS.
-     * @param aJCas
-     *            the JCas.
-     * @param aBratAnnotatorModel
-     *            the annotator model.
-     * @param aFeature
-     *            the feature.
+     *
      * @param aLabelValue
      *            the value of the annotation for the arc
-     * @return the ID.
+     * @param aReverse
+     *            If arc direction are in reverse direction, from Dependent to Governor
      * @throws BratAnnotationException
-     *             if the annotation could not be created/updated.
      */
     public Integer add(AnnotationFS aOriginFs, AnnotationFS aTargetFs,
             JCas aJCas, BratAnnotatorModel aBratAnnotatorModel, AnnotationFeature aFeature, String aLabelValue)

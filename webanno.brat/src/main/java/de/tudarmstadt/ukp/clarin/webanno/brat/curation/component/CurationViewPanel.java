@@ -23,12 +23,12 @@ import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdap
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -86,8 +86,6 @@ public class CurationViewPanel extends WebMarkupContainer {
 
     /**
      * Data models for {@link BratAnnotator}
-     * 
-     * @param aModel the model.
      */
     public void setModel(
             IModel<LinkedList<CurationUserSegmentForAnnotationDocument>> aModel) {
@@ -112,6 +110,13 @@ public class CurationViewPanel extends WebMarkupContainer {
     public CurationViewPanel(String id,
             IModel<LinkedList<CurationUserSegmentForAnnotationDocument>> aModel) {
         super(id, aModel);
+
+        final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+        feedbackPanel.setOutputMarkupId(true);
+        feedbackPanel.add(new AttributeModifier("class", "info"));
+        feedbackPanel.add(new AttributeModifier("class", "error"));
+        add(feedbackPanel);
+
         // update list of brat embeddings
         sentenceListView = new ListView<CurationUserSegmentForAnnotationDocument>(
                 "sentenceListView", aModel) {
@@ -141,6 +146,7 @@ public class CurationViewPanel extends WebMarkupContainer {
                         // or CorrectionPage
                         if (BratAnnotatorUtility.isDocumentFinished(repository,
                                 curationUserSegment.getBratAnnotatorModel())) {
+                            // aTarget.add(feedbackPanel);
                             aTarget.appendJavaScript("alert('This document is already closed."
                                     + " Please ask admin to re-open')");
                         } else {
@@ -189,22 +195,29 @@ public class CurationViewPanel extends WebMarkupContainer {
                                 }
                                 onChange(aTarget);
                             } catch (UIMAException e) {
-                                aTarget.addChildren(getPage(), FeedbackPanel.class);
-                                error(ExceptionUtils.getRootCauseMessage(e));
+                                // aTarget.add(feedbackPanel);
+                                // error(ExceptionUtils.getRootCauseMessage(e));
+                                aTarget.appendJavaScript(ExceptionUtils
+                                        .getRootCauseMessage(e));
                             } catch (ClassNotFoundException e) {
-                                aTarget.addChildren(getPage(), FeedbackPanel.class);
-                                error(ExceptionUtils.getRootCauseMessage(e));
+                                // aTarget.add(feedbackPanel);
+                                // error(e.getMessage());
+                                aTarget.appendJavaScript(e.getMessage());
                             } catch (DataRetrievalFailureException e) {
-                                aTarget.addChildren(getPage(), FeedbackPanel.class);
-                                error(ExceptionUtils.getRootCauseMessage(e));
+                                aTarget.appendJavaScript(e.getCause()
+                                        .getMessage());
                             } catch (IOException e) {
-                                aTarget.addChildren(getPage(), FeedbackPanel.class);
-                                error(e.getMessage());
+                                // aTarget.add(feedbackPanel);
+                                // error(e.getMessage());
+                                aTarget.appendJavaScript(e.getMessage());
                             } catch (BratAnnotationException e) {
-                                aTarget.addChildren(getPage(), FeedbackPanel.class);
-                                error(e.getMessage());
+                                // aTarget.add(feedbackPanel);
+                                // error(e.getMessage());
+                                aTarget.appendJavaScript(e.getMessage());
                             }
+
                         }
+                        // aTarget.add(feedbackPanel);
                     }
                 };
                 curationVisualizer.setOutputMarkupId(true);

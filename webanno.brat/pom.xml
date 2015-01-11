@@ -11,7 +11,7 @@
 	<parent>
 		<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
 		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<version>2.1.0-SNAPSHOT</version>
+		<version>2.0.13</version>
 	</parent>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno.brat</artifactId>
 	<packaging>jar</packaging>
@@ -164,12 +164,9 @@
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.wicket-jquery-ui</groupId>
-			<artifactId>wicket-kendo-ui</artifactId>
+			<artifactId>jquery-ui-kendo</artifactId>
+			<version>1.4.1</version>
 		</dependency>
-    <dependency>
-      <groupId>com.googlecode.wicket-jquery-ui</groupId>
-      <artifactId>wicket-jquery-ui</artifactId>
-    </dependency>
 
 		<!-- JUNIT DEPENDENCY FOR TESTING -->
 

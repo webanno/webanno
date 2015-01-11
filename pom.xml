@@ -10,12 +10,12 @@
 	<parent>
 		<artifactId>dkpro-parent-pom</artifactId>
 		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-		<version>10</version>
+		<version>9</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 	<artifactId>de.tudarmstadt.ukp.clarin.webanno</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.0.13</version>
 	<packaging>pom</packaging>
 	<name>WebAnno</name>
 	<url>http://code.google.com/p/webanno/</url>
@@ -28,6 +28,8 @@
     </license>
   </licenses>
 	<properties>
+		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
 		<jackson.version>1.9.6</jackson.version>
 		<uima.version>2.6.0</uima.version>
 		<uimafit.version>2.1.0</uimafit.version>
@@ -35,12 +37,11 @@
 		<spring.security.version>3.1.4.RELEASE</spring.security.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<log4j.version>1.2.16</log4j.version>
-		<wicket.version>6.18.0</wicket.version>
-    <wicketstuff.version>${wicket.version}</wicketstuff.version>
-    <wicket-jquery-ui.version>${wicket.version}</wicket-jquery-ui.version>
+		<wicket.version>1.5.8</wicket.version>
 		<hibernate.version>4.1.4.Final</hibernate.version>
+		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-	<dkpro.version>1.7.0</dkpro.version>
+	<dkpro.version>1.5.0</dkpro.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -71,81 +72,88 @@
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.api</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.api.dao</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.brat</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tsv</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.model</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.monitoring</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tcf</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.tei</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.uima</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.webapp</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.crowdflower</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.support</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.webapp.home</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.automation</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
 				<artifactId>de.tudarmstadt.ukp.clarin.webanno.project</artifactId>
-				<version>2.1.0-SNAPSHOT</version>
+				<version>2.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 				<artifactId>de.tudarmstadt.ukp.dkpro.core-asl</artifactId>
+				<version>${dkpro.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+				<artifactId>de.tudarmstadt.ukp.dkpro.core-gpl</artifactId>
 				<version>${dkpro.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
@@ -157,31 +165,23 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-      <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-jquery-ui</artifactId>
-        <version>${wicket-jquery-ui.version}</version>
-      </dependency>
 			<dependency>
-				<groupId>com.googlecode.wicket-jquery-ui</groupId>
-				<artifactId>wicket-jquery-ui-core</artifactId>
-				<version>${wicket-jquery-ui.version}</version>
+				<groupId>org.odlabs.wiquery</groupId>
+				<artifactId>wiquery-parent</artifactId>
+				<version>${wicket.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.googlecode.wicket-jquery-ui</groupId>
-				<artifactId>wicket-kendo-ui</artifactId>
-				<version>${wicket-jquery-ui.version}</version>
+				<artifactId>jquery-ui-core</artifactId>
+				<version>1.4.1</version>
 			</dependency>
-      <dependency>
-        <groupId>org.wicketstuff</groupId>
-        <artifactId>wicketstuff-input-events</artifactId>
-        <version>${wicketstuff.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.wicketstuff</groupId>
-        <artifactId>wicketstuff-progressbar</artifactId>
-        <version>${wicketstuff.version}</version>
-      </dependency>
+			<dependency>
+				<groupId>com.googlecode.wicket-jquery-ui</groupId>
+				<artifactId>jquery-ui-kendo</artifactId>
+				<version>1.4.1</version>
+			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging-api</artifactId>
@@ -355,9 +355,9 @@
 		<module>webanno.monitoring</module>
 	</modules>
 	<scm>
-		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/trunk</developerConnection>
-		<connection>scm:svn:https://webanno.googlecode.com/svn/trunk</connection>
-		<url>https://webanno.googlecode.com/svn/trunk</url>
+		<developerConnection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-2.0.13</developerConnection>
+		<connection>scm:svn:https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-2.0.13</connection>
+		<url>https://webanno.googlecode.com/svn/tags/de.tudarmstadt.ukp.clarin.webanno-2.0.13</url>
 	</scm>
 	<build>
 		<extensions>
@@ -367,68 +367,6 @@
 				<version>1.0-beta-2</version>
 			</extension>
 		</extensions>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
-					<doCheck>false</doCheck>
-					<doUpdate>false</doUpdate>
-					<providerImplementations>
-						<svn>javasvn</svn>
-					</providerImplementations>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.google.code.maven-scm-provider-svnjava</groupId>
-						<artifactId>maven-scm-provider-svnjava</artifactId>
-						<version>2.1.1</version>
-					</dependency>
-					<dependency>
-						<groupId>org.tmatesoft.svnkit</groupId>
-						<artifactId>svnkit</artifactId>
-						<version>1.8.5</version>
-					</dependency>
-				</dependencies>
-      			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<!-- version>2.10.2-SNAPSHOT</version -->
-				<configuration>
-					<notimestamp>true</notimestamp>
-					<!-- Exclude UIMA types and internal API -->
-					<excludePackageNames>*.type:*.internal.*</excludePackageNames>
-					<sourceFileExcludes>
-						<exclude>**/*_Type.java</exclude>
-					</sourceFileExcludes>
-					<tags>
-						<tag>
-							<name>generated</name>
-							<placement>X</placement>
-						</tag>
-						<tag>
-							<name>ordered</name>
-							<placement>X</placement>
-						</tag>
-						<tag>
-							<name>modifiable</name>
-							<placement>X</placement>
-						</tag>
-					</tags>
-               	</configuration>
-			</plugin>
-		</plugins>
 	</build>
 	<distributionManagement>
 		<repository>
@@ -437,48 +375,6 @@
 		</repository>
 	</distributionManagement>
 	<profiles>
-		<profile>
-			<id>m2e</id>
-			<activation>
-				<property>
-					<name>m2e.version</name>
-				</property>
-			</activation>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<!-- Activate buildnumber plugin in Eclipse -->
-						<plugin>
-							<groupId>org.eclipse.m2e</groupId>
-							<artifactId>lifecycle-mapping</artifactId>
-							<version>1.0.0</version>
-							<configuration>
-								<lifecycleMappingMetadata>
-									<pluginExecutions>
-										<pluginExecution>
-											<pluginExecutionFilter>
-												<groupId>org.codehaus.mojo</groupId>
-												<artifactId>buildnumber-maven-plugin</artifactId>
-												<versionRange>[0,)</versionRange>
-												<goals>
-													<goal>create</goal>
-												</goals>
-											</pluginExecutionFilter>
-											<action>
-												<execute>
-													<runOnConfiguration>true</runOnConfiguration>
-													<runOnIncremental>true</runOnIncremental>
-												</execute>
-											</action>
-										</pluginExecution>
-									</pluginExecutions>
-								</lifecycleMappingMetadata>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
 		<profile>
 			<id>rat-check</id>
 			<activation>

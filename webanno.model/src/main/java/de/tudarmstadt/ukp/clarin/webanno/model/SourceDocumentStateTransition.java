@@ -51,6 +51,7 @@ public enum SourceDocumentStateTransition
     ANNOTATION_FINISHED_TO_ANNOTATION_IN_PROGRESS;
 
     public static SourceDocumentState transition(SourceDocumentStateTransition aTransition)
+        throws IllegalArgumentException
     {
         if (aTransition.equals(NEW_TO_ANNOTATION_IN_PROGRESS)) {
             return SourceDocumentState.ANNOTATION_IN_PROGRESS;

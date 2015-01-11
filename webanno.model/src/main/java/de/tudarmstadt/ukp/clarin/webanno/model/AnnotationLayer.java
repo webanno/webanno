@@ -102,11 +102,10 @@ public class AnnotationLayer
     private boolean linkedListBehavior;
 
     /**
-     * A short unique numeric identifier for the type (primary key in the DB). This identifier is
+     *
+     * a short unique numeric identifier for the type (primary key in the DB). This identifier is
      * only transiently used when communicating with the UI. It is not persisted long term other
      * than in the type registry (e.g. in the database).
-     * 
-     * @return the id.
      */
     public long getId()
     {
@@ -114,11 +113,10 @@ public class AnnotationLayer
     }
 
     /**
-     * A short unique numeric identifier for the type (primary key in the DB). This identifier is
+     *
+     * a short unique numeric identifier for the type (primary key in the DB). This identifier is
      * only transiently used when communicating with the UI. It is not persisted long term other
      * than in the type registry (e.g. in the database).
-     * 
-     * @param typeId the id.
      */
     public void setId(long typeId)
     {
@@ -126,9 +124,8 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * The type of the annotation, either span, relation or chain
-     * 
-     * @return the type.
      */
     public String getType()
     {
@@ -136,9 +133,8 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * The type of the annotation, either span, relation or chain
-     * 
-     * @param aType the type.
      */
     public void setType(String aType)
     {
@@ -156,9 +152,8 @@ public class AnnotationLayer
     }
 
     /**
-     * The name displayed to the user in the UI.
-     * 
-     * @return the displayed name.
+     *
+     * the name displayed to the user in the UI.
      */
     public String getUiName()
     {
@@ -166,9 +161,8 @@ public class AnnotationLayer
     }
 
     /**
-     * The name displayed to the user in the UI.
-     * 
-     * @param uiName the displayed name.
+     *
+     * the name displayed to the user in the UI.
      */
     public void setUiName(String uiName)
     {
@@ -176,9 +170,8 @@ public class AnnotationLayer
     }
 
     /**
-     * Whether the type is available in the UI (outside of the project settings).
-     * 
-     * @return whether the type is enabled.
+     *
+     * whether the type is available in the UI (outside of the project settings).
      */
     public boolean isEnabled()
     {
@@ -186,9 +179,8 @@ public class AnnotationLayer
     }
 
     /**
-     * Whether the type is available in the UI (outside of the project settings).
-     * 
-     * @param enabled if the type is enabled.
+     *
+     * whether the type is available in the UI (outside of the project settings).
      */
     public void setEnabled(boolean enabled)
     {
@@ -196,32 +188,31 @@ public class AnnotationLayer
     }
 
     /**
-     * Whether annotations of this type can be deleted. E.g. WebAnno currently does not support
+     *
+     * whether annotations of this type can be deleted. E.g. WebAnno currently does not support
      * deleting Lemma annotations. This is always “false” for user-created types.
-     * 
-     * @return if the type is built-in.
      */
+
     public boolean isBuiltIn()
     {
         return builtIn;
     }
 
     /**
-     * Whether annotations of this type can be deleted. E.g. WebAnno currently does not support
+     *
+     * whether annotations of this type can be deleted. E.g. WebAnno currently does not support
      * deleting Lemma annotations. This is always “false” for user-created types.
-     * 
-     * @param builtIn if the type is built-in.
      */
+
     public void setBuiltIn(boolean builtIn)
     {
         this.builtIn = builtIn;
     }
 
     /**
-     * The name of the UIMA annotation type handled by the adapter. This name must be unique for
+     *
+     * the name of the UIMA annotation type handled by the adapter. This name must be unique for
      * each type in a project
-     * 
-     * @return the name.
      */
     public String getName()
     {
@@ -229,10 +220,9 @@ public class AnnotationLayer
     }
 
     /**
-     * The name of the UIMA annotation type handled by the adapter. This name must be unique for
+     *
+     * the name of the UIMA annotation type handled by the adapter. This name must be unique for
      * each type in a project
-     * 
-     * @param annotationTypeName the type name.
      */
     public void setName(String annotationTypeName)
     {
@@ -240,14 +230,13 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * if an annotation type cannot exist alone, this determines the type of an annotation to which
      * it must be attached. If an attachType is set, an annotation cannot be created unless an
      * attachType annotation is present before. If a attachType annotation is deleted, all
      * annotations attached to it must be located and deleted as well. E.g. a POS annotation must
      * always be attached to a Token annotation. A Dependency annotation must always be attached to
      * two Tokens (the governor and the dependent). This is handled differently for spans and arcs
-     * 
-     * @return the attach type name.
      */
     public AnnotationLayer getAttachType()
     {
@@ -255,14 +244,13 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * if an annotation type cannot exist alone, this determines the type of an annotation to which
      * it must be attached. If an attachType is set, an annotation cannot be created unless an
      * attachType annotation is present before. If a attachType annotation is deleted, all
      * annotations attached to it must be located and deleted as well. E.g. a POS annotation must
      * always be attached to a Token annotation. A Dependency annotation must always be attached to
      * two Tokens (the governor and the dependent). This is handled differently for spans and arcs
-     * 
-     * @param attachType the attach type name.
      */
 
     public void setAttachType(AnnotationLayer attachType)
@@ -274,7 +262,6 @@ public class AnnotationLayer
      * used if the attachType does not provide sufficient information about where to attach an
      * annotation
      *
-     * @return the attach feature.
      */
     public AnnotationFeature getAttachFeature()
     {
@@ -284,8 +271,6 @@ public class AnnotationLayer
     /**
      * used if the attachType does not provide sufficient information about where to attach an
      * annotation
-     * 
-     * @param attachFeature the attach feature.
      */
     public void setAttachFeature(AnnotationFeature attachFeature)
     {
@@ -293,9 +278,8 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * the project id where this type belongs to
-     * 
-     * @return the project.
      */
     public Project getProject()
     {
@@ -303,10 +287,10 @@ public class AnnotationLayer
     }
 
     /**
+     *
      * the project id where this type belongs to
-     * 
-     * @param project the project.
      */
+
     public void setProject(Project project)
     {
         this.project = project;

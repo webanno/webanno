@@ -75,7 +75,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.EmbeddableImage;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.TableDataProvider;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.home.page.ApplicationPageBase;
+import de.tudarmstadt.ukp.clarin.webanno.project.page.SettingsPageBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
 /**
@@ -86,7 +86,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
  *
  */
 public class CrowdSourcePage
-    extends ApplicationPageBase
+    extends SettingsPageBase
 {
     private static final long serialVersionUID = -2102136855109258306L;
 
@@ -261,7 +261,7 @@ public class CrowdSourcePage
                 }
             }
             TableDataProvider provider = new TableDataProvider(columnHeaders, rowData);
-            List<IColumn<?,?>> columns = new ArrayList<IColumn<?,?>>();
+            List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
             for (int i = 0; i < provider.getColumnCount(); i++) {
                 columns.add(new DocumentColumnMetaData(provider, i));
@@ -1284,7 +1284,7 @@ public class CrowdSourcePage
     }
 
     private class DocumentColumnMetaData
-        extends AbstractColumn<List<String>, Object>
+        extends AbstractColumn<List<String>>
     {
         private static final long serialVersionUID = -3632527878408587144L;
 

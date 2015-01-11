@@ -66,7 +66,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
-import de.tudarmstadt.ukp.clarin.webanno.model.Role;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
@@ -103,9 +102,7 @@ public class ProjectUtil
 
     /**
      * Read Tag and Tag Description. A line has a tag name and a tag description separated by a TAB
-     * 
-     * @param aLineSeparatedTags the line.
-     * @return the parsed line.
+     *
      */
     public static Map<String, String> getTagSetFromFile(String aLineSeparatedTags)
     {
@@ -128,37 +125,13 @@ public class ProjectUtil
 
     /**
      * IS user super Admin
-     * 
-     * @param aProjectRepository the repository service.
-     * @param aUser the user.
-     * @return if the user is a global admin.
      */
     public static boolean isSuperAdmin(RepositoryService aProjectRepository, User aUser)
     {
         boolean roleAdmin = false;
         List<Authority> authorities = aProjectRepository.listAuthorities(aUser);
         for (Authority authority : authorities) {
-            if (authority.getAuthority().equals(Role.ROLE_ADMIN.name())) {
-                roleAdmin = true;
-                break;
-            }
-        }
-        return roleAdmin;
-    }
-
-    /**
-     * IS project creator
-     * 
-     * @param aProjectRepository the repository service.
-     * @param aUser the user.
-     * @return if the user is a project creator
-     */
-    public static boolean isProjectCreator(RepositoryService aProjectRepository, User aUser)
-    {
-        boolean roleAdmin = false;
-        List<Authority> authorities = aProjectRepository.listAuthorities(aUser);
-        for (Authority authority : authorities) {
-            if (authority.getAuthority().equals(Role.ROLE_PROJECT_CREATOR.name())) {
+            if (authority.getAuthority().equals("ROLE_ADMIN")) {
                 roleAdmin = true;
                 break;
             }
@@ -169,10 +142,8 @@ public class ProjectUtil
     /**
      * Determine if the User is allowed to update a project
      *
-     * @param aProject the project
-     * @param aProjectRepository the repository service.
-     * @param aUser the user.
-     * @return if the user may update a project.
+     * @param aProject
+     * @return
      */
     public static boolean isProjectAdmin(Project aProject, RepositoryService aProjectRepository,
             User aUser)
@@ -211,10 +182,8 @@ public class ProjectUtil
     /**
      * Determine if the User is a curator or not
      *
-     * @param aProject the project.
-     * @param aProjectRepository the respository service.
-     * @param aUser the user.
-     * @return if the user is a curator.
+     * @param aProject
+     * @return
      */
     public static boolean isCurator(Project aProject, RepositoryService aProjectRepository,
             User aUser)
@@ -253,10 +222,8 @@ public class ProjectUtil
     /**
      * Determine if the User is member of a project
      *
-     * @param aProject the project.
-     * @param aProjectRepository the respository service.
-     * @param aUser the user.
-     * @return if the user is a member.
+     * @param aProject
+     * @return
      */
     public static boolean isMember(Project aProject, RepositoryService aProjectRepository,
             User aUser)
@@ -296,9 +263,9 @@ public class ProjectUtil
     /**
      * Convert Java objects into JSON format and write it to a file
      *
-     * @param aObject the object.
-     * @param aFile the file
-     * @throws IOException if an I/O error occurs.
+     * @param aObject
+     * @param aFile
+     * @throws IOException
      */
 
     public static void generateJson(Object aObject, File aFile)
@@ -320,19 +287,15 @@ public class ProjectUtil
      * @param aUsername
      *            The {@link User} for whom we need to read the preference (preferences are stored
      *            per user)
-     * @param aRepositoryService the repository service.
-     * @param aAnnotationService the annotation service.
      * @param aBModel
      *            The {@link BratAnnotatorModel} that will be populated with preferences from the
      *            file
-     * @param aMode the mode.
-     * @throws BeansException hum?
-     * @throws IOException hum?
+     * @param aMode
      */
     public static void setAnnotationPreference(String aUsername,
             RepositoryService aRepositoryService, AnnotationService aAnnotationService,
             BratAnnotatorModel aBModel, Mode aMode)
-        throws BeansException, IOException
+        throws BeansException, FileNotFoundException, IOException
     {
         AnnotationPreference preference = new AnnotationPreference();
         BeanWrapper wrapper = new BeanWrapperImpl(preference);
@@ -405,9 +368,6 @@ public class ProjectUtil
 
     /**
      * check if the {@link InputStream} provided is a zip file
-     * 
-     * @param in the stream.
-     * @return if it is a ZIP file.
      */
     public static boolean isZipStream(InputStream in)
     {
@@ -433,11 +393,6 @@ public class ProjectUtil
 
     /**
      * Check if the zip file is webanno compatible
-     * 
-     * @param aZipFile the file.
-     * @return if it is valid.
-     * @throws ZipException if the ZIP file is corrupt.
-     * @throws IOException if an I/O error occurs.
      *
      */
     @SuppressWarnings({ "rawtypes" })
@@ -461,9 +416,6 @@ public class ProjectUtil
     /**
      * Check if the name is valid, SPecial characters are not allowed as a project/user name as it
      * will conflict with file naming system
-     * 
-     * @param aName a name.
-     * @return if the name is valid.
      */
     public static boolean isNameValid(String aName)
     {
@@ -480,9 +432,6 @@ public class ProjectUtil
 
     /**
      * Remove Invalid characters
-     * 
-     * @param aName a name.
-     * @return a valid name.
      */
     public static String validName(String aName)
     {
@@ -493,13 +442,6 @@ public class ProjectUtil
 
     /**
      * Create a {@link TagSet} for the imported project,
-     * 
-     * @param aProjecct a project. 
-     * @param aImportedProjectSetting the settings. 
-     * @param aRepository the repository service.
-     * @param aAnnotationService the annotation service.
-     * @return hum?
-     * @throws IOException if an I/O error occurs.
      */
     public static Map<de.tudarmstadt.ukp.clarin.webanno.model.export.AnnotationFeature, AnnotationFeature> createLayer(
             Project aProjecct,
@@ -711,10 +653,8 @@ public class ProjectUtil
     /**
      * create new {@link Project} from the
      * {@link de.tudarmstadt.ukp.clarin.webanno.model.export.Project} model
-     * @param aProject the project
-     * @param aRepository the repository service.
-     * @return the project.
-     * @throws IOException if an I/O error occurs.
+     *
+     * @throws IOException
      */
     public static Project createProject(
             de.tudarmstadt.ukp.clarin.webanno.model.export.Project aProject,
@@ -759,12 +699,6 @@ public class ProjectUtil
 
     /**
      * Create s {@link SourceDocument} from the exported {@link SourceDocument}
-     * 
-     * @param aImportedProjectSetting  the exported project.
-     * @param aImportedProject the project.
-     * @param aRepository the repository service.
-     * @param aFeatureMap hum?
-     * @throws IOException if an I/O error occurs.
      */
     public static void createSourceDocument(
             de.tudarmstadt.ukp.clarin.webanno.model.export.Project aImportedProjectSetting,
@@ -860,11 +794,6 @@ public class ProjectUtil
     /**
      * Create {@link de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument} from exported
      * {@link AnnotationDocument}
-     * 
-     * @param aImportedProjectSetting the imported project.
-     * @param aImportedProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     public static void createAnnotationDocument(
             de.tudarmstadt.ukp.clarin.webanno.model.export.Project aImportedProjectSetting,
@@ -890,10 +819,6 @@ public class ProjectUtil
     /**
      * Create {@link ProjectPermission} from the exported
      * {@link de.tudarmstadt.ukp.clarin.webanno.model.export.ProjectPermission}
-     * @param aImportedProjectSetting the imported project.
-     * @param aImportedProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     public static void createProjectPermission(
             de.tudarmstadt.ukp.clarin.webanno.model.export.Project aImportedProjectSetting,
@@ -912,10 +837,6 @@ public class ProjectUtil
 
     /**
      * copy source document files from the exported source documents
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createSourceDocumentContent(ZipFile zip, Project aProject,
@@ -944,10 +865,6 @@ public class ProjectUtil
 
     /**
      * copy annotation documents (serialized CASs) from the exported project
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createAnnotationDocumentContent(ZipFile zip, Project aProject,
@@ -984,10 +901,6 @@ public class ProjectUtil
 
     /**
      * Copy curation documents from the exported project
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createCurationDocumentContent(ZipFile zip, Project aProject,
@@ -1024,10 +937,6 @@ public class ProjectUtil
 
     /**
      * copy guidelines from the exported project
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createProjectGuideline(ZipFile zip, Project aProject,
@@ -1055,10 +964,6 @@ public class ProjectUtil
 
     /**
      * copy Project META_INF from the exported project
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createProjectMetaInf(ZipFile zip, Project aProject,
@@ -1087,10 +992,6 @@ public class ProjectUtil
 
     /**
      * copy project log files from the exported project
-     * @param zip the ZIP file.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @throws IOException if an I/O error occurs.
      */
     @SuppressWarnings("rawtypes")
     public static void createProjectLog(ZipFile zip, Project aProject, RepositoryService aRepository)
@@ -1114,11 +1015,6 @@ public class ProjectUtil
     /**
      * Return true if there exist at least one annotation document FINISHED for annotation for this
      * {@link SourceDocument}
-     * @param aSourceDocument the source document.
-     * @param aUser the user.
-     * @param aProject the project.
-     * @param aRepository the repository service.
-     * @return if a finished document exists.
      */
     public static boolean existFinishedDocument(
             de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument aSourceDocument, User aUser,

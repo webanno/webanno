@@ -34,7 +34,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.page.MonitoringPage;
 import de.tudarmstadt.ukp.clarin.webanno.project.page.ProjectPage;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.home.page.ApplicationPageBase;
+import de.tudarmstadt.ukp.clarin.webanno.webapp.page.ApplicationPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.automation.AutomationPage;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.page.correction.CorrectionPage;
@@ -45,8 +45,8 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.security.page.ManageUsersPage;
 
 /**
  * A home page for WebAnno: <br>
- * Based on the user's permission, it displays either {@link ProjectPage}, d {@link AnnotationPage}
- * , {@link CurationPage} or {@link MonitoringPage }(since v.2.0)
+ * Based on the user's permission, it dispplays either {@link ProjectPage}, d {@link AnnotationPage}
+ * , {@link CurationPage} or {@link monitoringPage }(since v.2.0)
  *
  * @author Richard Eckart de Castilho
  * @author Seid Muhie Yimam
@@ -218,11 +218,7 @@ public class WelcomePage
         if (ProjectUtil.isSuperAdmin(repository, user)) {
             return true;
         }
-
-        if (ProjectUtil.isProjectCreator(repository, user)) {
-            return true;
-        }
-
+        
         for (Project project : repository.listProjects()) {
             if (ProjectUtil.isProjectAdmin(project, repository, user)) {
                 return true;

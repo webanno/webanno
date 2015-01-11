@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.uima.UIMAException;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.impl.CASCompleteSerializer;
@@ -37,6 +38,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
+import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotator;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -110,9 +112,14 @@ public class BratAnnotatorUtility
         target.reset();
         
         // Copy over essential information
-        DocumentMetaData.copy(aJCas, target);
-        target.setDocumentLanguage(aJCas.getDocumentLanguage()); // DKPro Core Issue 435
-        target.setDocumentText(aJCas.getDocumentText());
+        try {
+            DocumentMetaData.copy(aJCas, target);
+            target.setDocumentLanguage(aJCas.getDocumentLanguage()); // DKPro Core Issue 435
+            target.setDocumentText(aJCas.getDocumentText());
+        }
+        catch (AnalysisEngineProcessException e) {
+            throw new IOException(e);
+        }
         
         // Transfer token boundaries
         for (Token t : select(aJCas, Token.class)) {

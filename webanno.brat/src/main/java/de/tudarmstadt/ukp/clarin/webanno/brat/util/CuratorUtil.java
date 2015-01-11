@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.brat.util;
 import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.selectByAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdapter;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -29,8 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
@@ -82,20 +81,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  */
 public class CuratorUtil
 {
-    private static final Log LOG = LogFactory.getLog(CuratorUtil.class);
-    
     public final static String CURATION_USER = "CURATION_USER";
 
     /**
      * Get JCAS objects of annotator where {@link CasDiff} will run on it
-     * 
-     * @param aJCases the JCases.
-     * @param aAnnotationDocuments the annotation documents. 
-     * @param aRepository the repository.
-     * @param annotationSelectionByUsernameAndAddress selections by user.
-     * @throws UIMAException hum?
-     * @throws ClassNotFoundException hum?
-     * @throws IOException if an I/O error occurs.
      */
     public static void getCases(Map<String, JCas> aJCases,
             List<AnnotationDocument> aAnnotationDocuments, RepositoryService aRepository,
@@ -119,19 +108,11 @@ public class CuratorUtil
     /**
      * Set different attributes for {@link BratAnnotatorModel} that will be used for the
      * {@link CurationViewForSourceDocument}
-     * 
-     * @param aSourceDocument the source document.
-     * @param aRepository the repository.
-     * @param aCurationSegment the segment.
-     * @param aAnnotationService the annotation service.
-     * @return the model.
-     * @throws BeansException hum?
-     * @throws IOException if an I/O error occurs.
      */
     public static BratAnnotatorModel setBratAnnotatorModel(SourceDocument aSourceDocument,
             RepositoryService aRepository, CurationViewForSourceDocument aCurationSegment,
             AnnotationService aAnnotationService)
-        throws BeansException, IOException
+        throws BeansException, FileNotFoundException, IOException
     {
         User userLoggedIn = aRepository.getUser(SecurityContextHolder.getContext()
                 .getAuthentication().getName());
@@ -152,12 +133,6 @@ public class CuratorUtil
         bratAnnotatorModel.setMode(Mode.CURATION);
         ProjectUtil.setAnnotationPreference(userLoggedIn.getUsername(), aRepository,
                 aAnnotationService, bratAnnotatorModel, Mode.CURATION);
-        
-        LOG.debug("Configured BratAnnotatorModel for user [" + userLoggedIn + "] f:["
-                + bratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                + bratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                + bratAnnotatorModel.getSentenceAddress() + "]");
-        
         return bratAnnotatorModel;
     }
 
@@ -207,23 +182,6 @@ public class CuratorUtil
         boolean isCorrectionMode = mode.equals(Mode.CORRECTION);
         boolean isCurationMode = mode.equals(Mode.CURATION);
 
-        String annotatorCasUser;
-        switch (mode) {
-        case AUTOMATION: // fall-through
-        case CORRECTION:
-            annotatorCasUser = SecurityContextHolder.getContext().getAuthentication().getName();
-            break;
-        case CURATION:
-            annotatorCasUser = CURATION_USER;
-            break;
-        default:
-            throw new IllegalStateException("Illegal mode [" + mode + "]");
-        }
-        
-        LOG.debug("mode = ["+mode+"]");
-        LOG.debug("all users is  " + usernamesSorted);
-        LOG.debug("annotator CAS is for user ["+annotatorCasUser+"]");
-        
         for (String username : usernamesSorted) {
             if (
                     (!username.equals(CURATION_USER) && isCurationMode) ||
@@ -242,29 +200,26 @@ public class CuratorUtil
                     }
                 }
 
-                LOG.debug("suggestion CAS is for user ["+username+"]");
                 JCas jCas = aJCases.get(username);
-                JCas userJCas = aJCases.get(annotatorCasUser);
+
+                JCas userJCas = null;
+                if (isAutomationMode || isCorrectionMode) {
+                    userJCas = aJCases.get(SecurityContextHolder.getContext().getAuthentication()
+                            .getName());
+                }
+                else if (isCurationMode) {
+                    userJCas = aJCases.get(CURATION_USER);
+                }
 
                 // Save window location (WTF?!)
                 int sentenceAddress = aBratAnnotatorModel.getSentenceAddress();
                 int lastSentenceAddress = aBratAnnotatorModel.getLastSentenceAddress();
 
                 // Override window location
-                LOG.debug("Temporarily reconfiguring BratAnnotatorModel for user [" + username + "] currently is still f:["
-                        + aBratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                        + aBratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                        + aBratAnnotatorModel.getSentenceAddress() + "]");
-                
                 aBratAnnotatorModel.setSentenceAddress(getSentenceAddress(aBratAnnotatorModel,
                         jCas, userJCas));
                 aBratAnnotatorModel.setLastSentenceAddress(getLastSentenceAddress(
                         aBratAnnotatorModel, jCas, userJCas));
-
-                LOG.debug("Temporarily reconfigured BratAnnotatorModel as user [" + username + "] f:["
-                        + aBratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                        + aBratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                        + aBratAnnotatorModel.getSentenceAddress() + "]");
 
                 // Set up coloring strategy
                 ColoringStrategy curationColoringStrategy = new ColoringStrategy()
@@ -302,11 +257,6 @@ public class CuratorUtil
                 // Restore window location
                 aBratAnnotatorModel.setSentenceAddress(sentenceAddress);
                 aBratAnnotatorModel.setLastSentenceAddress(lastSentenceAddress);
-                
-                LOG.debug("Restoring BratAnnotatorModel for user [??? maybe " + annotatorCasUser + "] f:["
-                        + aBratAnnotatorModel.getFirstSentenceAddress() + "] l:["
-                        + aBratAnnotatorModel.getLastSentenceAddress() + "] s:["
-                        + aBratAnnotatorModel.getSentenceAddress() + "]");
             }
         }
     }
@@ -465,21 +415,8 @@ public class CuratorUtil
     }
 
     /**
-     * @param aTarget the AJAX target.
-     * @param aParent the parent.
-     * @param aCurationContainer the container. 
-     * @param aMergeVisualizer the annotator component.
-     * @param aRepository the repository.
-     * @param aAnnotationSelectionByUsernameAndAddress selections by user.
-     * @param aCurationSegment the segment.
-     * @param aAnnotationService the annotation service.
-     * @param aJsonConverter the JSON converter.
      * @return the correction document in automation/correction mode and the curation document in
      * curation mode.
-     * @throws UIMAException hum?
-     * @throws ClassNotFoundException hum?
-     * @throws IOException hum?
-     * @throws BratAnnotationException hum?
      */
     public static JCas updatePanel(
             AjaxRequestTarget aTarget,
@@ -582,7 +519,7 @@ public class CuratorUtil
         aParent.setModelObject(sentences);
         if (aCurationContainer.getBratAnnotatorModel().getMode().equals(Mode.CURATION)) {
             aMergeVisualizer.setModelObject(bratAnnotatorModel);
-            aMergeVisualizer.bratRenderLater(aTarget);
+            aMergeVisualizer.reloadContent(aTarget);
         }
         aTarget.add(aParent);
         

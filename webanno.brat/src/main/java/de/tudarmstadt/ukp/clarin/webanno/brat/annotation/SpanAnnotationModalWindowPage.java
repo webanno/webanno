@@ -1,5 +1,5 @@
 /*******************************************************************************
-# * Copyright 2012
+ * Copyright 2012
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
@@ -40,6 +40,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -62,7 +63,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
-import com.googlecode.wicket.kendo.ui.form.combobox.ComboBox;
+import com.googlecode.wicket.jquery.ui.kendo.combobox.ComboBox;
+import com.googlecode.wicket.jquery.ui.kendo.combobox.ComboBoxRenderer;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
@@ -133,6 +135,12 @@ public class SpanAnnotationModalWindowPage
         public AnnotationDialogForm(String id, final ModalWindow aModalWindow)
         {
             super(id, new CompoundPropertyModel<SelectionModel>(new SelectionModel()));
+
+            final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+            add(feedbackPanel);
+            feedbackPanel.setOutputMarkupId(true);
+            feedbackPanel.add(new AttributeModifier("class", "info"));
+            feedbackPanel.add(new AttributeModifier("class", "error"));
 
             for (AnnotationLayer layer : bratAnnotatorModel.getAnnotationLayers()) {
                 if (!layer.isEnabled() || layer.getName().equals(Token.class.getName())) {
@@ -283,7 +291,7 @@ public class SpanAnnotationModalWindowPage
 
                         ComboBox<Tag> featureValueCombo = new ComboBox<Tag>("tag",
                                 featureValueModels.get(item.getIndex()), tagset,
-                                new com.googlecode.wicket.kendo.ui.renderer.ChoiceRenderer<Tag>("name"));
+                                new ComboBoxRenderer<Tag>("name", "name"));
                         if (item.getIndex() == 0) {
                             // Put focus on first feature
                             featureValueCombo.add(new DefaultFocusBehavior());
@@ -318,7 +326,7 @@ public class SpanAnnotationModalWindowPage
                 @Override
                 protected void onSubmit(AjaxRequestTarget aTarget, Form<?> form)
                 {
-                    aTarget.addChildren(getPage(), FeedbackPanel.class);
+                    aTarget.add(feedbackPanel);
                     aModalWindow.close(aTarget);
                     
                     try {
@@ -356,7 +364,7 @@ public class SpanAnnotationModalWindowPage
                 @Override
                 public void onSubmit(AjaxRequestTarget aTarget, Form<?> aForm)
                 {
-                    aTarget.addChildren(getPage(), FeedbackPanel.class);
+                    aTarget.add(feedbackPanel);
                     aModalWindow.close(aTarget);
                     
                     try {
@@ -512,7 +520,11 @@ public class SpanAnnotationModalWindowPage
         if(selectedSpanId !=-1){
             String bratLabelText = TypeUtil.getBratLabelText(adapter,
                     BratAjaxCasUtil.selectByAddr(jCas, selectedSpanId), features);
-            info(generateMessage(selectedLayer, bratLabelText, false));
+            bratAnnotatorModel.setMessage(generateMessage(selectedLayer, bratLabelText,
+                false));
+        }
+        else{
+             bratAnnotatorModel.setMessage("");
         }
     }
     
@@ -592,7 +604,7 @@ public class SpanAnnotationModalWindowPage
             selectedFeatureValues.put(feature, model.getObject());
         }
 
-        info(generateMessage(selectedLayer, null, true));
+        bratAnnotatorModel.setMessage(generateMessage(selectedLayer, null, true));
 
         // A hack to rememeber the Visural DropDown display
         // value

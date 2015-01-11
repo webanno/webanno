@@ -17,6 +17,7 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.monitoring.support;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
@@ -58,10 +60,9 @@ public class TwoPairedKappa
      * For Arc Annotation, besides the start and end offsets of an annotation, it will also consider
      * the start and end offsets of origin and target span annotations. Hence orientation of the arc
      * annotation is taken into considerations.
-     * @param aJCas the JCas.
-     * @param docId the document ID.
-     * @param aType the layer.
-     * @return the positions.
+     *
+     * @param aUsers
+     *            Users with finished annotation documents
      */
     public Set<String> getAnnotationPositions(JCas aJCas, Long docId, String aType)
     {
@@ -93,10 +94,11 @@ public class TwoPairedKappa
      *
      * @param aUsers
      *            all users
+     * @param aUserAnnotations
+     *            the initialised user annotations
      * @param aAnnotationPositions
      *            annotation positions obtained using
-     *            {@link #getAnnotationPositions}
-     * @return the annotations.
+     *            {@link #getAnnotationPositions(List, SourceDocument, String, String)}
      */
     public Map<String, Map<String, String>> initializeAnnotations(List<User> aUsers,
             Set<String> aAnnotationPositions)
@@ -114,17 +116,22 @@ public class TwoPairedKappa
 
     /**
      * update Users annotation that is already initialized using
-     * {@link #initializeAnnotations}
-     * @param aUser the user.
+     * {@link #initializeAnnotations(List, Map, Set)}
+     *
+     * @param aUsers
+     *            all users
+     * @param aSourceDocument
+     *            the source document
      * @param aType
      *            the UIMA type name
      * @param aLableFeatureName
      *            the feature of the UIMA annotation
      * @param aUserAnnotations
      *            an already initialized user annotations
-     * @param docId the document ID.
-     * @param aJcas the JCas.
      * @return an updated user annotations
+     * @throws UIMAException
+     * @throws IOException
+     * @throws ClassNotFoundException
      */
     public Map<String, Map<String, String>> updateUserAnnotations(User aUser,
             Map<String, Map<String, String>> aUserAnnotations, Long docId, String aType,
@@ -167,14 +174,6 @@ public class TwoPairedKappa
     /**
      * set value for {@link IAnnotationStudy} when {@link TwoRaterKappaAgreement} is used for kappa
      * measures
-     * 
-     * @param aType the layer.
-     * @param featureName the feature.
-     * @param user1 user 1.
-     * @param user2 user 2.
-     * @param allUserAnnotations annotations.
-     * @param aDocument the source document.
-     * @param JCases the JCases.
      */
     public void getStudy(String aType, String featureName, User user1, User user2,
             Map<String, Map<String, String>> allUserAnnotations, SourceDocument aDocument,
@@ -219,9 +218,6 @@ public class TwoPairedKappa
      * for two users, <b> user1, user2</b>, compute kappa based on the annotation study.<br>
      * The annotation study is stored per annotation offsets, EMPTY for a user that didn't make any
      * annotation
-     * 
-     * @param aAnnotationStudy the study.
-     * @return the matrix.
      */
     public double[][] getAgreement(Map<String, Map<String, String>> aAnnotationStudy)
     {

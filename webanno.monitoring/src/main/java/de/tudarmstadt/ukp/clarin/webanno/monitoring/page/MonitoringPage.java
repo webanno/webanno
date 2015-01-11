@@ -17,14 +17,6 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.monitoring.page;
 
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.ANNOTATION_FINISHED_TO_ANNOTATION_IN_PROGRESS;
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED;
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.IGNORE_TO_NEW;
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS;
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.NEW_TO_IGNORE;
-import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.CURATION_FINISHED_TO_CURATION_IN_PROGRESS;
-import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.CURATION_IN_PROGRESS_TO_CURATION_FINISHED;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,17 +30,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.DataGridView;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -57,13 +43,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.NonCachingImage;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -82,7 +64,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.WebAnnoConst;
@@ -90,7 +71,6 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.CurationPanel;
 import de.tudarmstadt.ukp.clarin.webanno.brat.project.ProjectUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Authority;
@@ -99,17 +79,14 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.ChartImageResource;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.DynamicColumnMetaData;
-import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.EmbeddableImage;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.TableDataProvider;
 import de.tudarmstadt.ukp.clarin.webanno.monitoring.support.TwoPairedKappa;
+import de.tudarmstadt.ukp.clarin.webanno.project.page.SettingsPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.support.EntityModel;
-import de.tudarmstadt.ukp.clarin.webanno.webapp.home.page.ApplicationPageBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.statistics.agreement.TwoRaterKappaAgreement;
 
@@ -120,10 +97,8 @@ import de.tudarmstadt.ukp.dkpro.statistics.agreement.TwoRaterKappaAgreement;
  *
  */
 public class MonitoringPage
-    extends ApplicationPageBase
+    extends SettingsPageBase
 {
-    private static final Log LOG = LogFactory.getLog(DocumentStatusColumnMetaData.class);
-    
     private static final long serialVersionUID = -2102136855109258306L;
 
     private static final int CHART_WIDTH = 300;
@@ -157,8 +132,8 @@ public class MonitoringPage
     private  TrainingResultForm trainingResultForm;
 
     private Label overview;
-    private DefaultDataTable<?,?> annotationDocumentStatusTable;
-    private DefaultDataTable<?,?> agreementTable;
+    private DefaultDataTable<?> annotationDocumentStatusTable;
+    private DefaultDataTable<?> agreementTable;
     private final Label projectName;
     private AgreementForm agreementForm;
     private final AnnotationTypeSelectionForm annotationTypeSelectionForm;
@@ -235,7 +210,7 @@ public class MonitoringPage
         TableDataProvider prov = new TableDataProvider(documentListAsColumnHeader,
                 userAnnotationDocumentLists);
 
-        List<IColumn<?,?>> cols = new ArrayList<IColumn<?,?>>();
+        List<IColumn<?>> cols = new ArrayList<IColumn<?>>();
 
         for (int i = 0; i < prov.getColumnCount(); i++) {
             cols.add(new DocumentStatusColumnMetaData(prov, i, new Project(), repository));
@@ -316,7 +291,7 @@ public class MonitoringPage
                         }
                     }
                     sourceDocuments.removeAll(trainingDoc);
-
+                    
                     documentJCases = null;
 
                     if (aNewSelection == null) {
@@ -423,7 +398,7 @@ public class MonitoringPage
                     TableDataProvider provider = new TableDataProvider(documentListAsColumnHeader,
                             userAnnotationDocumentStatusList);
 
-                    List<IColumn<?,?>> columns = new ArrayList<IColumn<?,?>>();
+                    List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
                     for (int i = 0; i < provider.getColumnCount(); i++) {
                         columns.add(new DocumentStatusColumnMetaData(provider, i, project,
@@ -673,7 +648,7 @@ public class MonitoringPage
 
             TableDataProvider provider = new TableDataProvider(usersListAsColumnHeader,
                     agreementResults);
-            List<IColumn<?,?>> columns = new ArrayList<IColumn<?,?>>();
+            List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
             for (int m = 0; m < provider.getColumnCount(); m++) {
                 columns.add(new DynamicColumnMetaData(provider, m));
@@ -781,7 +756,7 @@ public class MonitoringPage
             TableDataProvider provider = new TableDataProvider(usersListAsColumnHeader,
                     agreementResults);
 
-            List<IColumn<?,?>> columns = new ArrayList<IColumn<?,?>>();
+            List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 
             for (int m = 0; m < provider.getColumnCount(); m++) {
                 columns.add(new DynamicColumnMetaData(provider, m));
@@ -1003,14 +978,8 @@ public class MonitoringPage
      * computed for a user against every other users if and only if both users have finished the
      * same document <br>
      * The result is per {@link AnnotationLayer} for all {@link Tag}s
-     * 
-     * @param users the users.
-     * @param adapter the adapters.
-     * @param aLabelFeatureName the label feature name.
-     * @param finishedDocumentLists the finished documents.
-     * @param documentJCases the document JCases.
-     * @return the kappa matrix.
      */
+
     public static double[][] computeKappa(List<User> users, TypeAdapter adapter,
             String aLabelFeatureName, Map<User, List<SourceDocument>> finishedDocumentLists,
             Map<SourceDocument, Map<User, JCas>> documentJCases)
@@ -1168,321 +1137,5 @@ public class MonitoringPage
         chart.getCategoryPlot().setRenderer(renderer);
 
         return new ChartImageResource(chart, CHART_WIDTH, 30 + (chartValues.size() * 18));
-    }
-    
-    /**
-     * Build dynamic columns for the user's annotation documents status {@link DataGridView}
-     */
-    public class DocumentStatusColumnMetaData
-        extends AbstractColumn<List<String>, Object>
-    {
-        private RepositoryService projectRepositoryService;
-
-        private static final long serialVersionUID = 1L;
-        private int columnNumber;
-
-        private Project project;
-
-        public DocumentStatusColumnMetaData(final TableDataProvider prov, final int colNumber,
-                Project aProject, RepositoryService aProjectreRepositoryService)
-        {
-            super(new AbstractReadOnlyModel<String>()
-            {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public String getObject()
-                {
-                    return prov.getColNames().get(colNumber);
-
-                }
-            });
-            columnNumber = colNumber;
-            project = aProject;
-            projectRepositoryService = aProjectreRepositoryService;
-        }
-
-        @Override
-        public void populateItem(final Item<ICellPopulator<List<String>>> aCellItem,
-                final String componentId, final IModel<List<String>> rowModel)
-        {
-            String username = SecurityContextHolder.getContext().getAuthentication()
-                    .getName();
-            final User user = projectRepositoryService.getUser(username);
-
-            int rowNumber = aCellItem.getIndex();
-            aCellItem.setOutputMarkupId(true);
-
-            final String value = getCellValue(rowModel.getObject().get(columnNumber)).trim();
-            if (rowNumber == 0) {
-                aCellItem.add(new Label(componentId, value.substring(value.indexOf(":") + 1)));
-            }
-            else if (value.startsWith(MonitoringPage.LAST_ACCESS)) {
-                aCellItem.add(new Label(componentId, value.substring(value.indexOf(":") + 1)));
-                aCellItem.add(AttributeModifier.append("class", "centering"));
-            }
-            else if (value.substring(0, value.indexOf(":")).equals(CurationPanel.CURATION_USER)) {
-                SourceDocument document = projectRepositoryService.getSourceDocument(project,
-                        value.substring(value.indexOf(":") + 1));
-                SourceDocumentState state = document.getState();
-                String iconNameForState = SourceDocumentState.NEW.toString();
-                // If state is annotation finished or annotation in progress, curation is not yet
-                // started
-                if (state.equals(SourceDocumentState.ANNOTATION_FINISHED)) {
-                    iconNameForState = SourceDocumentState.NEW.toString();
-                }
-                else if (state.equals(SourceDocumentState.ANNOTATION_IN_PROGRESS)) {
-                    iconNameForState = SourceDocumentState.NEW.toString();
-                }
-                else if (state.equals(SourceDocumentState.CURATION_IN_PROGRESS)) {
-                    iconNameForState = AnnotationDocumentState.IN_PROGRESS.toString();
-                }
-                else if (state.equals(SourceDocumentState.CURATION_FINISHED)) {
-                    iconNameForState = AnnotationDocumentState.FINISHED.toString();
-                }
-                // #770 - Disable per-document progress on account of slowing down monitoring page
-//                if (iconNameForState.equals(AnnotationDocumentState.IN_PROGRESS.toString())
-//                        && document.getSentenceAccessed() != 0) {
-//                    JCas jCas = null;
-//                    try {
-//                        jCas = projectRepositoryService.readJCas(document, document.getProject(), user);
-//                    }
-//                    catch (UIMAException e) {
-//                        LOG.info(ExceptionUtils.getRootCauseMessage(e));
-//                    }
-//                    catch (ClassNotFoundException e) {
-//                        LOG.info(e.getMessage());
-//                    }
-//                    catch (IOException e) {
-//                        LOG.info(e.getMessage());
-//                    }
-//                   int totalSN = BratAjaxCasUtil.getNumberOfPages(jCas);
-//                    aCellItem.add(new Label(componentId, document.getSentenceAccessed() + "/"+totalSN));
-//                }
-//                else {
-                    aCellItem.add(new EmbeddableImage(componentId, new ContextRelativeResource(
-                            "/images_small/" + iconNameForState + ".png")));
-//                }
-                aCellItem.add(AttributeModifier.append("class", "centering"));
-                aCellItem.add(new AjaxEventBehavior("onclick")
-                {
-                    private static final long serialVersionUID = -4213621740511947285L;
-
-                    @Override
-                    protected void onEvent(AjaxRequestTarget aTarget)
-                    {
-                        SourceDocument document = projectRepositoryService.getSourceDocument(project,
-                                value.substring(value.indexOf(":") + 1));
-                        SourceDocumentState state = document.getState();
-                        if (state.toString().equals(
-                                SourceDocumentState.CURATION_FINISHED.toString())) {
-                            try {
-                                changeSourceDocumentState(document, user,
-                                        CURATION_FINISHED_TO_CURATION_IN_PROGRESS);
-                            }
-                            catch (IOException e) {
-                                LOG.info(e.getMessage());
-                            }
-                        }
-                        else if (state.toString().equals(
-                                SourceDocumentState.CURATION_IN_PROGRESS.toString())) {
-                            try {
-                                changeSourceDocumentState(document, user,
-                                        CURATION_IN_PROGRESS_TO_CURATION_FINISHED);
-                            }
-                            catch (IOException e) {
-                                LOG.info(e.getMessage());
-                            }
-                        }
-                        else {
-                            aTarget.appendJavaScript("alert('the state can only be changed explicitly by the curator')");
-                        }
-
-                        aTarget.add(annotationDocumentStatusTable);
-                    }
-                });
-            }
-            else {
-                SourceDocument document = projectRepositoryService.getSourceDocument(project,
-                        value.substring(value.indexOf(":") + 1));
-                User annotator = projectRepositoryService.getUser(value.substring(0, value.indexOf(":")));
-
-                AnnotationDocumentState state;
-                AnnotationDocument annoDoc = null;
-                if (projectRepositoryService.existsAnnotationDocument(document, annotator)) {
-                    annoDoc = projectRepositoryService.getAnnotationDocument(document, annotator);
-                    state = annoDoc.getState();
-                }
-                // user didn't even start working on it
-                else {
-                    state = AnnotationDocumentState.NEW;
-                    AnnotationDocument annotationDocument = new AnnotationDocument();
-                    annotationDocument.setDocument(document);
-                    annotationDocument.setName(document.getName());
-                    annotationDocument.setProject(project);
-                    annotationDocument.setUser(annotator.getUsername());
-                    annotationDocument.setState(state);
-                    try {
-                        projectRepositoryService.createAnnotationDocument(annotationDocument);
-                    }
-                    catch (IOException e) {
-                        LOG.info("Unable to get the LOG file");
-                    }
-                }
-
-                // if state is in progress, add the last sentence number accessed
-                // #770 - Disable per-document progress on account of slowing down monitoring page
-//                if (annoDoc != null && (annoDoc.getSentenceAccessed() != 0)
-//                        && annoDoc.getState().equals(AnnotationDocumentState.IN_PROGRESS)) {
-//                    JCas jCas = null;
-//                    try {
-//                        jCas = projectRepositoryService.readJCas(document, document.getProject(), annotator);
-//                    }
-//                    catch (UIMAException e) {
-//                        LOG.info(ExceptionUtils.getRootCauseMessage(e));
-//                    }
-//                    catch (ClassNotFoundException e) {
-//                        LOG.info(e.getMessage());
-//                    }
-//                    catch (IOException e) {
-//                        LOG.info(e.getMessage());
-//                    }
-//                   int totalSN = BratAjaxCasUtil.getNumberOfPages(jCas);
-//                    aCellItem.add(new Label(componentId, annoDoc.getSentenceAccessed() + "/"+totalSN));
-//                }
-//                else {
-                    aCellItem.add(new EmbeddableImage(componentId, new ContextRelativeResource(
-                            "/images_small/" + state.toString() + ".png")));
-//                }
-                aCellItem.add(AttributeModifier.append("class", "centering"));
-                aCellItem.add(new AjaxEventBehavior("onclick")
-                {
-                    private static final long serialVersionUID = -5089819284917455111L;
-
-                    @Override
-                    protected void onEvent(AjaxRequestTarget aTarget)
-                    {
-                        SourceDocument document = projectRepositoryService.getSourceDocument(project,
-                                value.substring(value.indexOf(":") + 1));
-                        User user = projectRepositoryService.getUser(value.substring(0,
-                                value.indexOf(":")));
-
-                        AnnotationDocumentState state;
-                        if (projectRepositoryService.existsAnnotationDocument(document, user)) {
-                            AnnotationDocument annoDoc = projectRepositoryService
-                                    .getAnnotationDocument(document, user);
-                            state = annoDoc.getState();
-                            if (state.toString()
-                                    .equals(AnnotationDocumentState.FINISHED.toString())) {
-                                changeAnnotationDocumentState(document, user,
-                                        ANNOTATION_FINISHED_TO_ANNOTATION_IN_PROGRESS);
-                            }
-                            else if (state.toString().equals(
-                                    AnnotationDocumentState.IN_PROGRESS.toString())) {
-                                changeAnnotationDocumentState(document, user,
-                                        ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED);
-                            }
-                            if (state.toString().equals(AnnotationDocumentState.NEW.toString())) {
-                                changeAnnotationDocumentState(document, user, NEW_TO_IGNORE);
-                            }
-                            if (state.toString().equals(AnnotationDocumentState.IGNORE.toString())) {
-                                changeAnnotationDocumentState(document, user, IGNORE_TO_NEW);
-                            }
-                        }
-                        // user didn't even start working on it
-                        else {
-                            AnnotationDocument annotationDocument = new AnnotationDocument();
-                            annotationDocument.setDocument(document);
-                            annotationDocument.setName(document.getName());
-                            annotationDocument.setProject(project);
-                            annotationDocument.setUser(user.getUsername());
-                            annotationDocument.setState(AnnotationDocumentStateTransition
-                                    .transition(NEW_TO_ANNOTATION_IN_PROGRESS));
-                            try {
-                                projectRepositoryService
-                                        .createAnnotationDocument(annotationDocument);
-                            }
-                            catch (IOException e) {
-                                LOG.info("Unable to get the LOG file");
-                            }
-
-                        }
-                        aTarget.add(annotationDocumentStatusTable);
-                    }
-                });
-            }
-        }
-
-        /**
-         * Helper method to get the cell value for the user-annotation document status as
-         * <b>username:documentName</b>
-         *
-         * @param aValue
-         * @return
-         */
-        private String getCellValue(String aValue)
-        {
-            // It is the user column, return user name
-            if (aValue.startsWith(MonitoringPage.DOCUMENT)) {
-                return aValue.substring(aValue.indexOf(MonitoringPage.DOCUMENT));
-            }
-            // return as it is
-            else if (aValue.startsWith(MonitoringPage.LAST_ACCESS)) {
-                return aValue;
-            }
-            // Initialization of the appliaction, no project selected
-            else if (project.getId() == 0) {
-                return "";
-            }
-            // It is document column, get the status from the database
-            else {
-
-                String username = aValue.substring(0, aValue.indexOf(MonitoringPage.DOCUMENT) - 1);
-                String documentName = aValue.substring(aValue.indexOf(MonitoringPage.DOCUMENT)
-                        + MonitoringPage.DOCUMENT.length());
-                return username + ":" + documentName;
-            }
-        }
-
-        /**
-         * change the state of an annotation document. used to re-open closed documents
-         *
-         * @param aSourceDocument
-         * @param aUser
-         * @param aAnnotationDocumentStateTransition
-         */
-        private void changeAnnotationDocumentState(SourceDocument aSourceDocument, User aUser,
-                AnnotationDocumentStateTransition aAnnotationDocumentStateTransition)
-        {
-
-            AnnotationDocument annotationDocument = projectRepositoryService.getAnnotationDocument(
-                    aSourceDocument, aUser);
-            annotationDocument.setState(AnnotationDocumentStateTransition
-                    .transition(aAnnotationDocumentStateTransition));
-            try {
-                projectRepositoryService.createAnnotationDocument(annotationDocument);
-            }
-            catch (IOException e) {
-                LOG.info("Unable to get the LOG file");
-            }
-
-        }
-
-        /**
-         * change source document state when curation document state is changed.
-         *
-         * @param aSourceDocument
-         * @param aUser
-         * @param aSourceDocumentStateTransition
-         * @throws IOException
-         */
-        private void changeSourceDocumentState(SourceDocument aSourceDocument, User aUser,
-                SourceDocumentStateTransition aSourceDocumentStateTransition)
-            throws IOException
-        {
-            aSourceDocument.setState(SourceDocumentStateTransition
-                    .transition(aSourceDocumentStateTransition));
-            projectRepositoryService.createSourceDocument(aSourceDocument, aUser);
-        }
     }
 }

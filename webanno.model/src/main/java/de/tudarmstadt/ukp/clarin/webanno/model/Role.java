@@ -27,10 +27,12 @@ import java.util.Set;
  * based user access
  *
  * @author Seid Muhie Yimam
+ *
  */
+
 public enum Role
 {
-    ROLE_ADMIN, ROLE_USER, ROLE_REMOTE, ROLE_PROJECT_CREATOR;
+    ROLE_ADMIN, ROLE_USER, ROLE_REMOTE;
 
     public static Set<Role> getRoles()
     {

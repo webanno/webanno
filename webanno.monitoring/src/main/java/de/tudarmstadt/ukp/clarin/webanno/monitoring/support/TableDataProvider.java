@@ -33,13 +33,13 @@ import org.apache.wicket.model.Model;
  *
  */
 public class TableDataProvider
-    extends SortableDataProvider<List<? extends String>, Object>
+    extends SortableDataProvider<List<? extends String>>
 {
 
     private static final long serialVersionUID = 1L;
 
     private IModel<List<List<? extends String>>> dataModel;
-    private long size = 0;
+    private int size = 0;
     private List<String> colNames;
 
     public List<String> getColNames()
@@ -83,10 +83,10 @@ public class TableDataProvider
         };
     }
 
-    public Iterator<List<? extends String>> iterator(long first, long count)
+    public Iterator<List<? extends String>> iterator(int first, int count)
     {
 
-        long boundsSafeCount = count;
+        int boundsSafeCount = count;
 
         if (first + count > size) {
             boundsSafeCount = first - size;
@@ -95,10 +95,10 @@ public class TableDataProvider
             boundsSafeCount = count;
         }
 
-        return dataModel.getObject().subList((int) first, (int) (first + boundsSafeCount)).iterator();
+        return dataModel.getObject().subList(first, first + boundsSafeCount).iterator();
     }
 
-    public long size()
+    public int size()
     {
         return size;
     }

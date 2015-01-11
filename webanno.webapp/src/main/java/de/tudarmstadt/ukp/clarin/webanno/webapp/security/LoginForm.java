@@ -61,7 +61,8 @@ public class LoginForm
 
     private void setDefaultResponsePageIfNecessary()
     {
-        continueToOriginalDestination();
-        setResponsePage(getApplication().getHomePage());
+        if (!continueToOriginalDestination()) {
+            setResponsePage(getApplication().getHomePage());
+        }
     }
 }

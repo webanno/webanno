@@ -68,7 +68,7 @@ public class AnnotationSelection
 
     /**
      *
-     * @param annotationOption the option.
+     * @param annotationOption
      */
     public void setAnnotationOption(AnnotationOption annotationOption)
     {

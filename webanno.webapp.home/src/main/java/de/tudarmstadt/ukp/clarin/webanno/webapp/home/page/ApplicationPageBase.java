@@ -25,29 +25,33 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.protocol.http.ClientProperties;
-import org.apache.wicket.protocol.http.WebSession;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.odlabs.wiquery.core.IWiQueryPlugin;
+import org.odlabs.wiquery.core.javascript.JsStatement;
+import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.home.security.LogoutPanel;
 
+/**
+ *  The @WiQueryUIPlugin annotation and that the class implements IWiQueryPlugin makes sure that the
+ * JQuery stylesheet is always present. - REC 2012-02-28
+ * @author Richard Eckart de Castilho
+ *
+ */
+@WiQueryUIPlugin
 public abstract class ApplicationPageBase
     extends WebPage
+    implements IWiQueryPlugin
 {
     private final static Log LOG = LogFactory.getLog(ApplicationPageBase.class);
 
@@ -57,7 +61,6 @@ public abstract class ApplicationPageBase
     private FeedbackPanel feedbackPanel;
     private Label versionLabel;
     private Label embeddedDbWarning;
-    private Label browserWarning;
 
     @SpringBean(name = "documentRepository")
     private RepositoryService repository;
@@ -109,7 +112,7 @@ public abstract class ApplicationPageBase
 
         Properties props = getVersionProperties();
         String versionString = props.getProperty("version") + " (" + props.getProperty("timestamp")
-                + ", build " + props.getProperty("buildNumber") + ")";
+                + ")";
         versionLabel = new Label("version", versionString);
 
         embeddedDbWarning = new Label("embeddedDbWarning",
@@ -125,28 +128,10 @@ public abstract class ApplicationPageBase
             LOG.warn("Unable to determine which database is being used", e);
         }
 
-        // Display a warning when using an unsupported browser
-        RequestCycle requestCycle = RequestCycle.get();
-        WebClientInfo clientInfo;
-        if (Session.exists()) {
-            WebSession session = WebSession.get();
-            clientInfo = session.getClientInfo();
-        }
-        else {
-            clientInfo = new WebClientInfo(requestCycle);
-        }
-        ClientProperties clientProperties = clientInfo.getProperties();
-
-        browserWarning = new Label("browserWarning", "THIS BROWSER IS NOT SUPPORTED -- "
-                + "PLEASE USE CHROME OR SAFARI");
-        browserWarning.setVisible(!clientProperties.isBrowserSafari()
-                && !clientProperties.isBrowserChrome());
-
         add(logoutPanel);
         add(feedbackPanel);
         add(versionLabel);
         add(embeddedDbWarning);
-        add(browserWarning);
     }
 
     @Override
@@ -161,6 +146,12 @@ public abstract class ApplicationPageBase
         return feedbackPanel;
     }
 
+    @Override
+    public JsStatement statement()
+    {
+        return new JsStatement();
+    }
+
     public Properties getVersionProperties()
     {
         try {
@@ -170,12 +161,5 @@ public abstract class ApplicationPageBase
             LOG.error("Unable to load version information", e);
             return new Properties();
         }
-    }
-
-    @Override
-    public void renderHead(IHeaderResponse aResponse)
-    {
-        super.renderHead(aResponse);
-        aResponse.render(JavaScriptHeaderItem.forReference(WebAnnoJavascriptReference.get()));
     }
 }

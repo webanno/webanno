@@ -107,7 +107,7 @@ public class CrowdJob
     /**
      * Create a new CrowdJob, which is a Java representation of a Job, from a JSON template.
      * CrowdClient must be used to actually create the job on the server.
-     * @param template the template.
+     * @param template
      */
     public CrowdJob(JsonNode template)
     {
@@ -117,6 +117,7 @@ public class CrowdJob
 
     /**
      * Create job arguments that are used by CrowdClient to build a POST request for a new job on Crowdflower
+     * @return MultiValueMap consisting of job[var]=value pairs
      */
     void createArgumentMaps()
     {

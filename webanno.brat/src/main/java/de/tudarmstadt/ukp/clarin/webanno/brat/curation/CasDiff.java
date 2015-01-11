@@ -49,15 +49,16 @@ public class CasDiff {
 
     /**
      * spot differing annotations by comparing cases of the same source document.
-     * 
-     * @param aEntryTypes the entry types.
+     * <br /><br />
+     *
+     *
      * @param aCasMap
      *            Map of (username, cas)
-     * @param aBegin the begin offset.
-     * @param aEnd the end offset.
      * @return List of {@link AnnotationOption}
-     * @throws RangeNameNotCheckedException hum?
+     * @throws RangeNameNotCheckedException
+     * @throws Exception
      */
+
     public static List<AnnotationOption> doDiff(List<Type> aEntryTypes,
             Map<String, JCas> aCasMap, int aBegin, int aEnd) throws RangeNameNotCheckedException {
         Map<Integer, Map<Integer, Set<AnnotationFS>>> annotationFSsByBeginEnd = new HashMap<Integer, Map<Integer, Set<AnnotationFS>>>();

@@ -37,6 +37,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -56,7 +57,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
-import com.googlecode.wicket.kendo.ui.form.combobox.ComboBox;
+import com.googlecode.wicket.jquery.ui.kendo.combobox.ComboBox;
+import com.googlecode.wicket.jquery.ui.kendo.combobox.ComboBoxRenderer;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
@@ -136,6 +138,12 @@ public class ArcAnnotationModalWindowPanel
         public AnnotationDialogForm(String id, final ModalWindow aModalWindow)
         {
             super(id);
+
+            final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+            add(feedbackPanel);
+            feedbackPanel.setOutputMarkupId(true);
+            feedbackPanel.add(new AttributeModifier("class", "info"));
+            feedbackPanel.add(new AttributeModifier("class", "error"));
 
             DropDownChoice<AnnotationLayer> layer = new DropDownChoice<AnnotationLayer>("layers",
                     layersModel, Arrays.asList(new AnnotationLayer[] { selectedLayer }))
@@ -217,7 +225,7 @@ public class ArcAnnotationModalWindowPanel
 
                         ComboBox<Tag> featureValueCombo = new ComboBox<Tag>("tag",
                                 featureValueModels.get(item.getIndex()), tagset,
-                                new com.googlecode.wicket.kendo.ui.renderer.ChoiceRenderer<Tag>("name"));
+                                new ComboBoxRenderer<Tag>("name", "name"));
                         if (item.getIndex() == 0) {
                             // Put focus on first feature
                             featureValueCombo.add(new DefaultFocusBehavior());
@@ -250,7 +258,7 @@ public class ArcAnnotationModalWindowPanel
                 @Override
                 public void onSubmit(AjaxRequestTarget aTarget, Form<?> aForm)
                 {
-                    aTarget.addChildren(getPage(), FeedbackPanel.class);
+                    aTarget.add(feedbackPanel);
                     aModalWindow.close(aTarget);
                     try {
                         actionAnnotate(aTarget, aForm);
@@ -286,7 +294,7 @@ public class ArcAnnotationModalWindowPanel
                 @Override
                 public void onSubmit(AjaxRequestTarget aTarget, Form<?> aForm)
                 {
-                    aTarget.addChildren(getPage(), FeedbackPanel.class);
+                    aTarget.add(feedbackPanel);
                     aModalWindow.close(aTarget);
                     try {
                         actionDelete();
@@ -316,7 +324,7 @@ public class ArcAnnotationModalWindowPanel
                 @Override
                 public void onSubmit(AjaxRequestTarget aTarget, Form<?> aForm)
                 {
-                    aTarget.addChildren(getPage(), FeedbackPanel.class);
+                    aTarget.add(feedbackPanel);
                     aModalWindow.close(aTarget);
                     try {
                         actionReverse();
@@ -459,7 +467,11 @@ public class ArcAnnotationModalWindowPanel
         if (selectedArcId != -1) {
             String bratLabelText = TypeUtil.getBratLabelText(adapter,
                     BratAjaxCasUtil.selectByAddr(jCas, selectedArcId), features);
-            info(SpanAnnotationModalWindowPage.generateMessage(selectedLayer, bratLabelText, false));
+            bratAnnotatorModel.setMessage(SpanAnnotationModalWindowPage
+                    .generateMessage(selectedLayer, bratLabelText, false));
+        }
+        else {
+            bratAnnotatorModel.setMessage("");
         }
 
         bratAnnotatorModel.setRememberedArcLayer(selectedLayer);
@@ -502,7 +514,8 @@ public class ArcAnnotationModalWindowPanel
             selectedFeatureValues.put(feature, model.getObject());
         }
 
-        info(SpanAnnotationModalWindowPage.generateMessage(selectedLayer, null, true));
+        bratAnnotatorModel.setMessage(SpanAnnotationModalWindowPage.generateMessage(selectedLayer,
+                null, true));
         bratAnnotatorModel.setRememberedArcLayer(selectedLayer);
         bratAnnotatorModel.setRememberedArcFeatures(selectedFeatureValues);
     }
@@ -560,7 +573,8 @@ public class ArcAnnotationModalWindowPanel
             selectedFeatureValues.put(feature, model.getObject());
         }
 
-        info("The arc annotation  [" + deletedAnnoSb + "] is reversed");
+        bratAnnotatorModel.setMessage("The arc annotation  [" + deletedAnnoSb
+                + "] is reversed");
         bratAnnotatorModel.setRememberedArcLayer(selectedLayer);
         bratAnnotatorModel.setRememberedArcFeatures(selectedFeatureValues);
     }

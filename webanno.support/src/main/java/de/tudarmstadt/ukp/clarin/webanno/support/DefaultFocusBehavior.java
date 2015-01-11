@@ -20,8 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.support;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.html.IHeaderResponse;
 
 public class DefaultFocusBehavior
     extends Behavior
@@ -32,6 +31,6 @@ public class DefaultFocusBehavior
     public void renderHead(Component component, IHeaderResponse response)
     {
         super.renderHead(component, response);
-        response.render(OnLoadHeaderItem.forScript("$('#" + component.getMarkupId() + "').focus();"));
+        response.renderOnLoadJavaScript("$('#" + component.getMarkupId() + "').focus();");
     }
 }

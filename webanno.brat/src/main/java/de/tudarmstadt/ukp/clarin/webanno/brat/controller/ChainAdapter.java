@@ -684,8 +684,6 @@ public class ChainAdapter
      * set, chains are automatically threaded and no arrows and labels are displayed on arcs.
      * When operating as a linked list, chains are not threaded and arrows and labels are displayed
      * on arcs.
-     * 
-     * @param aBehaveLikeSet whether to behave like a set.
      */
     public void setLinkedListBehavior(boolean aBehaveLikeSet)
     {
