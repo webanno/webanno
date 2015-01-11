@@ -2,8 +2,8 @@
 
 == Downloads ==
 
-   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.12-standalone.jar WebAnno 2 standalone (executable JAR)] - [WebAnnoStandalone Installation instructions] 
-   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.12.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions]
+   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.13-standalone.jar WebAnno 2 standalone (executable JAR)] - [WebAnnoStandalone Installation instructions] 
+   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.13.war WebAnno 2 WAR-archive] - [InstallationGuide Installation instructions]
    * [SampleProjects Example projects]
 
 == Upgrade from a previous version of !WebAnno ==
