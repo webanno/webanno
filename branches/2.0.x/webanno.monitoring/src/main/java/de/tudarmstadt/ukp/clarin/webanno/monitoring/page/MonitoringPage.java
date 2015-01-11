@@ -291,8 +291,8 @@ public class MonitoringPage
                         }
                     }
                     sourceDocuments.removeAll(trainingDoc);
-
-                    documentJCases = getJCases(users, sourceDocuments);
+                    
+                    documentJCases = null;
 
                     if (aNewSelection == null) {
                         return;
@@ -720,6 +720,10 @@ public class MonitoringPage
                 finishedDocumentLists.put(user, finishedDocuments);
             }
 
+            if (documentJCases == null) {
+                documentJCases = getJCases(users, sourceDocuments);
+            }
+            
             results = computeKappa(users, adapter, features.getModelObject().getName(),
                     finishedDocumentLists, documentJCases);
 
@@ -1055,13 +1059,11 @@ public class MonitoringPage
     }
 
     /**
-     * Get all Cases that is not either new or ignore per user, per document. we need those in
-     * progress if the admin tries to finish it from the monitoring page
+     * Get the finished CASes used to compute agreement.
      */
     private Map<SourceDocument, Map<User, JCas>> getJCases(List<User> users,
             List<SourceDocument> sourceDocuments)
     {
-        // Store Jcases so that we can re-use for different iterations
         Map<SourceDocument, Map<User, JCas>> documentJCases = new HashMap<SourceDocument, Map<User, JCas>>();
         for (SourceDocument document : sourceDocuments) {
             Map<User, JCas> jCases = new HashMap<User, JCas>();
@@ -1069,13 +1071,11 @@ public class MonitoringPage
                 if (repository.existsAnnotationDocument(document, user)) {
                     AnnotationDocument annotationDocument = repository.getAnnotationDocument(
                             document, user);
-                    if (!(annotationDocument.getState().equals(AnnotationDocumentState.IGNORE) || annotationDocument
-                            .getState().equals(AnnotationDocumentState.NEW))) {
+                    if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)) {
                         try {
-                            JCas jCas = repository.getAnnotationDocumentContent(annotationDocument);
                             repository.upgradeCasAndSave(document, document.getProject().getMode(),
                                     user.getUsername());
-                            jCas = repository.getAnnotationDocumentContent(annotationDocument);
+                            JCas jCas = repository.getAnnotationDocumentContent(annotationDocument);
                             jCases.put(user, jCas);
                         }
                         catch (UIMAException e) {
@@ -1090,7 +1090,6 @@ public class MonitoringPage
                         catch (ClassNotFoundException e) {
                             error(e.getMessage());
                         }
-
                     }
                 }
             }
