@@ -738,14 +738,13 @@ public class ProjectExportPanel extends Panel {
 			// add annotation document to Project
 			for (de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument annotationDocument : repository
 					.listAnnotationDocuments(sourceDocument)) {
-				AnnotationDocument annotationDocumentToExport = new AnnotationDocument();
-				annotationDocumentToExport
-						.setName(annotationDocument.getName());
-				annotationDocumentToExport.setState(annotationDocument
-						.getState());
-				annotationDocumentToExport
-						.setUser(annotationDocument.getUser());
-				annotationDocuments.add(annotationDocumentToExport);
+                AnnotationDocument annotationDocumentToExport = new AnnotationDocument();
+                annotationDocumentToExport.setName(annotationDocument.getName());
+                annotationDocumentToExport.setState(annotationDocument.getState());
+                annotationDocumentToExport.setUser(annotationDocument.getUser());
+                annotationDocumentToExport.setTimestamp(annotationDocument.getTimestamp());
+                annotationDocumentToExport.setSentenceAccessed(annotationDocument.getSentenceAccessed());
+                annotationDocuments.add(annotationDocumentToExport);
 			}
 			sourceDocuments.add(exDocument);
 			exDocuments.put(sourceDocument, exDocument);
