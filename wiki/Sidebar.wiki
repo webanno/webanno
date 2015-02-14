@@ -13,6 +13,7 @@
   * Developer documentation
     * [DevInstallationGuide Developer Guide]
     * [Testing Testing_plan]
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/apidocs/index.html JavaDoc]
   * !WebAnno FAQ
     * [webannofaq FAQ]
     * [troubleshooting Troubleshooting]
