@@ -1,28 +1,35 @@
 #sidebar none
 
-  * Installation
-    * [WebAnnoInstFile Downloads]
+  * [WebAnnoInstFile Downloads]
+  * User documentation
+    * [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/ User Guide]
+<wiki:comment>
     * [WebAnnoStandalone Standalone]
-    * [InstallationGuide Server-based]
-    * [SampleProjects Example projects]
-    * [QuickInstallOsX Quick install guide: OS X]
-  * [UserGuide User documentation]
-    * [Annotation]
-    * [Curation]
-    * [Correction]
-    * [Automation]
-    * [Projects]
-    * [Monitoring]
-    * [Manage_Users]
+    * [UserGuide]
+      * [Annotation]
+      * [Curation]
+      * [Correction]
+      * [Automation]
+      * [Projects]
+      * [Monitoring]
+      * [Manage_Users]
+</wiki:comment>
     * [Tutorials Tutorials]
     * [Format Corpus formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
+    * [SampleProjects Example projects]
+  * Administrator documentation
+    * [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/ Administrator Guide]
+    * [QuickInstallOsX Quick install guide: OS X]
+<wiki:comment>
+    * [InstallationGuide Server-based]
+</wiki:comment>
   * Developer documentation
-    * [DevInstallationGuide Developer's Installation Guide]
+    * [DevInstallationGuide Developer Guide]
     * [Testing Testing_plan]
   * !WebAnno FAQ
     * [webannofaq FAQ]
-    * [troubleshooting Trouble shooting]
+    * [troubleshooting Troubleshooting]
     * [knownIssues Known issues]
   * Reference Users
     * [ProjectsUsingWebAnno Projects using WebAnno]
