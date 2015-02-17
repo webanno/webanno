@@ -6,6 +6,6 @@ Selection of projects that use !WebAnno for their annotation needs
 2013
   * [http://www.ceres.rub.de/en/project/forschungsprojekte/senereko-en/ SeNeReKo]  
   * [http://www.linguistics.rub.de/~krasselt/research.html PhD dissertation on mechanisms of language change]
-  * [https://www.truffls.de/ Truffls]
+  * [https://www.truffls.de/ Truffls] for [https://www.lt.informatik.tu-darmstadt.de/fileadmin/user_upload/Group_LangTech/student_theses/FINAL_Kroenke-JAPAQP-2013.pdf Job Ad Parsing annotation]
 
 Search for _!WebAnno_ on [http://scholar.google.de/scholar?q=%22WebAnno%22 Google Scholar].
