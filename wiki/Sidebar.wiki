@@ -8,7 +8,7 @@
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
     * [SampleProjects Example projects]
   * Administrator documentation
-    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html Administrator Guide] ([https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html pdf])
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html Administrator Guide] ([https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.pdf pdf])
     * [QuickInstallOsX Quick install guide: OS X]
   * Developer documentation
     * [DevInstallationGuide Developer Guide]
