@@ -39,4 +39,8 @@ The new version can be downloaded from [http://webanno.googlecode.com/ Google Co
 Please observe the upgrade and installation instructions.
 
 
+== Upgrade ==
+
+An in-place upgrade from WebAnno 2.0.x to WebAnno 2.1.0 is possible. Before any upgrade, please take the usual precautions making backups of your WebAnno database and home folder.
+
 -- The !WebAnno 2.1 developer team
