@@ -36,10 +36,6 @@ You can test !WebAnno 2.1 on our [https://maggie.lt.informatik.tu-darmstadt.de/w
 == Download ==
 
 The new version can be downloaded from [http://webanno.googlecode.com/ Google Code].
-Please observe the upgrade and installation instructions.
-
-
-== Upgrade ==
 
 An in-place upgrade from !WebAnno 2.0.x to !WebAnno 2.1.0 is possible. Before any upgrade, please take the usual precautions making backups of your !WebAnno database and home folder. Observe the general upgrade instructions.
 
