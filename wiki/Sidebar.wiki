@@ -2,13 +2,13 @@
 
   * [WebAnnoInstFile Downloads]
   * User documentation
-    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.html User Guide]
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.html User Guide] ([https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.pdf pdf])
     * [Tutorials Tutorials]
     * [Format Corpus formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
     * [SampleProjects Example projects]
   * Administrator documentation
-    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html Administrator Guide]
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html Administrator Guide] ([https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html pdf])
     * [QuickInstallOsX Quick install guide: OS X]
   * Developer documentation
     * [DevInstallationGuide Developer Guide]
