@@ -13,7 +13,7 @@ _In alphabetical order_
    * Seid Muhie Yimam (lead developer)
    * Andreas Straninger (curation)
 
-The development of WebAnno 2 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
+The development of !WebAnno 1 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
 
 = !WebAnno 2 =
 
@@ -27,7 +27,7 @@ _In alphabetical order_
    * Iryna Gurevych (scientific consulting)
    * Seid Muhie Yimam (lead developer)
 
-The development of WebAnno 2 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
+The development of !WebAnno 2 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
 
 = !WebAnno 3 =
 
@@ -41,4 +41,4 @@ _In alphabetical order_
    * Iryna Gurevych (scientific consulting)
    * Seid Muhie Yimam (lead developer)
 
-The development of WebAnno 3 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP3].
+The development of !WebAnno 3 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP3].
