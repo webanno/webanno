@@ -2,6 +2,8 @@
 
 = !WebAnno 1 =
 
+The very first iteration supporting only a limited set of annotation types.
+
 === Team ===
 
 _In alphabetical order_
@@ -16,6 +18,8 @@ _In alphabetical order_
 The development of !WebAnno 1 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
 
 = !WebAnno 2 =
+
+This iteration brings support for custom layers, a new !WebAnno file format, and support for automation.
 
 === Team ===
 
@@ -33,6 +37,8 @@ The development of !WebAnno 2 was supported by [http://de.clarin.eu/index.php/de
 
 = !WebAnno 3 =
 
+In this development iteration, we focus on improving the support for semantic annotations, in particular semantic role labelling. Additionally, we integrate functionality allowing CLARIN to run !WebAnno as an infrastructure service.
+
 === Team ===
 
 _In alphabetical order_
@@ -43,4 +49,4 @@ _In alphabetical order_
    * Iryna Gurevych (scientific consulting)
    * Seid Muhie Yimam (lead developer)
 
-The development of !WebAnno 3 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP3].
+The development of !WebAnno 3 is supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP3].
