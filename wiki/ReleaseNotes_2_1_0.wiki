@@ -1,0 +1,42 @@
+#summary Release notes for WebAnno 2.1
+
+We are pleased to announce the release of
+
+  <font size="5"><b>!WebAnno 2.1 (v2.1.0)</b></font>
+
+a web-based annotation tool for a wide range of annotations.
+
+== Major improvements since !WebAnno 2.0 ==
+
+  * annotation UI reacts snippier
+  * annotation UI toolbar stays on screen when scrolling
+  * ability to choose format on project export
+  * non-admin users can gain privilege to create own projects
+  * ability to generate missing users on import
+  * (partial) support for various CoNLL formats
+  * customizable logo
+  * support for DKPro Core Chunk type
+  * display warning when running in unsupported browser
+  * new versioned documentation 
+
+Thanks to all our users who have provided us with excellent feedback!
+You have been major drivers behind the features that made it into this
+version of WebAnno!
+
+== Tutorial ==
+
+Tutorial videos for WebAnno 2 are available on [http://goo.gl/MrmHNY YouTube].
+
+
+== Demo ==
+
+You can test !WebAnno 2.1 on our [https://maggie.lt.informatik.tu-darmstadt.de/webanno/ public demo] (username: guest / password: guest).
+
+
+== Download ==
+
+The new version can be downloaded from [http://webanno.googlecode.com/ Google Code].
+Please observe the upgrade and installation instructions.
+
+
+-- The !WebAnno 2.1 developer team
