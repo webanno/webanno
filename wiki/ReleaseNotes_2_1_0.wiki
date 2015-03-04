@@ -6,6 +6,7 @@ We are pleased to announce the release of
 
 a web-based annotation tool for a wide range of annotations.
 
+
 == Major improvements since !WebAnno 2.0 ==
 
   * annotation UI reaction speed improved
@@ -23,6 +24,8 @@ Thanks to all our users who have provided us with excellent feedback!
 You have been major drivers behind the features that made it into this
 version of !WebAnno!
 
+
+
 == Tutorial ==
 
 Tutorial videos for !WebAnno 2 are available on [http://goo.gl/MrmHNY YouTube].
@@ -30,13 +33,32 @@ Tutorial videos for !WebAnno 2 are available on [http://goo.gl/MrmHNY YouTube].
 
 == Demo ==
 
-You can test !WebAnno 2.1 on our [https://maggie.lt.informatik.tu-darmstadt.de/webanno/ public demo] (username: guest / password: guest).
+You can test !WebAnno 2.1 on our [https://maggie.lt.informatik.tu-darmstadt.de/webanno/ public demo] (username: guest / password: guest). 
 
 
 == Download ==
 
 The new version can be downloaded from [http://webanno.googlecode.com/ Google Code].
 
-An in-place upgrade from !WebAnno 2.0.x to !WebAnno 2.1.0 is possible. Before any upgrade, please take the usual precautions making backups of your !WebAnno database and home folder. Observe the general upgrade instructions.
+An in-place upgrade from !WebAnno 2.0.x to !WebAnno 2.1.0 is possible. 
+Before any upgrade, please take the usual precautions making backups of your
+!WebAnno database and home folder. Observe the general upgrade instructions.
+Users may have to explicitly "reload" !WebAnno in the browser once.
+
+!WebAnno 2.1.0 now requires Java 7.
+
+
+== License and System requirements ==
+
+!WebAnno is provided as open source software under the
+Apache License version 2. 
+
+Running !WebAnno requires Java version 7 or higher.
+A MySQL database and Tomcat server are recommended.
+
+We offer standalone version for testing that requires only
+Java 7 or higher and no additional database or server.
+
+!WebAnno works best with Chrome and Safari.
 
 -- The !WebAnno 2.1 developer team
