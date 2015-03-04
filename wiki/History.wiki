@@ -44,10 +44,10 @@ In this development iteration, we focus on improving the support for semantic an
 _In alphabetical order_
 
    * Chris Biemann (project management, quality assurance)
-   * Richard Eckart de Castilho (project management, architecture, prototyping, UIMA expertise)
+   * Richard Eckart de Castilho (project management, developer)
    * Anette Frank (scientific consulting)
    * Sushil Jain (development support)
    * Iryna Gurevych (scientific consulting)
-   * Seid Muhie Yimam (lead developer)
+   * Seid Muhie Yimam (developer)
 
 The development of !WebAnno 3 is supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP3].
