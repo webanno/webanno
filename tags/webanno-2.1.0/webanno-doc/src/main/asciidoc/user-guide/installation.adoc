@@ -1,0 +1,55 @@
+// Copyright 2015
+// Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
+// Technische Universität Darmstadt
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+[[sect_installation]]
+== Installation
+
+All-in-one version which does not require a database server or servlet container to be set up.
+
+[NOTE]
+====
+By default, WebAnno creates and uses an embedded database. It is not recommended to use WebAnno in
+such a configuration for production use. Instead, please configure WebAnno to use a database server
+when using it in production. For more information, please refer to the <<admin-guide.adoc#sect_database,Administrator Guide>>.
+====
+
+Get the standalone jar from the [WebAnnoInstFile downloads] and start it simply with a *double-click* in your file manager. WebAnno stores its data in a folder called `.webanno` (_dot webanno_) within your home folder,
+
+You can start with the [SampleProjects example projects] to explore some of the functionalities. 
+
+[NOTE]
+====
+If you have previously used an older version of the WebAnno standalone, make sure to clean up the temporary installation before running the new version:
+
+   * On OS X: `rm -R "$TMPDIR/winstoneEmbeddedWAR"`
+   * On Linux: `rm -R /tmp/winstoneEmbeddedWAR`
+   * On Windows: remove the `winstoneEmbeddedWAR` that should be somewhere under `C:\Users\<username>\AppData\Local\Temp`
+====
+
+=== Optional configuration
+
+Alternatively, you can start WebAnno from the command line, in particular if you wish to provide it with additional memory (here 1 GB) or if you want it to store its data in a different folder.
+
+----
+java -Xmx1g -Dwebanno.home=/my/webanno/home -jar webanno-XXX-standalone.jar
+----
+
+Mind to replace `/my/webanno/home` with path of a folder where WebAnno can store its data.
+
+By default the server starts on port 8080 an you can access it via a browser at `http://localhost:8080` after you started it. You can add the parameter `--httpPort=9999` at the end of the command line to start the server on port 9999 (or choose any other port).
+
+A full list of the command line parameters can be found in the link:http://winstone.sourceforge.net/#commandLine[Winstone documentation].
+
