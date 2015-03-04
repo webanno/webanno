@@ -8,7 +8,7 @@ a web-based annotation tool for a wide range of annotations.
 
 == Major improvements since !WebAnno 2.0 ==
 
-  * annotation UI reacts snippier
+  * annotation UI reaction speed improved
   * annotation UI toolbar stays on screen when scrolling
   * ability to choose format on project export
   * non-admin users can gain privilege to create own projects
