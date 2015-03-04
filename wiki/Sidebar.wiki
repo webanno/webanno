@@ -4,7 +4,6 @@
   * User documentation
     * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.html User Guide] ([https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.pdf pdf])
     * [Tutorials Tutorials]
-    * [Format Corpus formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
     * [SampleProjects Example projects]
   * Administrator documentation
@@ -32,6 +31,7 @@
       * [Projects]
       * [Monitoring]
       * [Manage_Users]
+    * [Format Corpus formats]
   * Administrator documentation
     * [InstallationGuide Server-based]
 </wiki:comment>
