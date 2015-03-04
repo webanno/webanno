@@ -46,6 +46,7 @@ _In alphabetical order_
    * Chris Biemann (project management, quality assurance)
    * Richard Eckart de Castilho (project management, architecture, prototyping, UIMA expertise)
    * Anette Frank (scientific consulting)
+   * Sushil Jain (development support)
    * Iryna Gurevych (scientific consulting)
    * Seid Muhie Yimam (lead developer)
 
