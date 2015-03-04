@@ -2,13 +2,13 @@
 
   * [WebAnnoInstFile Downloads]
   * User documentation
-    * [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/ User Guide]
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/user-guide.html User Guide]
     * [Tutorials Tutorials]
     * [Format Corpus formats]
     * [CrowdsourcingGermanNEs Crowd Sourcing German NE Guide]
     * [SampleProjects Example projects]
   * Administrator documentation
-    * [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/ Administrator Guide]
+    * [https://webanno.googlecode.com/svn/tags/latest-stable/docs/admin-guide.html Administrator Guide]
     * [QuickInstallOsX Quick install guide: OS X]
   * Developer documentation
     * [DevInstallationGuide Developer Guide]
