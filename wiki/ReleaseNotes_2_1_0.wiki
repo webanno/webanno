@@ -21,7 +21,7 @@ a web-based annotation tool for a wide range of annotations.
 
 Thanks to all our users who have provided us with excellent feedback!
 You have been major drivers behind the features that made it into this
-version of WebAnno!
+version of !WebAnno!
 
 == Tutorial ==
 
