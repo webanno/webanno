@@ -2,8 +2,8 @@
 
 == Downloads ==
 
-   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.13-standalone.jar WebAnno 2 standalone (executable JAR)] - [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/#sect_installation Installation instructions] 
-   * [http://dl.bintray.com/webanno/downloads/webanno-2.0.13.war WebAnno 2 WAR-archive] - [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/#sect_installation Installation instructions]
+   * [https://dl.bintray.com/webanno/downloads/webanno-2.1.0-standalone.jar WebAnno 2 standalone (executable JAR)] - [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/#sect_installation Installation instructions] 
+   * [https://bintray.com/artifact/download/webanno/downloads/webanno-webapp-2.1.0.war WebAnno 2 WAR-archive] - [https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(Google%20Code)%20(2.1.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/#sect_installation Installation instructions]
    * [SampleProjects Example projects]
 
 == Upgrade from a previous version of !WebAnno ==
