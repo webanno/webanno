@@ -12,6 +12,7 @@ de.tudarmstadt.ukp.clarin.webanno.brat.curation.component.model
 de.tudarmstadt.ukp.clarin.webanno.brat.display.model
 de.tudarmstadt.ukp.clarin.webanno.brat.message
 de.tudarmstadt.ukp.clarin.webanno.brat.project
+de.tudarmstadt.ukp.clarin.webanno.brat.resource
 de.tudarmstadt.ukp.clarin.webanno.brat.util
 de.tudarmstadt.ukp.clarin.webanno.crowdflower
 de.tudarmstadt.ukp.clarin.webanno.model
@@ -28,7 +29,6 @@ de.tudarmstadt.ukp.clarin.webanno.webapp
 de.tudarmstadt.ukp.clarin.webanno.webapp.dialog
 de.tudarmstadt.ukp.clarin.webanno.webapp.home.page
 de.tudarmstadt.ukp.clarin.webanno.webapp.home.security
-de.tudarmstadt.ukp.clarin.webanno.webapp.page
 de.tudarmstadt.ukp.clarin.webanno.webapp.page.annotation
 de.tudarmstadt.ukp.clarin.webanno.webapp.page.annotation.component
 de.tudarmstadt.ukp.clarin.webanno.webapp.page.automation
@@ -40,6 +40,5 @@ de.tudarmstadt.ukp.clarin.webanno.webapp.page.welcome
 de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi
 de.tudarmstadt.ukp.clarin.webanno.webapp.security
 de.tudarmstadt.ukp.clarin.webanno.webapp.security.page
+de.tudarmstadt.ukp.clarin.webanno.webapp.security.preauth
 de.tudarmstadt.ukp.clarin.webanno.webapp.standalone
-de.tudarmstadt.ukp.dkpro.core.api.metadata.type
-de.tudarmstadt.ukp.webanno.type
