@@ -1,5 +1,11 @@
 #summary History
 
+<h1>Project phases</h1>
+
+<wiki:toc max_depth="1" />
+
+----
+
 = !WebAnno 1 =
 
 The very first iteration supporting only a limited set of annotation types.
@@ -17,8 +23,6 @@ _In alphabetical order_
 
 The development of !WebAnno 1 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
 
-WebAnno 1 was supported by:
-
 <table width="100%">
 <tr>
 <td align="center"><img src="https://webanno.googlecode.com/svn/wiki/images/logos/bmbf.jpg"/></td>
@@ -28,6 +32,7 @@ WebAnno 1 was supported by:
 </tr>
 </table>
 
+----
 
 = !WebAnno 2 =
 
@@ -47,8 +52,6 @@ _In alphabetical order_
 
 The development of !WebAnno 2 was supported by [http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik CLARIN F-AG7 KP1].
 
-WebAnno 2 was supported by:
-
 <table width="100%">
 <tr>
 <td align="center"><img src="https://webanno.googlecode.com/svn/wiki/images/logos/bmbf.jpg"/></td>
@@ -58,6 +61,7 @@ WebAnno 2 was supported by:
 </tr>
 </table>
 
+----
 
 = !WebAnno 3 =
 
