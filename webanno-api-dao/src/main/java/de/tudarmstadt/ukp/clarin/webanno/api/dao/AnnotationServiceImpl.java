@@ -661,7 +661,6 @@ public class AnnotationServiceImpl
         List<Tag> tags = entityManager
                 .createQuery("FROM Tag WHERE tagSet = :tagSet ORDER BY name ASC", Tag.class)
                 .setParameter("tagSet", aTagSet).getResultList();
-        // FIXME ?!? This loop appears to make absolutely not sense!
         for (int i = 0; i < tags.size(); i++) {
             tags.get(i).setName(tags.get(i).getName());
         }

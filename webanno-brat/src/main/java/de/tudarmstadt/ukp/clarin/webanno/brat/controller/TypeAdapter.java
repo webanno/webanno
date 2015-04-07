@@ -17,7 +17,6 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.uima.cas.CAS;
@@ -47,7 +46,7 @@ public interface TypeAdapter
      * @param address the annotation ID.
      * @param value the value.
      */
-    void updateFeature(JCas aJcas, AnnotationFeature feature, int address, Object value);
+    void updateFeature(JCas aJcas, AnnotationFeature feature, int address, String value);
 
     /**
      * Add annotations from the CAS, which is controlled by the window size, to the brat response
@@ -122,13 +121,11 @@ public interface TypeAdapter
     public void delete(JCas aJCas, int aAddress);
 
     // delete based on the begin,end, and type of annotation
-    void delete(JCas aJCas, AnnotationFeature feature, int aBegin, int aEnd, Object aValue);
+    void delete(JCas aJCas, AnnotationFeature feature, int aBegin, int aEnd, String aValue);
 
     void deleteBySpan(JCas aJCas, AnnotationFS fs, int aBegin, int aEnd);
 
     List<String> getAnnotation(JCas aJcas, AnnotationFeature feature, int begin, int end);
 
     AnnotationLayer getLayer();
-    
-    Collection<AnnotationFeature> listFeatures();
 }

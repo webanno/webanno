@@ -21,12 +21,9 @@ import static java.util.Arrays.asList;
 import static org.apache.uima.fit.util.CasUtil.selectFS;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.uima.cas.CAS;
@@ -87,23 +84,15 @@ public class ChainAdapter
 
     private AnnotationLayer layer;
 
-    private Map<String, AnnotationFeature> features;
-
     public ChainAdapter(AnnotationLayer aLayer, long aLayerId, String aTypeName,
-            String aLabelFeatureName, String aFirstFeatureName, String aNextFeatureName,
-            Collection<AnnotationFeature> aFeatures)
+            String aLabelFeatureName, String aFirstFeatureName, String aNextFeatureName)
     {
         layer = aLayer;
         layerId = aLayerId;
         annotationTypeName = aTypeName;
         chainFirstFeatureName = aFirstFeatureName;
         linkNextFeatureName = aNextFeatureName;
-
-        features = new LinkedHashMap<String, AnnotationFeature>();
-        for (AnnotationFeature f : aFeatures) {
-            features.put(f.getName(), f);
-        }
-}
+    }
 
     /**
      * Add annotations from the CAS, which is controlled by the window size, to the brat response
@@ -503,9 +492,10 @@ public class ChainAdapter
     }
 
     @Override
-    public void delete(JCas aJCas, AnnotationFeature aFeature, int aBegin, int aEnd, Object aValue)
+    public void delete(JCas aJCas, AnnotationFeature aFeature, int aBegin, int aEnd, String aValue)
     {
         // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -516,10 +506,12 @@ public class ChainAdapter
     }
 
     @Override
-    public void updateFeature(JCas aJcas, AnnotationFeature aFeature, int aAddress, Object aValue)
+    public void updateFeature(JCas aJcas, AnnotationFeature aFeature,int aAddress, String aValue)
     {
+        Type type = CasUtil.getType(aJcas.getCas(), aFeature.getLayer().getName()+LINK);
+        Feature feature = type.getFeatureByBaseName(aFeature.getName());
         FeatureStructure fs = BratAjaxCasUtil.selectByAddr(aJcas, FeatureStructure.class, aAddress);
-        BratAjaxCasUtil.setFeature(fs, aFeature, aValue);
+        fs.setFeatureValueFromString(feature, aValue);
     }
 
     /**
@@ -702,11 +694,5 @@ public class ChainAdapter
     public AnnotationLayer getLayer()
     {
         return layer;
-    }
-    
-    @Override
-    public Collection<AnnotationFeature> listFeatures()
-    {
-        return features.values();
     }
 }

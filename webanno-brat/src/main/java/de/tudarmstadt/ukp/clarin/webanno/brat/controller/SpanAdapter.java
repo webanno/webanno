@@ -17,28 +17,15 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.getAddr;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.getFeature;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.getFirstSentenceNumber;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.getLastSentenceAddressInDisplayWindow;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.isSameSentence;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.selectByAddr;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.selectOverlapping;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.selectSentenceAt;
-import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil.setFeature;
-import static java.util.Arrays.asList;
 import static org.apache.uima.fit.util.CasUtil.getType;
 import static org.apache.uima.fit.util.CasUtil.selectCovered;
 import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.Feature;
@@ -50,17 +37,12 @@ import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.component.AnnotationDetailEditorPanel.LinkWithRoleModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Argument;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Entity;
 import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Offsets;
-import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Relation;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
-import de.tudarmstadt.ukp.clarin.webanno.model.MultiValueMode;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
@@ -95,20 +77,13 @@ public class SpanAdapter
     private boolean deletable;
 
     private AnnotationLayer layer;
-    
-    private Map<String, AnnotationFeature> features;
 
     // value NILL for a token when the training file do not have annotations provided
     private final static String NILL = "__nill__";
 
-    public SpanAdapter(AnnotationLayer aLayer, Collection<AnnotationFeature> aFeatures)
+    public SpanAdapter(AnnotationLayer aLayer)
     {
         layer = aLayer;
-        
-        features = new LinkedHashMap<String, AnnotationFeature>();
-        for (AnnotationFeature f : aFeatures) {
-            features.put(f.getName(), f);
-        }
     }
 
     /**
@@ -182,11 +157,11 @@ public class SpanAdapter
             ColoringStrategy aColoringStrategy)
     {
         // The first sentence address in the display window!
-        Sentence firstSentence = selectSentenceAt(aJcas,
+        Sentence firstSentence = BratAjaxCasUtil.selectSentenceAt(aJcas,
                 aBratAnnotatorModel.getSentenceBeginOffset(),
                 aBratAnnotatorModel.getSentenceEndOffset());
 
-        int lastAddressInPage = getLastSentenceAddressInDisplayWindow(aJcas,
+        int lastAddressInPage = BratAjaxCasUtil.getLastSentenceAddressInDisplayWindow(aJcas,
                 firstSentence.getAddress(), aBratAnnotatorModel.getWindowSize());
 
         // the last sentence address in the display window
@@ -195,8 +170,8 @@ public class SpanAdapter
             lastSentenceInPage = firstSentence;
         }
         else {
-            lastSentenceInPage = (Sentence) selectByAddr(aJcas, FeatureStructure.class,
-                    lastAddressInPage);
+            lastSentenceInPage = (Sentence) BratAjaxCasUtil.selectByAddr(aJcas,
+                    FeatureStructure.class, lastAddressInPage);
         }
 
         Type type = getType(aJcas.getCas(), getAnnotationTypeName());
@@ -224,7 +199,6 @@ public class SpanAdapter
                     break;
                 }
             }
-            
             List<Sentence> sentences = selectCovered(aJcas, Sentence.class, beginSent.getBegin(),
                     endSent.getEnd());
             List<Offsets> offsets = new ArrayList<Offsets>();
@@ -243,60 +217,26 @@ public class SpanAdapter
                                 sentence.getEnd() - aFirstSentenceOffset));
                     }
                 }
-            aResponse
-                    .addEntity(new Entity(getAddr(fs), bratTypeName, offsets, bratLabelText, color));
-                        }
-            else {
-                // FIXME It should be possible to remove this case and the if clause because
-                // the case that a FS is inside a single sentence is just a special case
-                aResponse.addEntity(new Entity(getAddr(fs), bratTypeName, new Offsets(fs.getBegin()
-                        - aFirstSentenceOffset, fs.getEnd() - aFirstSentenceOffset), bratLabelText,
-                        color));
+                aResponse.addEntity(new Entity(((FeatureStructureImpl) fs).getAddress(),
+                        bratTypeName, offsets, bratLabelText, color));
             }
-                
-            // Render slots
-            int fi = 0;
-            for (AnnotationFeature feat : listFeatures()) {
-                if (MultiValueMode.ARRAY.equals(feat.getMultiValueMode())
-                        && LinkMode.WITH_ROLE.equals(feat.getLinkMode())) {
-                    List<LinkWithRoleModel> links = getFeature(fs, feat);
-                    for (int li = 0; li < links.size(); li++) {
-                        LinkWithRoleModel link = links.get(li);
-                        FeatureStructure targetFS = selectByAddr(fs.getCAS(), link.targetAddr);
-                        
-                        // HACK: here we generate a fake address... we MUST find a better mechanism
-                        // before releasing this.
-                        int fakeAddr = -(getAddr(fs) * 100000 + fi * 1000 + li);
-                        
-                        aResponse.addRelation(new Relation(fakeAddr, bratTypeName, getArgument(
-                                fs, targetFS), link.role, color));
-                    }
-                }
-                fi++;
+            else {
+                aResponse.addEntity(new Entity(((FeatureStructureImpl) fs).getAddress(),
+                        bratTypeName, new Offsets(fs.getBegin() - aFirstSentenceOffset, fs.getEnd()
+                                - aFirstSentenceOffset), bratLabelText, color));
             }
         }
-    }
-
-    /**
-     * Argument lists for the arc annotation
-     *
-     * @return
-     */
-    private List<Argument> getArgument(FeatureStructure aGovernorFs, FeatureStructure aDependentFs)
-    {
-        return asList(new Argument("Arg1", ((FeatureStructureImpl) aGovernorFs).getAddress()),
-                new Argument("Arg2", ((FeatureStructureImpl) aDependentFs).getAddress()));
     }
 
     public static void renderTokenAndSentence(JCas aJcas, GetDocumentResponse aResponse,
             BratAnnotatorModel aBratAnnotatorModel)
     {
         // The first sentence address in the display window!
-        Sentence firstSentence = selectSentenceAt(aJcas,
+        Sentence firstSentence = BratAjaxCasUtil.selectSentenceAt(aJcas,
                 aBratAnnotatorModel.getSentenceBeginOffset(),
                 aBratAnnotatorModel.getSentenceEndOffset());
 
-        int lastAddressInPage = getLastSentenceAddressInDisplayWindow(aJcas,
+        int lastAddressInPage = BratAjaxCasUtil.getLastSentenceAddressInDisplayWindow(aJcas,
                 firstSentence.getAddress(), aBratAnnotatorModel.getWindowSize());
 
         // the last sentence address in the display window
@@ -305,11 +245,11 @@ public class SpanAdapter
             lastSentenceInPage = firstSentence;
         }
         else {
-            lastSentenceInPage = (Sentence) selectByAddr(aJcas,
+            lastSentenceInPage = (Sentence) BratAjaxCasUtil.selectByAddr(aJcas,
                     FeatureStructure.class, lastAddressInPage);
         }
 
-        int sentenceNumber = getFirstSentenceNumber(aJcas,
+        int sentenceNumber = BratAjaxCasUtil.getFirstSentenceNumber(aJcas,
                 firstSentence.getAddress());
         aResponse.setSentenceNumberOffset(sentenceNumber);
 
@@ -349,12 +289,12 @@ public class SpanAdapter
      * @throws BratAnnotationException
      *             if the annotation cannot be created/updated.
      */
-    public Integer add(JCas aJcas, int aBegin, int aEnd, AnnotationFeature aFeature, Object aValue)
+    public Integer add(JCas aJcas, int aBegin, int aEnd, AnnotationFeature aFeature, String aValue)
         throws BratAnnotationException
     {
-        if (crossMultipleSentence || isSameSentence(aJcas, aBegin, aEnd)) {
+        if (crossMultipleSentence || BratAjaxCasUtil.isSameSentence(aJcas, aBegin, aEnd)) {
             if (lockToTokenOffsets) {
-                List<Token> tokens = selectOverlapping(aJcas, Token.class, aBegin,
+                List<Token> tokens = BratAjaxCasUtil.selectOverlapping(aJcas, Token.class, aBegin,
                         aEnd);
 
                 if (tokens.isEmpty()) {
@@ -365,7 +305,7 @@ public class SpanAdapter
 
             }
             else if (allowMultipleToken) {
-                List<Token> tokens = selectOverlapping(aJcas, Token.class, aBegin,
+                List<Token> tokens = BratAjaxCasUtil.selectOverlapping(aJcas, Token.class, aBegin,
                         aEnd);
                 // update the begin and ends (no sub token selection
                 aBegin = tokens.get(0).getBegin();
@@ -386,19 +326,19 @@ public class SpanAdapter
      * A Helper method to add annotation to CAS
      */
     private Integer updateCas(CAS aCas, int aBegin, int aEnd, AnnotationFeature aFeature,
-            Object aValue)
+            String aValue)
     {
         Type type = CasUtil.getType(aCas, getAnnotationTypeName());
         for (AnnotationFS fs : CasUtil.selectCovered(aCas, type, aBegin, aEnd)) {
             if (fs.getBegin() == aBegin && fs.getEnd() == aEnd) {
                 if (!allowStacking) {
-                    setFeature(fs, aFeature, aValue);
+                    BratAjaxCasUtil.setFeature(fs, aFeature, aValue);
                     return ((FeatureStructureImpl) fs).getAddress();
                 }
             }
         }
         AnnotationFS newAnnotation = aCas.createAnnotation(type, aBegin, aEnd);
-        setFeature(newAnnotation, aFeature, aValue);
+        BratAjaxCasUtil.setFeature(newAnnotation, aFeature, aValue);
 
         if (getAttachFeatureName() != null) {
             Type theType = CasUtil.getType(aCas, getAttachTypeName());
@@ -420,7 +360,7 @@ public class SpanAdapter
     @Override
     public void delete(JCas aJCas, int aAddress)
     {
-        FeatureStructure fs = selectByAddr(aJCas, FeatureStructure.class, aAddress);
+        FeatureStructure fs = BratAjaxCasUtil.selectByAddr(aJCas, FeatureStructure.class, aAddress);
         aJCas.removeFsFromIndexes(fs);
 
         // delete associated attachFeature
@@ -438,14 +378,16 @@ public class SpanAdapter
     }
 
     @Override
-    public void delete(JCas aJCas, AnnotationFeature aFeature, int aBegin, int aEnd, Object aValue)
+    public void delete(JCas aJCas, AnnotationFeature aFeature, int aBegin, int aEnd, String aValue)
     {
         Type type = CasUtil.getType(aJCas.getCas(), getAnnotationTypeName());
+        Feature feature = type.getFeatureByBaseName(aFeature.getName());
         for (AnnotationFS fs : CasUtil.selectCovered(aJCas.getCas(), type, aBegin, aEnd)) {
 
             if (fs.getBegin() == aBegin && fs.getEnd() == aEnd) {
-                if (ObjectUtils.equals(getFeature(fs, aFeature), aValue)) {
+                if (fs.getFeatureValueAsString(feature).equals(aValue)) {
                     delete(aJCas, ((FeatureStructureImpl) fs).getAddress());
+
                 }
             }
         }
@@ -553,21 +495,15 @@ public class SpanAdapter
     }
 
     @Override
-    public void updateFeature(JCas aJcas, AnnotationFeature aFeature, int aAddress, Object aValue)
+    public void updateFeature(JCas aJcas, AnnotationFeature aFeature, int aAddress, String aValue)
     {
-        FeatureStructure fs = selectByAddr(aJcas, FeatureStructure.class, aAddress);
-        setFeature(fs, aFeature, aValue);
+        FeatureStructure fs = BratAjaxCasUtil.selectByAddr(aJcas, FeatureStructure.class, aAddress);
+        BratAjaxCasUtil.setFeature(fs, aFeature, aValue);
     }
 
     @Override
     public AnnotationLayer getLayer()
     {
         return layer;
-    }
-    
-    @Override
-    public Collection<AnnotationFeature> listFeatures()
-    {
-        return features.values();
     }
 }

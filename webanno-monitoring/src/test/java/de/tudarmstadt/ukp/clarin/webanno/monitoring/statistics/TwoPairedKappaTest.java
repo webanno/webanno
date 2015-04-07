@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class TwoPairedKappaTest
         AnnotationLayer layer = new AnnotationLayer();
         layer.setId(0);
         layer.setName(POS.class.getName());
-        TypeAdapter adapter = new SpanAdapter(layer, Collections.EMPTY_LIST);
+        TypeAdapter adapter = new SpanAdapter(layer);
         Map<User, List<SourceDocument>> userDocs = new HashMap<User, List<SourceDocument>>();
         userDocs.put(user1, Arrays.asList(new SourceDocument[] { document }));
         userDocs.put(user2, Arrays.asList(new SourceDocument[] { document }));
@@ -130,7 +129,7 @@ public class TwoPairedKappaTest
         init();
         double[][] results = new double[2][2];
         TypeAdapter adapter = new ArcAdapter(null, 0, Dependency.class.getName(), "Dependent",
-                "Governor", "pos", Token.class.getName(), Collections.EMPTY_LIST);
+                "Governor", "pos", Token.class.getName());
         Map<User, List<SourceDocument>> userDocs = new HashMap<User, List<SourceDocument>>();
         userDocs.put(user1, Arrays.asList(new SourceDocument[] { document }));
         userDocs.put(user2, Arrays.asList(new SourceDocument[] { document }));
@@ -153,7 +152,7 @@ public class TwoPairedKappaTest
         AnnotationLayer layer = new AnnotationLayer();
         layer.setId(0);
         layer.setName(POS.class.getName());
-        TypeAdapter adapter = new SpanAdapter(layer, Collections.EMPTY_LIST);
+        TypeAdapter adapter = new SpanAdapter(layer);
         Map<User, List<SourceDocument>> userDocs = new HashMap<User, List<SourceDocument>>();
         userDocs.put(user1, Arrays.asList(new SourceDocument[] { document }));
         userDocs.put(user2, Arrays.asList(new SourceDocument[] { document }));
@@ -174,7 +173,7 @@ public class TwoPairedKappaTest
         init();
         double[][] results = new double[2][2];
         TypeAdapter adapter = new ArcAdapter(null, 0, Dependency.class.getName(), "Dependent",
-                "Governor", "pos", Token.class.getName(), Collections.EMPTY_LIST);
+                "Governor", "pos", Token.class.getName());
         Map<User, List<SourceDocument>> userDocs = new HashMap<User, List<SourceDocument>>();
         userDocs.put(user1, Arrays.asList(new SourceDocument[] { document }));
         userDocs.put(user2, Arrays.asList(new SourceDocument[] { document }));
@@ -195,7 +194,7 @@ public class TwoPairedKappaTest
         init();
         double[][] results = new double[2][2];
         TypeAdapter adapter = new ArcAdapter(null, 0, Dependency.class.getName(), "Dependent",
-                "Governor", "pos", Token.class.getName(), Collections.EMPTY_LIST);
+                "Governor", "pos", Token.class.getName());
         Map<User, List<SourceDocument>> userDocs = new HashMap<User, List<SourceDocument>>();
         userDocs.put(user1, Arrays.asList(new SourceDocument[] { document }));
         userDocs.put(user2, Arrays.asList(new SourceDocument[] { document }));

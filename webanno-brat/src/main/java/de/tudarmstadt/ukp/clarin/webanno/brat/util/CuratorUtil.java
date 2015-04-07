@@ -47,8 +47,8 @@ import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotator;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasController;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxCasUtil;
+import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAjaxConfiguration;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.BratAnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.brat.controller.SpanAdapter;
@@ -366,7 +366,7 @@ public class CuratorUtil
                 }
             }
             features.removeAll(invisibleFeatures);
-            TypeAdapter adapter = getAdapter(aAnnotationService, layer);
+            TypeAdapter adapter = getAdapter(layer);
             adapter.render(aJcas, features, response, aBratAnnotatorModel,
                     aCurationColoringStrategy);
         }
@@ -384,7 +384,7 @@ public class CuratorUtil
         throws IOException
     {
         GetCollectionInformationResponse info = new GetCollectionInformationResponse();
-        info.setEntityTypes(BratAjaxCasController.buildEntityTypes(aCurationContainer
+        info.setEntityTypes(BratAjaxConfiguration.buildEntityTypes(aCurationContainer
                 .getBratAnnotatorModel().getAnnotationLayers(), aAnnotationService));
 
         StringWriter out = new StringWriter();

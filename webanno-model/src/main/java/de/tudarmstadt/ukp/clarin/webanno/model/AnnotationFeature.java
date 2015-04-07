@@ -30,7 +30,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Type;
 
 /**
  * A persistence object for an annotation feature. One or more features can be defined per
@@ -86,23 +85,6 @@ public class AnnotationFeature
 
     private boolean visible = true;
 
-    @Column(name = "multi_value_mode")
-    @Type(type="de.tudarmstadt.ukp.clarin.webanno.model.MultiValueModeType")
-    private MultiValueMode multiValueMode;
-
-    @Column(name = "link_mode")
-    @Type(type="de.tudarmstadt.ukp.clarin.webanno.model.LinkModeType")
-    private LinkMode linkMode;
-
-    @Column(name = "link_type_name")
-    private String linkTypeName;
-    
-    @Column(name = "link_type_role_feature_name")
-    private String linkTypeRoleFeatureName;
-    
-    @Column(name = "link_type_target_feature_name")
-    private String linkTypeTargetFeatureName;
-    
     public long getId()
     {
         return id;
@@ -276,66 +258,6 @@ public class AnnotationFeature
     public void setTagset(TagSet tagset)
     {
         this.tagset = tagset;
-    }
-
-    public MultiValueMode getMultiValueMode()
-    {
-        if (multiValueMode == null) {
-            return MultiValueMode.NONE;
-        }
-        else {
-            return multiValueMode;
-        }
-    }
-
-    public void setMode(MultiValueMode aMode)
-    {
-        multiValueMode = aMode;
-    }
-    
-    public LinkMode getLinkMode()
-    {
-        if (linkMode == null) {
-            return LinkMode.NONE;
-        }
-        else {
-            return linkMode;
-        }
-    }
-
-    public void setLinkMode(LinkMode aLinkMode)
-    {
-        linkMode = aLinkMode;
-    }
-
-    public String getLinkTypeName()
-    {
-        return linkTypeName;
-    }
-
-    public void setLinkTypeName(String aLinkTypeName)
-    {
-        linkTypeName = aLinkTypeName;
-    }
-
-    public String getLinkTypeRoleFeatureName()
-    {
-        return linkTypeRoleFeatureName;
-    }
-
-    public void setLinkTypeRoleFeatureName(String aLinkTypeRoleFeatureName)
-    {
-        linkTypeRoleFeatureName = aLinkTypeRoleFeatureName;
-    }
-
-    public String getLinkTypeTargetFeatureName()
-    {
-        return linkTypeTargetFeatureName;
-    }
-
-    public void setLinkTypeTargetFeatureName(String aLinkTypeTargetFeatureName)
-    {
-        linkTypeTargetFeatureName = aLinkTypeTargetFeatureName;
     }
 
     @Override

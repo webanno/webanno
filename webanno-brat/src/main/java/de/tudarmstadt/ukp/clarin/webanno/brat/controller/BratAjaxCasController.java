@@ -17,31 +17,31 @@
  ******************************************************************************/
 package de.tudarmstadt.ukp.clarin.webanno.brat.controller;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CHAIN_TYPE;
 import static de.tudarmstadt.ukp.clarin.webanno.brat.controller.TypeUtil.getAdapter;
-import static java.util.Arrays.asList;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.uima.UIMAException;
 import org.apache.uima.jcas.JCas;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.MultiValueMap;
+
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotatorModel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.EntityType;
-import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.RelationType;
+import de.tudarmstadt.ukp.clarin.webanno.brat.display.model.Stored;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetCollectionInformationResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
+import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentTimestampResponse;
+import de.tudarmstadt.ukp.clarin.webanno.brat.message.ImportDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.LoadConfResponse;
+import de.tudarmstadt.ukp.clarin.webanno.brat.message.StoreSvgResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.WhoamiResponse;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
@@ -69,6 +69,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
  */
 public class BratAjaxCasController
 {
+    public static final String MIME_TYPE_XML = "application/xml";
+    public static final String PRODUCES_JSON = "application/json";
+    public static final String PRODUCES_XML = "application/xml";
+    public static final String CONSUMES_URLENCODED = "application/x-www-form-urlencoded";
+
     @Resource(name = "documentRepository")
     private RepositoryService repository;
 
@@ -87,6 +92,28 @@ public class BratAjaxCasController
     }
 
     /**
+     * This Method, a generic Ajax call serves the purpose of returning expected export file types.
+     * This only will be called for Larger annotation documents
+     * 
+     * @param aParameters the parameters.
+     * @return export file type once in a while!!!
+     */
+    public StoreSvgResponse ajaxCall(MultiValueMap<String, String> aParameters)
+    {
+        StoreSvgResponse storeSvgResponse = new StoreSvgResponse();
+        ArrayList<Stored> storedList = new ArrayList<Stored>();
+        Stored stored = new Stored();
+
+        stored.setName("TCF");
+        stored.setSuffix("TCF");
+        storedList.add(stored);
+
+        storeSvgResponse.setStored(storedList);
+
+        return storeSvgResponse;
+    }
+
+    /**
      * a protocol which returns the logged in user
      * 
      * @return the response.
@@ -95,6 +122,35 @@ public class BratAjaxCasController
     {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return new WhoamiResponse(username);
+    }
+
+    /**
+     * a protocol to retunr the expected file type for annotation document exporting . Currently, it
+     * returns only tcf file type where in the future svg and pdf types are to be supported
+     * 
+     * @return the response.
+     */
+    public StoreSvgResponse storeSVG()
+    {
+        StoreSvgResponse storeSvgResponse = new StoreSvgResponse();
+        ArrayList<Stored> storedList = new ArrayList<Stored>();
+        Stored stored = new Stored();
+
+        stored.setName("TCF");
+        stored.setSuffix("TCF");
+        storedList.add(stored);
+
+        storeSvgResponse.setStored(storedList);
+
+        return storeSvgResponse;
+    }
+
+    public ImportDocumentResponse importDocument(String aCollection, String aDocId, String aText,
+            String aTitle, HttpServletRequest aRequest)
+    {
+        ImportDocumentResponse importDocument = new ImportDocumentResponse();
+        importDocument.setDocument(aDocId);
+        return importDocument;
     }
 
     /**
@@ -122,8 +178,14 @@ public class BratAjaxCasController
             List<AnnotationLayer> aAnnotationLayers)
     {
         GetCollectionInformationResponse info = new GetCollectionInformationResponse();
-        info.setEntityTypes(buildEntityTypes(aAnnotationLayers, annotationService));
+        info.setEntityTypes(BratAjaxConfiguration.buildEntityTypes(aAnnotationLayers,
+                annotationService));
         return info;
+    }
+
+    public GetDocumentTimestampResponse getDocumentTimestamp(String aCollection, String aDocument)
+    {
+        return new GetDocumentTimestampResponse();
     }
 
     /**
@@ -212,125 +274,9 @@ public class BratAjaxCasController
                 }
             }
             features.removeAll(invisibleFeatures);
-            TypeAdapter adapter = getAdapter(aAnnotationService, layer);
+            TypeAdapter adapter = getAdapter(layer);
             adapter.render(aJCas, features, aResponse, aBModel, coloringStrategy);
             i++;
         }
-    }
-    
-    /**
-     * Generates brat type definitions from the WebAnno layer definitions.
-     * 
-     * @param aAnnotationLayers the layers
-     * @param aAnnotationService the annotation service
-     * @return the brat type definitions
-     */
-    public static Set<EntityType> buildEntityTypes(List<AnnotationLayer> aAnnotationLayers,
-            AnnotationService aAnnotationService)
-    {
-        // Sort layers
-        List<AnnotationLayer> layers = new ArrayList<AnnotationLayer>(aAnnotationLayers);
-        Collections.sort(layers, new Comparator<AnnotationLayer>()
-        {
-            @Override
-            public int compare(AnnotationLayer o1, AnnotationLayer o2)
-            {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-
-        // Now build the actual configuration
-        Set<EntityType> entityTypes = new LinkedHashSet<EntityType>();
-        for (AnnotationLayer layer : layers) {
-            EntityType entityType = configureEntityType(layer);
-
-            for (AnnotationLayer attachingLayer : getAttachingLayers(layer, layers, aAnnotationService)) {
-                RelationType arc = configureRelationType(layer, attachingLayer);
-                entityType.setArcs(asList(arc));
-            }
-            
-            entityTypes.add(entityType);
-        }
-
-        return entityTypes;
-    }
-    
-    /**
-     * Scan through the layers once to remember which layers attach to which layers.
-     */
-    private static List<AnnotationLayer> getAttachingLayers(AnnotationLayer aTarget,
-            List<AnnotationLayer> aLayers, AnnotationService aAnnotationService)
-    {
-        List<AnnotationLayer> attachingLayers = new ArrayList<>();
-        
-        // Chains always attach to themselves
-        if (CHAIN_TYPE.equals(aTarget.getType())) {
-            attachingLayers.add(aTarget);
-        }
-        
-        // FIXME This is a hack! Actually we should check the type of the attachFeature when
-        // determine which layers attach to with other layers. Currently we only use attachType,
-        // but do not follow attachFeature if it is set.
-        if (aTarget.isBuiltIn() && aTarget.getName().equals(POS.class.getName())) {
-            attachingLayers.add(aAnnotationService.getLayer(Dependency.class.getName(),
-                    aTarget.getProject()));
-        }
-        
-        // Custom layers
-        for (AnnotationLayer l : aLayers) {
-            if (aTarget.equals(l.getAttachType())) {
-                attachingLayers.add(l);
-            }
-        }
-        
-        return attachingLayers;
-    }
-    
-    private static EntityType configureEntityType(AnnotationLayer aLayer)
-    {
-        String bratTypeName = getBratTypeName(aLayer);
-        return new EntityType(aLayer.getName(), aLayer.getUiName(), bratTypeName);
-    }
-    
-    private static RelationType configureRelationType(AnnotationLayer aLayer,
-            AnnotationLayer aAttachingLayer)
-    {
-        String attachingLayerBratTypeName = TypeUtil.getBratTypeName(aAttachingLayer);
-        // FIXME this is a hack because the chain layer consists of two UIMA types, a "Chain"
-        // and a "Link" type. ChainAdapter always seems to use "Chain" but some places also
-        // still use "Link" - this should be cleaned up so that knowledge about "Chain" and
-        // "Link" types is local to the ChainAdapter and not known outside it!
-        if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-            attachingLayerBratTypeName += ChainAdapter.CHAIN;
-        }
-        
-        // Handle arrow-head styles depending on linkedListBehavior
-        String arrowHead;
-        if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE) && !aLayer.isLinkedListBehavior()) {
-            arrowHead = "none";
-        }
-        else {
-            arrowHead = "triangle,5";
-        }
-        
-        String bratTypeName = getBratTypeName(aLayer);
-        RelationType arc = new RelationType(aAttachingLayer.getName(),
-                aAttachingLayer.getUiName(), attachingLayerBratTypeName, bratTypeName, null,
-                arrowHead);
-        return arc;
-    }
-    
-    private static String getBratTypeName(AnnotationLayer aLayer)
-    {
-        String bratTypeName = TypeUtil.getBratTypeName(aLayer);
-        
-        // FIXME this is a hack because the chain layer consists of two UIMA types, a "Chain"
-        // and a "Link" type. ChainAdapter always seems to use "Chain" but some places also
-        // still use "Link" - this should be cleaned up so that knowledge about "Chain" and
-        // "Link" types is local to the ChainAdapter and not known outside it!
-        if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-            bratTypeName += ChainAdapter.CHAIN;
-        } 
-        return bratTypeName;
     }
 }

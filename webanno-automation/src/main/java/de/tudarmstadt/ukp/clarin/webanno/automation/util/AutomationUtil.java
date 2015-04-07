@@ -129,8 +129,8 @@ public class AutomationUtil
                 if (selectCovered(jCas, Token.class, sentence.getBegin() + i,
                         sentence.getBegin() + i + selectedText.length()).size() > 0) {
 
-                    SpanAdapter adapter = (SpanAdapter) getAdapter(annotationService, aFeature.getLayer());
-                    Object value = aModel.getRememberedSpanFeatures().get(aFeature);
+                    SpanAdapter adapter = (SpanAdapter) getAdapter(aFeature.getLayer());
+                    String value = aModel.getRememberedSpanFeatures().get(aFeature);
                     adapter.add(jCas, sentence.getBegin() + i, sentence.getBegin() + i
                             + selectedText.length() - 1, aFeature, value);
 
@@ -154,7 +154,7 @@ public class AutomationUtil
         // get selected text, concatenations of tokens
         String selectedText = BratAjaxCasUtil.getSelectedText(annoCas, aStart, aEnd);
 
-        TypeAdapter adapter = getAdapter(annotationService, aFeature.getLayer());
+        TypeAdapter adapter = getAdapter(aFeature.getLayer());
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = aRepository.getUser(username);
 
@@ -178,7 +178,7 @@ public class AutomationUtil
                 if (selectCovered(jCas, Token.class, sentence.getBegin() + i,
                         sentence.getBegin() + i + selectedText.length()).size() > 0) {
 
-                    Object value = aModel.getRememberedSpanFeatures().get(aFeature);
+                    String value = aModel.getRememberedSpanFeatures().get(aFeature);
                     adapter.delete(jCas, aFeature, sentence.getBegin() + i, sentence.getBegin() + i
                             + selectedText.length() - 1, value);
                 }
@@ -216,7 +216,7 @@ public class AutomationUtil
             }
 
             BufferedWriter trainOut = new BufferedWriter(new FileWriter(trainFile));
-            TypeAdapter adapter = TypeUtil.getAdapter(annotationService, feature.getLayer());
+            TypeAdapter adapter = TypeUtil.getAdapter(feature.getLayer());
             for (SourceDocument sourceDocument : aRepository.listSourceDocuments(feature
                     .getProject())) {
                 if ((sourceDocument.isTrainingDocument() && sourceDocument.getFeature() != null && sourceDocument
@@ -246,9 +246,10 @@ public class AutomationUtil
     {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = aRepository.getUser(username);
-        TypeAdapter adapter = TypeUtil.getAdapter(annotationService, aFeature.getLayer());
+        TypeAdapter adapter = TypeUtil.getAdapter(aFeature.getLayer());
         List<String> annotations = new ArrayList<String>();
-        if (aSourceDocument == null) {// this is training - all sources documents will be converted to a single
+        if (aSourceDocument == null) {// this is training - all sources documents will be converted
+                                      // to a single
             // training file
             for (SourceDocument sourceDocument : aRepository.listSourceDocuments(aFeature
                     .getProject())) {
@@ -409,7 +410,7 @@ public class AutomationUtil
         AutomationStatus status = aRepository.getAutomationStatus(aTemplate);
 
         BufferedWriter trainOut = new BufferedWriter(new FileWriter(trainFile));
-        TypeAdapter adapter = TypeUtil.getAdapter(annotationService, feature.getLayer());
+        TypeAdapter adapter = TypeUtil.getAdapter(feature.getLayer());
         // Training documents (Curated or webanno-compatible imported ones - read using UIMA)
         for (SourceDocument sourceDocument : aRepository.listSourceDocuments(feature.getProject())) {
             if ((sourceDocument.isTrainingDocument() && sourceDocument.getFeature() != null && sourceDocument
@@ -496,7 +497,7 @@ public class AutomationUtil
         if (!documentChanged) {
             return;
         }
-        TypeAdapter adapter = TypeUtil.getAdapter(annotationService, feature.getLayer());
+        TypeAdapter adapter = TypeUtil.getAdapter(feature.getLayer());
         for (SourceDocument document : aRepository.listSourceDocuments(feature.getProject())) {
             if (!document.isProcessed() && !document.isTrainingDocument()) {
                 File predFile = new File(miraDir, document.getId() + ".pred.ft");
@@ -1315,9 +1316,9 @@ public class AutomationUtil
      *
      * @param aJcas
      *            the JCas.
-     * @param feature
+     * @param aFeature
      *            the feature.
-     * @param labelValues
+     * @param aLabelValues
      *            the values.
      * @throws BratAnnotationException
      *             if the annotations could not be created/updated.
@@ -1482,6 +1483,8 @@ public class AutomationUtil
                 catch (DataRetrievalFailureException e) {
 
                 }
+
+                TypeAdapter adapter = TypeUtil.getAdapter(layerFeature.getLayer());
                 automate(jCas, layerFeature, annotations);
                 LOG.info("Predictions found are written to the CAS");
                 aRepository.createCorrectionDocumentContent(jCas, document, user);
@@ -1489,6 +1492,6 @@ public class AutomationUtil
                 status.setAnnoDocs(status.getAnnoDocs() - 1);
             }
         }
-
     }
+
 }

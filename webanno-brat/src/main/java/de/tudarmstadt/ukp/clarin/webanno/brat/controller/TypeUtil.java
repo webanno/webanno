@@ -25,11 +25,9 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.MultiValueMode;
 
 /**
  * Utility Class for {@link TypeAdapter} with static methods such as geting
@@ -44,10 +42,10 @@ public final class TypeUtil
 		// No instances
 	}
 
-    public static TypeAdapter getAdapter(AnnotationService aRepo, AnnotationLayer aLayer)
+    public static TypeAdapter getAdapter(AnnotationLayer aLayer)
     {
         if (aLayer.getType().equals(WebAnnoConst.SPAN_TYPE)) {
-            SpanAdapter adapter = new SpanAdapter(aLayer, aRepo.listAnnotationFeature(aLayer));
+            SpanAdapter adapter = new SpanAdapter(aLayer);
             adapter.setLockToTokenOffsets(aLayer.isLockToTokenOffset());
             adapter.setAllowStacking(aLayer.isAllowStacking());
             adapter.setAllowMultipleToken(aLayer.isMultipleTokens());
@@ -57,8 +55,7 @@ public final class TypeUtil
         else if (aLayer.getType().equals(WebAnnoConst.RELATION_TYPE)) {
             ArcAdapter adapter = new ArcAdapter(aLayer, aLayer.getId(), aLayer.getName(), "Dependent",
                     "Governor", aLayer.getAttachFeature() == null ? null : aLayer
-                            .getAttachFeature().getName(), aLayer.getAttachType().getName(),
-                            aRepo.listAnnotationFeature(aLayer));
+                            .getAttachFeature().getName(), aLayer.getAttachType().getName());
 
             adapter.setCrossMultipleSentence(aLayer.isCrossSentence());
             adapter.setAllowStacking(aLayer.isAllowStacking());
@@ -68,8 +65,7 @@ public final class TypeUtil
         }
         else if (aLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
             ChainAdapter adapter = new ChainAdapter(aLayer, aLayer.getId(), aLayer.getName()
-                    + ChainAdapter.CHAIN, aLayer.getName(), "first", "next",
-                    aRepo.listAnnotationFeature(aLayer));
+                    + ChainAdapter.CHAIN, aLayer.getName(), "first", "next");
             
             adapter.setLinkedListBehavior(aLayer.isLinkedListBehavior());
             
@@ -95,8 +91,7 @@ public final class TypeUtil
         StringBuilder bratLabelText = new StringBuilder();
         for (AnnotationFeature feature : aFeatures) {
 
-            if (!feature.isEnabled() || !feature.isVisible()
-                    || !MultiValueMode.NONE.equals(feature.getMultiValueMode())) {
+            if (!(feature.isEnabled()) && !(feature.isVisible())) {
                 continue;
             }
 
