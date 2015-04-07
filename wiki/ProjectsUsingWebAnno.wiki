@@ -1,11 +1,17 @@
 Selection of projects that use !WebAnno for their annotation needs
 
-2014
+*2015*
+  * CLARIN-D F-AG7 KP3 - Semantic Annotation for the Digital Humanities. This project funds the extension of !WebAnno to support new kinds of annotations such as predicate/argument structures.
+
+*2014*
   * [http://dsl.dk/ University of Copenhagen, CLARIN-DK]
 
-2013
+*2013*
   * [http://www.ceres.rub.de/en/project/forschungsprojekte/senereko-en/ SeNeReKo]  
   * [http://www.linguistics.rub.de/~krasselt/research.html PhD dissertation on mechanisms of language change]
   * [https://www.truffls.de/ Truffls] for [https://www.lt.informatik.tu-darmstadt.de/fileadmin/user_upload/Group_LangTech/student_theses/FINAL_Kroenke-JAPAQP-2013.pdf Job Ad Parsing annotation]
+
+*2012*
+  * [http://de.clarin.eu/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik/kurationsprojekt-2.html CLARIN-D F-AG7 KP2] - Guidelines and best-practices for the annotation of non-standard variants of German.
 
 Search for _!WebAnno_ on [http://scholar.google.de/scholar?q=%22WebAnno%22 Google Scholar].
