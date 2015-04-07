@@ -2,7 +2,7 @@
 
 We are pleased to announce the release of
 
-  <font size="5"><b>!WebAnno 2.1.1)</b></font>
+  <font size="5"><b>!WebAnno 2.1.1</b></font>
 
 a web-based annotation tool for a wide range of annotations.
 
