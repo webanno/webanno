@@ -1,0 +1,33 @@
+---
+layout: default
+format: video
+---
+<div class="row">
+	<div class="small-12 columns">
+		<article>
+			<div class="flex-video">
+				{{ page.iframe}}
+			</div>
+
+			<div class="row">
+				<div class="medium-offset-2 medium-8 end columns">
+					<header>
+						{% if page.subheadline %}<p class="subheadline t30">{{ page.subheadline }}</p>{% endif %}
+						<h1>{{ page.title }}</h1>
+					</header>
+					{% if page.teaser %}
+					<p class="teaser">
+						{{ page.teaser }}
+					</p>
+					{% endif %}
+					
+					{{ content }}
+					{% if page.show_meta == true %}
+					{% include meta_information.html %}
+					{% endif %}
+				</div><!-- /.medium-8.columns -->
+			</div><!-- /.row -->
+		</article>
+
+	</div><!-- /.small-12.columns -->
+</div><!-- /.row -->

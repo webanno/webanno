@@ -1,0 +1,27 @@
+- title: WebAnno
+  url: "/"
+  side: left
+
+- title: Downloads
+  url: "/pages/downloads.html"
+  side: left
+
+- title: Documentation
+  url: "/documentation/"
+  side: left
+
+- title: "Issues"
+  url: "http://github.com/webanno/webanno/issues"
+  side: left
+
+- title: Source
+  url: "http://github.com/webanno/webanno"
+  side: left
+
+- title: "Contact"
+  url: "/pages/contact.html"
+  side: left
+
+- title: "About"
+  url: "/info"
+  side: left

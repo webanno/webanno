@@ -1,0 +1,15 @@
+- menu_name: "Services"
+
+- name: "Contact"
+  url: "/contact/"
+  class: "services-contact"
+  title: "Contact"
+
+- name: "sitemap.xml"
+  url: "/sitemap.xml"
+  class: "sitemap-link"
+  title: "Sitemap for Google Webmastertools"
+
+- name: "Privacy policy"
+  url: "/privacy.html"
+  title: "Privacy policy"

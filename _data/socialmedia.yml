@@ -1,0 +1,39 @@
+- name: YouTube
+  url: https://www.youtube.com/watch?v=72aaYFmKWM4&list=PLvYKmi8P7TYdC-7A_VT4td95629aZIwDb
+  class: icon-youtube
+  title: "Tutorials for WebAnno on YouTube"
+
+- name: Twitter
+  url: https://twitter.com/search?q=%23webanno
+  class: icon-twitter
+  title: "Twitter: #webanno"
+
+#- name: Facebook
+#  url: http://www.facebook.com/phlow.media
+#  class: icon-facebook
+#  title: "Lass uns Freunde sein!"
+
+#- name: Soundcloud
+#  url: http://soundcloud.com/phlow
+#  class: icon-soundcloud
+#  title: "Sounds und Downloads und mehr"
+
+- name: GitHub
+  url: http://github.com/webanno/webanno
+  class: icon-github
+  title: "All our code"
+
+#- name: Instagram
+#  url: http://instagram.com/phlowmedia
+#  class: icon-instagram
+#  title: "Bilder und Impressionen mit und ohne Filter..."
+
+#- name: Pinterest
+#  url: http://www.pinterest.com/phlowmedia/
+#  class: icon-pinterest
+#  title: "Bilder, Fotos, Illustrationen, Grafiken sammeln..."
+
+#- name: Mixcloud
+#  url: http://www.mixcloud.com/phlow/
+#  class: icon-cloud
+#  title: "Mixe, was sonst?"

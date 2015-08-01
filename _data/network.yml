@@ -1,0 +1,16 @@
+- menu_name: "Mailing lists"
+
+- name: "Users"
+  url: "http://groups.google.com/group/webanno-user"
+  class: "services-newsletter"
+  title: "Users"
+
+- name: "Developers"
+  url: "http://groups.google.com/group/webanno-dev"
+  class: "services-newsletter"
+  title: "Developers"
+
+- name: "Commits"
+  url: "http://groups.google.com/group/webanno-commits"
+  class: "services-newsletter"
+  title: "Commits"

@@ -1,0 +1,40 @@
+---
+layout: default
+format: blog-index
+---
+<div id="header-home">
+    <div class="row">
+        <div class="small-12 columns">
+        </div><!-- /.medium-4.columns -->
+    </div><!-- /.row -->
+</div><!-- /#header-home -->
+
+
+{% comment %}
+*
+* First check, if widget is empty or not by checking if there is a title
+*
+{% endcomment %}
+<div class="row t20">
+	<div class="medium-12 columns">
+		<h2>{{ page.header-1.title }}</h2>
+		{{ page.header-1.text }}
+    </div><!-- /.medium-12.columns -->
+</div><!-- /.row -->
+
+<div class="row t30">
+    <div class="medium-8 columns">
+        {% comment %}
+        *
+        * Finally, if there is content, spit it out.
+        *
+        {% endcomment %}
+        <div>
+            {{ content }}
+        </div>
+    </div>
+
+	<div class="medium-4 columns">
+		{% include sidebar.html %}
+	</div><!-- /.medium-4.columns -->
+</div><!-- /.row -->
