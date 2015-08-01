@@ -6,7 +6,15 @@
 	<title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
 	<link rel="stylesheet" href="{{ site.url }}/assets/css/styles_feeling_responsive.css">
 	<script src="{{ site.url }}/assets/js/modernizr.min.js"></script>
-	
+
+  {% if site.development_mode %}
+  <script>
+    if (window.location.protocol) {
+    window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);  
+    }
+  </script>	
+  {% endif %}
+
   <script>
     WebFontConfig = {
       google: { families: [ 'Lato:400,700,400italic:latin', 'Volkhov::latin' ] }
