@@ -7,7 +7,8 @@
 	<link rel="stylesheet" href="{{ site.url }}/assets/css/styles_feeling_responsive.css">
 	<script src="{{ site.url }}/assets/js/modernizr.min.js"></script>
 
-  {% if site.development_mode == true %}
+  {% if site.development_mode %}
+  {% else %}
   <script>
     if (window.location.protocol) {
     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);  
