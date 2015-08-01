@@ -9,6 +9,11 @@
 - title: Documentation
   url: "/documentation/"
   side: left
+  dropdown:
+  - title: "User Guide"
+    url: "/releases/!LATEST!/docs/user-guide.html"
+  - title: "Admin Guide"
+    url: "/releases/!LATEST!/docs/admin-guide.html"
 
 - title: "Issues"
   url: "http://github.com/webanno/webanno/issues"
@@ -21,6 +26,13 @@
 - title: "Contact"
   url: "/pages/contact.html"
   side: left
+  dropdown:
+  - title: "Mailing lists"
+    url: "/pages/mailinglists.html"
+  - title: "Twitter"
+    url: "http://twitter.com/search?q=%23webanno"
+  - title: "Contributors"
+    url: "http://github.com/webanno/webanno/blob/master/CONTRIBUTORS.txt"
 
 - title: "About"
   url: "/info"

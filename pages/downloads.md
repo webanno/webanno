@@ -3,8 +3,8 @@ layout: page-fullwidth
 title: "Downloads"
 ---
 
-* [WebAnno 2.3 standalone (executable JAR)](https://bintray.com/artifact/download/webanno/downloads/webanno-standalone-2.3.0.jar) - [Installation instructions](https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(2.3.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/#sect_installation) 
-* [WebAnno 2.3 WAR-archive](https://bintray.com/artifact/download/webanno/downloads/webanno-webapp-2.3.0.war) - [Installation instructions](https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(2.3.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/#sect_installation)
+* [WebAnno {{ site.data.releases[0].version }} standalone (executable JAR)](https://bintray.com/artifact/download/webanno/downloads/webanno-standalone-{{ site.data.releases[0].version }}.jar) - [Installation instructions]({{ site.url }}/releases/{{ site.data.releases[0].version }}/docs/user-guide.html#sect_installation) 
+* [WebAnno {{ site.data.releases[0].version }} WAR-archive](https://bintray.com/artifact/download/webanno/downloads/webanno-webapp-{{ site.data.releases[0].version }}.war) - [Installation instructions]({{ site.url }}/releases/{{ site.data.releases[0].version }}/docs/admin-guide.html#sect_installation)
 * [SampleProjects Example projects]
 
 You can subscribe to notifications for new releases via BinTray:  <a href="https://bintray.com/webanno/downloads/webanno2/_latestVersion"><img src="https://api.bintray.com/packages/webanno/downloads/webanno2/images/download.png"/></a>

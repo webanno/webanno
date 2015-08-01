@@ -96,7 +96,7 @@
             {% else %}
 
               <li class="has-dropdown{% if link.url == page.url %} active{% endif %}">
-                <a href="{{ domain }}{{ link.url }}"{% if link.url contains 'http' %} target="_blank"{% endif %}>{{ link.title }}</a>
+                <a href="{{ domain }}{{ link.url | replace: '!LATEST!', site.data.releases[0].version}}"{% if link.url contains 'http' %} target="_blank"{% endif %}>{{ link.title }}</a>
 
                   <ul class="dropdown">
                     {% for dropdown_link in link.dropdown %}
@@ -107,7 +107,7 @@
                         {% assign domain = site.url %}
                       {% endif %}
 
-                      <li><a href="{{ domain }}{{ dropdown_link.url }}"{% if dropdown_link.url contains 'http' %} target="_blank"{% endif %}>{{ dropdown_link.title }}</a></li>
+                      <li><a href="{{ domain }}{{ dropdown_link.url | replace: '!LATEST!', site.data.releases[0].version}}"{% if dropdown_link.url contains 'http' %} target="_blank"{% endif %}>{{ dropdown_link.title }}</a></li>
                     {% endfor %}
                   </ul>
                   
