@@ -32,8 +32,6 @@ If you use WebAnno in scientific work, please cite us:
 
 {% include team.html %}
 
-[Alternatives](pages/team_alt.html)
-
 ### License
 
 WebAnno is provided as open source under the Apache License v2.0.
