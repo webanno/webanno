@@ -10,7 +10,7 @@
   {% if site.development_mode %}
   {% else %}
   <script>
-    if (window.location.protocol) {
+    if (window.location.protocol != "https") {
     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);  
     }
   </script>	
