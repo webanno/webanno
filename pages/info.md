@@ -12,11 +12,11 @@ The very first iteration supporting only a limited set of annotation types.
 
 _In alphabetical order (surname)_
 
-   * Chris Biemann (project management, quality assurance) 
-   * Richard Eckart de Castilho (development management, architecture, prototyping, UIMA expertise)
+   * Chris Biemann (project lead) 
+   * Richard Eckart de Castilho (senior developer)
    * Iryna Gurevych (scientific consulting)
    * Benjamin Milde (crowd-sourcing)
-   * Seid Muhie Yimam (lead developer)
+   * Seid Muhie Yimam (developer)
    * Andreas Straninger (curation)
 
 The development of WebAnno 1 was supported by [CLARIN F-AG7 KP1](http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik).
@@ -42,11 +42,11 @@ This iteration brings support for custom layers, a new WebAnno file format, and 
 
 _In alphabetical order (surname)_
 
-   * Chris Biemann (@front; project management, quality assurance)
-   * Darina Benikova (@right; documentation, quality assurance)
-   * Richard Eckart de Castilho (@back; development management, architecture, prototyping, UIMA expertise)
+   * Chris Biemann (@front; project lead)
+   * Darina Benikova (@right; documentation)
+   * Richard Eckart de Castilho (@back; senior developer)
    * Iryna Gurevych (not on picture; scientific consulting)
-   * Seid Muhie Yimam (@left; lead developer)
+   * Seid Muhie Yimam (@left; developer)
 
 The development of WebAnno 2 was supported by [CLARIN F-AG7 KP1](http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik).
 
@@ -69,12 +69,14 @@ In this development iteration, we focus on improving the support for semantic an
 
 _In alphabetical order (surname)_
 
-   * Chris Biemann (project management, quality assurance)
-   * Richard Eckart de Castilho (project management, senior developer)
+   * Chris Biemann (project lead)
+   * Richard Eckart de Castilho (project lead)
    * Anette Frank (scientific consulting)
    * Iryna Gurevych (scientific consulting)
-   * Sushil Jain (development support)
-   * Aakash Sharma (development support)
+   * Silvana Hartmann (testing)
+   * Sushil Jain (junior developer)
+   * Éva Mújdricza-Maydt (testing)
+   * Aakash Sharma (junior developer)
    * Seid Muhie Yimam (developer)
 
 The development of WebAnno 3 is supported by [CLARIN F-AG7 KP3](http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik).
