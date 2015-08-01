@@ -4,15 +4,6 @@ title: "Info page"
 permalink: "/info/"
 ---
 
-#summary About WebAnno
-
-# Project phases
-{:.no_toc}
-
-{:toc}
-
-----
-
 # WebAnno 1
 
 The very first iteration supporting only a limited set of annotation types.
