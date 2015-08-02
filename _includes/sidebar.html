@@ -1,7 +1,16 @@
 <aside>
 
+<div class="radius b20 center">
+{% assign stable = (site.data.releases | where:"status", "stable" | first) %}
+Latest release: {{ stable.version }} ({{ stable.date }})
+</div>
+
 <div class="radius b20">
 <iframe id="ytplayer" type="text/html" height="227" src="https://www.youtube.com/embed/?listType=playlist&list=PLvYKmi8P7TYdC-7A_VT4td95629aZIwDb&color=white&showinfo=1" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<div class="radius b20 pseudo-p">
+<b>DEMO:</b> To try WebAnno, <a href="https://maggie.lt.informatik.tu-darmstadt.de/webanno">login here</a> with username <b>guest</b> and password <b>guest</b>. Create your own project and try all the functionality (compatible with Chrome and Safari).
 </div>
 
 <div class="radius b20">
