@@ -22,11 +22,11 @@ WebAnno is a fully web-based tool with a lower entry barrier than other annotati
 
 If you use WebAnno in scientific work, please cite us:
 
-> Yimam, S.M., Eckart de Castilho, R., Gurevych, I., and Biemann C. (2014): Automatic Annotation Suggestions and Custom Annotation Layers in WebAnno In: Proceedings of ACL-2014, demo session, Baltimore, MD, USA ([pdf](ACL-2014-PDF)) ([bib](ACL-2014-BIB)) ([poster pdf](ACL-2014-POSTER))
+> Yimam, S.M., Eckart de Castilho, R., Gurevych, I., and Biemann C. (2014): Automatic Annotation Suggestions and Custom Annotation Layers in WebAnno In: Proceedings of ACL-2014, demo session, Baltimore, MD, USA ([pdf][ACL-2014-PDF]) ([bib][ACL-2014-BIB]) ([poster pdf][ACL-2014-POSTER])
 
-> Eckart de Castilho, R., Biemann, C., Gurevych, I. and Yimam, S.M. (2014): WebAnno: a flexible, web-based annotation tool for CLARIN. In Proceedings of the CLARIN Annual Conference (CAC) 2014, Soesterberg, Netherlands. ([pdf](CLARIN-2014-PDF)) ([bib](CLARIN-2014-BIB))
+> Eckart de Castilho, R., Biemann, C., Gurevych, I. and Yimam, S.M. (2014): WebAnno: a flexible, web-based annotation tool for CLARIN. In Proceedings of the CLARIN Annual Conference (CAC) 2014, Soesterberg, Netherlands. ([pdf][CLARIN-2014-PDF]) ([bib][CLARIN-2014-BIB]) ([slides pdf][CLARIN-2014-SLIDES])
 
-> Yimam, S.M., Gurevych, I., Eckart de Castilho, R., and Biemann C. (2013): WebAnno: A Flexible, Web-based and Visually Supported System for Distributed Annotations. In Proceedings of ACL-2013, demo session, Sofia, Bulgaria. ([pdf](ACL-2013-PDF)) ([bib](ACL-2013-BIB))
+> Yimam, S.M., Gurevych, I., Eckart de Castilho, R., and Biemann C. (2013): WebAnno: A Flexible, Web-based and Visually Supported System for Distributed Annotations. In Proceedings of ACL-2013, demo session, Sofia, Bulgaria. ([pdf][ACL-2013-PDF]) ([bib][ACL-2013-BIB])
 
 ### WebAnno 3 Team
 
@@ -36,12 +36,13 @@ If you use WebAnno in scientific work, please cite us:
 
 WebAnno is provided as open source under the Apache License v2.0.
 
-[ACL-2014-PDF]: https://www.ukp.tu-darmstadt.de/fileadmin/user_upload/Group_UKP/publikationen/2014/ACL2014_WebAnno.pdf
-[ACL-2014-BIB]: https://www.ukp.tu-darmstadt.de/publications/details/?no_cache=1&tx_bibtex_pi1%5Bpub_id%5D=TUD-CS-2014-0103
+[ACL-2014-PDF]: http://www.aclweb.org/anthology/P13-4001.pdf
+[ACL-2014-BIB]: http://www.aclweb.org/anthology/P13-4001.bib
 [ACL-2014-POSTER]: https://webanno.googlecode.com/svn/files/webanno-acl2014-poster.pdf
-[CLARIN-2014-PDF]: http://www.ukp.tu-darmstadt.de/fileadmin/user_upload/Group_UKP/publikationen/2013/Yimam_WebAnno_ACL2013demo.pdf
-[CLARIN-2014-BIB]: http://www.ukp.tu-darmstadt.de/publications/details/?no_cache=1&tx_bibtex_pi1%5Bpub_id%5D=TUD-CS-2013-0156&type=99&tx_bibtex_pi1%5Bbibtex%5D=yes
-[CLARIN-2013-PDF]: http://www.clarin.eu/sites/default/files/cac2014_submission_6_0.pdf
-[CLARIN-2013-BIB]: https://www.ukp.tu-darmstadt.de/publications/details/?no_cache=1&tx_bibtex_pi1%5Bpub_id%5D=TUD-CS-2014-0985&type=99&tx_bibtex_pi1%5Bbibtex%5D=yes
 
-<span class="footnotes">Appen logo used with kind permission by Appen.</span>
+[ACL-2013-PDF]: http://www.aclweb.org/anthology/P/P14/P14-5016.pdf
+[ACL-2013-BIB]: http://www.aclweb.org/anthology/P/P14/P14-5016.bib
+
+[CLARIN-2014-PDF]: http://www.clarin.eu/sites/default/files/cac2014_submission_6_0.pdf
+[CLARIN-2014-SLIDES]: https://www.clarin.eu/sites/default/files/06-CAC_WebAnno_Slides_redistributable.pdf
+[CLARIN-2014-BIB]: publications/CLARIN-2014.bib
