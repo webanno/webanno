@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.tudarmstadt.ukp.clarin.webanno.brat.curation.MergeCas;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
@@ -252,6 +253,16 @@ public class SuggestionViewPanel
 
         AnnotationFS fsClicked = selectByAddr(clickedJCas, aAddress);
 
+        //
+        if (aLinkFeature != null && aLink != null) {
+
+        }
+        if(MergeCas.existsSameAnnoOnPosition(fsClicked,aMergeJCas)){
+
+            throw new BratAnnotationException("Same Annotation exists on the mergeview."
+                    + " Please add it manually. ");
+        }
+
         long layerId = TypeUtil.getLayerId(spanType);
         AnnotationLayer layer = annotationService.getLayer(layerId);
         SpanAdapter adapter = (SpanAdapter) getAdapter(annotationService, layer);
@@ -379,10 +390,6 @@ public class SuggestionViewPanel
 
         AnnotationFS targetFs = selectSingleFsAt(aJcas, targetFsClicked.getType(),
                 targetFsClicked.getBegin(), targetFsClicked.getEnd());
-            if (originFs == null | targetFs == null) {
-                throw new NoOriginOrTargetAnnotationSelectedException(
-                        "Either origin or target annotations not selected");
-            }
 
             long layerId = TypeUtil.getLayerId(arcType);
 

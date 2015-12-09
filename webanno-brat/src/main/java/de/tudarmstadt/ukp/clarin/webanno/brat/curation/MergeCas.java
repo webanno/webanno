@@ -401,4 +401,19 @@ public class MergeCas {
 		}
 	}
 
+	public static boolean existsSameAnnoOnPosition(AnnotationFS aFs, JCas aJcas)
+	{
+		for(AnnotationFS annotationFS: getAnnosOnPosition(aFs, aJcas)){
+			if(isSameAnno(aFs, annotationFS)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static List<AnnotationFS> getAnnosOnPosition(AnnotationFS aFs, JCas aJcas)
+	{
+		Type type = aFs.getType();
+		return CasUtil.selectCovered(aJcas.getCas(), type, aFs.getBegin(), aFs.getEnd());
+	}
 }
