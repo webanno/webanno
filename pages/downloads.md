@@ -10,7 +10,6 @@ title: "Downloads"
 
 You can subscribe to notifications for new releases via BinTray:  <a href="https://bintray.com/webanno/downloads/webanno2/_latestVersion"><img src="https://api.bintray.com/packages/webanno/downloads/webanno2/images/download.png"/></a>
 
-{%comment%}
 ## Upgrade from a previous version of WebAnno
 
 ### Exporting/importing
@@ -46,5 +45,4 @@ This method should work when updating only a bugfix version, e.g. from 2.0.9 to 
      * stop Tomcat
      * place the new WAR file into your `webapps` folder
      * start Tomcat
-{%endcomment%}
 
