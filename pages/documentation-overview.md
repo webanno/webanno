@@ -13,7 +13,6 @@ _latest release_
 * [User Guide]({{ site.url }}/releases/{{ stable.version }}/docs/user-guide.html)
 * [Admin Guide]({{ site.url }}/releases/{{ stable.version }}/docs/admin-guide.html)
 
-{% comment %}
 ----
 
 #### WebAnno {{ unstable.version }}
@@ -23,4 +22,6 @@ _upcoming release - links may be temporarily broken while a build is in progress
 * [Admin Guide]({{ unstable.admin_guide_url }})
 * [Developer Guide]({{ unstable.developer_guide_url }})
 
-{% endcomment %}
+{%comment%}
+Early access versions for the bold and brave can be found on [BinTray](https://bintray.com/webanno/downloads/webanno3-unstable/view). These versions are highly likely to contain bugs or otherwise misbehave. Try them at your own risk!
+{%endcomment%}
