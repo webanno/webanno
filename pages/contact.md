@@ -1,6 +1,7 @@
 ---
 layout: page-fullwidth
 title: "Contact"
+permalink: "/contact/"
 ---
 
 ### Mailing Lists

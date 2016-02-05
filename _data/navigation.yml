@@ -3,11 +3,11 @@
   side: left
 
 - title: Downloads
-  url: "/pages/downloads.html"
+  url: "/downloads"
   side: left
 
 - title: Documentation
-  url: "/documentation/"
+  url: "/documentation"
   side: left
   dropdown:
   - title: "User Guide"
@@ -24,11 +24,11 @@
   side: left
 
 - title: "Contact"
-  url: "/pages/contact.html"
+  url: "/contact"
   side: left
   dropdown:
   - title: "Mailing lists"
-    url: "/pages/mailinglists.html"
+    url: "/mailinglists"
   - title: "Twitter"
     url: "http://twitter.com/search?q=%23webanno"
   - title: "Contributors"

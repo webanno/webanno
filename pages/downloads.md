@@ -1,6 +1,7 @@
 ---
 layout: page-fullwidth
 title: "Downloads"
+permalink: "/downloads/"
 ---
 
 {% assign stable = (site.data.releases | where:"status", "stable" | first) %}
