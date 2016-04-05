@@ -5,11 +5,18 @@
 - title: Downloads
   url: "/downloads"
   side: left
+  dropdown:
+  - title: "Release versions"
+    url: "/downloads-beta"
+  - title: "Beta versions"
+    url: "/downloads-beta"
 
 - title: Documentation
   url: "/documentation"
   side: left
   dropdown:
+  - title: "Overview"
+    url: "/documentation"
   - title: "User Guide"
     url: "/releases/!LATEST!/docs/user-guide.html"
   - title: "Admin Guide"
