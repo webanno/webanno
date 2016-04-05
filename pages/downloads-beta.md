@@ -9,7 +9,9 @@ permalink: "/downloads-beta/"
 
 **THIS PAGE CONTAINS PRE-RELEASE VERSIONS. USE AT YOUR OWN RISK.**
 
-**Do not use this software for serious work** - before its final release, WebAnno might change in ways incompatible with this prerelease.
+**Do not use this software for serious work** - before its final release, WebAnno might change in
+ways incompatible with this prerelease. Do not expect forthcoming beta versions or the next release
+version of WebAnno to be fully compatible with this beta version.
 
 * [WebAnno {{ beta.version }} standalone (executable JAR)](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-standalone-{{ beta.version }}.jar)
     * [JAR installation instructions]({{ unstable.user_guide_url }}#sect_installation) 
