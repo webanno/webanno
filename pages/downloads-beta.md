@@ -20,3 +20,5 @@ version of WebAnno to be fully compatible with this beta version.
     * [WAR installation instructions]({{ unstable.admin_guide_url }}#sect_installation)
     * [WAR upgrade instructions]({{ unstable.admin_guide_url }}#sect_upgrade)
 * [WebAnno {{ beta.version }} release notes](https://github.com/webanno/webanno/releases/tag/webanno-{{ beta.version }})
+
+When (not if) you discover bugs or hit problems with these versions, please report them in our [issue tracker](http://github.com/webanno/webanno/issues).
