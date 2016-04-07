@@ -7,7 +7,7 @@
   side: left
   dropdown:
   - title: "Release versions"
-    url: "/downloads-beta"
+    url: "/downloads"
   - title: "Beta versions"
     url: "/downloads-beta"
 
