@@ -6,8 +6,13 @@ permalink: "/downloads/"
 
 {% assign stable = (site.data.releases | where:"status", "stable" | first) %}
 
-* [WebAnno {{ stable.version }} standalone (executable JAR)](https://bintray.com/artifact/download/webanno/downloads/webanno-standalone-{{ stable.version }}.jar) - [Installation instructions]({{ site.url }}/releases/{{ stable.version }}/docs/user-guide.html#sect_installation) 
-* [WebAnno {{ stable.version }} WAR-archive](https://bintray.com/artifact/download/webanno/downloads/webanno-webapp-{{ stable.version }}.war) - [Installation instructions]({{ site.url }}/releases/{{ stable.version }}/docs/admin-guide.html#sect_installation)
+* [WebAnno {{ stable.version }} standalone (executable JAR)](https://github.com/webanno/webanno/releases/download/webanno-{{ stable.version }}/webanno-standalone-{{ stable.version }}.jar)
+    * [JAR installation instructions]({{ stable.user_guide_url }}#sect_installation) 
+    * [JAR upgrade instructions]({{ stable.user_guide_url }}#sect_upgrade) 
+* [WebAnno {{ stable.version }} WAR-archive](https://github.com/webanno/webanno/releases/download/webanno-{{ stable.version }}/webanno-webapp-{{ stable.version }}.war)
+    * [WAR installation instructions]({{ stable.admin_guide_url }}#sect_installation)
+    * [WAR upgrade instructions]({{ stable.admin_guide_url }}#sect_upgrade)
+* [WebAnno {{ stable.version }} release notes](https://github.com/webanno/webanno/releases/tag/webanno-{{ stable.version }})
 
 You can subscribe to notifications for new releases via BinTray:  <a href="https://bintray.com/webanno/downloads/webanno2/_latestVersion"><img src="https://api.bintray.com/packages/webanno/downloads/webanno2/images/download.png"/></a>
 
