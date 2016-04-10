@@ -23,7 +23,7 @@ When (not if) you discover bugs or hit problems with these versions, please repo
 
 Use this version if you want to use or try out WebAnno on your workstation. You download a runnable
 JAR that can be started using a double-click in your file manager or on the command line using
-`java -jar webanno-standalone-{{ stable.version }}.jar`. WebAnno will create a directory called
+`java -jar webanno-standalone-{{ beta.version }}.jar`. WebAnno will create a directory called
 `.webanno` under your home directory and store its database and files there.
 
 * [WebAnno {{ beta.version }} standalone (executable JAR)](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-standalone-{{ beta.version }}.jar)
