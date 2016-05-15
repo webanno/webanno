@@ -141,13 +141,12 @@ public class SpanAnnotationModalWindowPage
 
             if (selectedLayer == null) {
                 if (bratAnnotatorModel.getRememberedSpanLayer() == null) {
-                    selectedLayer = spanLayers.get(0);
-                    layersModel = new Model<AnnotationLayer>(selectedLayer);
+                    selectedLayer = spanLayers.isEmpty() ? null : spanLayers.get(0);
                 }
                 else {
                     selectedLayer = bratAnnotatorModel.getRememberedSpanLayer();
-                    layersModel = new Model<AnnotationLayer>(selectedLayer);
                 }
+                layersModel = new Model<AnnotationLayer>(selectedLayer);
             }
 
             add(new Label("selectedText", selectedText));
@@ -221,32 +220,34 @@ public class SpanAnnotationModalWindowPage
             featureModels = new ArrayList<IModel<FeatureValue>>();
             featureValueModels = new ArrayList<IModel<String>>();
 
-            for (AnnotationFeature feature : annotationService.listAnnotationFeature(selectedLayer)) {
-                if (!feature.isEnabled()) {
-                    continue;
+            if (selectedLayer != null) {
+                for (AnnotationFeature feature : annotationService.listAnnotationFeature(selectedLayer)) {
+                    if (!feature.isEnabled()) {
+                        continue;
+                    }
+    
+                    if (selectedLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)
+                            && feature.getName().equals(WebAnnoConst.COREFERENCE_RELATION_FEATURE)) {
+                        continue;
+                    }
+    
+                    IModel<FeatureValue> featureModel = new Model<FeatureValue>();
+    
+                    FeatureValue featureValue = new FeatureValue();
+                    featureValue.feature = feature;
+                    featureModel.setObject(featureValue);
+                    featureModels.add(featureModel);
+                    IModel<String> tagModel = new Model<String>();
+                    if (selectedSpanId != -1) {
+    
+                        tagModel.setObject(selectedFeatureValues.get(feature));
+                    }
+                    else if (bratAnnotatorModel.getRememberedSpanFeatures() != null
+                            && bratAnnotatorModel.getRememberedSpanFeatures().get(feature) != null) {
+                        tagModel.setObject(bratAnnotatorModel.getRememberedSpanFeatures().get(feature));
+                    }
+                    featureValueModels.add(tagModel);
                 }
-
-                if (selectedLayer.getType().equals(WebAnnoConst.CHAIN_TYPE)
-                        && feature.getName().equals(WebAnnoConst.COREFERENCE_RELATION_FEATURE)) {
-                    continue;
-                }
-
-                IModel<FeatureValue> featureModel = new Model<FeatureValue>();
-
-                FeatureValue featureValue = new FeatureValue();
-                featureValue.feature = feature;
-                featureModel.setObject(featureValue);
-                featureModels.add(featureModel);
-                IModel<String> tagModel = new Model<String>();
-                if (selectedSpanId != -1) {
-
-                    tagModel.setObject(selectedFeatureValues.get(feature));
-                }
-                else if (bratAnnotatorModel.getRememberedSpanFeatures() != null
-                        && bratAnnotatorModel.getRememberedSpanFeatures().get(feature) != null) {
-                    tagModel.setObject(bratAnnotatorModel.getRememberedSpanFeatures().get(feature));
-                }
-                featureValueModels.add(tagModel);
             }
 
             wmc = new WebMarkupContainer("wmc");

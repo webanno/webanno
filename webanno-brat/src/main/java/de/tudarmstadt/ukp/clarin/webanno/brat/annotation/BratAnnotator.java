@@ -357,7 +357,14 @@ public class BratAnnotator
             AjaxRequestTarget aTarget, final int aBeginOffset, final int aEndOffset,
             int aSelectedSpanId)
     {
-        closeButtonClicked = false;    
+        closeButtonClicked = false;
+        
+        if (getModelObject().getAnnotationLayers().isEmpty()) {
+            error("No annotation layers enabled in settings. Cannot create annotations!");
+            aTarget.addChildren(getPage(), FeedbackPanel.class);
+            return;
+        }
+        
         if (aSelectedSpanId == -1) {// new annotation
             openAnnotationDialog.setTitle("New Span Annotation");
             openAnnotationDialog.setContent(new  SpanAnnotationModalWindowPage(openAnnotationDialog
