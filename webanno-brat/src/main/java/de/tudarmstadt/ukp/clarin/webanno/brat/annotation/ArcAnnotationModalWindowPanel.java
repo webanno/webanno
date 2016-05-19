@@ -369,13 +369,14 @@ public class ArcAnnotationModalWindowPanel
             IModel<String> model = featureValueModels.get(i);
             AnnotationFeature feature = featureModels.get(i).getObject().feature;
             // Check if tag is necessary, set, and correct
-            if (feature.getTagset() != null
-                    && !feature.getTagset().isCreateTag()
-                    && !annotationService.existsTag(model.getObject(),
-                            feature.getTagset())) {
-                error("["
-                        + model.getObject()
-                        + "] is not in the tag list. Please choose form the existing tags");
+            if (
+                model.getObject() != null &&
+                feature.getTagset() != null && 
+                !feature.getTagset().isCreateTag() && 
+                !annotationService.existsTag(model.getObject(), feature.getTagset())
+            ) {
+                error("[" + model.getObject()
+                        + "] is not in the tag list. Please choose from the existing tags");
                 return;
             }
         }
