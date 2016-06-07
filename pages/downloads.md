@@ -33,3 +33,4 @@ closely.
 * [WAR installation instructions]({{ site.url }}/releases/{{ stable.version }}/docs/admin-guide.html#sect_installation)
 * [WAR upgrade instructions]({{ site.url }}/releases/{{ stable.version }}/docs/admin-guide.html#sect_upgrade)
 
+{% include examples.md %}

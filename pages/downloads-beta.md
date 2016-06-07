@@ -40,3 +40,4 @@ closely.
 * [WAR installation instructions]({{ unstable.admin_guide_url }}#sect_installation)
 * [WAR upgrade instructions]({{ unstable.admin_guide_url }}#sect_upgrade)
 
+{% include examples.md %}
