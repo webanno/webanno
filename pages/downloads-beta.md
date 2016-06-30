@@ -26,9 +26,11 @@ JAR that can be started using a double-click in your file manager or on the comm
 `java -jar webanno-standalone-{{ beta.version }}.jar`. WebAnno will create a directory called
 `.webanno` under your home directory and store its database and files there.
 
-* [WebAnno {{ beta.version }} standalone (executable JAR)](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-standalone-{{ beta.version }}.jar)
-* [JAR installation instructions]({{ unstable.user_guide_url }}#sect_installation) 
+* [WebAnno {{ beta.version }} standalone (executable JAR)](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-standalone-{{ beta.version }}.jar) <github-downloads user='webanno' repo='webanno' tag='webanno-{{ beta.version }}' asset='webanno-standalone-{{ beta.version }}.jar' ></github-downloads>
+* [JAR installation instructions]({{ unstable.user_guide_url }}#sect_installation)
 * [JAR upgrade instructions]({{ unstable.user_guide_url }}#sect_upgrade) 
+
+
 
 ### Server Version
 
@@ -36,7 +38,7 @@ Use this version if you want to run WebAnno on a server. This version requires a
 should be used in conjunction with a MySQL database. Be sure to follow the installation guide
 closely.
 
-* [WebAnno {{ beta.version }} WAR-archive](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-webapp-{{ beta.version }}.war)
+* [WebAnno {{ beta.version }} WAR-archive](https://github.com/webanno/webanno/releases/download/webanno-{{ beta.version }}/webanno-webapp-{{ beta.version }}.war) <github-downloads user='webanno' repo='webanno' tag='webanno-{{ beta.version }}' asset='webanno-webapp-{{ beta.version }}.war' ></github-downloads>
 * [WAR installation instructions]({{ unstable.admin_guide_url }}#sect_installation)
 * [WAR upgrade instructions]({{ unstable.admin_guide_url }}#sect_upgrade)
 
