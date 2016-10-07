@@ -256,7 +256,6 @@ var Visualizer = (function($, window, undefined) {
       }
 // WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
       */
-      var tokenOffsets = [];
       for (var i = 0; i < text.length; i++) {
         if(!/\n/.test(text[i])) {
           tokenOffsets.push([i, i+1]);
