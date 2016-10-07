@@ -53,6 +53,10 @@ var AnnotatorUI = (function($, window, undefined) {
       var showValidAttributes; // callback function
       var showValidNormalizations; // callback function
       var dragStartedAt = null;
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+      var dragEndSelection = null;
+      var draggingMouse = false;
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
       var selRect = null;
       var lastStartRec = null;
       var lastEndRec = null;
@@ -301,6 +305,19 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var onMouseDown = function(evt) {
         dragStartedAt = evt; // XXX do we really need the whole evt?
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+        evt.preventDefault(); //Needed for Safari to text selection jittery behavior across lines
+        draggingMouse = true;
+        //add a fake tspan so that endSelection of very last text selection does not end with undefined
+        var last_tspans = $("tspan:last-child");
+        last_tspans.each( function() {
+          var last_tspan = $(this);
+          var new_last_tspan_x = (parseFloat(last_tspan.attr('x')) + 100).toString();
+          var new_last_tspan_y = last_tspan.attr('y');
+          var new_last_tspan_data_chunk_id = (parseInt(last_tspan.attr('data-chunk-id')) + 1).toString();
+          last_tspan.parent().append('<tspan x="' + new_last_tspan_x + '" y="' + new_last_tspan_y + '" class=""> </tspa>');
+        });
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
         if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
         var id;
@@ -357,6 +374,84 @@ var AnnotatorUI = (function($, window, undefined) {
                 mx, my);
           arcDragArc.setAttribute('d', path.path());
         } else {
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+         if(draggingMouse) {
+           clearSelection();
+           svgOffset = svgElement.offset();
+           var x_pos_extension = 4;
+           var y_pos_extension = 8; //for judging when to highlight the entire line when mouse is above or below the current. higher this is, more permissive the text selection across line becomes.
+           var highlight_flipped = false;
+           if(evt.pageY < dragStartedAt.pageY - y_pos_extension) {
+             highlight_flipped = true;
+           } else if (evt.pageY <= dragStartedAt.pageY + y_pos_extension && evt.pageX < dragStartedAt.pageX) {
+             highlight_flipped = true;
+           }
+           var sel = window.getSelection();
+           var range = document.createRange();
+           var startSelection = undefined;
+           var endSelection = undefined;
+           var prev_tspan = undefined;
+
+           //region for initial mouse click
+           $('tspan').each( function() {
+             var tspan = $(this);
+             var tspan_x_offset = parseInt(tspan.attr('x')) + svgOffset.left;
+             var tspan_y_offset = parseInt(tspan.attr('y')) + svgOffset.top;
+             if(tspan_y_offset >= dragStartedAt.pageY + y_pos_extension) {
+               //start of the line
+               startSelection = tspan;
+               return false;
+             } else if(tspan_y_offset >= dragStartedAt.pageY - y_pos_extension) {
+               if(tspan_x_offset >= dragStartedAt.pageX) {
+                 if (highlight_flipped) {
+                   startSelection = tspan;
+                 } else {
+                   startSelection = prev_tspan;
+                 }
+                 return false;
+               }
+             }
+             prev_tspan = tspan;
+           });
+
+           //region for current mouse position
+           $('tspan').each( function() {
+             var tspan = $(this);
+             var tspan_x_offset = parseInt(tspan.attr('x')) + svgOffset.left;
+             var tspan_y_offset = parseInt(tspan.attr('y')) + svgOffset.top;
+             if(Math.abs(evt.pageY - tspan_y_offset) <= y_pos_extension) {
+               if (highlight_flipped) { //if flipped, be more generous about selecting the previous character
+                 if(tspan_x_offset >= evt.pageX - x_pos_extension) {
+                   endSelection = tspan;
+                   return false;
+                 }
+               } else {
+                 if(tspan_x_offset >= evt.pageX) {
+                   endSelection = tspan;
+                   return false;
+                 }
+               }
+             } else if(tspan_y_offset > evt.pageY + y_pos_extension){
+               endSelection = tspan;
+               return false;
+             }
+           });
+
+           if(startSelection !== undefined && endSelection !== undefined) {
+             dragEndSelection = endSelection;
+             if (highlight_flipped) {
+               range.setStart(endSelection[0], 0);
+               range.setEnd(startSelection[0], 0);
+               dragEndSelection = startSelection;
+             } else {
+               range.setStart(startSelection[0], 0);
+               range.setEnd(endSelection[0], 0);
+               dragEndSelection = endSelection;
+             }
+             sel.addRange(range);
+           }
+         } else {                
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
           // A. Scerri FireFox chunk
 
           // if not, then is it span selection? (ctrl key cancels)
@@ -577,6 +672,9 @@ var AnnotatorUI = (function($, window, undefined) {
             lastEndRec = endRec;
           }
         }
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+        }
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
         arcDragJustStarted = false;
       };
 
@@ -1627,6 +1725,9 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onMouseUp = function(evt) {
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+        draggingMouse = false;
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
         if (that.user === null) return;
 
         var target = $(evt.target);
