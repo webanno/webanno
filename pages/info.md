@@ -77,6 +77,7 @@ _In alphabetical order (surname)_
    * Sushil Jain (junior developer)
    * Éva Mújdricza-Maydt (testing)
    * Aakash Sharma (junior developer)
+   * Anshul Tak (junior developer) 
    * Seid Muhie Yimam (developer)
 
 The development of WebAnno 3 is supported by [CLARIN F-AG7 KP3](http://de.clarin.eu/index.php/de/fachspezifische-arbeitsgruppen/f-ag-7-computerlinguistik).
