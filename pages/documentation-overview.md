@@ -12,6 +12,7 @@ _latest release_
 
 * [User Guide]({{ site.url }}/releases/{{ stable.version }}/docs/user-guide.html)
 * [Admin Guide]({{ site.url }}/releases/{{ stable.version }}/docs/admin-guide.html)
+* [Developer Guide]({{ site.url }}/releases/{{ stable.version }}/docs/developer-guide.html)
 
 ----
 

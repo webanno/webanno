@@ -1,3 +1,7 @@
+- version: 3.0.0
+  date: 2016-12-08
+  status: stable
+
 - version: 2.3.1
   date: 2016-04-07
   status: stable
