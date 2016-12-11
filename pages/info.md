@@ -39,7 +39,7 @@ The development of WebAnno 1 was supported by [CLARIN F-AG7 KP1](http://de.clari
 
 # WebAnno 2
 
-This iteration brings support for custom layers, a new WebAnno file format, and support for automation.
+This iteration brings support for custom layers, a new WebAnno file format, and support for automation.  Additionally, we integrate functionality allowing CLARIN to run WebAnno as an infrastructure service.
 
 ### Team
 
@@ -76,7 +76,7 @@ The development of WebAnno 2 was supported by [CLARIN F-AG7 KP1](http://de.clari
 
 # WebAnno 3
 
-In this development iteration, we focus on improving the support for semantic annotations, in particular semantic role labelling. Additionally, we integrate functionality allowing CLARIN to run WebAnno as an infrastructure service.
+In this development iteration, we focus on improving the support for semantic annotations, in particular semantic role labelling.
 
 ### Team
 
