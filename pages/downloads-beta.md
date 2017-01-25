@@ -7,12 +7,13 @@ permalink: "/downloads-beta/"
 {% assign unstable = (site.data.releases | where:"status", "unstable" | first) %}
 {% assign beta = (site.data.releases | where:"status", "beta" | first) %}
 
+{% if beta %}
 ## WebAnno {{ beta.version }}
 
 **THIS PAGE CONTAINS PRE-RELEASE VERSIONS. USE AT YOUR OWN RISK.**
 
 **Do not use this software for serious work** - before its final release, WebAnno might change in
-ways incompatible with this prerelease. Do not expect forthcoming beta versions or the next release
+ways incompatible with this pre-release. Do not expect forthcoming beta versions or the next release
 version of WebAnno to be fully compatible with this beta version.
 
 When (not if) you discover bugs or hit problems with these versions, please report them in our [issue tracker](http://github.com/webanno/webanno/issues).
@@ -42,4 +43,6 @@ closely.
 * [WAR installation instructions]({{ unstable.admin_guide_url }}#sect_installation)
 * [WAR upgrade instructions]({{ unstable.admin_guide_url }}#sect_upgrade)
 
-{% include examples.md %}
+{% else %}
+Currently, there are no beta versions available.
+{% endif %}
