@@ -16,6 +16,11 @@ permalink: "/downloads-beta/"
 ways incompatible with this pre-release. Do not expect forthcoming beta versions or the next release
 version of WebAnno to be fully compatible with this beta version.
 
+**Beta versions are slower than normal** - beta versions of WebAnno perform various consistency
+checks on annotated documents. These checks may significantly reduce response times, in particular
+for documents with many annotations! If you get errors like "CAS Doctor found problems for user 
+...", please contact us, e.g. by opening an issue.
+
 When (not if) you discover bugs or hit problems with these versions, please report them in our [issue tracker](http://github.com/webanno/webanno/issues).
 
 [Release notes](https://github.com/webanno/webanno/releases/tag/webanno-{{ beta.version }})
