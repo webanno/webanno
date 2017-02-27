@@ -1,5 +1,5 @@
 /*
- * Copyright 2016
+ * Copyright 2017
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.brat.diag.repairs;
+package de.tudarmstadt.ukp.clarin.webanno.diag.repairs;
 
 import static org.apache.uima.fit.util.FSUtil.*;
 import static org.apache.uima.fit.util.CasUtil.getType;
 import static org.apache.uima.fit.util.CasUtil.select;
 import static org.apache.uima.fit.util.CasUtil.selectCovered;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -30,12 +31,12 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
-import de.tudarmstadt.ukp.clarin.webanno.brat.diag.CasDoctor.LogLevel;
-import de.tudarmstadt.ukp.clarin.webanno.brat.diag.CasDoctor.LogMessage;
+import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogLevel;
+import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
-public class ReattachFeatureAttachedSpanAnnotationsRepair
+public class ReattachFeatureAttachedSpanAnnotationsAndDeleteExtrasRepair
     implements Repair
 {
     @Resource(name = "annotationService")
@@ -71,7 +72,40 @@ public class ReattachFeatureAttachedSpanAnnotationsRepair
             
             if (count > 0) {
                 aMessages.add(new LogMessage(this, LogLevel.INFO,
-                        "Reattached [%d] unattached spans on layer [" + layer.getName() + "].", count));
+                        "Reattached [%d] unattached spans layer [" + layer.getName() + "].", count));
+            }
+            
+            // Go over the layer that is being attached to (e.g. Lemma) and ensure that if there
+            // only exactly one annotation for each annotation in the layer that has the attach
+            // feature (e.g. Token) - or short: ensure that there are not multiple Lemmas for a
+            // single Token because such a thing is not valid in WebAnno. Layers that have an
+            // attach feature cannot have stacking enabled!
+            //
+            // attach     -> e.g. Token
+            // candidates -> e.g. Lemma
+            List<AnnotationFS> toDelete = new ArrayList<>();
+            for (AnnotationFS attach : select(aCas, getType(aCas, layer.getAttachType().getName()))) {
+                List<AnnotationFS> candidates = selectCovered(getType(aCas, layer.getName()), attach);
+                
+                if (!candidates.isEmpty()) {
+                    // One of the candidates should already be attached
+                    AnnotationFS attachedCandidate = getFeature(attach,
+                            layer.getAttachFeature().getName(), AnnotationFS.class);
+                    
+                    for (AnnotationFS candidate : candidates) {
+                        if (candidate != attachedCandidate) {
+                            toDelete.add(candidate);
+                        }
+                    }
+                }
+            }
+            
+            // Delete those the extra candidates that are not properly attached
+            if (!toDelete.isEmpty()) {
+                toDelete.forEach(fs -> aCas.removeFsFromIndexes(fs));
+                aMessages.add(new LogMessage(this, LogLevel.INFO,
+                        "Removed [%d] unattached stacked candidates [" + layer.getName() + "].",
+                        toDelete.size()));
             }
         }
     }
