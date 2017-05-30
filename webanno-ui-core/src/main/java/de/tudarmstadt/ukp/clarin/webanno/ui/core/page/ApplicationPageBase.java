@@ -33,11 +33,9 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.WebSession;
@@ -192,50 +190,6 @@ public abstract class ApplicationPageBase
                 new ResourceModel("page.help", "")));
         helpLink.setPopupSettings(new PopupSettings("_blank"));
         helpLink.setVisible(helpAvailable);
-        
-        String areLinksPresent = "true";
-        
-        String imageAddress = settings.getProperty("clarin.logo.address");
-        String clarinLink = settings.getProperty("clarin.website");
-        
-        if (clarinLink == null || imageAddress  == null)
-        {
-        	areLinksPresent = "false";
-        }
-        
-        String areHelpDeskLinksPresent = "true";
-        
-        String imageHelpDeskAddress = settings.getProperty("helpdesk.logo.address");
-        String helpDeskLink = settings.getProperty("helpdesk.website");
-        
-        if (helpDeskLink == null || imageHelpDeskAddress  == null)
-        {
-        	areHelpDeskLinksPresent = "false";
-        }
-        
-        TextField<String> linksPresent = new TextField<String>("linksPresent");
-        add(linksPresent);
-        linksPresent.setModel(Model.of(areLinksPresent));
-        
-        TextField<String> clarinLogoAddress = new TextField<String>("clarinLogoAddress");
-        add(clarinLogoAddress);
-        clarinLogoAddress.setModel(Model.of(imageAddress));
-        
-        TextField<String> clarinSite = new TextField<String>("clarinSite");
-        add(clarinSite);
-        clarinSite.setModel(Model.of(clarinLink));
-        
-        TextField<String> linksHelpDeskPresent = new TextField<String>("linksHelpDeskPresent");
-        add(linksHelpDeskPresent);
-        linksHelpDeskPresent.setModel(Model.of(areHelpDeskLinksPresent));
-        
-        TextField<String> helpDeskLogoAddress = new TextField<String>("helpDeskLogoAddress");
-        add(helpDeskLogoAddress);
-        helpDeskLogoAddress.setModel(Model.of(imageHelpDeskAddress));
-        
-        TextField<String> helpDeskSite = new TextField<String>("helpDeskSite");
-        add(helpDeskSite);
-        helpDeskSite.setModel(Model.of(helpDeskLink));
         
         add(logoutPanel);
         add(feedbackPanel);
