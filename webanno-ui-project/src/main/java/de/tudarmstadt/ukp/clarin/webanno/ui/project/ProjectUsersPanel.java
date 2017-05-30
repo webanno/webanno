@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.project;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
@@ -28,9 +29,11 @@ import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.ListChoice;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -257,6 +260,7 @@ public class ProjectUsersPanel
         public List<PermissionLevel> permissionLevels = new ArrayList<PermissionLevel>();
         public User user;
         public List<User> users = new ArrayList<User>();
+        public String userfilter;
     }
 
     private class PermissionLevelDetailForm
@@ -354,6 +358,20 @@ public class ProjectUsersPanel
         public UserDetailForm(String id)
         {
             super(id, new CompoundPropertyModel<SelectionModel>(new SelectionModel()));
+            TextField<String> filterText = new TextField<String>("userfilter");
+            
+            add(filterText.setOutputMarkupPlaceholderTag(true));
+            add(new Button("filterbutton")
+            {
+            	private static final long serialVersionUID = -7523594952670514192L;
+            	
+            	@Override
+				public void onSubmit()
+                {
+					//Only needed so that user list is loaded
+                }
+            });
+            
             add(users = (CheckBoxMultipleChoice<User>) new CheckBoxMultipleChoice<User>("users",
                     new LoadableDetachableModel<List<User>>()
                     {
@@ -365,6 +383,15 @@ public class ProjectUsersPanel
                             List<User> allUSers = userRepository.list();
                             allUSers.removeAll(projectRepository.listProjectUsersWithPermissions(
                                     ProjectUsersPanel.this.getModelObject()));
+                            
+                            for (Iterator<User> iterator = allUSers.iterator(); iterator.hasNext();) {
+                                User current = iterator.next();
+                                if (!(current.getUsername().contains(filterText.getValue())))
+                            	{
+                                	iterator.remove();
+                            	}
+                            }
+                            
                             return allUSers;
                         }
                     }, new ChoiceRenderer<User>("username", "username")));
@@ -377,6 +404,7 @@ public class ProjectUsersPanel
                 @Override
                 public void onSubmit()
                 {
+                	filterText.setModel(Model.of(""));
                     if (users.getModelObject() != null) {
                         for (User user : users.getModelObject()) {
                             ProjectPermission projectPermission = new ProjectPermission();
@@ -409,6 +437,7 @@ public class ProjectUsersPanel
                 public void onSubmit()
                 {
                     UserDetailForm.this.setVisible(false);
+                    filterText.setModel(Model.of(""));
                 }
             });
         }
