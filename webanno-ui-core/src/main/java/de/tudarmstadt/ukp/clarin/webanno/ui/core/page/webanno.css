@@ -159,6 +159,14 @@ ul.vcheckboxgroup{
     height:64px;
 }
 
+.headerbutton{
+    margin:2px;
+	margin-left:5px;
+    float:left;
+    vertical-align:middle;
+    height:40px;
+}
+
 #spinner {
   display: none;
   position: fixed;

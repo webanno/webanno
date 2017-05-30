@@ -27,6 +27,50 @@
   <div class="pageheader">
     <img class="pageicon" wicket:message="src:page.icon" />
     <img class="logo" src="assets/logo.png"  />
+    <a href="nothing" id="clarinLink" target="_blank"><img class="logo" id="clarinLogo" alt="Clarin site"/></a>
+    <input type="text" wicket:id="linksPresent" id="linksPresent" style="display:none;">
+    <input type="text" wicket:id="clarinLogoAddress" id="clarinLogoAddress" style="display:none;">
+    <input type="text" wicket:id="clarinSite" id="clarinSite" style="display:none;">
+    <a href="nothing" id="helpDeskLink" target="_blank"><img class="headerbutton" id="helpDeskLogo" alt="HelpDesk site"/></a>
+    <input type="text" wicket:id="linksHelpDeskPresent" id="linksHelpDeskPresent" style="display:none;">
+    <input type="text" wicket:id="helpDeskLogoAddress" id="helpDeskLogoAddress" style="display:none;">
+    <input type="text" wicket:id="helpDeskSite" id="helpDeskSite" style="display:none;">
+	<script type="text/javascript">
+		document.getElementById('clarinLogo').src = getImage();
+		document.getElementById('clarinLink').href = getAddress();
+		document.getElementById('helpDeskLogo').src = getHelpDeskImage();
+		document.getElementById('helpDeskLink').href = getHelpDeskAddress();
+		
+		if (document.getElementById('linksPresent').value == "false")
+		{
+			document.getElementById('clarinLogo').style.display = 'none';
+		}
+		if (document.getElementById('linksHelpDeskPresent').value == "false")
+		{
+			document.getElementById('helpDeskLogo').style.display = 'none';
+		}
+		
+    	function getImage()
+    	{
+    		var elem = document.getElementById('clarinLogoAddress').value;
+    		return elem;
+    	}
+    	function getAddress()
+    	{
+    		var address = document.getElementById('clarinSite').value;
+    		return address;
+    	}
+    	function getHelpDeskImage()
+    	{
+    		var elem = document.getElementById('helpDeskLogoAddress').value;
+    		return elem;
+    	}
+    	function getHelpDeskAddress()
+    	{
+    		var address = document.getElementById('helpDeskSite').value;
+    		return address;
+    	}
+	</script>
     <wicket:message key="page.title"></wicket:message>
   </div>
   
