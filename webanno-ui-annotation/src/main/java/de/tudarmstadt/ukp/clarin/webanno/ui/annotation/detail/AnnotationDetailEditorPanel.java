@@ -608,7 +608,7 @@ public class AnnotationDetailEditorPanel
 
         private void updateLayersDropdown()
         {
-            LOG.trace(String.format("updateLayersDropdown()"));
+            LOG.trace("updateLayersDropdown()");
 
             AnnotatorState state = getModelObject();
 
@@ -647,7 +647,7 @@ public class AnnotationDetailEditorPanel
 
         private void updateRememberLayer()
         {
-            LOG.trace(String.format("updateRememberLayer()"));
+            LOG.trace("updateRememberLayer()");
 
             AnnotatorState state = getModelObject();
 
@@ -759,9 +759,9 @@ public class AnnotationDetailEditorPanel
             @Override
             protected void populateItem(final Item<FeatureState> item)
             {
-                LOG.trace(String.format("FeatureEditorPanelContent.populateItem("
+                LOG.trace("FeatureEditorPanelContent.populateItem("
                         + item.getModelObject().feature.getUiName() + ": "
-                        + item.getModelObject().value + ")"));
+                        + item.getModelObject().value + ")");
 
                 // Feature editors that allow multiple values may want to update themselves,
                 // e.g. to add another slot.
@@ -1017,7 +1017,7 @@ public class AnnotationDetailEditorPanel
             JCas aJCas)
             throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
-        LOG.trace(String.format("createNewRelationAnnotation()"));
+        LOG.trace("createNewRelationAnnotation()");
 
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
@@ -1035,7 +1035,7 @@ public class AnnotationDetailEditorPanel
             JCas aJCas)
             throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
-        LOG.trace(String.format("createNewSpanAnnotation()"));
+        LOG.trace("createNewSpanAnnotation()");
 
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
@@ -1070,7 +1070,7 @@ public class AnnotationDetailEditorPanel
             JCas aJCas)
             throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
-        LOG.trace(String.format("createNewChainElement()"));
+        LOG.trace("createNewChainElement()");
 
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
@@ -1100,7 +1100,7 @@ public class AnnotationDetailEditorPanel
             JCas aJCas)
             throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
-        LOG.trace(String.format("createNewChainLinkAnnotation()"));
+        LOG.trace("createNewChainLinkAnnotation()");
 
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
@@ -1697,7 +1697,7 @@ public class AnnotationDetailEditorPanel
     public void loadFeatureEditorModels(JCas aJCas, AjaxRequestTarget aTarget)
             throws AnnotationException
     {
-        LOG.trace(String.format("loadFeatureEditorModels()"));
+        LOG.trace("loadFeatureEditorModels()");
 
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
@@ -1843,7 +1843,7 @@ public class AnnotationDetailEditorPanel
         AnnotatorState state = getModelObject();
         List<FeatureState> featureStates = state.getFeatureStates();
 
-        LOG.trace(String.format("writeFeatureEditorModelsToCas()"));
+        LOG.trace("writeFeatureEditorModelsToCas()");
         List<AnnotationFeature> features = new ArrayList<>();
         for (FeatureState featureState : featureStates) {
             features.add(featureState.feature);
@@ -1861,8 +1861,8 @@ public class AnnotationDetailEditorPanel
                     annotationService.createTag(selectedTag);
                 }
             }
-            LOG.trace(String.format("writeFeatureEditorModelsToCas() "
-                    + featureState.feature.getUiName() + " = " + featureState.value));
+            LOG.trace("writeFeatureEditorModelsToCas() "
+                    + featureState.feature.getUiName() + " = " + featureState.value);
             aAdapter.updateFeature(aJCas, featureState.feature,
                     state.getSelection().getAnnotation().getId(), featureState.value);
         }
@@ -1912,7 +1912,7 @@ public class AnnotationDetailEditorPanel
      */
     private void clearFeatureEditorModels(AjaxRequestTarget aTarget)
     {
-        LOG.trace(String.format("clearFeatureEditorModels()"));
+        LOG.trace("clearFeatureEditorModels()");
         getModelObject().getFeatureStates().clear();
         if (aTarget != null) {
             aTarget.add(annotationFeatureForm);
@@ -1924,8 +1924,7 @@ public class AnnotationDetailEditorPanel
      */
     private void populateTagsBasedOnRules(JCas aJCas, FeatureState aModel)
     {
-        LOG.trace(String
-                .format("populateTagsBasedOnRules(feature: " + aModel.feature.getUiName() + ")"));
+        LOG.trace("populateTagsBasedOnRules(feature: " + aModel.feature.getUiName() + ")");
 
         AnnotatorState state = getModelObject();
 
