@@ -994,7 +994,7 @@ public class AnnotationDetailEditorPanel
     
     private void createNewRelationAnnotation(AjaxRequestTarget aTarget, ArcAdapter aAdapter,
             JCas aJCas)
-        throws UIMAException, ClassNotFoundException, IOException, AnnotationException
+        throws AnnotationException
     {
         LOG.trace("createNewRelationAnnotation()");
         
@@ -1047,7 +1047,7 @@ public class AnnotationDetailEditorPanel
     
     private void createNewChainElement(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
             JCas aJCas)
-        throws UIMAException, ClassNotFoundException, IOException, AnnotationException
+        throws AnnotationException
     {
         LOG.trace("createNewChainElement()");
         
@@ -1076,9 +1076,7 @@ public class AnnotationDetailEditorPanel
     }
     
     private void createNewChainLinkAnnotation(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
-            JCas aJCas)
-        throws UIMAException, ClassNotFoundException, IOException, AnnotationException
-    {
+            JCas aJCas) {
         LOG.trace("createNewChainLinkAnnotation()");
         
         AnnotatorState state = getModelObject();
@@ -1573,8 +1571,7 @@ public class AnnotationDetailEditorPanel
     }
     
     public JCas getEditorCas()
-        throws UIMAException, IOException, ClassNotFoundException
-    {
+        throws IOException {
         AnnotatorState state = getModelObject();
 
         if (state.getMode().equals(Mode.ANNOTATION) || state.getMode().equals(Mode.AUTOMATION)
@@ -2015,9 +2012,7 @@ public class AnnotationDetailEditorPanel
         clearFeatureEditorModels(aTarget);
     }
     
-    private Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer)
-        throws UIMAException, ClassNotFoundException, IOException
-    {
+    private Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer) {
         Set<AnnotationFS> toBeDeleted = new HashSet<AnnotationFS>();
         for (AnnotationLayer relationLayer : annotationService
                 .listAttachedRelationLayers(aLayer)) {
