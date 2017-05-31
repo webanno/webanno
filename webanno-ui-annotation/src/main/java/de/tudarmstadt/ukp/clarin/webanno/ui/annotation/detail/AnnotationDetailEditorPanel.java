@@ -220,11 +220,11 @@ public class AnnotationDetailEditorPanel
         private TextField<String> forwardAnnotationText;
         private ModalWindow deleteModal;
         private Label selectedTextLabel;
-        private List<AnnotationLayer> annotationLayers = new ArrayList<AnnotationLayer>();
+        private List<AnnotationLayer> annotationLayers = new ArrayList<>();
 
         public AnnotationFeatureForm(String id, IModel<AnnotatorState> aBModel)
         {
-            super(id, new CompoundPropertyModel<AnnotatorState>(aBModel));
+            super(id, new CompoundPropertyModel<>(aBModel));
 
             add(forwardAnnotationCheck = new CheckBox("forwardAnnotation")
             {
@@ -415,7 +415,7 @@ public class AnnotationDetailEditorPanel
             featureEditorPanelContent = new FeatureEditorPanelContent("featureValues");
             featureEditorPanel.add(featureEditorPanelContent);
 
-            forwardAnnotationText = new TextField<String>("forwardAnno");
+            forwardAnnotationText = new TextField<>("forwardAnno");
             forwardAnnotationText.setOutputMarkupId(true);
             forwardAnnotationText.add(new AjaxFormComponentUpdatingBehavior("keyup")
             {
@@ -676,7 +676,7 @@ public class AnnotationDetailEditorPanel
             {
                 super(aId, aChoices);
                 setOutputMarkupId(true);
-                setChoiceRenderer(new ChoiceRenderer<AnnotationLayer>("uiName"));
+                setChoiceRenderer(new ChoiceRenderer<>("uiName"));
                 add(new AjaxFormComponentUpdatingBehavior("change")
                 {
                     private static final long serialVersionUID = 5179816588460867471L;
@@ -1844,7 +1844,7 @@ public class AnnotationDetailEditorPanel
         List<FeatureState> featureStates = state.getFeatureStates();
 
         LOG.trace(String.format("writeFeatureEditorModelsToCas()"));
-        List<AnnotationFeature> features = new ArrayList<AnnotationFeature>();
+        List<AnnotationFeature> features = new ArrayList<>();
         for (FeatureState featureState : featureStates) {
             features.add(featureState.feature);
 
@@ -2000,7 +2000,7 @@ public class AnnotationDetailEditorPanel
         if (possibleValues.isEmpty()) {
             rulesIndicator.didntMatchAnyRule();
         }
-        List<Tag> returnList = new ArrayList<Tag>();
+        List<Tag> returnList = new ArrayList<>();
         // Sorting based on important flag
         // possibleValues.sort(null);
         // Comparing to check which values suggested by rules exists in existing
@@ -2037,7 +2037,7 @@ public class AnnotationDetailEditorPanel
     private Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer)
             throws UIMAException, ClassNotFoundException, IOException
     {
-        Set<AnnotationFS> toBeDeleted = new HashSet<AnnotationFS>();
+        Set<AnnotationFS> toBeDeleted = new HashSet<>();
         for (AnnotationLayer relationLayer : annotationService
                 .listAttachedRelationLayers(aLayer)) {
             ArcAdapter relationAdapter = (ArcAdapter) getAdapter(annotationService,
