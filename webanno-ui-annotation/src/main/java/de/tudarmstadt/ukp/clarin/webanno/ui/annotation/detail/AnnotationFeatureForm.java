@@ -52,8 +52,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
@@ -95,31 +93,6 @@ public class AnnotationFeatureForm
     private List<AnnotationLayer> annotationLayers = new ArrayList<>();
 
     private final AnnotationDetailEditorPanel editorPanel;
-
-    void setSelectedTag(String selectedTag)
-    {
-        this.selectedTag = selectedTag;
-    }
-
-    TextField<String> getForwardAnnotationText()
-    {
-        return forwardAnnotationText;
-    }
-
-    Label getSelectedAnnotationLayer()
-    {
-        return selectedAnnotationLayer;
-    }
-
-    List<AnnotationLayer> getAnnotationLayers()
-    {
-        return annotationLayers;
-    }
-
-    WebMarkupContainer getFeatureEditorPanel()
-    {
-        return featureEditorPanel;
-    }
 
     AnnotationFeatureForm(AnnotationDetailEditorPanel editorPanel, String id,
         IModel<AnnotatorState> aBModel)
@@ -275,8 +248,7 @@ public class AnnotationFeatureForm
             }
         });
 
-        add(layerSelector = new AnnotationFeatureForm.LayerSelector
-            ("defaultAnnotationLayer", annotationLayers));
+        add(layerSelector = new LayerSelector(this, "defaultAnnotationLayer", annotationLayers));
 
         featureEditorPanel = new WebMarkupContainer("featureEditorsContainer")
         {
@@ -553,77 +525,6 @@ public class AnnotationFeatureForm
         }
     }
 
-    public class LayerSelector
-        extends DropDownChoice<AnnotationLayer>
-    {
-        private static final long serialVersionUID = 2233133653137312264L;
-
-        LayerSelector(String aId, List<? extends AnnotationLayer> aChoices)
-        {
-            super(aId, aChoices);
-            setOutputMarkupId(true);
-            setChoiceRenderer(new ChoiceRenderer<>("uiName"));
-            add(new AjaxFormComponentUpdatingBehavior("change")
-            {
-                private static final long serialVersionUID = 5179816588460867471L;
-
-                @Override
-                protected void onUpdate(AjaxRequestTarget aTarget)
-                {
-                    AnnotatorState state = AnnotationFeatureForm.this.getModelObject();
-
-                    // If "remember layer" is set, the we really just update the selected
-                    // layer...
-                    // we do not touch the selected annotation not the annotation detail panel
-                    if (state.getPreferences().isRememberLayer()) {
-                        state.setSelectedAnnotationLayer(getModelObject());
-                    }
-                    // If "remember layer" is not set, then changing the layer means that we
-                    // want to change the type of the currently selected annotation
-                    else if (!state.getSelectedAnnotationLayer().equals(getModelObject())
-                        && state.getSelection().getAnnotation().isSet()) {
-                        if (state.getSelection().isArc()) {
-                            try {
-                                editorPanel.actionClear(aTarget);
-                            }
-                            catch (Exception e) {
-                                handleException(AnnotationFeatureForm.LayerSelector.this,
-                                    aTarget, e);
-                            }
-                        }
-                        else {
-                            deleteModal.setContent(new DeleteOrReplaceAnnotationModalPanel
-                                (deleteModal.getContentId(), state, deleteModal, editorPanel,
-                                    getModelObject(), true));
-
-                            deleteModal.setWindowClosedCallback(new ModalWindow
-                                .WindowClosedCallback()
-                            {
-                                private static final long serialVersionUID =
-                                    4364820331676014559L;
-
-                                @Override
-                                public void onClose(AjaxRequestTarget target)
-                                {
-                                    target.add(AnnotationFeatureForm.this);
-                                }
-                            });
-                            deleteModal.show(aTarget);
-                        }
-                    }
-                    // If no annotation is selected, then prime the annotation detail panel for
-                    // the new type
-                    else {
-                        state.setSelectedAnnotationLayer(getModelObject());
-                        selectedAnnotationLayer.setDefaultModelObject(getModelObject().getUiName());
-                        aTarget.add(selectedAnnotationLayer);
-                        editorPanel.clearFeatureEditorModels(aTarget);
-                    }
-                }
-            });
-        }
-    }
-
     public class FeatureEditorPanelContent
         extends RefreshingView<FeatureState>
     {
@@ -853,5 +754,40 @@ public class AnnotationFeatureForm
                 }
             };
         }
+    }
+
+    ModalWindow getDeleteModal()
+    {
+        return deleteModal;
+    }
+
+    AnnotationDetailEditorPanel getEditorPanel()
+    {
+        return editorPanel;
+    }
+
+    void setSelectedTag(String selectedTag)
+    {
+        this.selectedTag = selectedTag;
+    }
+
+    TextField<String> getForwardAnnotationText()
+    {
+        return forwardAnnotationText;
+    }
+
+    Label getSelectedAnnotationLayer()
+    {
+        return selectedAnnotationLayer;
+    }
+
+    List<AnnotationLayer> getAnnotationLayers()
+    {
+        return annotationLayers;
+    }
+
+    WebMarkupContainer getFeatureEditorPanel()
+    {
+        return featureEditorPanel;
     }
 }
