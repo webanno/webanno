@@ -2123,12 +2123,9 @@ public class AnnotationDetailEditorPanel
 		
 		// there should be at least one tag in the tagset
         TagSet tagSet = annotationService.listAnnotationFeature(selectedLayer).get(0).getTagset();
-        if (annotationService.listTags(tagSet).size() == 0) {
-            return false;
-        }
-		
-		return true;
-	}
+
+        return annotationService.listTags(tagSet).size() != 0;
+    }
     
     public static void handleException(Component aComponent, AjaxRequestTarget aTarget,
             Exception aException)
