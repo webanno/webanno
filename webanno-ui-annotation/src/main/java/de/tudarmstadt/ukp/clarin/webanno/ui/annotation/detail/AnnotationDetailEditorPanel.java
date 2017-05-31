@@ -1795,7 +1795,7 @@ public class AnnotationDetailEditorPanel
 
             Serializable value = null;
             if (aFS != null) {
-                value = (Serializable) WebAnnoCasUtil.getFeature(aFS, feature);
+                value = WebAnnoCasUtil.getFeature(aFS, feature);
             }
             else if (aRemembered != null) {
                 value = aRemembered.get(feature);
