@@ -34,7 +34,6 @@ import java.util.*;
 
 import javax.persistence.NoResultException;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
