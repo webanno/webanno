@@ -985,7 +985,6 @@ public class AnnotationDetailEditorPanel
                 error("Layer [" + aAdapter.getLayer().getUiName()
                         + "] does not support arc annotation.");
                 aTarget.addChildren(getPage(), FeedbackPanel.class);
-                return;
             }
             else if (aAdapter instanceof ArcAdapter) {
                 createNewRelationAnnotation(aTarget, (ArcAdapter) aAdapter, aJCas);
