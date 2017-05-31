@@ -962,7 +962,7 @@ public class AnnotationDetailEditorPanel
                 List<FeatureState> featureStates = AnnotationFeatureForm.this.getModelObject()
                         .getFeatureStates();
 
-                ModelIteratorAdapter<FeatureState> i = new ModelIteratorAdapter<FeatureState>(
+                return new ModelIteratorAdapter<FeatureState>(
                         featureStates)
                 {
                     @Override
@@ -971,7 +971,6 @@ public class AnnotationDetailEditorPanel
                         return FeatureStateModel.of(AnnotationFeatureForm.this.getModel(), aObject);
                     }
                 };
-                return i;
             }
         }
     }
