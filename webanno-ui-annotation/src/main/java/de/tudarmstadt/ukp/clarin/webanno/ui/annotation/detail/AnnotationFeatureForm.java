@@ -335,7 +335,7 @@ public class AnnotationFeatureForm
 
                 attributes.getDynamicExtraParameters().add("var eventKeycode = Wicket.Event" +
                     ".keyCode(attrs.event);return {keycode: eventKeycode};");
-                attributes.setAllowDefault(true);
+                attributes.setPreventDefault(false);
             }
 
             @Override
