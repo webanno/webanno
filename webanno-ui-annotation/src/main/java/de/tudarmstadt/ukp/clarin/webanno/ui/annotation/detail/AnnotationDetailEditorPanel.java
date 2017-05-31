@@ -30,17 +30,10 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.NoResultException;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -1243,7 +1236,7 @@ public class AnnotationDetailEditorPanel
             state.setDefaultAnnotationLayer(spanLayer);
          
             // If we switched layers, we need to initialize the feature editors for the new layer
-            if (!ObjectUtils.equals(previousLayer, state.getSelectedAnnotationLayer())) {
+            if (!Objects.equals(previousLayer, state.getSelectedAnnotationLayer())) {
                 loadFeatureEditorModels(aJCas, aTarget);
             }
         }
