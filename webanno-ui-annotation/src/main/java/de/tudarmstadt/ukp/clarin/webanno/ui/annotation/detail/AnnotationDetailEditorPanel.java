@@ -1259,18 +1259,18 @@ public class AnnotationDetailEditorPanel
         // Verify if input is valid according to tagset
         LOG.trace("actionAnnotate() verifying feature values in editors");
         List<FeatureState> featureStates = getModelObject().getFeatureStates();
-        for (int i = 0; i < featureStates.size(); i++) {
-            AnnotationFeature feature = featureStates.get(i).feature;
+        for (FeatureState featureState : featureStates) {
+            AnnotationFeature feature = featureState.feature;
             if (CAS.TYPE_NAME_STRING.equals(feature.getType())) {
-                String value = (String) featureStates.get(i).value;
-            	
+                String value = (String) featureState.value;
+
                 // Check if tag is necessary, set, and correct
                 if (
-                    value != null &&
-                    feature.getTagset() != null && 
-                    !feature.getTagset().isCreateTag() && 
-                    !annotationService.existsTag(value, feature.getTagset())
-                ) {
+                        value != null &&
+                                feature.getTagset() != null &&
+                                !feature.getTagset().isCreateTag() &&
+                                !annotationService.existsTag(value, feature.getTagset())
+                        ) {
                     error("[" + value
                             + "] is not in the tag list. Please choose from the existing tags");
                     return;
