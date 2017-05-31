@@ -18,11 +18,14 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.TypeUtil.getAdapter;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.findWindowStartCenteringOnSelection;
+import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil
+    .findWindowStartCenteringOnSelection;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getFeature;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getNextSentenceAddress;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getSentenceNumber;
+import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil
+    .getNextSentenceAddress;
+import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil
+    .getSentenceNumber;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.isSame;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectAt;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectByAddr;
@@ -89,7 +92,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 /**
  * Annotation Detail Editor Panel.
- *
  */
 public class AnnotationDetailEditorPanel
     extends Panel
@@ -125,11 +127,13 @@ public class AnnotationDetailEditorPanel
         annotationFeatureForm = new AnnotationFeatureForm(this, "annotationFeatureForm",
             getModel());
         annotationFeatureForm.setOutputMarkupId(true);
-        annotationFeatureForm.add(new AjaxFormValidatingBehavior("submit") {
+        annotationFeatureForm.add(new AjaxFormValidatingBehavior("submit")
+        {
             private static final long serialVersionUID = -5642108496844056023L;
 
             @Override
-            protected void onSubmit(AjaxRequestTarget aTarget) {
+            protected void onSubmit(AjaxRequestTarget aTarget)
+            {
                 try {
                     JCas jCas = getEditorCas();
                     actionCreateOrUpdate(aTarget, jCas);
@@ -244,8 +248,7 @@ public class AnnotationDetailEditorPanel
         selection.selectSpan(new VID(annoId), aJCas, annoFs.getBegin(), annoFs.getEnd());
     }
 
-    private void createNewChainElement(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
-        JCas aJCas)
+    private void createNewChainElement(AjaxRequestTarget aTarget, ChainAdapter aAdapter, JCas aJCas)
         throws AnnotationException
     {
         LOG.trace("createNewChainElement()");
@@ -276,7 +279,8 @@ public class AnnotationDetailEditorPanel
     }
 
     private void createNewChainLinkAnnotation(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
-        JCas aJCas) {
+        JCas aJCas)
+    {
         LOG.trace("createNewChainLinkAnnotation()");
 
         AnnotatorState state = getModelObject();
@@ -368,8 +372,10 @@ public class AnnotationDetailEditorPanel
         if (state.getSelection().isArc()) {
             LOG.trace("actionAnnotate() relation annotation - looking for attached layer");
 
-            // FIXME REC I think this whole section which meddles around with the selected annotation
-            // layer should be moved out of there to the place where we originally set the annotation
+            // FIXME REC I think this whole section which meddles around with the selected
+            // annotation
+            // layer should be moved out of there to the place where we originally set the
+            // annotation
             // layer...!
             AnnotationFS originFS = selectByAddr(aJCas, state.getSelection().getOrigin());
             AnnotationLayer spanLayer = TypeUtil.getLayer(annotationService, state.getProject(),
@@ -377,10 +383,9 @@ public class AnnotationDetailEditorPanel
             if (
                 state.getPreferences().isRememberLayer() &&
                     state.getAction().isAnnotate() &&
-                    !spanLayer.equals(state.getDefaultAnnotationLayer()))
-            {
+                    !spanLayer.equals(state.getDefaultAnnotationLayer())) {
                 throw new AnnotationException(
-                    "No relation annotation allowed ["+ spanLayer.getUiName() +"]");
+                    "No relation annotation allowed [" + spanLayer.getUiName() + "]");
             }
 
             AnnotationLayer previousLayer = state.getSelectedAnnotationLayer();
@@ -395,9 +400,7 @@ public class AnnotationDetailEditorPanel
             // relation.
             // FIXME - Actually this case should be covered by the last case - the database lookup!
             if (
-                spanLayer.isBuiltIn() &&
-                    spanLayer.getName().equals(POS.class.getName()))
-            {
+                spanLayer.isBuiltIn() && spanLayer.getName().equals(POS.class.getName())) {
                 AnnotationLayer depLayer = annotationService.getLayer(Dependency.class.getName(),
                     state.getProject());
                 if (state.getAnnotationLayers().contains(depLayer)) {
@@ -464,8 +467,7 @@ public class AnnotationDetailEditorPanel
 
                 // Check if tag is necessary, set, and correct
                 if (
-                    value != null &&
-                        feature.getTagset() != null &&
+                    value != null && feature.getTagset() != null &&
                         !feature.getTagset().isCreateTag() &&
                         !annotationService.existsTag(value, feature.getTagset())
                     ) {
@@ -520,11 +522,13 @@ public class AnnotationDetailEditorPanel
 
             LOG.info("BEGIN auto-forward annotation");
 
-            AnnotationFS nextToken = WebAnnoCasUtil.getNextToken(aJCas, state.getSelection().getBegin(),
+            AnnotationFS nextToken = WebAnnoCasUtil.getNextToken(aJCas, state.getSelection()
+                    .getBegin(),
                 state.getSelection().getEnd());
             if (nextToken != null) {
                 if (getModelObject().getWindowEndOffset() > nextToken.getBegin()) {
-                    state.getSelection().selectSpan(aJCas, nextToken.getBegin(), nextToken.getEnd());
+                    state.getSelection().selectSpan(aJCas, nextToken.getBegin(),
+                        nextToken.getEnd());
                     actionCreateOrUpdate(aTarget, aJCas, true);
                 }
             }
@@ -642,7 +646,8 @@ public class AnnotationDetailEditorPanel
         // annotations from layers that have link features that could point to the FS
         // to be deleted: the link feature must be the type of the FS or it must be generic.
         if (adapter instanceof SpanAdapter) {
-            for (AnnotationFeature linkFeature : annotationService.listAttachedLinkFeatures(layer)) {
+            for (AnnotationFeature linkFeature : annotationService.listAttachedLinkFeatures
+                (layer)) {
                 Type linkType = CasUtil.getType(jCas.getCas(), linkFeature.getLayer().getName());
 
                 for (AnnotationFS linkFS : CasUtil.select(jCas.getCas(), linkType)) {
@@ -771,7 +776,8 @@ public class AnnotationDetailEditorPanel
     }
 
     public JCas getEditorCas()
-        throws IOException {
+        throws IOException
+    {
         AnnotatorState state = getModelObject();
 
         if (state.getMode().equals(Mode.ANNOTATION) || state.getMode().equals(Mode.AUTOMATION)
@@ -799,9 +805,10 @@ public class AnnotationDetailEditorPanel
 
     /**
      * Scroll the window of visible annotations.
-     * @param aForward
-     *            instead of centering on the sentence that had the last editor, just scroll down
-     *            one sentence. This is for forward-annotation mode.
+     *
+     * @param aForward instead of centering on the sentence that had the last editor, just scroll
+     *                 down
+     *                 one sentence. This is for forward-annotation mode.
      */
     private void autoScroll(JCas jCas, boolean aForward)
     {
@@ -983,8 +990,7 @@ public class AnnotationDetailEditorPanel
             if (WebAnnoConst.CHAIN_TYPE.equals(feature.getLayer().getType())) {
                 if (state.getSelection().isArc()) {
                     if (feature.getLayer().isLinkedListBehavior()
-                        && WebAnnoConst.COREFERENCE_RELATION_FEATURE.equals(feature
-                        .getName())) {
+                        && WebAnnoConst.COREFERENCE_RELATION_FEATURE.equals(feature.getName())) {
                         featureState = new FeatureState(feature, value);
                     }
                 }
@@ -1003,13 +1009,15 @@ public class AnnotationDetailEditorPanel
                 state.getFeatureStates().add(featureState);
 
                 // verification to check whether constraints exist for this project or NOT
-                if (state.getConstraints() != null && state.getSelection().getAnnotation().isSet()) {
+                if (state.getConstraints() != null && state.getSelection().getAnnotation().isSet
+                    ()) {
                     // indicator.setRulesExist(true);
                     populateTagsBasedOnRules(aJCas, featureState);
                 }
                 else {
                     // indicator.setRulesExist(false);
-                    featureState.tagset = annotationService.listTags(featureState.feature.getTagset());
+                    featureState.tagset = annotationService.listTags(featureState.feature
+                        .getTagset());
                 }
             }
         }
@@ -1174,8 +1182,7 @@ public class AnnotationDetailEditorPanel
         List<Tag> valuesFromTagset, RulesIndicator rulesIndicator)
     {
         //if no possible values, means didn't satisfy conditions
-        if(possibleValues.isEmpty())
-        {
+        if (possibleValues.isEmpty()) {
             rulesIndicator.didntMatchAnyRule();
         }
         List<Tag> returnList = new ArrayList<>();
@@ -1192,14 +1199,14 @@ public class AnnotationDetailEditorPanel
                     tag.setReordered(true);
                     // HACK END
                     //Avoid duplicate entries
-                    if(!returnList.contains(tag)){
+                    if (!returnList.contains(tag)) {
                         returnList.add(tag);
                     }
                 }
             }
         }
         //If no matching tags found
-        if(returnList.isEmpty()){
+        if (returnList.isEmpty()) {
             rulesIndicator.didntMatchAnyTag();
         }
         return returnList;
@@ -1212,12 +1219,12 @@ public class AnnotationDetailEditorPanel
         clearFeatureEditorModels(aTarget);
     }
 
-    Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer) {
+    Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer)
+    {
         Set<AnnotationFS> toBeDeleted = new HashSet<>();
         for (AnnotationLayer relationLayer : annotationService
             .listAttachedRelationLayers(aLayer)) {
-            ArcAdapter relationAdapter = (ArcAdapter) getAdapter(annotationService,
-                relationLayer);
+            ArcAdapter relationAdapter = (ArcAdapter) getAdapter(annotationService, relationLayer);
             Type relationType = CasUtil.getType(aJCas.getCas(), relationLayer.getName());
             Feature sourceFeature = relationType.getFeatureByBaseName(relationAdapter
                 .getSourceFeatureName());
@@ -1355,11 +1362,13 @@ public class AnnotationDetailEditorPanel
         return msg;
     }
 
-    Logger getLog() {
+    Logger getLog()
+    {
         return LOG;
     }
 
-    AnnotationSchemaService getAnnotationService() {
+    AnnotationSchemaService getAnnotationService()
+    {
         return annotationService;
     }
 }
