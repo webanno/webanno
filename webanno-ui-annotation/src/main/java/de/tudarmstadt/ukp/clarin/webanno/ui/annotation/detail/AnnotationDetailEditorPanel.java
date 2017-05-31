@@ -1015,7 +1015,7 @@ public class AnnotationDetailEditorPanel
 
     private void createNewRelationAnnotation(AjaxRequestTarget aTarget, ArcAdapter aAdapter,
             JCas aJCas)
-            throws UIMAException, ClassNotFoundException, IOException, AnnotationException
+            throws AnnotationException
     {
         LOG.trace("createNewRelationAnnotation()");
 
@@ -1068,7 +1068,7 @@ public class AnnotationDetailEditorPanel
 
     private void createNewChainElement(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
             JCas aJCas)
-            throws UIMAException, ClassNotFoundException, IOException, AnnotationException
+            throws AnnotationException
     {
         LOG.trace("createNewChainElement()");
 
@@ -1098,7 +1098,6 @@ public class AnnotationDetailEditorPanel
 
     private void createNewChainLinkAnnotation(AjaxRequestTarget aTarget, ChainAdapter aAdapter,
             JCas aJCas)
-            throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
         LOG.trace("createNewChainLinkAnnotation()");
 
@@ -1592,7 +1591,7 @@ public class AnnotationDetailEditorPanel
     }
 
     public JCas getEditorCas()
-            throws UIMAException, IOException, ClassNotFoundException
+            throws IOException
     {
         AnnotatorState state = getModelObject();
 
@@ -2034,7 +2033,6 @@ public class AnnotationDetailEditorPanel
     }
 
     private Set<AnnotationFS> getAttachedRels(JCas aJCas, AnnotationFS aFs, AnnotationLayer aLayer)
-            throws UIMAException, ClassNotFoundException, IOException
     {
         Set<AnnotationFS> toBeDeleted = new HashSet<>();
         for (AnnotationLayer relationLayer : annotationService
