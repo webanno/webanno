@@ -599,7 +599,7 @@ public class AnnotationDetailEditorPanel
             if (state.getSelectedAnnotationLayer() != null
                     && !state.getSelectedAnnotationLayer().isLockToTokenOffset()) {
                 state.setForwardAnnotation(false);// no forwarding for
-                // sub-/multitoken annotation
+                // sub-/multi-token annotation
             }
             else {
                 state.setForwardAnnotation(state.isForwardAnnotation());
@@ -2122,7 +2122,7 @@ public class AnnotationDetailEditorPanel
             return false;
         }
 
-        // no forward annotation for multifeature layers.
+        // no forward annotation for multi-feature layers.
         if (annotationService.listAnnotationFeature(selectedLayer).size() > 1) {
             return false;
         }
