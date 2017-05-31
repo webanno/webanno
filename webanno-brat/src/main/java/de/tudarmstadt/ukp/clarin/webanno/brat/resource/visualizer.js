@@ -229,6 +229,9 @@ var Visualizer = (function($, window, undefined) {
     // A naive whitespace tokeniser
     var tokenise = function(text) {
       var tokenOffsets = [];
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+      /*
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
       var tokenStart = null;
       var lastCharPos = null;
 
@@ -251,7 +254,14 @@ var Visualizer = (function($, window, undefined) {
       if (tokenStart != null) {
         tokenOffsets.push([tokenStart, lastCharPos + 1]);
       }
-
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+      */
+      for (var i = 0; i < text.length; i++) {
+        if(!/\n/.test(text[i])) {
+          tokenOffsets.push([i, i+1]);
+        }
+      }
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
       return tokenOffsets;
     };
 
@@ -315,9 +325,13 @@ var Visualizer = (function($, window, undefined) {
         sourceData.sentence_offsets = sentenceSplit(sourceData.text);
       }
       // Similarily we fall back on whitespace tokenisation
-      if (sourceData.token_offsets === undefined) {
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+      //if (sourceData.token_offsets === undefined) {
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
         sourceData.token_offsets = tokenise(sourceData.text);
-      }
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+      //}
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
     };
 
     // Set default values for a variety of collection attributes
@@ -2373,6 +2387,11 @@ Util.profileStart('chunks');
 /*
           currentX += boxWidth;
 */
+// WEBANNO EXTENSION BEGIN - #316 jittery text selection behavior
+          if(/\s/.test(chunk.text)) {
+            currentX += 4;$
+          }
+// WEBANNO EXTENSION END - #316 jittery text selection behavior
           currentX += rtlmode ? -boxWidth : boxWidth;
 // WEBANNO EXTENSION END
         }); // chunks
