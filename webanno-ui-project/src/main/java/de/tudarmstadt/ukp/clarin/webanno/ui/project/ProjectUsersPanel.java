@@ -260,7 +260,7 @@ public class ProjectUsersPanel
         public List<PermissionLevel> permissionLevels = new ArrayList<PermissionLevel>();
         public User user;
         public List<User> users = new ArrayList<User>();
-        public String userfilter;
+        public String userFilter;
     }
 
     private class PermissionLevelDetailForm
@@ -358,15 +358,15 @@ public class ProjectUsersPanel
         public UserDetailForm(String id)
         {
             super(id, new CompoundPropertyModel<SelectionModel>(new SelectionModel()));
-            TextField<String> filterText = new TextField<String>("userfilter");
+            TextField<String> filterText = new TextField<String>("userFilter");
             
             add(filterText.setOutputMarkupPlaceholderTag(true));
-            add(new Button("filterbutton")
+            add(new Button("filterButton")
             {
             	private static final long serialVersionUID = -7523594952670514192L;
             	
-            	@Override
-				public void onSubmit()
+                @Override
+                public void onSubmit()
                 {
 					//Only needed so that user list is loaded
                 }
@@ -381,18 +381,20 @@ public class ProjectUsersPanel
                         protected List<User> load()
                         {
                             List<User> allUSers = userRepository.list();
+                            List<User> filteredUSers = new ArrayList<User>();
                             allUSers.removeAll(projectRepository.listProjectUsersWithPermissions(
                                     ProjectUsersPanel.this.getModelObject()));
                             
-                            for (Iterator<User> iterator = allUSers.iterator(); iterator.hasNext();) {
-                                User current = iterator.next();
-                                if (!(current.getUsername().contains(filterText.getValue())))
+                            for (User user : allUSers) 
+                            {
+                                User current = user;
+                                if (current.getUsername().contains(filterText.getValue()))
                             	{
-                                	iterator.remove();
+                                	filteredUSers.add(current);
                             	}
                             }
                             
-                            return allUSers;
+                            return filteredUSers;
                         }
                     }, new ChoiceRenderer<User>("username", "username")));
             users.setSuffix("<br>");
@@ -404,8 +406,9 @@ public class ProjectUsersPanel
                 @Override
                 public void onSubmit()
                 {
-                	filterText.setModel(Model.of(""));
-                    if (users.getModelObject() != null) {
+                	if (users.getModelObject() != null) {
+                		UserDetailForm.this.getModelObject().userFilter = "";
+                        
                         for (User user : users.getModelObject()) {
                             ProjectPermission projectPermission = new ProjectPermission();
                             projectPermission.setProject(ProjectUsersPanel.this.getModelObject());
@@ -437,7 +440,7 @@ public class ProjectUsersPanel
                 public void onSubmit()
                 {
                     UserDetailForm.this.setVisible(false);
-                    filterText.setModel(Model.of(""));
+                    UserDetailForm.this.getModelObject().userFilter = "";
                 }
             });
         }
