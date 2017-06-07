@@ -71,6 +71,10 @@ public class AnnotationLayer
     private boolean builtIn = false;
     
     private boolean readonly = false;
+    
+    private boolean isZeroWidthOnly = false;
+    
+    private String onClickJavaScriptAction;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -438,4 +442,20 @@ public class AnnotationLayer
     {
         readonly = aReadonly;
     }
+
+	public boolean isZeroWidthOnly() {
+		return isZeroWidthOnly;
+	}
+
+	public void setZeroWidthOnly(boolean isZeroWidthOnly) {
+		this.isZeroWidthOnly = isZeroWidthOnly;
+	}
+
+	public String getOnClickJavaScriptAction() {
+		return onClickJavaScriptAction;
+	}
+
+	public void setOnClickAction(String onClickAction) {
+		this.onClickJavaScriptAction = onClickAction;
+	}
 }

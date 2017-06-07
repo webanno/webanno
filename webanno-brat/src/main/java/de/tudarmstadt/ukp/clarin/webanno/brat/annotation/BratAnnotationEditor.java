@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -44,6 +46,7 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.string.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -84,6 +87,7 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.resource.JQuerySvgDomResourceRefer
 import de.tudarmstadt.ukp.clarin.webanno.brat.resource.JQuerySvgResourceReference;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -103,11 +107,13 @@ public class BratAnnotationEditor
     private static final String PARAM_OFFSETS = "offsets";
     private static final String PARAM_TARGET_SPAN_ID = "targetSpanId";
     private static final String PARAM_ORIGIN_SPAN_ID = "originSpanId";
+    private static final String PARAM_SPAN_TYPE = "type";
 
     private @SpringBean AnnotationSchemaService annotationService;
 
     private WebMarkupContainer vis;
     private AbstractAjaxBehavior requestHandler;
+    private OnClickActionParser onClickActionParser = new OnClickActionParser();
 
     public BratAnnotationEditor(String id, IModel<AnnotatorState> aModel,
             final AnnotationActionHandler aActionHandler, final JCasProvider aJCasProvider)
@@ -163,11 +169,11 @@ public class BratAnnotationEditor
                         BratAnnotationEditor.this.getModelObject().getAction().clearUserAction();
                     }
                 });
-
+                
                 // Load the CAS if necessary
                 // Make sure we load the CAS only once here in case of an annotation action.
                 boolean requiresCasLoading = SpanAnnotationResponse.is(action)
-                        || ArcAnnotationResponse.is(action) || GetDocumentResponse.is(action);
+                        || ArcAnnotationResponse.is(action) || GetDocumentResponse.is(action) || "doAction".equals(action);
                 JCas jCas = null;
                 if (requiresCasLoading) {
                     try {
@@ -179,6 +185,33 @@ public class BratAnnotationEditor
                         return;
                     }
                 }
+                
+				/*  */
+				// Whenever an action should be performed, do ONLY perform this action and nothing else, iff the item actually is an action item
+                if("doAction".equals(action)){
+                	Project proj = aModel.getObject().getProject();
+                	StringValue layer_type = request.getParameterValue(PARAM_SPAN_TYPE);
+                	if(!layer_type.isEmpty()){
+	                	long layer_id = Long.parseLong(layer_type.beforeFirst('_'));
+	                	AnnotationLayer type = annotationService.getLayer(layer_id);
+	                	if(!StringUtils.isEmpty(type.getOnClickJavaScriptAction())){ 
+		                	/* onclick parse the action */
+	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId());
+//		                	Annotation anno = WebAnnoCasUtil.selectByAddr(jCas, Annotation.class, paramId.getId()); 
+		                	String js = onClickActionParser.parse(
+		                			type.getOnClickJavaScriptAction(), 
+		                			proj, 
+		                			aModel.getObject().getDocument(), 
+		                			anno);
+//		                	String url = String.format("partitur/%d/%d#%s", pid, did, anchor_id);
+//		                	aTarget.appendJavaScript(String.format("var w=window.open('%s', 'partitur'); window.blur(); w.focus();", url));
+		                	aTarget.appendJavaScript(js);
+		                	return;
+	                	}
+                	}
+                }
+                
+                
 
                 // HACK: If an arc was clicked that represents a link feature, then open the
                 // associated span annotation instead.
