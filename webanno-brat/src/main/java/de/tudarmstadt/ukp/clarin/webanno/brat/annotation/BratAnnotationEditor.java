@@ -194,12 +194,12 @@ public class BratAnnotationEditor
                 	if(!layer_type.isEmpty()){
 	                	long layer_id = Long.parseLong(layer_type.beforeFirst('_'));
 	                	AnnotationLayer type = annotationService.getLayer(layer_id);
-	                	if(!StringUtils.isEmpty(type.getOnClickJavaScriptAction())){ 
+	                	if(!StringUtils.isEmpty(type.getOnClickJavascriptAction())){ 
 		                	/* onclick parse the action */
 	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId());
 //		                	Annotation anno = WebAnnoCasUtil.selectByAddr(jCas, Annotation.class, paramId.getId()); 
 		                	String js = onClickActionParser.parse(
-		                			type.getOnClickJavaScriptAction(), 
+		                			type.getOnClickJavascriptAction(), 
 		                			proj, 
 		                			aModel.getObject().getDocument(), 
 		                			anno);
