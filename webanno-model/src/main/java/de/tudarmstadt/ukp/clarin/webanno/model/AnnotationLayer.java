@@ -72,6 +72,7 @@ public class AnnotationLayer
     
     private boolean readonly = false;
     
+    @Column(nullable = true)
     private String onClickJavascriptAction;
 
     @Column(name = "name", nullable = false)
