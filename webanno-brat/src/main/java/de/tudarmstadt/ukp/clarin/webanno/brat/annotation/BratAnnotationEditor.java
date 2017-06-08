@@ -113,7 +113,6 @@ public class BratAnnotationEditor
 
     private WebMarkupContainer vis;
     private AbstractAjaxBehavior requestHandler;
-    private OnClickActionParser onClickActionParser = new OnClickActionParser();
 
     public BratAnnotationEditor(String id, IModel<AnnotatorState> aModel,
             final AnnotationActionHandler aActionHandler, final JCasProvider aJCasProvider)
@@ -198,7 +197,7 @@ public class BratAnnotationEditor
 		                	/* parse the action */
 	                		List<AnnotationFeature> anno_layer_features = annotationService.listAnnotationFeature(anno_layer);
 	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId()); 
-		                	String js = onClickActionParser.parse(
+		                	String js = OnClickActionParser.parse(
 		                			anno_layer.getOnClickJavascriptAction(),
 		                			anno_layer,
 		                			anno_layer_features,

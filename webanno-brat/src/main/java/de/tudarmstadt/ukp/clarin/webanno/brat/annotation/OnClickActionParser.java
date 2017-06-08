@@ -53,7 +53,7 @@ public class OnClickActionParser implements Serializable {
 	 * @param anno
 	 * @return String with substituted variables
 	 */
-	public String parse(String jstemplate, AnnotationLayer anno_layer, List<AnnotationFeature> anno_layer_features, Project project, SourceDocument document, AnnotationFS anno){
+	public static String parse(String jstemplate, AnnotationLayer anno_layer, List<AnnotationFeature> anno_layer_features, Project project, SourceDocument document, AnnotationFS anno){
 		Map<String, String> valuesMap = new HashMap<>();
 		// add some defaults
 		valuesMap.put("PID", String.valueOf(project.getId()));
@@ -98,7 +98,13 @@ public class OnClickActionParser implements Serializable {
 		return js;
 	}
 	
-	String getStringValue(Method method, Object obj){
+	/**
+	 * Evaluate method on obj and return its return value as string or null 
+	 * @param method
+	 * @param obj
+	 * @return return value as string or null
+	 */
+	private static String getStringValue(Method method, Object obj){
 		try {
 			Object result = method.invoke(obj);
 			if(result != null)
