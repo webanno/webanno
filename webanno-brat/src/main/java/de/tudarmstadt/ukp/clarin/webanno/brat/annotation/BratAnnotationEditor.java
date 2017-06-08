@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -85,6 +84,7 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.resource.BratVisualizerUiResourceR
 import de.tudarmstadt.ukp.clarin.webanno.brat.resource.JQueryJsonResourceReference;
 import de.tudarmstadt.ukp.clarin.webanno.brat.resource.JQuerySvgDomResourceReference;
 import de.tudarmstadt.ukp.clarin.webanno.brat.resource.JQuerySvgResourceReference;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -187,32 +187,32 @@ public class BratAnnotationEditor
                 }
                 
 				/*  */
-				// Whenever an action should be performed, do ONLY perform this action and nothing else, iff the item actually is an action item
+				// Whenever an action should be performed, do ONLY perform this action and nothing else, and only if the item actually is an action item
                 if("doAction".equals(action)){
                 	Project proj = aModel.getObject().getProject();
                 	StringValue layer_type = request.getParameterValue(PARAM_SPAN_TYPE);
                 	if(!layer_type.isEmpty()){
 	                	long layer_id = Long.parseLong(layer_type.beforeFirst('_'));
-	                	AnnotationLayer type = annotationService.getLayer(layer_id);
-	                	if(!StringUtils.isEmpty(type.getOnClickJavascriptAction())){ 
-		                	/* onclick parse the action */
-	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId());
-//		                	Annotation anno = WebAnnoCasUtil.selectByAddr(jCas, Annotation.class, paramId.getId()); 
+	                	AnnotationLayer anno_layer = annotationService.getLayer(layer_id);
+	                	if(!StringUtils.isEmpty(anno_layer.getOnClickJavascriptAction())){ 
+		                	/* parse the action */
+	                		List<AnnotationFeature> anno_layer_features = annotationService.listAnnotationFeature(anno_layer);
+	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId()); 
 		                	String js = onClickActionParser.parse(
-		                			type.getOnClickJavascriptAction(), 
+		                			anno_layer.getOnClickJavascriptAction(),
+		                			anno_layer,
+		                			anno_layer_features,
 		                			proj, 
 		                			aModel.getObject().getDocument(), 
 		                			anno);
-//		                	String url = String.format("partitur/%d/%d#%s", pid, did, anchor_id);
-//		                	aTarget.appendJavaScript(String.format("var w=window.open('%s', 'partitur'); window.blur(); w.focus();", url));
 		                	aTarget.appendJavaScript(js);
+		                	
 		                	return;
 	                	}
                 	}
                 }
                 
                 
-
                 // HACK: If an arc was clicked that represents a link feature, then open the
                 // associated span annotation instead.
                 if (paramId.isSlotSet() && ArcAnnotationResponse.is(action)) {

@@ -187,7 +187,22 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
 /// BEGIN: WEBANNO CLICK EXTENSION
-      var onClick = function(evt) {
+      var clickcnt = 0;
+      // need a function that distinguishes between double clicks and single clicks  
+      var onClick = function(evt){
+          clickcnt++;
+          setTimeout(function() {
+        	  if (clickcnt == 1){
+        		  onSnglClick.call(self, evt);
+        		  clickcnt = 0;
+        	  } else {
+        		  onDblClick.call(self, evt);
+        		  clickcnt = 0;
+        	  }
+          }, 300);
+      }
+      
+      var onSnglClick = function(evt) {
       	  // must be logged in
           if (that.user === null) return;
           var target = $(evt.target);

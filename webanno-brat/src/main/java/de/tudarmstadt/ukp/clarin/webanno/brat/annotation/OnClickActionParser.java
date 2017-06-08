@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrSubstitutor;
@@ -12,6 +13,8 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
@@ -33,15 +36,17 @@ public class OnClickActionParser implements Serializable {
 	 * @param anno
 	 * @return String with substituted variables
 	 */
-	public String parse(String jstemplate, Project project, SourceDocument document, AnnotationFS anno){
+	public String parse(String jstemplate, AnnotationLayer anno_layer, List<AnnotationFeature> anno_layer_features, Project project, SourceDocument document, AnnotationFS anno){
 		Map<String, String> valuesMap = new HashMap<>();
+		// add some defaults
 		valuesMap.put("PID", String.valueOf(project.getId()));
 		valuesMap.put("PNAME", project.getName());
 		valuesMap.put("DOCID", String.valueOf(document.getId()));
 		valuesMap.put("DOCNAME", document.getName());
+		valuesMap.put("LAYERNAME", anno_layer.getUiName());
 
 		// collect the methods of the annotation
-		Method[] methods = anno.getClass().getDeclaredMethods();
+		Method[] methods = anno.getClass().getDeclaredMethods(); 
 		Arrays.stream(methods)
 			.filter(m -> m.getParameterCount() < 1 && m.getReturnType() != Void.TYPE) // only select getter methods with no parameters and a return type
 			.forEach(m -> {
@@ -63,6 +68,14 @@ public class OnClickActionParser implements Serializable {
 				}
 				// else nothing to add
 			});
+		
+		// add fields from the annotation layer features and use the values from before
+		anno_layer_features.stream().forEach(feat -> {
+			String val = valuesMap.get(feat.getName());
+			if(val != null)
+				valuesMap.put(feat.getUiName(), val);
+		});
+		
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		String js = sub.replace(jstemplate);
 		return js;
