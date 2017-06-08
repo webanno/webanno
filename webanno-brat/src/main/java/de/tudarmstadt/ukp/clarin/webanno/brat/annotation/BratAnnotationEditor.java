@@ -64,6 +64,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.PreRenderer;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VDocument;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.ArcAnnotationResponse;
+import de.tudarmstadt.ukp.clarin.webanno.brat.message.DoActionResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetCollectionInformationResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.LoadConfResponse;
@@ -172,7 +173,7 @@ public class BratAnnotationEditor
                 // Load the CAS if necessary
                 // Make sure we load the CAS only once here in case of an annotation action.
                 boolean requiresCasLoading = SpanAnnotationResponse.is(action)
-                        || ArcAnnotationResponse.is(action) || GetDocumentResponse.is(action) || "doAction".equals(action);
+                        || ArcAnnotationResponse.is(action) || GetDocumentResponse.is(action) || DoActionResponse.is(action);
                 JCas jCas = null;
                 if (requiresCasLoading) {
                     try {
@@ -187,7 +188,7 @@ public class BratAnnotationEditor
                 
 				/*  */
 				// Whenever an action should be performed, do ONLY perform this action and nothing else, and only if the item actually is an action item
-                if("doAction".equals(action)){
+                if(DoActionResponse.is(action)){
                 	Project proj = aModel.getObject().getProject();
                 	StringValue layer_type = request.getParameterValue(PARAM_SPAN_TYPE);
                 	if(!layer_type.isEmpty()){
