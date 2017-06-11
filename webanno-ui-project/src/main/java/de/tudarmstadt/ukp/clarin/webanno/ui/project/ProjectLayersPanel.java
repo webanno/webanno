@@ -804,6 +804,13 @@ public class ProjectLayersPanel
                     aTarget.add(featureDetailForm);
                 }
             });
+            
+            //add(new Label("isZeroWidthOnlyLabel", "Only allow zero with annotations:"));
+            //add(new CheckBox("isZeroWidthOnly"));
+            add(new Label("onClickJavascriptActionLabel", "Run Javascript action on click:"));
+            add(new TextArea<String>("onClickJavascriptAction").add(new AttributeModifier("placeholder", "alert('${PID} ${PNAME} ${DOCID} ${DOCNAME} ${getMethod}'))")));
+            
+            // -- 
 
             add(new Button("save", new StringResourceModel("label"))
             {
