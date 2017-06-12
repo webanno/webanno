@@ -25,10 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
@@ -53,7 +57,7 @@ public class OnClickActionParser implements Serializable {
 	 * @param anno
 	 * @return String with substituted variables
 	 */
-	public static String parse(String jstemplate, AnnotationLayer anno_layer, List<AnnotationFeature> anno_layer_features, Project project, SourceDocument document, AnnotationFS anno){
+	public static Map<String, String> parse(AnnotationLayer anno_layer, List<AnnotationFeature> anno_layer_features, Project project, SourceDocument document, AnnotationFS anno){
 		Map<String, String> valuesMap = new HashMap<>();
 		// add some defaults
 		valuesMap.put("PID", String.valueOf(project.getId()));
@@ -93,9 +97,44 @@ public class OnClickActionParser implements Serializable {
 				valuesMap.put(feat.getUiName(), val);
 		});
 		
-		StrSubstitutor sub = new StrSubstitutor(valuesMap);
-		String js = sub.replace(jstemplate);
-		return js;
+		return valuesMap;
+	}
+	
+	
+	/**
+	 * as JSON object
+	 * @param valueMap
+	 * @return map as JSON object string
+	 */
+	public static String asJSONObject(final Map<String, String> valueMap){
+		if(valueMap == null)
+			return "{ }";
+		try {
+			return new ObjectMapper().writeValueAsString(valueMap);
+		} catch (JsonProcessingException e) {
+			LOG.warn(String.format("Could not encode map to json object: %s", StringUtils.abbreviate(valueMap.toString(), 100)), e);
+			return String.format("{ \"%s\": \"%s\" }", e.getClass().getSimpleName(), e.getMessage());
+		}
+	}
+	
+
+	/**
+	 * Escapes values in the map
+	 * 
+	 * @param unescapedValues
+	 */
+	public static void escapeJavascript(final Map<String, String> unescapedValues){
+		unescapedValues
+			.entrySet()
+			.forEach(e -> e.setValue(escapeJavascript(e.getValue())));
+	}
+	
+	/**
+	 * @param unescaped string
+	 * @return javscript escaped string
+	 */
+	public static String escapeJavascript(String unescaped){
+		return StringEscapeUtils.escapeJava(unescaped);
 	}
 	
 	/**

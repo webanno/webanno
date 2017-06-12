@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -197,16 +198,18 @@ public class BratAnnotationEditor
 	                	if(!StringUtils.isEmpty(anno_layer.getOnClickJavascriptAction())){ 
 		                	/* parse the action */
 	                		List<AnnotationFeature> anno_layer_features = annotationService.listAnnotationFeature(anno_layer);
-	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId()); 
-		                	String js = OnClickActionParser.parse(
-		                			anno_layer.getOnClickJavascriptAction(),
+	                		AnnotationFS anno = WebAnnoCasUtil.selectByAddr(jCas, paramId.getId());
+		                	Map<String, String> function_params = OnClickActionParser.parse(
 		                			anno_layer,
 		                			anno_layer_features,
 		                			proj, 
 		                			aModel.getObject().getDocument(), 
 		                			anno);
+		                	String js = String.format(
+		                			"(function (params){ %s })(%s)", // define anonymous function, fill the body and immediately execute it
+		                			anno_layer.getOnClickJavascriptAction(),
+		                			OnClickActionParser.asJSONObject(function_params));
 		                	aTarget.appendJavaScript(js);
-		                	
 		                	return;
 	                	}
                 	}
