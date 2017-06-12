@@ -147,7 +147,7 @@ public class RelationRenderer
      */
     private String getYieldMessage(JCas aJCas, List<Integer> sortedDepFs)
     {
-        StringBuffer cm = new StringBuffer();
+        StringBuilder cm = new StringBuilder();
         int end = -1;
         for (Integer depFs : sortedDepFs) {
             if (end == -1) {
