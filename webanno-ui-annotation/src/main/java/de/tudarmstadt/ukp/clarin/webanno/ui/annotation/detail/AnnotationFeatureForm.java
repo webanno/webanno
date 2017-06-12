@@ -18,6 +18,7 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail;
 
 import com.googlecode.wicket.kendo.ui.form.TextField;
+
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.SpanAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;

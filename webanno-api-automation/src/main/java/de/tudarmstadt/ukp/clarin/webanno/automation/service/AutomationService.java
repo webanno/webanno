@@ -21,11 +21,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.uima.UIMAException;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.AutomationStatus;
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.MiraTemplate;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 
 public interface AutomationService
 {
@@ -38,7 +43,43 @@ public interface AutomationService
      *            the project.
      * @return the source documents.
      */
-    List<SourceDocument> listTabSepDocuments(Project aProject);
+    List<TrainingDocument> listTabSepDocuments(Project aProject);
+    
+    boolean existsTrainingDocument(Project project, String fileName);
+    
+    /**
+     * Get the directory of this {@link TrainingDocument} usually to read the content of the document
+     *
+     * @param trainingDocument
+     *            the Training document.
+     * @return the training document folder.
+     * @throws IOException
+     *             if an I/O error occurs.
+     */
+    File getDocumentFolder(TrainingDocument trainingDocument)
+        throws IOException;
+    
+    /**
+     * Return list of WebAnno supported training documents
+     * @param aProject
+     * @return
+     */
+    List<TrainingDocument> listTrainingDocuments(Project aProject);
+
+    TrainingDocument getTrainingDocument(Project aProject, String aDocumentName);
+    
+    /**
+     * Remove {@link TrainingDocument}
+     * 
+     * @throws IOException
+     */
+    void removeTrainingDocument(TrainingDocument aDocument)
+        throws IOException;
+    
+    JCas readTrainingAnnotationCas(TrainingDocument trainingAnnotationDocument)
+            throws IOException;
+    
+    void createTrainingDocument(TrainingDocument document) throws IOException;
     
     /**
      * List MIRA template files
@@ -113,7 +154,7 @@ public interface AutomationService
      *            the source document.
      * @return the model.
      */
-    File getMiraModel(AnnotationFeature feature, boolean otherLayer, SourceDocument document);
+    File getMiraModel(AnnotationFeature feature, boolean otherLayer, TrainingDocument document);
 
     /**
      * Get the MIRA director where models, templates and training data will be stored
@@ -123,14 +164,26 @@ public interface AutomationService
      * @return the directory.
      */
     File getMiraDir(AnnotationFeature feature);
-
+    File getCasFile(TrainingDocument aDocument);
     void removeMiraTemplate(MiraTemplate template);
 
     void removeAutomationStatus(AutomationStatus status);
 
     void createAutomationStatus(AutomationStatus status);
 
-    boolean existsAutomationStatus(MiraTemplate template);
-
+    boolean existsAutomationStatus(MiraTemplate template);  
     AutomationStatus getAutomationStatus(MiraTemplate template);
+    
+    
+    JCas createInitialCas(TrainingDocument aDocument)
+        throws UIMAException, IOException, ClassNotFoundException;
+    File getTrainingDocumentFile(TrainingDocument aDocument);
+    JCas readInitialCas(TrainingDocument aDocument)
+        throws CASException, ResourceInitializationException, IOException;
+    
+    JCas createOrReadInitialCas(TrainingDocument aDocument)
+        throws IOException, UIMAException, ClassNotFoundException;
+    boolean existsInitialCas(TrainingDocument aDocument)
+            throws IOException;
+    boolean existsCas(TrainingDocument aDocument) throws IOException;
 }

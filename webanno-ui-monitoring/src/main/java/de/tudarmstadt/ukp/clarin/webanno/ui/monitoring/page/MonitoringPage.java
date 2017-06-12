@@ -231,13 +231,6 @@ public class MonitoringPage
             Project project = projectService.listProjects().get(0);
             List<List<String>> userAnnotationDocumentLists = new ArrayList<List<String>>();
             List<SourceDocument> dc = documentService.listSourceDocuments(project);
-            List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-            for (SourceDocument sdc : dc) {
-                if (sdc.isTrainingDocument()) {
-                    trainingDoc.add(sdc);
-                }
-            }
-            dc.removeAll(trainingDoc);
             for (int j = 0; j < projectService.listProjectUsersWithPermissions(project).size(); j++) {
                 List<String> userAnnotationDocument = new ArrayList<String>();
                 userAnnotationDocument.add("");
@@ -322,14 +315,6 @@ public class MonitoringPage
                 {
                     List<SourceDocument> sourceDocuments = documentService
                             .listSourceDocuments(aNewSelection);
-
-                    List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-                    for (SourceDocument sdc : sourceDocuments) {
-                        if (sdc.isTrainingDocument()) {
-                            trainingDoc.add(sdc);
-                        }
-                    }
-                    sourceDocuments.removeAll(trainingDoc);
 
                     if (aNewSelection == null) {
                         return;
@@ -504,13 +489,6 @@ public class MonitoringPage
                 int ignored = 0;
                 int totalDocs = 0;
                 List<SourceDocument> documents = documentService.listSourceDocuments(aProject);
-                List<SourceDocument> trainingDoc = new ArrayList<SourceDocument>();
-                for (SourceDocument sdc : documents) {
-                    if (sdc.isTrainingDocument()) {
-                        trainingDoc.add(sdc);
-                    }
-                }
-                documents.removeAll(trainingDoc);
                 for (SourceDocument document : documents) {
                     totalDocs++;
                     if (documentService.isAnnotationFinished(document, user)) {

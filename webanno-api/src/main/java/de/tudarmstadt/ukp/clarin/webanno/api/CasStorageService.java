@@ -25,6 +25,7 @@ import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 
 public interface CasStorageService
@@ -45,7 +46,7 @@ public interface CasStorageService
      */
     void writeCas(SourceDocument aDocument, JCas aJcas, String aUserName)
         throws IOException;
-
+    
     /**
      * For a given {@link SourceDocument}, return the {@link AnnotationDocument} for the user or for
      * the CURATION_USER
@@ -57,9 +58,9 @@ public interface CasStorageService
      */
     JCas readCas(SourceDocument aDocument, String aUsername)
         throws IOException;
+        
     
     File getAnnotationFolder(SourceDocument aDocument)
             throws IOException;
-
     void analyzeAndRepair(SourceDocument aDocument, String aUsername, CAS aCas);
 }

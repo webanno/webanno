@@ -527,6 +527,7 @@ public class DocumentServiceImpl
             return createInitialCas(aDocument);
         }
     }
+        
     
     @Override
     @Transactional
@@ -709,7 +710,7 @@ public class DocumentServiceImpl
         List<SourceDocument> sourceDocuments = entityManager
                 .createQuery(
                         "FROM SourceDocument " +
-                        "WHERE project = (:project) AND trainingDocument = false",
+                        "WHERE project = (:project)",
                         SourceDocument.class)
                 .setParameter("project", aProject)
                 .getResultList();
@@ -876,4 +877,6 @@ public class DocumentServiceImpl
     {
         // Nothing at the moment
     }
-}
+
+
+	}

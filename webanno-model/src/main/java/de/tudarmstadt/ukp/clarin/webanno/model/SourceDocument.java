@@ -32,7 +32,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -71,11 +70,19 @@ public class SourceDocument
 
     private int sentenceAccessed = 0;
 
+    /*
+     * This field are only here because we still may have the non-nullable columns in the DB. Once
+     * we can properly migrate the database schema, this can go away.
+     */
+    @Deprecated
     private boolean trainingDocument = false;
+    
+    /*
+     * This field are only here because we still may have the non-nullable columns in the DB. Once
+     * we can properly migrate the database schema, this can go away.
+     */
+    @Deprecated
     private boolean processed = false;
-    @ManyToOne
-    @ForeignKey(name = "none")
-    AnnotationFeature feature; // if it is a training document, for which Template (layer)
 
     public long getId()
     {
@@ -182,35 +189,6 @@ public class SourceDocument
         }
         return true;
     }
-
-    public boolean isTrainingDocument()
-    {
-        return trainingDocument;
-    }
-
-    public void setTrainingDocument(boolean trainingDocument)
-    {
-        this.trainingDocument = trainingDocument;
-    }
-
-    public boolean isProcessed()
-    {
-        return processed;
-    }
-
-    public void setProcessed(boolean processed)
-    {
-        this.processed = processed;
-    }
-
-	public AnnotationFeature getFeature() {
-		return feature;
-	}
-
-	public void setFeature(AnnotationFeature feature) {
-		this.feature = feature;
-	}
-
 	public static final Comparator<SourceDocument> NAME_COMPARATOR = new Comparator<SourceDocument>() {
         @Override
         public int compare(SourceDocument aO1, SourceDocument aO2)

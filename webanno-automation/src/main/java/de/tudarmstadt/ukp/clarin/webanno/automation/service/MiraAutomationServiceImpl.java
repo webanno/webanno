@@ -17,6 +17,13 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.automation.service;
 
+
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.MIRA;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.MIRA_TEMPLATE;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.TRAIN;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
 import java.io.File;
@@ -33,39 +40,51 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.uima.UIMAException;
+import org.apache.uima.cas.CASException;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.CasCreationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
+import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAware;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.AutomationStatus;
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.MiraTemplate;
+import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
 @Component(AutomationService.SERVICE_NAME)
 public class MiraAutomationServiceImpl
     implements AutomationService, ProjectLifecycleAware
 {
-    private static final String PROJECT = "/project/";
-    private static final String MIRA = "/mira/";
-    private static final String MIRA_TEMPLATE = "/template/";
+ 
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Resource(name = "automationCasStorageService")
+    private AutomationCasStorageService automationCasStorageService;
     
     @Value(value = "${repository.path}")
     private File dir;
 
-    private @Resource DocumentService documentService;
-    private @Resource AnnotationSchemaService annotationService;
-
+    @Resource(name = "casDoctor")
+    private CasDoctor casDoctor;
+    
+    @Resource(name = "importExportService")
+    private ImportExportService importExportService;
+    
     @PersistenceContext
     private EntityManager entityManager;
     
@@ -187,7 +206,7 @@ public class MiraAutomationServiceImpl
 
     @Override
     public File getMiraModel(AnnotationFeature aFeature, boolean aOtherLayer,
-            SourceDocument aDocument)
+            TrainingDocument aDocument)
     {
         if (aDocument != null) {
             return new File(getMiraDir(aFeature), aDocument.getId() + "- "
@@ -247,47 +266,237 @@ public class MiraAutomationServiceImpl
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
-    public List<SourceDocument> listTabSepDocuments(Project aProject)
+    public List<TrainingDocument> listTabSepDocuments(Project aProject)
     {
-        List<SourceDocument> sourceDocuments = entityManager
-                .createQuery("FROM SourceDocument where project =:project", SourceDocument.class)
+        List<TrainingDocument> trainingDocuments = entityManager
+                .createQuery("FROM TrainingDocument where project =:project", TrainingDocument.class)
                 .setParameter("project", aProject).getResultList();
-        List<SourceDocument> tabSepDocuments = new ArrayList<SourceDocument>();
-        for (SourceDocument sourceDocument : sourceDocuments) {
-            if (sourceDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
-                tabSepDocuments.add(sourceDocument);
+        List<TrainingDocument> tabSepDocuments = new ArrayList<TrainingDocument>();
+        for (TrainingDocument trainingDocument : trainingDocuments) {
+            if (trainingDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
+                tabSepDocuments.add(trainingDocument);
             }
         }
         return tabSepDocuments;
     }
     
     @Override
-    public void afterProjectCreate(Project aProject)
-        throws Exception
+    @Transactional
+    public boolean existsTrainingDocument(Project aProject, String aFileName)
     {
-        // Nothing to do
+        try {
+            entityManager
+                    .createQuery(
+                            "FROM TrainingDocument WHERE project = :project AND " + "name =:name ",
+                            TrainingDocument.class).setParameter("project", aProject)
+                    .setParameter("name", aFileName).getSingleResult();
+            return true;
+        }
+        catch (NoResultException ex) {
+            return false;
+        }
+    }
+    @Override
+    @Transactional(noRollbackFor = NoResultException.class)
+   public File getDocumentFolder(TrainingDocument trainingDocument) throws IOException{
+    	File trainingDocFolder = new File(dir, PROJECT + trainingDocument.getProject().getId() + TRAIN
+                + trainingDocument.getId()+SOURCE);
+        FileUtils.forceMkdir(trainingDocFolder);
+        return trainingDocFolder;
+    }
+    @Override
+    @Transactional(noRollbackFor = NoResultException.class)
+    public List<TrainingDocument> listTrainingDocuments(Project aProject)
+    {
+    	// both TAB_SEP and WebAnno training documents
+        List<TrainingDocument> trainingDocuments = entityManager
+                .createQuery("FROM TrainingDocument where project =:project", TrainingDocument.class)
+                .setParameter("project", aProject).getResultList();
+   /*     List<TrainingDocument> webAnnoTraiingDocuments = new ArrayList<TrainingDocument>();
+        for (TrainingDocument trainingDocument : trainingDocuments) {
+            if (trainingDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
+            	webAnnoTraiingDocuments.add(trainingDocument);
+            }
+        }*/
+        return trainingDocuments;
     }
     
     @Override
-    public void beforeProjectRemove(Project aProject)
-        throws Exception
+    @Transactional(noRollbackFor = NoResultException.class)
+    public TrainingDocument getTrainingDocument(Project aProject, String aDocumentName)
     {
-        for (MiraTemplate template : listMiraTemplates(aProject)) {
-            removeMiraTemplate(template);
-        }
-
-        for (SourceDocument document : listTabSepDocuments(aProject)) {
-            documentService.removeSourceDocument(document);
-        }
+        return entityManager
+                .createQuery("FROM TrainingDocument WHERE name = :name AND project =:project",
+                		TrainingDocument.class).setParameter("name", aDocumentName)
+                .setParameter("project", aProject).getSingleResult();
     }
     
     @Override
     @Transactional
-    public void onProjectImport(ZipFile aZip,
-            de.tudarmstadt.ukp.clarin.webanno.export.model.Project aExportedProject,
-            Project aProject)
-        throws Exception
-    {
-        // Nothing at the moment
+    public void removeTrainingDocument(TrainingDocument aDocument)
+        throws IOException
+    {       
+        entityManager.remove(aDocument);
+
+        String path = dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + TRAIN
+                + aDocument.getId();
+        // remove from file both source and related annotation file
+        if (new File(path).exists()) {
+            FileUtils.forceDelete(new File(path));
+        }
+
+        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                String.valueOf(aDocument.getProject().getId()))) {
+            Project project = aDocument.getProject();
+            log.info("Removed source document [{}]({}) from project [{}]({})", aDocument.getName(),
+                    aDocument.getId(), project.getName(), project.getId());
+        }
     }
+
+    @Override
+    @Transactional
+    public JCas readTrainingAnnotationCas(TrainingDocument aTrainingAnnotationDocument)
+        throws IOException
+    {
+        // If there is no CAS yet for the annotation document, create one.
+        JCas jcas = null;
+        if (!existsCas(aTrainingAnnotationDocument)) {
+            // Convert the source file into an annotation CAS
+            try {
+                if (!existsInitialCas(aTrainingAnnotationDocument)) {
+                    jcas = createInitialCas(aTrainingAnnotationDocument);
+                }
+
+                // Ok, so at this point, we either have the lazily converted CAS already loaded
+                // or we know that we can load the existing initial CAS.
+                if (jcas == null) {
+                    jcas = readInitialCas(aTrainingAnnotationDocument);
+                }
+            }
+            catch (Exception e) {
+                log.error("The reader for format [" + aTrainingAnnotationDocument.getFormat()
+                        + "] is unable to digest data", e);
+                throw new IOException("The reader for format [" + aTrainingAnnotationDocument.getFormat()
+                        + "] is unable to digest data" + e.getMessage());
+            }
+            automationCasStorageService.writeCas(aTrainingAnnotationDocument, jcas);
+        }
+        else {
+            // Read existing CAS
+            // We intentionally do not upgrade the CAS here because in general the IDs
+            // must remain stable. If an upgrade is required the caller should do it
+            jcas = automationCasStorageService.readCas(aTrainingAnnotationDocument);
+        }
+
+        return jcas;
+    }
+    
+    
+    @Override
+    @Transactional
+    public void createTrainingDocument(TrainingDocument aDocument)
+        throws IOException
+    {
+        if (aDocument.getId() == 0) {
+            entityManager.persist(aDocument);
+        }
+        else {
+            entityManager.merge(aDocument);
+        }
+    }
+    
+    @Override
+    public boolean existsInitialCas(TrainingDocument aDocument)
+        throws IOException
+    {
+        return existsCas(aDocument);
+    }
+    
+    @Override
+    @Transactional
+    public boolean existsCas(TrainingDocument aTrainingDocument)
+        throws IOException
+    {
+        return new File(automationCasStorageService.getAutomationFolder(aTrainingDocument), aTrainingDocument.getName() + ".ser")
+                .exists();
+    }
+    
+
+	@Override
+	public JCas createInitialCas(TrainingDocument aDocument) 
+			throws UIMAException, IOException, ClassNotFoundException {
+        JCas jcas = importExportService.importCasFromFile(getTrainingDocumentFile(aDocument),
+                aDocument.getProject(), aDocument.getFormat());
+        automationCasStorageService.analyzeAndRepair(aDocument, jcas.getCas());
+        CasPersistenceUtils.writeSerializedCas(jcas,
+                getCasFile(aDocument));
+        
+        return jcas;
+	}
+	
+	@Override
+	public File getTrainingDocumentFile(TrainingDocument aDocument) {
+		File documentUri = new File(
+				dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + 
+				TRAIN + aDocument.getId() + SOURCE);
+		return new File(documentUri, aDocument.getName());
+	}
+
+	@Override
+	public JCas readInitialCas(TrainingDocument aDocument)
+			throws CASException, ResourceInitializationException, IOException {
+				JCas jcas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null).getJCas();
+	        
+				CasPersistenceUtils.readSerializedCas(jcas, getCasFile(aDocument));
+	        
+				automationCasStorageService.analyzeAndRepair(aDocument, jcas.getCas());
+	        
+	        return jcas;
+	}
+
+	@Override
+	public JCas createOrReadInitialCas(TrainingDocument aDocument)
+			throws IOException, UIMAException, ClassNotFoundException {
+		   if (existsInitialCas(aDocument)) {
+	            return readInitialCas(aDocument);
+	        }
+	        else {
+	            return createInitialCas(aDocument);
+	        }
+	}
+
+	@Override
+    public File getCasFile(TrainingDocument aDocument)
+    {
+        File documentUri = new File(dir.getAbsolutePath() + PROJECT
+                + aDocument.getProject().getId() + TRAIN + aDocument.getId() + ANNOTATION);
+        return new File(documentUri, FilenameUtils.removeExtension(aDocument.getName()) + ".ser");
+    }
+
+	@Override
+	public void afterProjectCreate(Project aProject) throws Exception {
+		 // Nothing at the moment
+		
+	}
+
+	@Override
+	public void beforeProjectRemove(Project aProject) throws Exception {
+		  for (TrainingDocument document : listTrainingDocuments(aProject)) {
+	            removeTrainingDocument(document);
+	        }
+		  for(MiraTemplate template: listMiraTemplates(aProject)){
+			  removeMiraTemplate(template);
+		  }
+		
+	}
+
+	@Override
+	public void onProjectImport(ZipFile zip, de.tudarmstadt.ukp.clarin.webanno.export.model.Project aExportedProject,
+			Project aProject) throws Exception {
+		 // Nothing at the moment
+		
+	}
+
+
+        
 }

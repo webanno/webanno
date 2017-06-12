@@ -17,14 +17,15 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog;
 
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -52,19 +53,18 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
+import de.tudarmstadt.ukp.clarin.webanno.support.wicket.DecoratedObject;
 
 /**
  * A panel used as Open dialog. It Lists all projects a user is member of for annotation/curation
  * and associated documents
  */
-public class OpenModalWindowPanel
+public class OpenDocumentDialogPanel
     extends Panel
 {
     private static final long serialVersionUID = 1299869948010875439L;
@@ -88,25 +88,23 @@ public class OpenModalWindowPanel
     private final String username;
     private final User user;
 
-    private final Mode mode;
     private final AnnotatorState bModel;
     
-    private IModel<List<Pair<Project, String>>> projects;
+    private IModel<List<DecoratedObject<Project>>> projects;
 
-    public OpenModalWindowPanel(String aId, AnnotatorState aBModel,
-            ModalWindow aModalWindow, Mode aSubject, IModel<List<Pair<Project, String>>> aProjects)
+    public OpenDocumentDialogPanel(String aId, AnnotatorState aBModel, ModalWindow aModalWindow,
+            IModel<List<DecoratedObject<Project>>> aProjects)
     {
         super(aId);
         
-        mode = aSubject;
         bModel = aBModel;
         username = SecurityContextHolder.getContext().getAuthentication().getName();
         user = userRepository.get(username);
         projects = aProjects;
         
-        List<Pair<Project, String>> allowedProjects = projects.getObject();
+        List<DecoratedObject<Project>> allowedProjects = projects.getObject();
         if (!allowedProjects.isEmpty()) {
-            selectedProject = allowedProjects.get(0).getKey();
+            selectedProject = allowedProjects.get(0).get();
         }
 
         projectSelectionForm = new ProjectSelectionForm("projectSelectionForm");
@@ -136,19 +134,19 @@ public class OpenModalWindowPanel
 
             projectSelection = new Select<Project>("projectSelection");
             
-            ListView<Pair<Project, String>> lv = new ListView<Pair<Project, String>>("projects", projects)
+            ListView<DecoratedObject<Project>> lv = new ListView<DecoratedObject<Project>>(
+                    "projects", projects)
             {
                 private static final long serialVersionUID = 8901519963052692214L;
 
                 @Override
-                protected void populateItem(final ListItem<Pair<Project, String>> item)
+                protected void populateItem(final ListItem<DecoratedObject<Project>> item)
                 {
-                    String color = item.getModelObject().getValue();
-                    if (color == null) {
-                        color = "#008000";
-                    }
-                    item.add(new SelectOption<Project>("project", new Model<Project>(item
-                            .getModelObject().getKey()))
+                    DecoratedObject<Project> dp = item.getModelObject();
+                    
+                    String color = defaultIfEmpty(dp.getColor(), "#008000");
+                    
+                    item.add(new SelectOption<Project>("project", new Model<Project>(dp.get()))
                     {
                         private static final long serialVersionUID = 3095089418860168215L;
 
@@ -157,7 +155,7 @@ public class OpenModalWindowPanel
                                 ComponentTag openTag)
                         {
                             replaceComponentTagBody(markupStream, openTag,
-                                    item.getModelObject().getKey().getName());
+                                    defaultIfEmpty(dp.getLabel(), dp.get().getName()));
                         }
                     }.add(new AttributeModifier("style", "color:" + color + ";")));
                 }
@@ -208,35 +206,33 @@ public class OpenModalWindowPanel
     {
         private static final long serialVersionUID = -1L;
 
-        ListView<SourceDocument> lv;
+        ListView<DecoratedObject<SourceDocument>> lv;
         
         public DocumentSelectionForm(String id, final ModalWindow modalWindow)
         {
 
             super(id, new CompoundPropertyModel<SelectionModel>(new SelectionModel()));
-            final Map<SourceDocument, String> documentColors = new HashMap<SourceDocument, String>();
 
             documentSelection = new Select<SourceDocument>("documentSelection");
-            lv = new ListView<SourceDocument>("documents",
-                    new LoadableDetachableModel<List<SourceDocument>>()
+            lv = new ListView<DecoratedObject<SourceDocument>>("documents",
+                    new LoadableDetachableModel<List<DecoratedObject<SourceDocument>>>()
                     {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected List<SourceDocument> load()
+                        protected List<DecoratedObject<SourceDocument>> load()
                         {
-                            List<SourceDocument> allDocuments = listDocuments(documentColors);
-                            return allDocuments;
+                            return listDocuments();
                         }
                     })
             {
                 private static final long serialVersionUID = 8901519963052692214L;
 
                 @Override
-                protected void populateItem(final ListItem<SourceDocument> item)
+                protected void populateItem(final ListItem<DecoratedObject<SourceDocument>> aItem)
                 {
-                    item.add(new SelectOption<SourceDocument>("document",
-                            new Model<SourceDocument>(item.getModelObject()))
+                    SourceDocument sdoc = aItem.getModelObject().get();
+                    aItem.add(new SelectOption<SourceDocument>("document", Model.of(sdoc))
                     {
                         private static final long serialVersionUID = 3095089418860168215L;
 
@@ -244,11 +240,12 @@ public class OpenModalWindowPanel
                         public void onComponentTagBody(MarkupStream markupStream,
                                 ComponentTag openTag)
                         {
-                            replaceComponentTagBody(markupStream, openTag, item.getModelObject()
-                                    .getName());
+                            String label = defaultIfEmpty(aItem.getModelObject().getLabel(),
+                                    sdoc.getName());
+                            replaceComponentTagBody(markupStream, openTag, label);
                         }
-                    }.add(new AttributeModifier("style", "color:"
-                            + documentColors.get(item.getModelObject()) + ";")));
+                    }.add(new AttributeModifier("style",
+                            "color:" + aItem.getModelObject().getColor() + ";")));
                 }
             };
             add(documentSelection.add(lv));
@@ -278,7 +275,8 @@ public class OpenModalWindowPanel
                     }
                     if (selectedProject != null && selectedDocument != null) {
                         bModel.setProject(selectedProject);
-                        bModel.setDocument(selectedDocument, lv.getModelObject());
+                        bModel.setDocument(selectedDocument, lv.getModelObject().stream()
+                                .map(t -> t.get()).collect(Collectors.toList()));
                         modalWindow.close(aTarget);
                     }
                 }
@@ -286,18 +284,18 @@ public class OpenModalWindowPanel
         }
     }
 
-    private List<SourceDocument> listDocuments(final Map<SourceDocument, String> states)
+    private List<DecoratedObject<SourceDocument>> listDocuments()
     {
         if (selectedProject == null) {
-            return new ArrayList<SourceDocument>();
+            return new ArrayList<>();
         }
         
-        List<SourceDocument> allSourceDocuments = new ArrayList<>();
+        final List<DecoratedObject<SourceDocument>> allSourceDocuments = new ArrayList<>();
 
         // Remove from the list source documents that are in IGNORE state OR
         // that do not have at least one annotation document marked as
         // finished for curation dialog
-        switch (mode) {
+        switch (bModel.getMode()) {
         case ANNOTATION:
         case AUTOMATION:
         case CORRECTION: {
@@ -305,31 +303,24 @@ public class OpenModalWindowPanel
                     .listAnnotatableDocuments(selectedProject, user);
 
             for (Entry<SourceDocument, AnnotationDocument> e : docs.entrySet()) {
+                DecoratedObject<SourceDocument> dsd = DecoratedObject.of(e.getKey());
                 if (e.getValue() != null) {
-                    SourceDocument sourceDocument = e.getKey();
                     AnnotationDocument adoc = e.getValue();
-                    if (AnnotationDocumentState.FINISHED.equals(adoc.getState())) {
-                        states.put(sourceDocument, "red");
-                    }
-                    else if (AnnotationDocumentState.IN_PROGRESS.equals(adoc.getState())) {
-                        states.put(sourceDocument, "blue");
-                    }
+                    dsd.setColor(adoc.getState().getColor());
                 }
+                allSourceDocuments.add(dsd);
             }
-
-            allSourceDocuments = new ArrayList<>(docs.keySet());
             break;
         }
         case CURATION: {
-            allSourceDocuments = curationDocumentService.listCuratableSourceDocuments(selectedProject);
+            List<SourceDocument> sdocs = curationDocumentService
+                    .listCuratableSourceDocuments(selectedProject);
             
-            for (SourceDocument sourceDocument : allSourceDocuments) {
-                if (SourceDocumentState.CURATION_FINISHED.equals(sourceDocument.getState())) {
-                    states.put(sourceDocument, "red");
-                }
-                else if (SourceDocumentState.CURATION_IN_PROGRESS.equals(sourceDocument.getState())) {
-                    states.put(sourceDocument, "blue");
-                }
+            for (SourceDocument sourceDocument : sdocs) {
+                DecoratedObject<SourceDocument> dsd = DecoratedObject.of(sourceDocument);
+                dsd.setLabel("%s (%s)", sourceDocument.getName(), sourceDocument.getState());
+                dsd.setColor(sourceDocument.getState().getColor());
+                allSourceDocuments.add(dsd);
             }
 
             break;
@@ -381,7 +372,8 @@ public class OpenModalWindowPanel
                         
                         bModel.setProject(selectedProject);
                         bModel.setDocument(selectedDocument,
-                                documentSelectionForm.lv.getModelObject());
+                                documentSelectionForm.lv.getModelObject().stream().map(t -> t.get())
+                                        .collect(Collectors.toList()));
                         modalWindow.close(aTarget);
                     }
                 }
@@ -402,7 +394,7 @@ public class OpenModalWindowPanel
                 {
                     projectSelectionForm.detach();
                     documentSelectionForm.detach();
-                    if (mode.equals(Mode.CURATION)) {
+                    if (Mode.CURATION.equals(bModel.getMode())) {
                         bModel.setDocument(null, null); // on cancel, go welcomePage
                     }
                     onCancel(aTarget);

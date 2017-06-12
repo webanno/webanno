@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
+import de.tudarmstadt.ukp.clarin.webanno.model.TrainDocumentState;
 
 /**
  * Source document information to be exported/imported
@@ -52,15 +53,6 @@ public class SourceDocument
 
     @JsonProperty("sentence_accessed")
     private int sentenceAccessed = 0;
-
-    @JsonProperty("training_document")
-    private boolean trainingDocument = false;
-
-    @JsonProperty("processed")
-    private boolean processed = false;
-
-    @JsonProperty("feature")
-    AnnotationFeature feature;
 
     public String getName()
     {
@@ -110,36 +102,6 @@ public class SourceDocument
     public void setSentenceAccessed(int sentenceAccessed)
     {
         this.sentenceAccessed = sentenceAccessed;
-    }
-
-    public boolean isTrainingDocument()
-    {
-        return trainingDocument;
-    }
-
-    public void setTrainingDocument(boolean trainingDocument)
-    {
-        this.trainingDocument = trainingDocument;
-    }
-
-    public boolean isProcessed()
-    {
-        return processed;
-    }
-
-    public void setProcessed(boolean processed)
-    {
-        this.processed = processed;
-    }
-
-    public AnnotationFeature getFeature()
-    {
-        return feature;
-    }
-
-    public void setFeature(AnnotationFeature feature)
-    {
-        this.feature = feature;
     }
 
 }

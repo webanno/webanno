@@ -46,6 +46,10 @@ public class WebAnnoConst
 
     public static final String TAB_SEP ="TAB-SEP";
     public static final String COREFERENCE_LAYER = "de.tudarmstadt.ukp.dkpro.core.api.coref.type.Coreference";
+    public static final String MIRA = "/mira/";
+    public static final String MIRA_TEMPLATE = "/template/";
+    public static final String DOCUMENT = "/document/";
+    public static final String TRAIN = "/train/";
 
     public static final String CURATION_USER = "CURATION_USER";
     public static final String CORRECTION_USER = "CORRECTION_USER";
