@@ -112,7 +112,7 @@ public class OnClickActionParser implements Serializable {
 		try {
 			return new ObjectMapper().writeValueAsString(valueMap);
 		} catch (JsonProcessingException e) {
-			LOG.warn(String.format("Could not encode map to json object: %s", StringUtils.abbreviate(valueMap.toString(), 100)), e);
+			LOG.warn("Could not encode map to json object: '{}'.", StringUtils.abbreviate(valueMap.toString(), 100), e);
 			return String.format("{ \"%s\": \"%s\" }", e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
