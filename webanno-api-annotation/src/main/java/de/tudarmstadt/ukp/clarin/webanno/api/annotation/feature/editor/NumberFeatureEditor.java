@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.editor;
+package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor;
 
 import org.apache.uima.cas.CAS;
 import org.apache.wicket.MarkupContainer;
@@ -34,20 +34,19 @@ public class NumberFeatureEditor<T extends Number>
     @SuppressWarnings("rawtypes")
     private final NumberTextField field;
 
-    public NumberFeatureEditor(String aId, String aMarkupId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+    public NumberFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
     {
-        super(aId, aMarkupId, aItem, new CompoundPropertyModel<FeatureState>(aModel));
+        super(aId, "numberFeatureEditor", aItem, new CompoundPropertyModel<>(aModel));
 
         add(new Label("feature", getModelObject().feature.getUiName()));
 
         switch (getModelObject().feature.getType()) {
         case CAS.TYPE_NAME_INTEGER: {
-            field = new NumberTextField<Integer>("value", Integer.class);
+            field = new NumberTextField<>("value", Integer.class);
             break;
         }
         case CAS.TYPE_NAME_FLOAT: {
-            field = new NumberTextField<Float>("value", Float.class);
+            field = new NumberTextField<>("value", Float.class);
             add(field);
             break;
         }

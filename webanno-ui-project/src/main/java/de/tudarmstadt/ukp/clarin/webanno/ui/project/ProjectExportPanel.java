@@ -138,7 +138,7 @@ public class ProjectExportPanel
 
         public ProjectExportForm(String id, Project aProject)
         {
-            super(id, new CompoundPropertyModel<ProjectExportModel>(
+            super(id, new CompoundPropertyModel<>(
                     new ProjectExportModel(aProject)));
             
             add(new DropDownChoice<String>("format", new LoadableDetachableModel<List<String>>()
@@ -148,7 +148,7 @@ public class ProjectExportPanel
                 @Override
                 protected List<String> load()
                 {                    
-                    List<String> formats = new ArrayList<String>(
+                    List<String> formats = new ArrayList<>(
                             importExportService.getWritableFormatLabels());
                     formats.add(0, FORMAT_AUTO);
                     return formats;
@@ -193,12 +193,11 @@ public class ProjectExportPanel
                         }
                     } catch (CASRuntimeException e) {
                     	cancelOperationOnError();
-                        error(e.getMessage());
+                        error("Error: " + e.getMessage());
                     } 
                     catch (Exception e){
-                    	error(e.getMessage());
+                    	error("Error: " + e.getMessage());
                     	cancelOperationOnError();
-                    	
                     }
                     finally {
                         try {
@@ -224,7 +223,7 @@ public class ProjectExportPanel
                 @Override
                 protected String load()
                 {
-                    StringBuffer fileName = new StringBuffer();
+                    StringBuilder fileName = new StringBuilder();
                     fileName.append(ProjectExportForm.this.getModelObject().project.getName());
                     fileName.append("_curated_documents_");
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HHmm");
@@ -492,7 +491,7 @@ public class ProjectExportPanel
                         exportTempDir, true);
 			} catch (ProjectExportException e) {
 				//cancel export operation here
-			    error(e.getMessage());
+			    error("Error: " + e.getMessage());
 				if (thread != null) {
 				    model.progress = 100;
                     thread.interrupt();

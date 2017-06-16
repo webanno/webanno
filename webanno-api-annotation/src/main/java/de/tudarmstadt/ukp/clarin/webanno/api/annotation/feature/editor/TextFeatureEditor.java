@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.editor;
+package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.StyledComboBox;
-import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
 
 public class TextFeatureEditor
     extends FeatureEditor
@@ -51,15 +50,24 @@ public class TextFeatureEditor
 
     private static final Logger LOG = LoggerFactory.getLogger(TextFeatureEditor.class);
 
+    /**
+     * Function to return tooltip using jquery
+     * Docs for the JQuery tooltip widget that we configure below:
+     * https://api.jqueryui.com/tooltip/
+     */
+    public static final String FUNCTION_FOR_TOOLTIP = "function() { return "
+        + "'<div class=\"tooltip-title\">'+($(this).text() "
+        + "? $(this).text() : 'no title')+'</div>"
+        + "<div class=\"tooltip-content tooltip-pre\">'+($(this).attr('title') "
+        + "? $(this).attr('title') : 'no description' )+'</div>' }";
+
     @SuppressWarnings("rawtypes")
     private final AbstractTextComponent field;
     private boolean hideUnconstraintFeature;
     
-	public TextFeatureEditor(String aId, String aMarkupId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+    public TextFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
     {
-        super(aId, aMarkupId, aItem, new CompoundPropertyModel<FeatureState>(aModel));
-        
+        super(aId, "textFeatureEditor", aItem, new CompoundPropertyModel<>(aModel));
         // Checks whether hide un-constraint feature is enabled or not
         hideUnconstraintFeature = getModelObject().feature.isHideUnconstraintFeature();
         
@@ -77,7 +85,7 @@ public class TextFeatureEditor
                     // Ensure proper order of the initializing JS header items: first combo box
                     // behavior (in super.onInitialize()), then tooltip.
                     Options options = new Options(DescriptionTooltipBehavior.makeTooltipOptions());
-                    options.set("content", AnnotationDetailEditorPanel.FUNCTION_FOR_TOOLTIP);
+                    options.set("content", FUNCTION_FOR_TOOLTIP);
                     add(new TooltipBehavior("#"+field.getMarkupId()+"_listbox *[title]", options) {
                         private static final long serialVersionUID = 1854141593969780149L;
 
@@ -162,8 +170,8 @@ public class TextFeatureEditor
 	protected void onInitialize()
 	{
 	    super.onInitialize();
-        LOG.trace(String.format("TextFeatureEditor(path: " + getPageRelativePath() + ", "
-                + getModelObject().feature.getUiName() + ": " + getModelObject().value + ")"));
+        LOG.trace("TextFeatureEditor(path: " + getPageRelativePath() + ", "
+                + getModelObject().feature.getUiName() + ": " + getModelObject().value + ")");
 	}
 	
     @Override

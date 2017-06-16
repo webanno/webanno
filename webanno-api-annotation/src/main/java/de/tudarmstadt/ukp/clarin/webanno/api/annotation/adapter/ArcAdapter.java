@@ -79,7 +79,7 @@ public class ArcAdapter
 
     private final String targetFeatureName;
 
-    /*    *//**
+    /*
      * The UIMA type name used as for origin/target span annotations, e.g. {@link POS} for
      * {@link Dependency}
      */
@@ -124,7 +124,7 @@ public class ArcAdapter
         attachFeatureName = aAttacheFeatureName;
         attachType = aAttachType;
 
-        features = new LinkedHashMap<String, AnnotationFeature>();
+        features = new LinkedHashMap<>();
         for (AnnotationFeature f : aFeatures) {
             features.put(f.getName(), f);
         }
@@ -305,7 +305,7 @@ public class ArcAdapter
     @Override
     public List<String> getAnnotation(Sentence aSentence, AnnotationFeature aFeature)
     {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public void delete(JCas aJCas, AnnotationFeature aFeature, int aBegin, int aEnd,

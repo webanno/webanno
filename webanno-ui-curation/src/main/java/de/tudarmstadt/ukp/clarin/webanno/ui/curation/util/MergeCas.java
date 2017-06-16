@@ -309,7 +309,7 @@ public class MergeCas
 
         List<FeatureStructure> fssAtThisPosition = new ArrayList<>();
         CasUtil.selectCovered(aJCases.get(aUser).getCas(), t, begin, end)
-                .forEach(fss -> fssAtThisPosition.add(fss));
+                .forEach(fssAtThisPosition::add);
 
         return fssAtThisPosition;
     }
@@ -625,17 +625,9 @@ public class MergeCas
 
     private static boolean isLinkOrBasicFeatures(FeatureStructure aOldFs, Feature aFeature)
     {
-        if (isLinkMode(aOldFs, aFeature)) {
-            return true;
-        }
-        if (isBasicFeature(aFeature)) {
-            return true;
-        }
-        if (aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN)
-                || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END)) {
-            return true;
-        }
-        return false;
+        return isLinkMode(aOldFs, aFeature) || isBasicFeature(aFeature) ||
+            aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN) ||
+            aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END);
     }
 
     public static void addSpanAnnotation(AnnotationSchemaService aAnnotationService,
