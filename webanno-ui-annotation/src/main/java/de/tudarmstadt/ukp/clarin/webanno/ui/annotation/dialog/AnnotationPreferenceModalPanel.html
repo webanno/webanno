@@ -28,7 +28,14 @@
             </wicket:enclosure>
             <tr class="border_bottom">
 				<td><label>Annotation Layers:</label></td>
-				<td><span wicket:id="annotationLayers"></span></td>
+				<td>
+					<!-- >span wicket:id="annotationLayers"></span  -->
+					<div wicket:id="annotationLayers">
+						<input wicket:id="annotationLayerActive" type="checkbox" />
+						<label wicket:for="annotationLayerActive"><b wicket:id="annotationLayerDesc"></b></label>
+    				</div>
+		        </td>
+				
 			</tr>
 			<tr class="border_bottom">
 				<td><label>Remember layer:</label></td>
@@ -63,10 +70,10 @@
 				<td><label wicket:id="scrollPageLabel"> </label></td>
 				<td><input type="checkbox" wicket:id="scrollPage" /></td>
 			</tr>
-			<tr class="border_bottom">
+			<!--  >tr class="border_bottom">
 				<td><label> Use the same color for all tags in a layer </label></td>
 				<td><input type="checkbox" wicket:id="staticColor" /></td>
-			</tr>
+			</tr -->
 		</table>
 		<div class="buttons">
 			<button wicket:id="saveButton">Save</button>
