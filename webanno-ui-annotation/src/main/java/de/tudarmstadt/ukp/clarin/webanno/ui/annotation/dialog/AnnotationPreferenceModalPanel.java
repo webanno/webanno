@@ -158,14 +158,17 @@ extends Panel
 
 				@Override
 				protected void populateItem(ListItem<AnnotationLayer> item) {
-					CheckBox layer_cb = new CheckBox("annotationLayerActive", new Model<Boolean>(Boolean.valueOf(item.getModelObject().isEnabled())));
+					CheckBox layer_cb = new CheckBox("annotationLayerActive", new Model<Boolean>(){
+						private static final long serialVersionUID = -5668511335275174135L;
+						public Boolean getObject() {
+							return Boolean.valueOf(item.getModelObject().isEnabled());
+						};
+					});
 					layer_cb.add(new AjaxEventBehavior("change") {
 						private static final long serialVersionUID = 8378489004897115519L;
-
 						@Override
 						protected void onEvent(AjaxRequestTarget target) {
-							layer_cb.setModelObject(!layer_cb.getModelObject()); // deactivate checkbox
-							item.getModelObject().setEnabled(layer_cb.getModelObject()); // deactivate layer
+							item.getModelObject().setEnabled(!item.getModelObject().isEnabled()); // deactivate layer
 						}
 					});
 					item.add(layer_cb);
