@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
@@ -158,6 +160,7 @@ extends Panel
 
 				@Override
 				protected void populateItem(ListItem<AnnotationLayer> item) {
+					// add checkbox
 					CheckBox layer_cb = new CheckBox("annotationLayerActive", new Model<Boolean>(){
 						private static final long serialVersionUID = -5668511335275174135L;
 						public Boolean getObject() {
@@ -172,6 +175,21 @@ extends Panel
 						}
 					});
 					item.add(layer_cb);
+					
+					// add coloring strategy combobox
+					DropDownChoice<String> layer_col = new DropDownChoice<String>("layercoloring", new PropertyModel<>(new Serializable() {String s="option2";}, "s"), Arrays.asList("option1", "option2"));
+					layer_col.add(new AjaxEventBehavior("change") {
+						@Override
+						protected void onEvent(AjaxRequestTarget target) {
+							
+						}
+					});
+					
+					item.add(layer_col);
+					
+//					bModel.getPreferences().setStaticColor(getModelObject().staticColor);
+					
+					// add label
 					Label lbl = new Label("annotationLayerDesc", item.getModelObject().getUiName());
 					item.add(lbl);
 				}
