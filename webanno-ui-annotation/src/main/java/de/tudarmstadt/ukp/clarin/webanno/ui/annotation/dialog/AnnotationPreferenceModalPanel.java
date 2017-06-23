@@ -47,6 +47,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
+import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorFactory;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
@@ -60,6 +61,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.PreferencesUtil;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
  * Modal Window to configure layers, window size, etc.
@@ -111,10 +113,12 @@ extends Panel
 			}
 			getModelObject().editor = Pair.of(editorFactory.getBeanName(), editorFactory.getDisplayName());
 
-			for (AnnotationLayer layer : bModel.getAnnotationLayers()) {
-				getModelObject().annotationLayers.add(layer);
-			}
-
+			bModel.getAnnotationLayers().stream()
+				.filter(layer -> layer.isEnabled()) // show only enabled layers
+				.filter(layer -> !Token.class.getName().equals(layer.getName())) // hide Token layer
+				.filter(layer -> !(layer.getType().equals(WebAnnoConst.CHAIN_TYPE) && (bModel.getMode().equals(Mode.CORRECTION) || bModel.getMode().equals(Mode.CURATION)))) // disable corefernce annotation for correction/curation pages for 0.4.0 
+				.forEach(layer -> getModelObject().annotationLayers.add(layer));
+			
 			windowSizeField = new NumberTextField<>("windowSize");
 			windowSizeField.setType(Integer.class);
 			windowSizeField.setMinimum(1);
@@ -194,43 +198,6 @@ extends Panel
 				}
 			};
 			add(layercontainer);
-			//			FIXME: somehow integrate this weird model, e.g. to remove Tokens, etc. from this view
-			//			new LoadableDetachableModel<List<AnnotationLayer>>()
-			//            {
-			//                private static final long serialVersionUID = 1L;
-			//
-			//                @Override
-			//                protected List<AnnotationLayer> load()
-			//                {
-			//                    // disable corefernce annotation for correction/curation pages for 0.4.0
-			//                    // release
-			//                    List<AnnotationLayer> layers = annotationService
-			//                            .listAnnotationLayer(bModel.getProject());
-			//                    List<AnnotationLayer> corefTagSets = new ArrayList<>();
-			//                    List<AnnotationLayer> hideLayer = new ArrayList<>();
-			//                    for (AnnotationLayer layer : layers) {
-			//                        if (!layer.isEnabled()) {
-			//                            hideLayer.add(layer);
-			//                            continue;
-			//                        }
-			//                        if (layer.getName().equals(Token.class.getName())) {
-			//                            hideLayer.add(layer);
-			//                        }
-			//                        else if (layer.getType().equals(WebAnnoConst.CHAIN_TYPE)) {
-			//                            corefTagSets.add(layer);
-			//                        }
-			//                    }
-			//
-			//                    if (bModel.getMode().equals(Mode.CORRECTION)
-			//                            || bModel.getMode().equals(Mode.CURATION)) {
-			//                        layers.removeAll(corefTagSets);
-			//                    }
-			//                    layers.removeAll(hideLayer);
-			//                    return layers;
-			//                }
-			//            };
-
-
 
 			// Add a Checkbox to enable/disable automatic page navigations while annotating
 			add(new CheckBox("scrollPage"));
