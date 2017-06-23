@@ -37,13 +37,13 @@ public abstract class ColoringStrategy
 {
 	public enum ColoringStrategyType {
 
-		STATIC ("static"),
-		STATIC_PASTELLE ("static pastelle"),
+		STATIC 				("static"),
+		STATIC_PASTELLE 	("static pastelle"),
 		
-		DYNAMIC ("dynamic"),
-		DYNAMIC_PASTELLE ("dynamic pastelle"),
+		DYNAMIC 			("dynamic"),
+		DYNAMIC_PASTELLE 	("dynamic pastelle"),
 		
-		GRAY ("static gray"),
+		GRAY 				("static gray"),
 		;
 		
 		private String descriptiveName;
@@ -87,50 +87,106 @@ public abstract class ColoringStrategy
 	public static ColoringStrategy staticColor(final String aColor) {
 		return labelHashBasedColor(aColor);
 	}
-
-	public static ColoringStrategy getBestStrategy(
+	
+	public static ColoringStrategy getStrategy(
 			AnnotationSchemaService aService, 
 			AnnotationLayer aLayer,
 			AnnotationPreference aPreferences, 
 			Map<String[], Queue<String>> aColorQueues)
 	{
 		// Decide on coloring strategy for the current layer
-		ColoringStrategy coloringStrategy;
-		if (aLayer.isReadonly()) {
-			coloringStrategy = staticColor(DISABLED);
-		}
-		else if (aPreferences.isStaticColor()) {
+		switch(aPreferences.getColorPerLayer().get(aLayer.getId())) {
+		case STATIC_PASTELLE: // ignore for the moment and fall through
+		case STATIC:
 			int threshold;
-
-			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer)) {
+			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer))
 				threshold = Integer.MAX_VALUE; // No filtering
-			}
-			else {
+			else
 				// Chains and arcs contain relations that are rendered as lines on the light
 				// window background - need to make sure there is some contrast, so we cannot use
 				// the full palette.
 				threshold = LIGHTNESS_FILTER_THRESHOLD;
-			}
-
-			coloringStrategy = staticColor(nextPaletteEntry(PALETTE_PASTEL, aColorQueues, threshold));
-		}
-		else {
+			return staticColor(nextPaletteEntry(PALETTE_PASTEL, aColorQueues, threshold));
+		case DYNAMIC_PASTELLE:
+		case DYNAMIC:
 			String[] palette;
-
-			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer)) {
+			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer))
 				palette = PALETTE_NORMAL;
-			}
-			else {
+			else
 				// Chains and arcs contain relations that are rendered as lines on the light
 				// window background - need to make sure there is some contrast, so we cannot use
 				// the full palette.
 				palette = PALETTE_NORMAL_FILTERED;
-			}
-
-			coloringStrategy = labelHashBasedColor(palette);
+			return labelHashBasedColor(palette);
+		case GRAY: 
+		default: return staticColor(DISABLED);
 		}
+	}
+	
+	
+	public static ColoringStrategyType getBestInitialStrategy(
+			AnnotationSchemaService aService, 
+			AnnotationLayer aLayer,
+			AnnotationPreference aPreferences)
+	{
+		// Decide on coloring strategy for the current layer
+		ColoringStrategyType coloringStrategy;
+		if (aLayer.isReadonly()) {
+			coloringStrategy = ColoringStrategyType.GRAY;
+		}
+		else if (aPreferences.isStaticColor())
+			coloringStrategy = ColoringStrategyType.STATIC_PASTELLE;
+		else
+			coloringStrategy = ColoringStrategyType.DYNAMIC;
 		return coloringStrategy;
 	}
+	
+
+//	public static ColoringStrategy getBestStrategy(
+//			AnnotationSchemaService aService, 
+//			AnnotationLayer aLayer,
+//			AnnotationPreference aPreferences, 
+//			Map<String[], Queue<String>> aColorQueues)
+//	{
+//		// Decide on coloring strategy for the current layer
+//		ColoringStrategy coloringStrategy;
+//		if (aLayer.isReadonly()) {
+//			coloringStrategy = staticColor(DISABLED);
+//		}
+//		else if (aPreferences.isStaticColor()) {
+//			int threshold;
+//
+//			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer)) {
+//				threshold = Integer.MAX_VALUE; // No filtering
+//			}
+//			else {
+//				// Chains and arcs contain relations that are rendered as lines on the light
+//				// window background - need to make sure there is some contrast, so we cannot use
+//				// the full palette.
+//				threshold = LIGHTNESS_FILTER_THRESHOLD;
+//			}
+//
+//			coloringStrategy = staticColor(nextPaletteEntry(PALETTE_PASTEL, aColorQueues, threshold));
+//		}
+//		else {
+//			String[] palette;
+//
+//			if (WebAnnoConst.SPAN_TYPE.equals(aLayer.getType()) && !hasLinkFeature(aService, aLayer)) {
+//				palette = PALETTE_NORMAL;
+//			}
+//			else {
+//				// Chains and arcs contain relations that are rendered as lines on the light
+//				// window background - need to make sure there is some contrast, so we cannot use
+//				// the full palette.
+//				palette = PALETTE_NORMAL_FILTERED;
+//			}
+//
+//			coloringStrategy = labelHashBasedColor(palette);
+//		}
+//		return coloringStrategy;
+//	}
+	
+	
 
 	private static boolean hasLinkFeature(AnnotationSchemaService aService, AnnotationLayer aLayer)
 	{

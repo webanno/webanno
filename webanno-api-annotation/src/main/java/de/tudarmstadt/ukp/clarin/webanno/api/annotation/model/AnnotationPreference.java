@@ -56,7 +56,8 @@ public class AnnotationPreference
     
 //    // determine if static color for annotations will be used or we shall
 //    // dynamically generate one
-    private boolean staticColor = true;
+    @Deprecated 
+    private boolean staticColor = true; // this is only here to not break previous user settings
     
 	private Map<Long, ColoringStrategyType> colorPerLayer;
     
@@ -160,11 +161,13 @@ public class AnnotationPreference
 		this.colorPerLayer = colorPerLayer;
 	}
 
+	@Deprecated 
     public boolean isStaticColor()
     {
         return staticColor;
     }
 
+    @Deprecated
     public void setStaticColor(boolean staticColor)
     {
         this.staticColor = staticColor;

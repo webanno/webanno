@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,20 +34,17 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.ReflectionUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.SettingsService;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
-import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 
 /**
  * This class contains Utility methods that can be used in Project settings
@@ -131,12 +127,10 @@ public class PreferencesUtil
             }
 
             // Get color preferences for each layer, init with static pastelle if not found
-            // TODO: I guess here must taken care of the case if annotation layers changed
             if (preference.getColorPerLayer() == null) {
             	Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>(); 
-                for (AnnotationLayer layer : aBModel.getAnnotationLayers()) {
+                for (AnnotationLayer layer : aBModel.getAnnotationLayers())
                 	colorPerLayer.put(layer.getId(), ColoringStrategyType.STATIC_PASTELLE);
-                }
                 preference.setColorPerLayer(colorPerLayer);
             }
         }
@@ -147,6 +141,12 @@ public class PreferencesUtil
                     .getProject());
             aBModel.setAnnotationLayers(layers);
             preference.setWindowSize(aSettingsService.getNumberOfSentences());
+            // add default coloring strategy 
+        	Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>(); 
+            for (AnnotationLayer layer : aBModel.getAnnotationLayers())
+            	colorPerLayer.put(layer.getId(), ColoringStrategy.getBestInitialStrategy(aAnnotationService, layer, preference));
+            preference.setColorPerLayer(colorPerLayer);
+            
         }
         
         aBModel.setPreferences(preference);
