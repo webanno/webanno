@@ -50,6 +50,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorFactory;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ReadonlyColoringBehaviour;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
@@ -100,7 +101,7 @@ extends Panel
 			getModelObject().fontSize = bModel.getPreferences().getFontSize();
 			getModelObject().scrollPage = bModel.getPreferences().isScrollPage();
 			getModelObject().colorPerLayer = bModel.getPreferences().getColorPerLayer();
-			//			getModelObject().staticColor = bModel.getPreferences().isStaticColor();
+			getModelObject().readonlyLayerColoringBehaviour = bModel.getPreferences().getReadonlyLayerColoringBehaviour();
 			getModelObject().rememberLayer = bModel.getPreferences().isRememberLayer();
 
 			String editorId = bModel.getPreferences().getEditor();
@@ -193,7 +194,6 @@ extends Panel
 					});
 					item.add(layer_color);
 
-
 					// add label
 					Label lbl = new Label("annotationLayerDesc", item.getModelObject().getUiName());
 					item.add(lbl);
@@ -242,8 +242,23 @@ extends Panel
 			add(new CheckBox("scrollPage"));
 
 			add(new CheckBox("rememberLayer"));
+			
+			
 
-			//            add(new CheckBox("staticColor"));
+			// add global readonly coloring strategy combobox
+			ChoiceRenderer<ReadonlyColoringBehaviour> choiceRenderer = new ChoiceRenderer<>("descriptiveName");
+			List<ReadonlyColoringBehaviour> choices = new ArrayList<ReadonlyColoringBehaviour>(EnumSet.allOf(ReadonlyColoringBehaviour.class));
+			Model<ReadonlyColoringBehaviour> initialSelected = Model.of(getModelObject().readonlyLayerColoringBehaviour);
+			DropDownChoice<ReadonlyColoringBehaviour> rolayer_color = new DropDownChoice<ReadonlyColoringBehaviour>("readonlylayercoloring", initialSelected, choices, choiceRenderer);
+			rolayer_color.add(new AjaxFormComponentUpdatingBehavior("change") {
+				private static final long serialVersionUID = 1060397773470276585L;
+				@Override
+				protected void onUpdate(AjaxRequestTarget target) {
+					ReadonlyColoringBehaviour selected = rolayer_color.getModelObject();
+					getModelObject().readonlyLayerColoringBehaviour = selected;
+				}
+			});
+			add(rolayer_color);
 
 			add(new Label("scrollPageLabel", "Auto-scroll document while annotating :"));
 
@@ -263,6 +278,7 @@ extends Panel
 					/*  bModel.getPreferences().setCurationWindowSize(
                             getModelObject().curationWindowSize);*/
 					bModel.getPreferences().setColorPerLayer(getModelObject().colorPerLayer);
+					bModel.getPreferences().setReadonlyLayerColoringBehaviour(getModelObject().readonlyLayerColoringBehaviour);
 					//					bModel.getPreferences().setStaticColor(getModelObject().staticColor);
 					bModel.getPreferences().setEditor(getModelObject().editor.getKey());
 					try {
@@ -317,6 +333,7 @@ extends Panel
 		public boolean rememberLayer;
 		//		public boolean staticColor;
 		public List<AnnotationLayer> annotationLayers = new ArrayList<>();
+		public ReadonlyColoringBehaviour readonlyLayerColoringBehaviour;
 		public Map<Long, ColoringStrategyType> colorPerLayer;
 	}
 

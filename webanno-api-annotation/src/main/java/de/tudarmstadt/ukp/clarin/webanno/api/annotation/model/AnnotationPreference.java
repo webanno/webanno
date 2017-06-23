@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ReadonlyColoringBehaviour;
 
 /**
  * This is a class representing the bean objects to store users preference of annotation settings
@@ -57,9 +58,11 @@ public class AnnotationPreference
 //    // determine if static color for annotations will be used or we shall
 //    // dynamically generate one
     @Deprecated 
-    private boolean staticColor = true; // this is only here to not break previous user settings
+    private boolean staticColor = true; // this is only here to not break previous user settings, its not an option that can be set anymore
     
 	private Map<Long, ColoringStrategyType> colorPerLayer;
+	
+	private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour = ReadonlyColoringBehaviour.LEGACY;
     
     private int sidebarSize;
     private int fontSize;
@@ -159,6 +162,16 @@ public class AnnotationPreference
 	public void setColorPerLayer(Map<Long, ColoringStrategyType> colorPerLayer) 
 	{
 		this.colorPerLayer = colorPerLayer;
+	}
+	
+	public ReadonlyColoringBehaviour getReadonlyLayerColoringBehaviour() 
+	{
+		return readonlyLayerColoringBehaviour;
+	}
+
+	public void setReadonlyLayerColoringBehaviour(ReadonlyColoringBehaviour readonlyLayerColoringBehaviour) 
+	{
+		this.readonlyLayerColoringBehaviour = readonlyLayerColoringBehaviour;
 	}
 
 	@Deprecated 

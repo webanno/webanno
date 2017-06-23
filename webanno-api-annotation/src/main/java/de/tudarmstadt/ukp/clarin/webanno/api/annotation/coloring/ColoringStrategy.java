@@ -35,8 +35,34 @@ import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 
 public abstract class ColoringStrategy
 {
+	public enum ReadonlyColoringBehaviour {
+		
+		LEGACY	("legacy " + ColoringStrategyType.GRAY.getDescriptiveName(), ColoringStrategyType.GRAY),
+		NORMAL	("normal", null),
+		GRAY	(ColoringStrategyType.GRAY.getDescriptiveName(), ColoringStrategyType.GRAY),
+		
+		// here can be more
+		;
+		
+		private String descriptiveName;
+		private ColoringStrategyType t;
+		private ReadonlyColoringBehaviour(String descriptiveName, ColoringStrategyType t){
+			this.descriptiveName = descriptiveName;
+			this.t = t;
+		}
+		
+		public ColoringStrategyType getColoringStrategy(){
+			return t;
+		}
+		
+		public String getDescriptiveName(){
+			return descriptiveName;
+		}
+	
+	}
+	
 	public enum ColoringStrategyType {
-
+		
 		STATIC 				("static"),
 		STATIC_PASTELLE 	("static pastelle"),
 		
@@ -44,6 +70,9 @@ public abstract class ColoringStrategy
 		DYNAMIC_PASTELLE 	("dynamic pastelle"),
 		
 		GRAY 				("static gray"),
+		
+		LEGACY 				("legacy"),
+		
 		;
 		
 		private String descriptiveName;
@@ -94,8 +123,23 @@ public abstract class ColoringStrategy
 			AnnotationPreference aPreferences, 
 			Map<String[], Queue<String>> aColorQueues)
 	{
+		ColoringStrategyType t = aPreferences.getColorPerLayer().get(aLayer.getId());
+		ReadonlyColoringBehaviour rt = aPreferences.getReadonlyLayerColoringBehaviour();
+		if(aLayer.isReadonly() && rt != ReadonlyColoringBehaviour.NORMAL)
+			t = rt.t;
+		if(t == ColoringStrategyType.LEGACY)
+			t = getBestInitialStrategy(aService, aLayer, aPreferences);
+		return getStrategy(aService, aLayer, t, aColorQueues);
+	}
+	
+	public static ColoringStrategy getStrategy(
+			AnnotationSchemaService aService, 
+			AnnotationLayer aLayer,
+			ColoringStrategyType colortype,
+			Map<String[], Queue<String>> aColorQueues)
+	{
 		// Decide on coloring strategy for the current layer
-		switch(aPreferences.getColorPerLayer().get(aLayer.getId())) {
+		switch(colortype) {
 		case STATIC_PASTELLE: // ignore for the moment and fall through
 		case STATIC:
 			int threshold;
