@@ -27,15 +27,35 @@
               </tr>
             </wicket:enclosure>
             <tr class="border_bottom">
-				<td><label>Annotation Layers:</label></td>
-				<td>
-					<div wicket:id="annotationLayers">
-						<select wicket:id="layercoloring"></select>
-						<input wicket:id="annotationLayerActive" type="checkbox" />
-						<label wicket:for="annotationLayerActive"><b wicket:id="annotationLayerDesc"></b></label>
-    				</div>
+				<td colspan="2">
+				<label>Annotation Layers:</label><br />
+				<div>
+				<table>
+					<tr>
+						<td style="border-bottom: None; padding-left: 10px;">
+							<b>Name:</b>
+						</td>
+						<td style="border-bottom: None; padding-left: 10px;">
+							<b>Show:</b>
+						</td>
+						<td style="border-bottom: None; padding-left: 10px;">
+							<b>Coloring Strategy:</b>
+						</td>
+					</tr>
+					<tr wicket:id="annotationLayers">
+						<td style="border-bottom: None; padding-left: 10px;">
+							<span wicket:id="annotationLayerDesc"></span>
+						</td>
+						<td style="border-bottom: None; padding-left: 10px;">
+							<input wicket:id="annotationLayerActive" type="checkbox" />
+						</td>
+						<td style="border-bottom: None; padding-left: 10px;">
+							<select wicket:id="layercoloring"></select>
+						</td>
+    				</tr>
+				</table>
+				</div>
 		        </td>
-				
 			</tr>
 			<tr class="border_bottom">
 				<td><label>Remember layer:</label></td>
