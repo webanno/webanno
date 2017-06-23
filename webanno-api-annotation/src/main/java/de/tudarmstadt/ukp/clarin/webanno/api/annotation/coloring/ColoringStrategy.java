@@ -35,7 +35,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 
 public abstract class ColoringStrategy
 {
-	public enum DefaultColoringStrategies {
+	public enum ColoringStrategyType {
 
 		STATIC ("static"),
 		STATIC_PASTELLE ("static pastelle"),
@@ -48,7 +48,7 @@ public abstract class ColoringStrategy
 		
 		private String descriptiveName;
 		
-		private DefaultColoringStrategies(String descriptiveName){
+		private ColoringStrategyType(String descriptiveName){
 			this.descriptiveName = descriptiveName;
 		}
 		

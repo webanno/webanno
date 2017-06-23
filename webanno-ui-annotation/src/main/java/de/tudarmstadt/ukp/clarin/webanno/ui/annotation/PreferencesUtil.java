@@ -22,24 +22,33 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ReflectionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.SettingsService;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
+import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 
 /**
  * This class contains Utility methods that can be used in Project settings
@@ -88,13 +97,19 @@ public class PreferencesUtil
                 String propertyName = property.substring(index + 1);
                 String mode = property.substring(0, index);
                 if (wrapper.isWritableProperty(propertyName) && mode.equals(aMode.getName())) {
-                    if (AnnotationPreference.class.getDeclaredField(propertyName).getGenericType() instanceof ParameterizedType) {
-                        List<String> value = Arrays.asList(StringUtils.replaceChars(
-                                entry.getValue().toString(), "[]", "").split(","));
-                        if (!value.get(0).equals("")) {
-                            wrapper.setPropertyValue(propertyName, value);
-                        }
-                    }
+                	if (AnnotationPreference.class.getDeclaredField(propertyName).getGenericType() instanceof ParameterizedType) {
+                		if (entry.getValue().toString().startsWith("[")) { // its a list
+                			List<String> value = Arrays.asList(StringUtils.replaceChars(
+                					entry.getValue().toString(), "[]", "").split(","));
+                			if (!value.get(0).equals("")) {
+                				wrapper.setPropertyValue(propertyName, value);
+                			}
+                		}else if(entry.getValue().toString().startsWith("{")) { // its a map
+                			String s = StringUtils.replaceChars(entry.getValue().toString(), "{}", "");
+                			Map<String, String> value = Arrays.stream(s.split(",")).map(x -> x.split("=")).collect(Collectors.toMap(x -> x[0], x -> x[1]));
+                			wrapper.setPropertyValue(propertyName, value);
+                		}
+                	}
                     else {
                         wrapper.setPropertyValue(propertyName, entry.getValue());
                     }
@@ -113,6 +128,16 @@ public class PreferencesUtil
                 List<AnnotationLayer> layers = aAnnotationService.listAnnotationLayer(aBModel
                         .getProject());
                 aBModel.setAnnotationLayers(layers);
+            }
+
+            // Get color preferences for each layer, init with static pastelle if not found
+            // TODO: I guess here must taken care of the case if annotation layers changed
+            if (preference.getColorPerLayer() == null) {
+            	Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>(); 
+                for (AnnotationLayer layer : aBModel.getAnnotationLayers()) {
+                	colorPerLayer.put(layer.getId(), ColoringStrategyType.STATIC_PASTELLE);
+                }
+                preference.setColorPerLayer(colorPerLayer);
             }
         }
         // no preference found

@@ -19,6 +19,9 @@ package de.tudarmstadt.ukp.clarin.webanno.api.annotation.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
 
 /**
  * This is a class representing the bean objects to store users preference of annotation settings
@@ -51,9 +54,11 @@ public class AnnotationPreference
     // if a default layer is to be set
     private boolean rememberLayer;
     
-    // determine if static color for annotations will be used or we shall
-    // dynamically generate one
+//    // determine if static color for annotations will be used or we shall
+//    // dynamically generate one
     private boolean staticColor = true;
+    
+	private Map<Long, ColoringStrategyType> colorPerLayer;
     
     private int sidebarSize;
     private int fontSize;
@@ -119,15 +124,41 @@ public class AnnotationPreference
         scrollPage = aScrollPage;
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean isRememberLayer()
     {
         return rememberLayer;
     }
 
+    /**
+     * 
+     * @param aRememberLayer
+     */
     public void setRememberLayer(boolean aRememberLayer)
     {
         rememberLayer = aRememberLayer;
     }
+
+    /**
+     * 
+     * @return
+     */
+    public Map<Long, ColoringStrategyType> getColorPerLayer() 
+    {
+		return colorPerLayer;
+	}
+
+    /**
+     * 
+     * @param colorPerLayer
+     */
+	public void setColorPerLayer(Map<Long, ColoringStrategyType> colorPerLayer) 
+	{
+		this.colorPerLayer = colorPerLayer;
+	}
 
     public boolean isStaticColor()
     {
