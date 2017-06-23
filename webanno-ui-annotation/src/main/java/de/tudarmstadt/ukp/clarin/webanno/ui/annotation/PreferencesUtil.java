@@ -126,11 +126,11 @@ public class PreferencesUtil
                 aBModel.setAnnotationLayers(layers);
             }
 
-            // Get color preferences for each layer, init with static pastelle if not found
+            // Get color preferences for each layer, init with legacy if not found
             if (preference.getColorPerLayer() == null) {
             	Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>(); 
                 for (AnnotationLayer layer : aBModel.getAnnotationLayers())
-                	colorPerLayer.put(layer.getId(), ColoringStrategyType.STATIC_PASTELLE);
+                	colorPerLayer.put(layer.getId(), ColoringStrategyType.LEGACY);
                 preference.setColorPerLayer(colorPerLayer);
             }
         }
