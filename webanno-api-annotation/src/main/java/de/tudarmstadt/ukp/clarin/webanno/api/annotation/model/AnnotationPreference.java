@@ -54,16 +54,17 @@ public class AnnotationPreference
     
     // if a default layer is to be set
     private boolean rememberLayer;
-    
-//    // determine if static color for annotations will be used or we shall
-//    // dynamically generate one
-    @Deprecated 
-    private boolean staticColor = true; // this is only here to not break previous user settings, its not an option that can be set anymore
-    
-	private Map<Long, ColoringStrategyType> colorPerLayer;
-	
-	private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour = ReadonlyColoringBehaviour.LEGACY;
-    
+
+    // // determine if static color for annotations will be used or we shall
+    // // dynamically generate one
+    @Deprecated
+    private boolean staticColor = true; // this is only here to not break previous user settings,
+                                        // its not an option that can be set anymore
+
+    private Map<Long, ColoringStrategyType> colorPerLayer;
+
+    private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour = ReadonlyColoringBehaviour.LEGACY;
+
     private int sidebarSize;
     private int fontSize;
     
@@ -128,62 +129,41 @@ public class AnnotationPreference
         scrollPage = aScrollPage;
     }
 
-    /**
-     * 
-     * @return
-     */
     public boolean isRememberLayer()
     {
         return rememberLayer;
     }
 
-    /**
-     * 
-     * @param aRememberLayer
-     */
     public void setRememberLayer(boolean aRememberLayer)
     {
         rememberLayer = aRememberLayer;
     }
 
-    /**
-     * 
-     * @return
-     */
-    public Map<Long, ColoringStrategyType> getColorPerLayer() 
+    public Map<Long, ColoringStrategyType> getColorPerLayer()
     {
-		return colorPerLayer;
-	}
+        return colorPerLayer;
+    }
 
-    /**
-     * 
-     * @param colorPerLayer
-     */
-	public void setColorPerLayer(Map<Long, ColoringStrategyType> colorPerLayer) 
-	{
-		this.colorPerLayer = colorPerLayer;
-	}
-	
-	public ReadonlyColoringBehaviour getReadonlyLayerColoringBehaviour() 
-	{
-		return readonlyLayerColoringBehaviour;
-	}
-
-	public void setReadonlyLayerColoringBehaviour(ReadonlyColoringBehaviour readonlyLayerColoringBehaviour) 
-	{
-		this.readonlyLayerColoringBehaviour = readonlyLayerColoringBehaviour;
-	}
-
-	@Deprecated 
-    public boolean isStaticColor()
+    public void setColorPerLayer(Map<Long, ColoringStrategyType> colorPerLayer)
     {
-        return staticColor;
+        this.colorPerLayer = colorPerLayer;
+    }
+
+    public ReadonlyColoringBehaviour getReadonlyLayerColoringBehaviour()
+    {
+        return readonlyLayerColoringBehaviour;
+    }
+
+    public void setReadonlyLayerColoringBehaviour(
+            ReadonlyColoringBehaviour readonlyLayerColoringBehaviour)
+    {
+        this.readonlyLayerColoringBehaviour = readonlyLayerColoringBehaviour;
     }
 
     @Deprecated
-    public void setStaticColor(boolean staticColor)
+    public boolean isStaticColor()
     {
-        this.staticColor = staticColor;
+        return staticColor;
     }
 
     public int getSidebarSize()
