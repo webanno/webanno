@@ -132,12 +132,14 @@ public class PreferencesUtil
             }
 
             // Get color preferences for each layer, init with legacy if not found
-            if (preference.getColorPerLayer() == null) {
-                Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>();
-                for (AnnotationLayer layer : aBModel.getAnnotationLayers())
+            Map<Long, ColoringStrategyType> colorPerLayer = preference.getColorPerLayer();
+            if (colorPerLayer == null)
+                colorPerLayer = new HashMap<>();
+            for (AnnotationLayer layer : aAnnotationService.listAnnotationLayer(aBModel.getProject()))
+                if(!colorPerLayer.containsKey(layer.getId()))
                     colorPerLayer.put(layer.getId(), ColoringStrategyType.LEGACY);
-                preference.setColorPerLayer(colorPerLayer);
-            }
+            preference.setColorPerLayer(colorPerLayer);
+
         }
         // no preference found
         catch (Exception e) {
