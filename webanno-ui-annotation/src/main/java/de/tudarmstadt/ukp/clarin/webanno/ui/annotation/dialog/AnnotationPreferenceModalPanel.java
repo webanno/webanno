@@ -108,11 +108,13 @@ public class AnnotationPreferenceModalPanel
             getModelObject().rememberLayer = bModel.getPreferences().isRememberLayer();
 
             String editorId = bModel.getPreferences().getEditor();
-            AnnotationEditorFactory editorFactory = annotationEditorRegistry.getEditorFactory(editorId);
+            AnnotationEditorFactory editorFactory = annotationEditorRegistry
+                    .getEditorFactory(editorId);
             if (editorFactory == null) {
                 editorFactory = annotationEditorRegistry.getDefaultEditorFactory();
             }
-            getModelObject().editor = Pair.of(editorFactory.getBeanName(), editorFactory.getDisplayName());
+            getModelObject().editor = Pair.of(editorFactory.getBeanName(),
+                    editorFactory.getDisplayName());
 
             bModel.getAnnotationLayers().stream()
                 .filter(layer -> layer.isEnabled()) // show onlyenabledlayers
@@ -148,7 +150,8 @@ public class AnnotationPreferenceModalPanel
            // add(curationWindowSizeField);
 
             List<Pair<String, String>> editorChoices = annotationEditorRegistry.getEditorFactories()
-                    .stream().map(f -> Pair.of(f.getBeanName(), f.getDisplayName())).collect(Collectors.toList());
+                    .stream().map(f -> Pair.of(f.getBeanName(), f.getDisplayName()))
+                    .collect(Collectors.toList());
             
             add(new DropDownChoice<Pair<String, String>>("editor", editorChoices,
                     new ChoiceRenderer<>("value"))
@@ -220,7 +223,7 @@ public class AnnotationPreferenceModalPanel
 
             // Add a Checkbox to enable/disable automatic page navigations while annotating
             add(new CheckBox("scrollPage"));
-
+            
             add(new CheckBox("rememberLayer"));
 
             // add global readonly coloring strategy combobox

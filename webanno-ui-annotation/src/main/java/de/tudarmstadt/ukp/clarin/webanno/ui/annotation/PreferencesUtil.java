@@ -94,7 +94,7 @@ public class PreferencesUtil
                 String mode = property.substring(0, index);
                 if (wrapper.isWritableProperty(propertyName) && mode.equals(aMode.getName())) {
                     if (AnnotationPreference.class.getDeclaredField(propertyName)
-                            .getGenericType() instanceof ParameterizedType) {
+                    	.getGenericType() instanceof ParameterizedType) {
                         if (entry.getValue().toString().startsWith("[")) { // its a list
                             List<String> value = Arrays.asList(
                                     StringUtils.replaceChars(entry.getValue().toString(), "[]", "").split(","));

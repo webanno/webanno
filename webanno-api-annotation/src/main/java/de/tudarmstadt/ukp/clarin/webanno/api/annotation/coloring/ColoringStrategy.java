@@ -132,8 +132,8 @@ public abstract class ColoringStrategy
     }
 
     public static ColoringStrategy getStrategy(AnnotationSchemaService aService,
-            AnnotationLayer aLayer, ColoringStrategyType colortype,
-            Map<String[], Queue<String>> aColorQueues)
+			AnnotationLayer aLayer, ColoringStrategyType colortype,
+			Map<String[], Queue<String>> aColorQueues)
     {
         // Decide on coloring strategy for the current layer
         switch (colortype) {
@@ -246,7 +246,7 @@ public abstract class ColoringStrategy
         int r = Integer.valueOf(aColor.substring(1, 3), 16);
         int g = Integer.valueOf(aColor.substring(3, 5), 16);
         int b = Integer.valueOf(aColor.substring(5, 7), 16);
-        int yiq  = ((r*299)+(g*587)+(b*114))/1000;
+        int yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
         return yiq > aThreshold;
     }
 
@@ -254,9 +254,13 @@ public abstract class ColoringStrategy
 
     public final static String DISABLED = "#bebebe";
 
-    public final static String[] PALETTE_PASTEL = { "#8dd3c7", "#ffffb3", "#bebada",
-            "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5",
+    public final static String[] PALETTE_PASTEL = { "#8dd3c7", "#ffffb3", "#bebada", "#fb8072",
+            "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5",
             "#ffed6f" };
+
+
+    // public final static String[] PALETTE_PASTEL_FILTERED = filterLightColors(PALETTE_PASTEL,
+    // LIGHTNESS_FILTER_THRESHOLD);
 
     public final static String[] PALETTE_NORMAL = { "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c",
             "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99",
