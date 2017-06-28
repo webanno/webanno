@@ -258,7 +258,6 @@ public abstract class ColoringStrategy
             "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5",
             "#ffed6f" };
 
-
     // public final static String[] PALETTE_PASTEL_FILTERED = filterLightColors(PALETTE_PASTEL,
     // LIGHTNESS_FILTER_THRESHOLD);
 
@@ -270,5 +269,4 @@ public abstract class ColoringStrategy
             LIGHTNESS_FILTER_THRESHOLD);
 
     public abstract String getColor(VID aVid, String aLabel);
-
 }
