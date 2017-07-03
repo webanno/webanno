@@ -55,24 +55,28 @@ public class TextFeatureEditor
      * Docs for the JQuery tooltip widget that we configure below:
      * https://api.jqueryui.com/tooltip/
      */
-    public static final String FUNCTION_FOR_TOOLTIP = "function() { return "
+    protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
         + "'<div class=\"tooltip-title\">'+($(this).text() "
         + "? $(this).text() : 'no title')+'</div>"
         + "<div class=\"tooltip-content tooltip-pre\">'+($(this).attr('title') "
         + "? $(this).attr('title') : 'no description' )+'</div>' }";
 
     @SuppressWarnings("rawtypes")
-    private final AbstractTextComponent field;
-    private boolean hideUnconstraintFeature;
+    private AbstractTextComponent field;
+    private boolean hideUnconstrainedFeature;
     
     public TextFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
     {
         super(aId, aItem, new CompoundPropertyModel<>(aModel));
         // Checks whether hide un-constraint feature is enabled or not
-        hideUnconstraintFeature = getModelObject().feature.isHideUnconstraintFeature();
-        
+        hideUnconstrainedFeature = getModelObject().feature.isHideUnconstraintFeature();
         add(new Label("feature", getModelObject().feature.getUiName()));
+        add(createFieldComboBox());
+        add(createConstraintsInUseIndicatorContainer());
+    }
 
+    private Component createFieldComboBox()
+    {
         if (getModelObject().feature.getTagset() != null) {
             field = new StyledComboBox<Tag>("value", PropertyModel.of(getModel(), "tagset")) {
                 private static final long serialVersionUID = -1735694425658462932L;
@@ -98,7 +102,7 @@ public class TextFeatureEditor
                             // for the Combobox to render the hidden dropdown. I did not find
                             // a way to hook into this process and to get notified when the
                             // data is available in the dropdown, so trying to handle this
-                            // with a slight delay hopeing that all is set up after 1 second.
+                            // with a slight delay hoping that all is set up after 1 second.
                             return "try {setTimeout(function () { " + super.$()
                                     + " }, 1000); } catch (err) {}; ";
                         }
@@ -127,15 +131,17 @@ public class TextFeatureEditor
         }
         
         // Ensure that markup IDs of feature editor focus components remain constant across
-        // refreshs of the feature editor panel. This is required to restore the focus.
+        // refreshes of the feature editor panel. This is required to restore the focus.
         field.setOutputMarkupId(true);
         field.setMarkupId(ID_PREFIX + getModelObject().feature.getId());
-        
-        add(field);
-        
+        return field;
+    }
+
+    private Component createConstraintsInUseIndicatorContainer()
+    {
         // Shows whether constraints are triggered or not
         // also shows state of constraints use.
-        Component constraintsInUseIndicator = new WebMarkupContainer("textIndicator")
+        return new WebMarkupContainer("textIndicator")
         {
             private static final long serialVersionUID = 4346767114287766710L;
 
@@ -165,7 +171,6 @@ public class TextFeatureEditor
                 return "; color: " + getModelObject().indicator.getStatusColor();
             }
         }));
-        add(constraintsInUseIndicator);
     }
 
     @Override
@@ -190,7 +195,7 @@ public class TextFeatureEditor
     public void onConfigure()
     {
         // if enabled and constraints rule execution returns anything other than green
-        setVisible(!hideUnconstraintFeature || (getModelObject().indicator.isAffected()
+        setVisible(!hideUnconstrainedFeature || (getModelObject().indicator.isAffected()
                 && getModelObject().indicator.getStatusColor().equals("green")));
     }
 }
