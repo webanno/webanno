@@ -71,12 +71,13 @@ public class TextFeatureEditor
         // Checks whether hide un-constraint feature is enabled or not
         hideUnconstrainedFeature = getModelObject().feature.isHideUnconstraintFeature();
         add(new Label("feature", getModelObject().feature.getUiName()));
-        add(createFieldComboBox());
+        add(field = createFieldComboBox());
         add(createConstraintsInUseIndicatorContainer());
     }
 
-    private Component createFieldComboBox()
+    private AbstractTextComponent createFieldComboBox()
     {
+        AbstractTextComponent field;
         if (getModelObject().feature.getTagset() != null) {
             field = new StyledComboBox<Tag>("value", PropertyModel.of(getModel(), "tagset")) {
                 private static final long serialVersionUID = -1735694425658462932L;
@@ -90,7 +91,7 @@ public class TextFeatureEditor
                     // behavior (in super.onInitialize()), then tooltip.
                     Options options = new Options(DescriptionTooltipBehavior.makeTooltipOptions());
                     options.set("content", FUNCTION_FOR_TOOLTIP);
-                    add(new TooltipBehavior("#" + field.getMarkupId() + "_listbox *[title]",
+                    add(new TooltipBehavior("#" + getMarkupId() + "_listbox *[title]",
                             options)
                     {
                         private static final long serialVersionUID = 1854141593969780149L;
@@ -129,7 +130,7 @@ public class TextFeatureEditor
         else {
             field = new TextField<String>("value");
         }
-        
+
         // Ensure that markup IDs of feature editor focus components remain constant across
         // refreshes of the feature editor panel. This is required to restore the focus.
         field.setOutputMarkupId(true);
