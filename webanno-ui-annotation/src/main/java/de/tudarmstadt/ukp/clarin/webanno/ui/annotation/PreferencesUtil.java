@@ -116,9 +116,11 @@ public class PreferencesUtil
             }
 
             // set layers according to preferences
-            List<AnnotationLayer> layers = aAnnotationService.listAnnotationLayer(aBModel.getProject());
+            List<AnnotationLayer> layers = aAnnotationService
+                    .listAnnotationLayer(aBModel.getProject());
             if (preference.getAnnotationLayers() != null)
-                layers.forEach(layer -> layer.setEnabled(preference.getAnnotationLayers().contains(layer.getId())));
+                layers.forEach(layer -> layer.setEnabled(
+                        preference.getAnnotationLayers().contains(layer.getId())));
             aBModel.setAnnotationLayers(layers);
 
             // Get color preferences for each layer, init with legacy if not found
