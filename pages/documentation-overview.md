@@ -4,8 +4,8 @@ title: "Documentation"
 permalink: "/documentation/"
 ---
 
-{% assign stable = (site.data.releases | where:"status", "stable" | first) %}
-{% assign unstable = (site.data.releases | where:"status", "unstable" | first) %}
+{% assign stable = site.data.releases | where: "status", "stable" | first %}
+{% assign unstable = site.data.releases | where: "status", "unstable" | first %}
 
 ## WebAnno {{ stable.version }}
 _latest release_

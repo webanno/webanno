@@ -4,8 +4,8 @@ title: "Downloads (beta)"
 permalink: "/downloads-beta/"
 ---
 
-{% assign unstable = (site.data.releases | where:"status", "unstable" | first) %}
-{% assign beta = (site.data.releases | where:"status", "beta" | first) %}
+{% assign unstable = site.data.releases | where: "status", "unstable" | first %}
+{% assign beta = site.data.releases | where: "status", "beta" | first %}
 
 {% if beta %}
 ## WebAnno {{ beta.version }}
