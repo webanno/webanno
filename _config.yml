@@ -36,7 +36,6 @@ improve_content: https://github.com/webanno/webanno/edit/gh-pages
 #
 urlimg: "/webanno/images/"
 
-
 # Logo size is 600x80 pixels
 logo: "logo.png"
 
@@ -88,7 +87,7 @@ defaults:
       show_meta: false 	# Show metadata beneath all pages
       # sidebar:    		# Possible values › left, right › by default there will be no sidebar
       comments: false
-      author: "your_author_name"
+#      author: "your_author_name"
   -
     scope:
       path: ""        
