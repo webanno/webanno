@@ -63,7 +63,7 @@ public class SpanRenderer
             VDocument aResponse, AnnotatorState aBratAnnotatorModel)
     {
         List<AnnotationFeature> visibleFeatures = aFeatures.stream()
-                .filter(f -> f.isVisible()).collect(Collectors.toList());
+                .filter(f -> f.isVisible() && f.isEnabled()).collect(Collectors.toList());
         SpanAdapter typeAdapter = getTypeAdapter();
         Type type = getType(aJcas.getCas(), typeAdapter.getAnnotationTypeName());
         

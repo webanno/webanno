@@ -56,7 +56,7 @@ public class ChainRenderer
             AnnotatorState aState)
     {
         List<AnnotationFeature> visibleFeatures = aFeatures.stream()
-                .filter(f -> f.isVisible()).collect(Collectors.toList());
+                .filter(f -> f.isVisible() && f.isEnabled()).collect(Collectors.toList());
         
         // Find the features for the arc and span labels - it is possible that we do not find a
         // feature for arc/span labels because they may have been disabled.
