@@ -626,8 +626,13 @@ public class WebannoTsv3Writer
                 while (insertIndex < tmpUnits.size() && tmpUnits.get(insertIndex).isSubtoken) {
                     insertIndex += 1;
                 }
+                
+                tmpUnits.add(insertIndex, newUnit);
+                if (!unitsLineNumber.containsKey(newUnit)) {
                     subUnits.put(unit, subUnits.getOrDefault(unit, 0) + 1);
-                unitsLineNumber.put(newUnit, unitsLineNumber.get(unit) + "." + subUnits.get(unit));
+                    unitsLineNumber.put(newUnit,
+                            unitsLineNumber.get(unit) + "." + subUnits.get(unit));
+                }
             }
         }
     }
