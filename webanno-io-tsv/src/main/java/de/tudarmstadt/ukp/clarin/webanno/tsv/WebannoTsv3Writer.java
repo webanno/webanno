@@ -621,7 +621,11 @@ public class WebannoTsv3Writer
             newUnit.isSubtoken = true;
             // is this sub-token already there
             if (!tmpUnits.contains(newUnit)) {
-                tmpUnits.add(tmpUnits.indexOf(unit) + 1, newUnit);
+                // Ensure that we insert the subtoken units in their order of occurrence 
+                int insertIndex = tmpUnits.indexOf(unit) + 1;
+                while (insertIndex < tmpUnits.size() && tmpUnits.get(insertIndex).isSubtoken) {
+                    insertIndex += 1;
+                }
                     subUnits.put(unit, subUnits.getOrDefault(unit, 0) + 1);
                 unitsLineNumber.put(newUnit, unitsLineNumber.get(unit) + "." + subUnits.get(unit));
             }
