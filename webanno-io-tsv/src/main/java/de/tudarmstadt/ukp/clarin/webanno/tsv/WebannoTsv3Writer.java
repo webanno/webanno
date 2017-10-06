@@ -523,6 +523,10 @@ public class WebannoTsv3Writer
         }
 
         for (AnnotationUnit unit : units) {
+            if (unit.isSubtoken) {
+                continue;
+            }
+           
             if (unit.end > aSTA.end) {
                 if (unit.begin == aSTA.begin) {
                     AnnotationUnit newUnit = new AnnotationUnit(aSTA.getBegin(), aSTA.getEnd(),
