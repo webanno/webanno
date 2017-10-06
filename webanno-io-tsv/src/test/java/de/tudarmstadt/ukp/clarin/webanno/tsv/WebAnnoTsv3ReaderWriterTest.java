@@ -386,6 +386,44 @@ public class WebAnnoTsv3ReaderWriterTest
     }
 
     @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 0, 6);
+        ne1.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue2() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 1, 6);
+        ne1.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue3() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 1, 6);
+        ne1.addToIndexes();
+        NamedEntity ne2 = new NamedEntity(jcas, 6, 12);
+        ne2.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
     public void testMultiTokenStackedSpanWithoutFeatureValue() throws Exception
     {
         JCas jcas = makeJCasOneSentence();
