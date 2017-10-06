@@ -555,9 +555,9 @@ public class WebannoTsv3Writer
 
                 updateUnitLists(tmpUnits, unit, newUnit);
 
-                aSTA.setBegin(getNextUnitBegin(aSTA.getBegin()));
-
-                aSTA.setText(aSTA.getText().trim().substring(thisSubTextLen));
+                int nextBegin = getNextUnitBegin(aSTA.getBegin());
+                aSTA.setText(aSTA.getText().substring(nextBegin - aSTA.getBegin()));
+                aSTA.setBegin(nextBegin);
                 getSubUnits(aSTA, aSubUnits);
             }
             // empty annotation between tokens
