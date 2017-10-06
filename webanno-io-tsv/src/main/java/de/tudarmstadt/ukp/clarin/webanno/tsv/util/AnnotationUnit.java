@@ -26,13 +26,15 @@ package de.tudarmstadt.ukp.clarin.webanno.tsv.util;
  */
 public class AnnotationUnit
 {
-    public int begin;
-    public int end;
-    public String token;
+    public final int begin;
+    public final int end;
+    public final String token;
     public boolean isSubtoken;
 
     public AnnotationUnit(int aBegin, int aEnd, boolean aIsSubToken, String aToken)
     {
+        assert aEnd >= aBegin;
+        
         this.begin = aBegin;
         this.end = aEnd;
         this.isSubtoken = aIsSubToken;
@@ -64,5 +66,23 @@ public class AnnotationUnit
         }
         AnnotationUnit other = (AnnotationUnit) obj;
         return begin == other.begin && end == other.end && isSubtoken == other.isSubtoken;
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append('(');
+        sb.append(begin);
+        sb.append('-');
+        sb.append(end);
+        sb.append(')');
+        if (isSubtoken) {
+            sb.append("*");
+        }
+        sb.append(" [");
+        sb.append(token);
+        sb.append(']');
+        return sb.toString();
     }
 }
