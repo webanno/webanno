@@ -385,11 +385,11 @@ public class WebannoTsv3Writer
                 while (linkFs != null) {
                     AnnotationFS nextLinkFs = (AnnotationFS) linkFs.getFeatureValue(linkNext);
                     if (nextLinkFs != null) {
-                        addChinFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
+                        addChainFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
                                 chainNo);
                     }
                     else {
-                        addChinFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
+                        addChainFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
                                 chainNo);
                     }
                     linkFs = nextLinkFs;
@@ -760,7 +760,7 @@ public class WebannoTsv3Writer
      *            chain where n is the number of coreference chains the document
      */
 
-    private void addChinFeatureAnno(Map<AnnotationUnit, List<List<String>>> aAnnotationsPertype,
+    private void addChainFeatureAnno(Map<AnnotationUnit, List<List<String>>> aAnnotationsPertype,
             Type aType, AnnotationFS aFs, AnnotationUnit aUnit, int aLinkNo, int achainNo)
     {
         featurePerLayer.putIfAbsent(aType.getName(), new LinkedHashSet<>());
