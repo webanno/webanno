@@ -71,7 +71,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class WebannoTsv3Reader
     extends JCasResourceCollectionReader_ImplBase
 {
-
+    private static final String STACKED_ANNO_REGEX = "(?<!\\\\)" + Pattern.quote("|");
+    private static final String MULTIPLE_SLOT_REGEX = "(?<!\\\\)" + Pattern.quote(";");
+    private static final String MULTI_SPLIT_REGEX = "(?<!\\\\)" + Pattern.quote("[");
+    
     private static final String TAB = "\t";
     private static final String LF = "\n";
     private static final String REF_REL = "referenceRelation";
@@ -99,7 +102,7 @@ public class WebannoTsv3Reader
     // For multiple span annotations and stacked annotations
     private Map<Type, Map<Integer, String>> annotationsPerTyep = new LinkedHashMap<>();
 
-    private Map<Type, Map<Integer, Map<Integer, AnnotationFS>>> chainAnnosPerTyep = new HashMap<>();
+    private Map<Type, Map<Integer, Map<Integer, AnnotationFS>>> chainAnnosPerType = new HashMap<>();
     private List<AnnotationUnit> units = new ArrayList<>();
     private Map<String, AnnotationUnit> token2Units = new HashMap<>();
     private Map<AnnotationUnit, Token> units2Tokens = new HashMap<>();
@@ -236,8 +239,8 @@ public class WebannoTsv3Reader
      */
     private void addChainAnnotations(JCas aJCas)
     {
-        for (Type linkType : chainAnnosPerTyep.keySet()) {
-            for (int chainNo : chainAnnosPerTyep.get(linkType).keySet()) {
+        for (Type linkType : chainAnnosPerType.keySet()) {
+            for (int chainNo : chainAnnosPerType.get(linkType).keySet()) {
 
                 Type chainType = aJCas.getCas().getTypeSystem().getType(
                         linkType.getName().substring(0, linkType.getName().length() - 4) + CHAIN);
@@ -246,13 +249,13 @@ public class WebannoTsv3Reader
                 FeatureStructure chain = aJCas.getCas().createFS(chainType);
 
                 aJCas.addFsToIndexes(chain);
-                AnnotationFS firstFs = chainAnnosPerTyep.get(linkType).get(chainNo).get(1);
+                AnnotationFS firstFs = chainAnnosPerType.get(linkType).get(chainNo).get(1);
                 AnnotationFS linkFs = firstFs;
                 chain.setFeatureValue(firstF, firstFs);
-                for (int i = 2; i <= chainAnnosPerTyep.get(linkType).get(chainNo).size(); i++) {
+                for (int i = 2; i <= chainAnnosPerType.get(linkType).get(chainNo).size(); i++) {
                     linkFs.setFeatureValue(nextF,
-                            chainAnnosPerTyep.get(linkType).get(chainNo).get(i));
-                    linkFs = chainAnnosPerTyep.get(linkType).get(chainNo).get(i);
+                            chainAnnosPerType.get(linkType).get(chainNo).get(i));
+                    linkFs = chainAnnosPerType.get(linkType).get(chainNo).get(i);
                 }
             }
         }
@@ -290,16 +293,13 @@ public class WebannoTsv3Reader
                         // (Target1<--role1--Base--role2-->Target2)
                         int slot = 0;
                         boolean targetAdd = false;
-                        String stackedAnnoRegex = "(?<!\\\\)" + Pattern.quote("|");
-                        String[] stackedAnnos = anno.split(stackedAnnoRegex);
+                        String[] stackedAnnos = anno.split(STACKED_ANNO_REGEX);
                         for (String mAnnos : stackedAnnos) {
-                            String multipleSlotAnno = "(?<!\\\\)" + Pattern.quote(";");
-                            for (String mAnno : mAnnos.split(multipleSlotAnno)) {
+                            for (String mAnno : mAnnos.split(MULTIPLE_SLOT_REGEX)) {
                                 String depRef = "";
-                                String multSpliter = "(?<!\\\\)" + Pattern.quote("[");
                                 // is this slot target ambiguous?
                                 boolean ambigTarget = false;
-                                if (mAnno.split(multSpliter).length > 1) {
+                                if (mAnno.split(MULTI_SPLIT_REGEX).length > 1) {
                                     ambigTarget = true;
                                     depRef = mAnno.substring(mAnno.indexOf("[") + 1,
                                             mAnno.length() - 1);
@@ -397,9 +397,9 @@ public class WebannoTsv3Reader
                                                 .valueOf(mAnno.split("->")[1].split("-")[0]);
                                         int LinkNo = Integer
                                                 .valueOf(mAnno.split("->")[1].split("-")[1]);
-                                        chainAnnosPerTyep.putIfAbsent(type, new TreeMap<>());
-                                        if (chainAnnosPerTyep.get(type).get(chainNo) != null
-                                                && chainAnnosPerTyep.get(type).get(chainNo)
+                                        chainAnnosPerType.putIfAbsent(type, new TreeMap<>());
+                                        if (chainAnnosPerType.get(type).get(chainNo) != null
+                                                && chainAnnosPerType.get(type).get(chainNo)
                                                         .get(LinkNo) != null) {
                                             continue;
                                         }
@@ -411,10 +411,10 @@ public class WebannoTsv3Reader
                                         }
 
                                         annos.get(i).setFeatureValueFromString(feat, refRel);
-                                        chainAnnosPerTyep.putIfAbsent(type, new TreeMap<>());
-                                        chainAnnosPerTyep.get(type).putIfAbsent(chainNo,
+                                        chainAnnosPerType.putIfAbsent(type, new TreeMap<>());
+                                        chainAnnosPerType.get(type).putIfAbsent(chainNo,
                                                 new TreeMap<>());
-                                        chainAnnosPerTyep.get(type).get(chainNo).put(LinkNo,
+                                        chainAnnosPerType.get(type).get(chainNo).put(LinkNo,
                                                 annos.get(i));
 
                                     }
@@ -539,10 +539,8 @@ public class WebannoTsv3Reader
         String anno = annotationsPerPostion.get(aType).get(aUnit).get(0);
         if (!anno.equals("_")) {
             int i = 0;
-            String stackedAnnoRegex = "(?<!\\\\)" + Pattern.quote("|");
-            for (String mAnnos : anno.split(stackedAnnoRegex)) {
-                String multipleSlotAnno = "(?<!\\\\)" + Pattern.quote(";");
-                for (String mAnno : mAnnos.split(multipleSlotAnno)) {
+            for (String mAnnos : anno.split(STACKED_ANNO_REGEX)) {
+                for (String mAnno : mAnnos.split(MULTIPLE_SLOT_REGEX)) {
                     String depRef = "";
                     if (mAnno.endsWith("]")) {
                         depRef = mAnno.substring(mAnno.indexOf("[") + 1, mAnno.length() - 1);
@@ -704,14 +702,13 @@ public class WebannoTsv3Reader
                 // if there are multiple annos
                 int multAnnos = 1;
                 for (String anno : annotationsPerPostion.get(type).get(unit)) {
-                    String stackedAnnoRegex = "(?<!\\\\)" + Pattern.quote("|");
-                    if (anno.split(stackedAnnoRegex).length > multAnnos) {
-                        multAnnos = anno.split(stackedAnnoRegex).length;
+                    int len = anno.split(STACKED_ANNO_REGEX).length;
+                    if (len > multAnnos) {
+                        multAnnos = len;
                     }
                 }
 
                 for (int i = 0; i < multAnnos; i++) {
-
                     annos.add(aJCas.getCas().createAnnotation(type, begin, end));
                 }
                 annosPerUnit.put(unit, annos);

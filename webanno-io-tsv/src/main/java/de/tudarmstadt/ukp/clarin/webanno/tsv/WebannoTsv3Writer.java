@@ -282,10 +282,7 @@ public class WebannoTsv3Writer
                 AnnotationUnit unit = getFirstUnit(fs);
                 // multiple token anno
                 if (isMultipleTokenAnnotation(fs.getBegin(), fs.getEnd())) {
-                    SubTokenAnno sta = new SubTokenAnno();
-                    sta.setBegin(fs.getBegin());
-                    sta.setEnd(fs.getEnd());
-                    sta.setText(fs.getCoveredText());
+                    SubTokenAnno sta = new SubTokenAnno(fs);
                     Set<AnnotationUnit> sus = new LinkedHashSet<>();
                     for (AnnotationUnit newUnit : getSubUnits(sta, sus)) {
                         ambigUnits.get(type.getName()).put(newUnit, true);
@@ -340,10 +337,7 @@ public class WebannoTsv3Writer
                 }
                 // Annotation is on sub-token or multiple tokens
                 else {
-                    SubTokenAnno sta = new SubTokenAnno();
-                    sta.setBegin(fs.getBegin());
-                    sta.setEnd(fs.getEnd());
-                    sta.setText(fs.getCoveredText());
+                    SubTokenAnno sta = new SubTokenAnno(fs);
                     boolean isMultiToken = isMultiToken(fs);
                     boolean isFirst = true;
                     Set<AnnotationUnit> sus = new LinkedHashSet<>();
@@ -391,11 +385,11 @@ public class WebannoTsv3Writer
                 while (linkFs != null) {
                     AnnotationFS nextLinkFs = (AnnotationFS) linkFs.getFeatureValue(linkNext);
                     if (nextLinkFs != null) {
-                        addChinFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
+                        addChainFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
                                 chainNo);
                     }
                     else {
-                        addChinFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
+                        addChainFeatureAnno(annotationsPertype, lType, linkFs, unit, linkNo,
                                 chainNo);
                     }
                     linkFs = nextLinkFs;
@@ -529,6 +523,10 @@ public class WebannoTsv3Writer
         }
 
         for (AnnotationUnit unit : units) {
+            if (unit.isSubtoken) {
+                continue;
+            }
+           
             if (unit.end > aSTA.end) {
                 if (unit.begin == aSTA.begin) {
                     AnnotationUnit newUnit = new AnnotationUnit(aSTA.getBegin(), aSTA.getEnd(),
@@ -561,9 +559,9 @@ public class WebannoTsv3Writer
 
                 updateUnitLists(tmpUnits, unit, newUnit);
 
-                aSTA.setBegin(getNextUnitBegin(aSTA.getBegin()));
-
-                aSTA.setText(aSTA.getText().trim().substring(thisSubTextLen));
+                int nextBegin = getNextUnitBegin(aSTA.getBegin());
+                aSTA.setText(aSTA.getText().substring(nextBegin - aSTA.getBegin()));
+                aSTA.setBegin(nextBegin);
                 getSubUnits(aSTA, aSubUnits);
             }
             // empty annotation between tokens
@@ -623,9 +621,18 @@ public class WebannoTsv3Writer
             newUnit.isSubtoken = true;
             // is this sub-token already there
             if (!tmpUnits.contains(newUnit)) {
-                tmpUnits.add(tmpUnits.indexOf(unit) + 1, newUnit);
-                subUnits.put(unit, subUnits.getOrDefault(unit, 0) + 1);
-                unitsLineNumber.put(newUnit, unitsLineNumber.get(unit) + "." + subUnits.get(unit));
+                // Ensure that we insert the subtoken units in their order of occurrence 
+                int insertIndex = tmpUnits.indexOf(unit) + 1;
+                while (insertIndex < tmpUnits.size() && tmpUnits.get(insertIndex).isSubtoken) {
+                    insertIndex += 1;
+                }
+                
+                tmpUnits.add(insertIndex, newUnit);
+                if (!unitsLineNumber.containsKey(newUnit)) {
+                    subUnits.put(unit, subUnits.getOrDefault(unit, 0) + 1);
+                    unitsLineNumber.put(newUnit,
+                            unitsLineNumber.get(unit) + "." + subUnits.get(unit));
+                }
             }
         }
     }
@@ -766,7 +773,7 @@ public class WebannoTsv3Writer
      *            chain where n is the number of coreference chains the document
      */
 
-    private void addChinFeatureAnno(Map<AnnotationUnit, List<List<String>>> aAnnotationsPertype,
+    private void addChainFeatureAnno(Map<AnnotationUnit, List<List<String>>> aAnnotationsPertype,
             Type aType, AnnotationFS aFs, AnnotationUnit aUnit, int aLinkNo, int achainNo)
     {
         featurePerLayer.putIfAbsent(aType.getName(), new LinkedHashSet<>());
@@ -778,10 +785,7 @@ public class WebannoTsv3Writer
         }
         // Annotation is on sub-token or multiple tokens
         else {
-            SubTokenAnno sta = new SubTokenAnno();
-            sta.setBegin(aFs.getBegin());
-            sta.setEnd(aFs.getEnd());
-            sta.setText(aFs.getCoveredText());
+            SubTokenAnno sta = new SubTokenAnno(aFs);
             boolean isMultiToken = isMultiToken(aFs);
             boolean isFirst = true;
             Set<AnnotationUnit> sus = new LinkedHashSet<>();
@@ -906,10 +910,7 @@ public class WebannoTsv3Writer
 
     private AnnotationUnit getFirstUnit(AnnotationFS targetFs)
     {
-        SubTokenAnno sta = new SubTokenAnno();
-        sta.setBegin(targetFs.getBegin());
-        sta.setEnd(targetFs.getEnd());
-        sta.setText(targetFs.getCoveredText());
+        SubTokenAnno sta = new SubTokenAnno(targetFs);
         Set<AnnotationUnit> sus = new LinkedHashSet<>();
         AnnotationUnit firstUnit = null;
         for (AnnotationUnit u : getSubUnits(sta, sus)) {
@@ -923,10 +924,7 @@ public class WebannoTsv3Writer
     // unit
     private AnnotationUnit getFirstUnit(AnnotationUnit aUnit)
     {
-        SubTokenAnno sta = new SubTokenAnno();
-        sta.setBegin(aUnit.begin);
-        sta.setEnd(aUnit.end);
-        sta.setText(aUnit.token);
+        SubTokenAnno sta = new SubTokenAnno(aUnit.begin, aUnit.end, aUnit.token);
         Set<AnnotationUnit> sus = new LinkedHashSet<>();
         AnnotationUnit firstUnit = null;
         for (AnnotationUnit u : getSubUnits(sta, sus)) {
@@ -1058,10 +1056,24 @@ public class WebannoTsv3Writer
 
     class SubTokenAnno
     {
-        int begin;
-        int end;
-        String text;
+        private int begin;
+        private final int end;
+        private String text;
 
+        public SubTokenAnno(AnnotationFS aFS)
+        {
+            this(aFS.getBegin(), aFS.getEnd(), aFS.getCoveredText());
+        }
+
+        public SubTokenAnno(int aBegin, int aEnd, String aText)
+        {
+            assert aBegin <= aEnd;
+            
+            begin = aBegin;
+            end = aEnd;
+            text = aText;
+        }
+        
         public int getBegin()
         {
             return begin;
@@ -1072,14 +1084,11 @@ public class WebannoTsv3Writer
             return end;
         }
 
-        public void setEnd(int end)
+        public void setBegin(int aBegin)
         {
-            this.end = end;
-        }
-
-        public void setBegin(int begin)
-        {
-            this.begin = begin;
+            assert aBegin <= end;
+            
+            begin = aBegin;
         }
 
         public String getText()
@@ -1091,6 +1100,5 @@ public class WebannoTsv3Writer
         {
             this.text = text;
         }
-
     }
 }

@@ -21,6 +21,7 @@ import static java.util.Arrays.asList;
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
 import static org.apache.uima.fit.util.JCasUtil.select;
+import static org.apache.uima.fit.util.JCasUtil.toText;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -30,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
@@ -56,6 +58,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiWriter;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
@@ -385,6 +388,148 @@ public class WebAnnoTsv3ReaderWriterTest
                 WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
     }
 
+    @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 0, 6);
+        ne1.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue2() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 1, 6);
+        ne1.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
+    public void testSubMultiTokenSpanWithoutFeatureValue3() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence();
+        
+        NamedEntity ne1 = new NamedEntity(jcas, 1, 6);
+        ne1.addToIndexes();
+        NamedEntity ne2 = new NamedEntity(jcas, 6, 12);
+        ne2.addToIndexes();
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+
+    @Test
+    public void testSubMultiTokenSpanWithFeatureValue() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence("aaaaaa bbbbbb cccccc");
+        assertEquals(asList("aaaaaa", "bbbbbb", "cccccc"), toText(select(jcas, Token.class)));
+
+        //               1111111111 
+        //     01234567890123456789
+        //     --------------------
+        //     aaaaaa bbbbbb cccccc
+        //  1  ------               - single token
+        //  2  ------+------        - multi-token
+        //  3           --          - inside token
+        //  4         ----          - token prefix
+        //  5           ----        - token suffix
+        //  6     ---+------        - multi-token prefix 
+        //  7  ------+---           - multi-token suffix
+        //  8     ---+---           - multi-token prefix + suffix
+        //  9     ---+------+---    - multi-token prefix + full + suffix
+        // 10            |          - zero-span inside token
+        // 11         |             - zero-span beginning of token
+        // 12               |       - zero-span end of token
+
+        List<NamedEntity> annotations = new ArrayList<>();
+        annotations.add(new NamedEntity(jcas,  0,  6)); // 1
+        annotations.add(new NamedEntity(jcas,  0, 13)); // 2
+        annotations.add(new NamedEntity(jcas,  9, 11)); // 3
+        annotations.add(new NamedEntity(jcas,  7, 11)); // 4
+        annotations.add(new NamedEntity(jcas,  9, 13)); // 5
+        annotations.add(new NamedEntity(jcas,  3, 13)); // 6
+        annotations.add(new NamedEntity(jcas,  0, 10)); // 7
+        annotations.add(new NamedEntity(jcas,  3, 10)); // 8
+        annotations.add(new NamedEntity(jcas,  3, 17)); // 9
+        annotations.add(new NamedEntity(jcas, 10, 10)); // 10
+        annotations.add(new NamedEntity(jcas,  7,  7)); // 11
+        annotations.add(new NamedEntity(jcas, 13, 13)); // 12
+        IntStream.range(0, annotations.size()).forEach(idx -> {
+            NamedEntity ne = annotations.get(idx);
+            ne.setValue(String.valueOf(idx + 1));
+            ne.addToIndexes();
+        });
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+    
+    @Test
+    public void testStackedSubMultiTokenSpanWithFeatureValue() throws Exception
+    {
+        JCas jcas = makeJCasOneSentence("aaaaaa bbbbbb cccccc");
+        assertEquals(asList("aaaaaa", "bbbbbb", "cccccc"), toText(select(jcas, Token.class)));
+
+        //               1111111111 
+        //     01234567890123456789
+        //     --------------------
+        //     aaaaaa bbbbbb cccccc
+        //  1  ------               - single token
+        //  2  ------+------        - multi-token
+        //  3           --          - inside token
+        //  4         ----          - token prefix
+        //  5           ----        - token suffix
+        //  6     ---+------        - multi-token prefix 
+        //  7  ------+---           - multi-token suffix
+        //  8     ---+---           - multi-token prefix + suffix
+        //  9     ---+------+---    - multi-token prefix + full + suffix
+        // 10            |          - zero-span inside token
+        // 11         |             - zero-span beginning of token
+        // 12               |       - zero-span end of token
+        
+        List<NamedEntity> annotations = new ArrayList<>();
+        annotations.add(new NamedEntity(jcas,  0,  6)); // 1
+        annotations.add(new NamedEntity(jcas,  0,  6)); // 1
+        annotations.add(new NamedEntity(jcas,  0, 13)); // 2
+        annotations.add(new NamedEntity(jcas,  0, 13)); // 2
+        annotations.add(new NamedEntity(jcas,  9, 10)); // 3
+        annotations.add(new NamedEntity(jcas,  9, 10)); // 3
+        annotations.add(new NamedEntity(jcas,  7, 10)); // 4
+        annotations.add(new NamedEntity(jcas,  7, 10)); // 4
+        annotations.add(new NamedEntity(jcas,  9, 13)); // 5
+        annotations.add(new NamedEntity(jcas,  9, 13)); // 5
+        annotations.add(new NamedEntity(jcas,  3, 13)); // 6
+        annotations.add(new NamedEntity(jcas,  3, 13)); // 6
+        annotations.add(new NamedEntity(jcas,  0, 10)); // 7
+        annotations.add(new NamedEntity(jcas,  0, 10)); // 7
+        annotations.add(new NamedEntity(jcas,  3, 10)); // 8
+        annotations.add(new NamedEntity(jcas,  3, 10)); // 8
+        annotations.add(new NamedEntity(jcas,  3, 17)); // 9
+        annotations.add(new NamedEntity(jcas,  3, 17)); // 9
+        annotations.add(new NamedEntity(jcas, 10, 10)); // 10
+        annotations.add(new NamedEntity(jcas, 10, 10)); // 10
+        annotations.add(new NamedEntity(jcas,  7,  7)); // 11
+        annotations.add(new NamedEntity(jcas,  7,  7)); // 11
+        annotations.add(new NamedEntity(jcas, 13, 13)); // 12
+        annotations.add(new NamedEntity(jcas, 13, 13)); // 12
+        IntStream.range(0, annotations.size()).forEach(idx -> {
+            NamedEntity ne = annotations.get(idx);
+            ne.setValue(String.valueOf((idx / 2) + 1) + (idx % 2 == 0 ? "a" : "b"));
+            ne.addToIndexes();
+        });
+        
+        writeAndAssertEquals(jcas, 
+                WebannoTsv3Writer.PARAM_SPAN_LAYERS, asList(NamedEntity.class));
+    }
+    
     @Test
     public void testMultiTokenStackedSpanWithoutFeatureValue() throws Exception
     {
@@ -1015,10 +1160,13 @@ public class WebAnnoTsv3ReaderWriterTest
         params.add(WebannoTsv3Writer.PARAM_TARGET_LOCATION);
         params.add(targetFolder);
         
-        AnalysisEngineDescription writer = createEngineDescription(WebannoTsv3Writer.class,
+        AnalysisEngineDescription tsv = createEngineDescription(WebannoTsv3Writer.class,
                 params.toArray(new Object[params.size()]));
         
-        SimplePipeline.runPipeline(aJCas, writer);
+        AnalysisEngineDescription xmi = createEngineDescription(XmiWriter.class,
+                XmiWriter.PARAM_TARGET_LOCATION, targetFolder);
+        
+        SimplePipeline.runPipeline(aJCas, tsv, xmi);
         
         String reference = FileUtils.readFileToString(new File(referenceFolder, "reference.tsv"),
                 "UTF-8");

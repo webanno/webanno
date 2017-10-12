@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiWriter;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
 
@@ -77,7 +78,7 @@ public class WebAnnoTsv3ReaderWriterRoundTripTest
                 WebannoTsv3Reader.PARAM_SOURCE_LOCATION, referenceFolder,
                 WebannoTsv3Reader.PARAM_PATTERNS, "reference.tsv");
         
-        AnalysisEngineDescription writer = createEngineDescription(WebannoTsv3Writer.class,
+        AnalysisEngineDescription tsv = createEngineDescription(WebannoTsv3Writer.class,
                 merged,
                 WebannoTsv3Writer.PARAM_TARGET_LOCATION, targetFolder,
                 WebannoTsv3Writer.PARAM_STRIP_EXTENSION, true,
@@ -90,8 +91,11 @@ public class WebAnnoTsv3ReaderWriterRoundTripTest
                 WebannoTsv3Writer.PARAM_RELATION_LAYERS, asList("webanno.custom.SimpleRelation",
                         "webanno.custom.Relation"));
         
+        AnalysisEngineDescription xmi = createEngineDescription(XmiWriter.class,
+                XmiWriter.PARAM_TARGET_LOCATION, targetFolder,
+                XmiWriter.PARAM_STRIP_EXTENSION, true);
         
-        SimplePipeline.runPipeline(reader, writer);
+        SimplePipeline.runPipeline(reader, tsv, xmi);
         
         String reference = FileUtils.readFileToString(new File(referenceFolder, "reference.tsv"),
                 "UTF-8");
