@@ -56,6 +56,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiWriter;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
@@ -1053,10 +1054,13 @@ public class WebAnnoTsv3ReaderWriterTest
         params.add(WebannoTsv3Writer.PARAM_TARGET_LOCATION);
         params.add(targetFolder);
         
-        AnalysisEngineDescription writer = createEngineDescription(WebannoTsv3Writer.class,
+        AnalysisEngineDescription tsv = createEngineDescription(WebannoTsv3Writer.class,
                 params.toArray(new Object[params.size()]));
         
-        SimplePipeline.runPipeline(aJCas, writer);
+        AnalysisEngineDescription xmi = createEngineDescription(XmiWriter.class,
+                XmiWriter.PARAM_TARGET_LOCATION, targetFolder);
+        
+        SimplePipeline.runPipeline(aJCas, tsv, xmi);
         
         String reference = FileUtils.readFileToString(new File(referenceFolder, "reference.tsv"),
                 "UTF-8");
