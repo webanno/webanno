@@ -120,7 +120,7 @@ public class Tsv3XCasDocumentBuilder
                 TsvToken beginToken = tokenBeginIndex.floorEntry(annotation.getBegin()).getValue();
                 TsvToken endToken = tokenEndIndex.ceilingEntry(annotation.getEnd()).getValue();
                 boolean singleToken = beginToken == endToken;
-                boolean zeroWitdh = annotation.getBegin() == annotation.getEnd();
+                boolean zeroWidth = annotation.getBegin() == annotation.getEnd();
                 boolean multiTokenCapable = SPAN.equals(layerType) || CHAIN.equals(layerType);
                 
                 // Annotation exactly matches token boundaries - it doesn't really matter if the
@@ -135,9 +135,9 @@ public class Tsv3XCasDocumentBuilder
                         endToken.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
                     }
                 }
-                else if (zeroWitdh) {
+                else if (zeroWidth) {
                     TsvSubToken t = beginToken.createSubToken(annotation.getBegin(),
-                            min(beginToken.getEnd(), annotation.getEnd()));
+                            annotation.getEnd());
                     doc.mapFS2Unit(annotation, t);
                     t.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
                 } else {
