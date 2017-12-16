@@ -98,6 +98,7 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.ExportDocumentDialog;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.GuidelinesDialog;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.OpenDocumentDialog;
+import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.event.ProjectOpenedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.SidebarPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.menu.MenuItem;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.menu.MenuItemCondition;
@@ -437,6 +438,9 @@ public class AnnotationPage
             // Make sure the URL fragement parameters are up-to-date
             updateUrlFragment(aTarget);
         }
+        applicationEventPublisherHolder.get()
+                .publishEvent(new ProjectOpenedEvent(this, getModelObject()));
+
     }
 
     private void actionShowOpenDocumentDialog(AjaxRequestTarget aTarget)
