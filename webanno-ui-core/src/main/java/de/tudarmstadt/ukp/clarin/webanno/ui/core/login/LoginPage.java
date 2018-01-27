@@ -70,8 +70,48 @@ public class LoginPage
         
         redirectIfAlreadyLoggedIn();
 
+        LoginForm loginForm = new LoginForm("loginForm");
+        add(loginForm);
+        
+        // Reset/recreated default admin account if requested
+        if (System.getProperty("webanno.restoreDefaultAdminAccount") != null) {
+            loginForm.setVisible(false);
+            User admin;
+            boolean exists;
+            if (userRepository.exists(ADMIN_DEFAULT_USERNAME)) {
+                admin = userRepository.get(ADMIN_DEFAULT_USERNAME);
+                exists = true;
+            }
+            else {
+                admin = new User();
+                admin.setUsername(ADMIN_DEFAULT_USERNAME);
+                exists = false;
+            }
+            admin.setPassword(ADMIN_DEFAULT_PASSWORD);
+            admin.setEnabled(true);
+            admin.setRoles(Role.getRoles());
+            if (exists) {
+                userRepository.update(admin);
+                String msg = "Default admin account has been reset to the default permissions "
+                        + "and credentials: " + ADMIN_DEFAULT_USERNAME + "/" 
+                        + ADMIN_DEFAULT_PASSWORD + ". Login has been disabled for security "
+                        + "reasons. Please restart the application without the password "
+                        + "resetting parameter.";
+                info(msg);
+                log.info(msg);
+            }
+            else {
+                userRepository.create(admin);
+                String msg = "Default admin account has been recreated: " 
+                        + ADMIN_DEFAULT_USERNAME + "/" + ADMIN_DEFAULT_PASSWORD + ". Login has "
+                        + "been disabled for security reasons. Please restart the application "
+                        + "without the password resetting parameter.";
+                info(msg);
+                log.info(msg);
+            }
+        }
         // Create admin user if there is no user yet
-        if (userRepository.list().isEmpty()) {
+        else if (userRepository.list().isEmpty()) {
             User admin = new User();
             admin.setUsername(ADMIN_DEFAULT_USERNAME);
             admin.setPassword(ADMIN_DEFAULT_PASSWORD);
@@ -84,8 +124,6 @@ public class LoginPage
             info(msg);
             log.info(msg);
         }
-        
-        add(new LoginForm("loginForm"));
     }
     
     @Override
