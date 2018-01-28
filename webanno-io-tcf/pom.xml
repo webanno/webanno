@@ -76,7 +76,7 @@
     </dependency>
     <dependency>
       <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-      <artifactId>de.tudarmstadt.ukp.dkpro.core.castransformation-asl</artifactId>
+      <artifactId>de.tudarmstadt.ukp.dkpro.core.api.transform-asl</artifactId>
     </dependency>
 
     <dependency>
