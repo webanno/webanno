@@ -207,25 +207,19 @@ public class TcfReader extends JCasResourceCollectionReader_ImplBase {
         if (aCorpusData.getOrthographyLayer() == null) {
             return;
         }
-        try {
-            for (int i = 0; i < aCorpusData.getOrthographyLayer().size(); i++) {
-                eu.clarin.weblicht.wlfxb.tc.api.Token[] orthoTokens = aCorpusData
-                        .getOrthographyLayer()
-                        .getTokens(aCorpusData.getOrthographyLayer().getCorrection(i));
-                String value = aCorpusData.getOrthographyLayer().getCorrection(i).getString();
-                String operation = aCorpusData.getOrthographyLayer()
-                        .getCorrection(i).getOperation().name();
-                              
+        for (int i = 0; i < aCorpusData.getOrthographyLayer().size(); i++) {
+            eu.clarin.weblicht.wlfxb.tc.api.Token[] orthoTokens = aCorpusData.getOrthographyLayer()
+                    .getTokens(aCorpusData.getOrthographyLayer().getCorrection(i));
+            String value = aCorpusData.getOrthographyLayer().getCorrection(i).getString();
+            String operation = aCorpusData.getOrthographyLayer().getCorrection(i).getOperation()
+                    .name();
 
-                SofaChangeAnnotation ortho = new SofaChangeAnnotation(aJCas);
-                ortho.setBegin(aTokens.get(orthoTokens[0].getID()).getBegin());
-                ortho.setEnd(aTokens.get(orthoTokens[0].getID()).getEnd());
-                ortho.setValue(value);
-                ortho.setOperation(operation);
-                ortho.addToIndexes();
-            }
-        } catch (Exception e) {
-            // Layer do not exist
+            SofaChangeAnnotation ortho = new SofaChangeAnnotation(aJCas);
+            ortho.setBegin(aTokens.get(orthoTokens[0].getID()).getBegin());
+            ortho.setEnd(aTokens.get(orthoTokens[0].getID()).getEnd());
+            ortho.setValue(value);
+            ortho.setOperation(operation);
+            ortho.addToIndexes();
         }
 
     }

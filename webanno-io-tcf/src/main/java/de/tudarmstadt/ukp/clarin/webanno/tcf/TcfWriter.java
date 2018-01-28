@@ -271,7 +271,7 @@ public class TcfWriter
         writeSentence(aJCas, aTextCorpus, tokensBeginPositionMap);
         writePosTags(aJCas, aTextCorpus, tokensBeginPositionMap);
         writeLemmas(aJCas, aTextCorpus, tokensBeginPositionMap);
-        writeOrthograph(aJCas, aTextCorpus, tokensBeginPositionMap);
+        writeOrthograph(aJCas, aTextCorpus);
         writeDependency(aJCas, aTextCorpus, tokensBeginPositionMap);
         writeNamedEntity(aJCas, aTextCorpus, tokensBeginPositionMap);
         writeCoreference(aJCas, aTextCorpus, tokensBeginPositionMap);
@@ -377,8 +377,7 @@ public class TcfWriter
         
     }
     
-    private void writeOrthograph(JCas aJCas, TextCorpus aTextCorpus,
-            Map<Integer, eu.clarin.weblicht.wlfxb.tc.api.Token> aTokensBeginPositionMap) {
+    private void writeOrthograph(JCas aJCas, TextCorpus aTextCorpus) {
         if (!JCasUtil.exists(aJCas, SofaChangeAnnotation.class)) {
             // Do nothing if there are no SofaChangeAnnotation layer
             // (Which is equivalent to Orthography layer in TCF) in the CAS
