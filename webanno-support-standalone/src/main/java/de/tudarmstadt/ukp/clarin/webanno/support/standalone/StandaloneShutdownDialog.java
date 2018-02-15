@@ -106,16 +106,17 @@ public class StandaloneShutdownDialog
                     new ShutdownDialogAvailableEvent(StandaloneShutdownDialog.this));
 
             EventQueue.invokeLater(() -> {
-                final JOptionPane optionPane = new JOptionPane(
-                        new JLabel("<HTML>" + applicationName + " is running now and can be "
-                                + "accessed via <a href=\"http://localhost:8080\">http://localhost:8080</a>.<br>"
-                                + applicationName
-                                + " works best with the browsers Google Chrome or Safari.<br>"
-                                + "Use this dialog to shut " + applicationName + " down.</HTML>"),
+                JLabel label = new JLabel("<HTML>" + applicationName + " is running now and can be "
+                        + "accessed via <a href=\"http://localhost:8080\">http://localhost:8080</a>.<br>"
+                        + applicationName
+                        + " works best with the browsers Google Chrome or Safari.<br>"
+                        + "Use this dialog to shut " + applicationName + " down.</HTML>");
+                final JOptionPane optionPane = new JOptionPane(label,
                         JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION, null,
                         new String[] { "Shutdown" });
 
                 final JDialog dialog = new JDialog((JFrame) null, applicationName, true);
+                
                 dialog.setContentPane(optionPane);
                 dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
                 dialog.addWindowListener(new WindowAdapter()
@@ -125,14 +126,20 @@ public class StandaloneShutdownDialog
                     {
                         // Avoid closing window by other means than button
                     }
-                });
+                });                
                 optionPane.addPropertyChangeListener(aEvt -> {
                     if (dialog.isVisible() && (aEvt.getSource() == optionPane)
                             && (aEvt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY))) {
                         System.exit(0);
                     }
-                });
+                });                
                 dialog.pack();
+                
+                // Move the focus from the shutdown button to the JLabel. This avoids unintentially
+                // shutdowns from ricochet spacebar/return keypresses meant for the application
+                // which was in focus before this dialog popped up.
+                label.requestFocus();
+                
                 dialog.setVisible(true);
             });
         }
