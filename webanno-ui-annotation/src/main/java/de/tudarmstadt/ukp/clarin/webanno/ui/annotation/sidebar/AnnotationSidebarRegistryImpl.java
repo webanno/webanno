@@ -77,7 +77,8 @@ public class AnnotationSidebarRegistryImpl
         extensions = Collections.unmodifiableList(exts);
     }
 
-    private int getOrder(AnnotationSidebarFactory asf) {
+    private int getOrder(AnnotationSidebarFactory asf)
+    {
         return (asf instanceof Ordered ? ((Ordered) asf).getOrder() : Ordered.LOWEST_PRECEDENCE);
     }
     
