@@ -17,8 +17,11 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar;
 
+import static java.util.Comparator.comparing;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -28,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -59,8 +62,12 @@ public class AnnotationSidebarRegistryImpl
 
         if (extensionsProxy != null) {
             exts.addAll(extensionsProxy);
-            OrderComparator.sort(exts);
-        
+
+            // Sort first by the order, if specified, then by the display name to break ties
+            Comparator<AnnotationSidebarFactory> comparator = comparing(this::getOrder)
+                    .thenComparing(comparing(asf -> asf.getDisplayName()));
+            exts.sort(comparator);
+
             for (AnnotationSidebarFactory fs : exts) {
                 log.info("Found annotation sidebar extension: {}",
                         ClassUtils.getAbbreviatedName(fs.getClass(), 20));
@@ -68,6 +75,10 @@ public class AnnotationSidebarRegistryImpl
         }
         
         extensions = Collections.unmodifiableList(exts);
+    }
+
+    private int getOrder(AnnotationSidebarFactory asf) {
+        return (asf instanceof Ordered ? ((Ordered) asf).getOrder() : Ordered.LOWEST_PRECEDENCE);
     }
     
     @Override
