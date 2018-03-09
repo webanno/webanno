@@ -17,21 +17,20 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar;
 
-import static java.util.Comparator.comparing;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -49,7 +48,7 @@ public class AnnotationSidebarRegistryImpl
     {
         extensionsProxy = aExtensions;
     }
-    
+
     @EventListener
     public void onContextRefreshedEvent(ContextRefreshedEvent aEvent)
     {
@@ -62,11 +61,7 @@ public class AnnotationSidebarRegistryImpl
 
         if (extensionsProxy != null) {
             exts.addAll(extensionsProxy);
-
-            // Sort first by the order, if specified, then by the display name to break ties
-            Comparator<AnnotationSidebarFactory> comparator = comparing(this::getOrder)
-                    .thenComparing(comparing(asf -> asf.getDisplayName()));
-            exts.sort(comparator);
+            exts.sort(buildComparator());
 
             for (AnnotationSidebarFactory fs : exts) {
                 log.info("Found annotation sidebar extension: {}",
@@ -75,11 +70,6 @@ public class AnnotationSidebarRegistryImpl
         }
         
         extensions = Collections.unmodifiableList(exts);
-    }
-
-    private int getOrder(AnnotationSidebarFactory asf)
-    {
-        return (asf instanceof Ordered ? ((Ordered) asf).getOrder() : Ordered.LOWEST_PRECEDENCE);
     }
     
     @Override
@@ -104,5 +94,18 @@ public class AnnotationSidebarRegistryImpl
     public AnnotationSidebarFactory getDefaultSidebarFactory()
     {
         return getSidebarFactories().get(0);
+    }
+
+    /**
+     * Builds a comparator that sorts first by the order, if specified, then by the display
+     * name to break ties. It is assumed that the compared elements are all non-null
+     * @return The comparator
+     */
+    private Comparator<AnnotationSidebarFactory> buildComparator()
+    {
+        return (asf1, asf2) -> new CompareToBuilder()
+                .appendSuper(AnnotationAwareOrderComparator.INSTANCE.compare(asf1, asf2))
+                .append(asf1.getDisplayName(), asf2.getDisplayName())
+                .toComparison();
     }
 }
