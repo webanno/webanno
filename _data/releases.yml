@@ -1,9 +1,13 @@
+- version: 3.3.5
+  date: 2018-03-21
+  status: stable
+  
 - version: 3.3.4
-  date: 2017-02-20
+  date: 2018-02-20
   status: stable
   
 - version: 3.3.3
-  date: 2017-01-20
+  date: 2018-01-20
   status: stable
 
 - version: 3.3.2
