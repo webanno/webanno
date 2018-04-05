@@ -1,3 +1,10 @@
+- version: 3.4.0-beta-1
+  date: 2018-04-05
+  status: beta
+  user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(3.4.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
+  admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(3.4.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
+  developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(3.4.x)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
+  
 - version: 3.3.5
   date: 2018-03-21
   status: stable
@@ -62,11 +69,11 @@
   date: 2015-07-26
   status: stable
 
-- version: 3.4.0-SNAPSHOT
+- version: 3.5.0-SNAPSHOT
   status: unstable
-  user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/1/
-  admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/2/
-  developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-doc/doclinks/3/
+  user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
+  admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
+  developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
  
 # - version: 3.3.0-beta-6
 #   date: 2017-11-19
