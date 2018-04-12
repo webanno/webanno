@@ -1,7 +1,7 @@
 <aside>
 
 <div class="radius b20 center">
-{% assign stable = (site.data.releases | where:"status", "stable" | first) %}
+{% assign stable = (site.data.releases | where:"status", "stable" | first) %}
 Latest release: {{ stable.version }} ({{ stable.date }})
 </div>
 
