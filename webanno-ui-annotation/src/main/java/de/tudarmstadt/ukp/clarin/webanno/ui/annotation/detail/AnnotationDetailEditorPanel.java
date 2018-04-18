@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
+import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.event.AjaxAfterAnnotationUpdateEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
@@ -49,6 +50,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -630,6 +632,13 @@ public class AnnotationDetailEditorPanel
         // Update the features of the selected annotation from the values presently in the
         // feature editors
         writeFeatureEditorModelsToCas(adapter, aJCas);
+
+        //Send AjaxEvent so that Active Learning sidebar could receive the changes
+        List<Serializable> values = new ArrayList<>();
+        for (FeatureState featureState : featureStates) {
+            send(getPage(), Broadcast.BREADTH, new AjaxAfterAnnotationUpdateEvent(aTarget, state,
+                    featureState.value));
+        }
 
         // Update progress information
         LOG.trace("actionAnnotate() updating progress information");
