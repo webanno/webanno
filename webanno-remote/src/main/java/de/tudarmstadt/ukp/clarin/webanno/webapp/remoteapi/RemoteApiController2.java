@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 
 import org.apache.commons.io.FileUtils;
@@ -66,8 +65,10 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.util.FSUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -100,12 +101,13 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.ProjectPermission;
+import de.tudarmstadt.ukp.clarin.webanno.model.ProjectState;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.ZipUtils;
-import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3Writer;
+import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3XWriter;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.v2.exception.AccessForbiddenException;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.v2.exception.IllegalObjectStateException;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.v2.exception.IncompatibleDocumentException;
@@ -138,6 +140,7 @@ public class RemoteApiController2
     private static final String EXPORT = "export.zip";
     
     private static final String PARAM_FILE = "file";
+    private static final String PARAM_CONTENT = "content";
     private static final String PARAM_NAME = "name";
     private static final String PARAM_FORMAT = "format";
     private static final String PARAM_STATE = "state";
@@ -158,14 +161,14 @@ public class RemoteApiController2
     
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private @Resource DocumentService documentService;
-    private @Resource CurationDocumentService curationService;
-    private @Resource ProjectService projectService;
-    private @Resource ImportExportService importExportService;
-    private @Resource AnnotationSchemaService annotationService;
-    private @Resource UserDao userRepository;
-    private @Resource ImportService importService;
-    private @Resource ExportService exportService;
+    private @Autowired DocumentService documentService;
+    private @Autowired CurationDocumentService curationService;
+    private @Autowired ProjectService projectService;
+    private @Autowired ImportExportService importExportService;
+    private @Autowired AnnotationSchemaService annotationService;
+    private @Autowired UserDao userRepository;
+    private @Autowired ImportService importService;
+    private @Autowired ExportService exportService;
 
     @ExceptionHandler(value = RemoteApiException.class)
     public ResponseEntity<RResponse<Void>> handleException(RemoteApiException aException)
@@ -326,7 +329,7 @@ public class RemoteApiController2
         Project project = new Project();
         project.setName(aName);
         projectService.createProject(project);
-        annotationService.initializeTypesForProject(project);
+        annotationService.initializeProject(project);
         
         // Create permission for the project creator
         String owner = aCreator.isPresent() ? aCreator.get() : user.getUsername();
@@ -429,7 +432,7 @@ public class RemoteApiController2
         // Get project (this also ensures that it exists and that the current user can access it
         Project project = getProject(aProjectId);
         
-        ProjectExportRequest per = new ProjectExportRequest(project, "bin");
+        ProjectExportRequest per = new ProjectExportRequest(Model.of(project), "bin");
         File exportedFile = exportService.generateZipFile(per);
         
         // Turn the file into a resource and auto-delete the file when the resource closes the
@@ -482,7 +485,7 @@ public class RemoteApiController2
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RResponse<RDocument>> documentCreate(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
-            @RequestParam(value = PARAM_FILE) MultipartFile aFile,
+            @RequestParam(value = PARAM_CONTENT) MultipartFile aFile,
             @RequestParam(value = PARAM_NAME) String aName,
             @RequestParam(value = PARAM_FORMAT) String aFormat,
             @RequestParam(value = PARAM_STATE) Optional<String> aState,
@@ -521,7 +524,7 @@ public class RemoteApiController2
             case CURATION_FINISHED:
             default: 
                 throw new IllegalObjectStateException(
-                        "State [%s] not valid when uploading a curation.", aState.get());
+                        "State [%s] not valid when uploading a document.", aState.get());
             }
         }
         
@@ -632,7 +635,7 @@ public class RemoteApiController2
     @ApiOperation(value = "Delete a document from a project")
     @RequestMapping(
             value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{" 
-                    + PARAM_DOCUMENT_ID + "}/", 
+                    + PARAM_DOCUMENT_ID + "}", 
             method = RequestMethod.DELETE,
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RResponse<Void>> documentDelete(
@@ -687,7 +690,7 @@ public class RemoteApiController2
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
             @PathVariable(PARAM_ANNOTATOR_ID) String aAnnotatorId,
-            @RequestParam(value = PARAM_FILE) MultipartFile aFile,
+            @RequestParam(value = PARAM_CONTENT) MultipartFile aFile,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat,
             @RequestParam(value = PARAM_STATE) Optional<String> aState,
             UriComponentsBuilder aUcb) 
@@ -718,7 +721,7 @@ public class RemoteApiController2
         
         return ResponseEntity.created(aUcb
                 .path(API_BASE + "/" + PROJECTS + "/{pid}/" + DOCUMENTS + "/{did}/" + ANNOTATIONS
-                        + "{aid}")
+                        + "/{aid}")
                 .buildAndExpand(project.getId(), document.getId(), annotator.getUsername()).toUri())
                 .body(response);
     }
@@ -775,7 +778,7 @@ public class RemoteApiController2
     public ResponseEntity<RResponse<RAnnotation>> curationCreate(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
-            @RequestParam(value = PARAM_FILE) MultipartFile aFile,
+            @RequestParam(value = PARAM_CONTENT) MultipartFile aFile,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat,
             @RequestParam(value = PARAM_STATE) Optional<String> aState,
             UriComponentsBuilder aUcb) 
@@ -789,11 +792,17 @@ public class RemoteApiController2
         // If they are compatible, then we can store the new annotations
         curationService.writeCurationCas(annotationCas, document, false);
 
+        AnnotationDocumentState resultState = AnnotationDocumentState.IN_PROGRESS;
         if (aState.isPresent()) {
             SourceDocumentState state = parseSourceDocumentState(aState.get());
             switch (state) {
-            case CURATION_IN_PROGRESS: // fallthrough
+            case CURATION_IN_PROGRESS: 
+                resultState = AnnotationDocumentState.IN_PROGRESS;
+                document.setState(state);
+                documentService.createSourceDocument(document);
+                break;
             case CURATION_FINISHED:
+                resultState = AnnotationDocumentState.FINISHED;
                 document.setState(state);
                 documentService.createSourceDocument(document);
                 break;
@@ -811,7 +820,7 @@ public class RemoteApiController2
         }
         
         RResponse<RAnnotation> response = new RResponse<>(new RAnnotation(
-                WebAnnoConst.CURATION_USER, AnnotationDocumentState.NEW, new Date()));
+                WebAnnoConst.CURATION_USER, resultState, new Date()));
         return ResponseEntity.created(aUcb
                 .path(API_BASE + "/" + PROJECTS + "/{pid}/" + DOCUMENTS + "/{did}/" + CURATION)
                 .buildAndExpand(project.getId(), document.getId()).toUri())
@@ -852,6 +861,18 @@ public class RemoteApiController2
         SourceDocument doc = getDocument(project, aDocumentId);
         curationService.deleteCurationCas(doc);
         
+        // If we delete the curation, it cannot be any longer in-progress or finished. The best
+        // guess is that we set the state back to annotation-in-progress. 
+        switch (doc.getState()) {
+        case CURATION_IN_PROGRESS: // Fall-through
+        case CURATION_FINISHED:
+            doc.setState(SourceDocumentState.ANNOTATION_IN_PROGRESS);
+            documentService.createSourceDocument(doc);
+            break;
+        default:
+            // Nothing to do
+        }
+        
         return ResponseEntity
                 .ok(new RResponse<>(INFO, "Curated annotations for document ["
                         + aDocumentId + "] deleted from project [" + aProjectId + "]."));
@@ -886,7 +907,7 @@ public class RemoteApiController2
             String msg = "[" + doc.getName() + "] No writer found for format [" + format
                     + "] - exporting as WebAnno TSV instead.";
             LOG.info(msg);
-            writer = WebannoTsv3Writer.class;
+            writer = WebannoTsv3XWriter.class;
         }
         
         // In principle we don't need this call - but it makes sure that we check that the
@@ -908,10 +929,11 @@ public class RemoteApiController2
                 FileUtils.forceDelete(exportedAnnoFile);
             }
         }
-
+        
         String filename = FilenameUtils.removeExtension(doc.getName());
         filename += "-" + aAnnotatorId;
-        filename += "." + FilenameUtils.getExtension(doc.getName());
+        // Actually, exportedAnnoFile cannot be null here - the warning can be ignored.
+        filename += "." + FilenameUtils.getExtension(exportedAnnoFile.getName());
         
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentLength(resource.length);
@@ -1047,6 +1069,10 @@ public class RemoteApiController2
     
     public static SourceDocumentState parseSourceDocumentState(String aState)
     {
+        if (aState == null) {
+            return null;
+        }
+        
         switch (aState) {
         case "NEW":
             return SourceDocumentState.NEW;
@@ -1063,8 +1089,34 @@ public class RemoteApiController2
         }
     }
     
+    public static String projectStateToString(ProjectState aState)
+    {
+        if (aState == null) {
+            return null;
+        }
+        
+        switch (aState) {
+        case NEW:
+            return "NEW";
+        case ANNOTATION_IN_PROGRESS:
+            return "ANNOTATION-IN-PROGRESS";
+        case ANNOTATION_FINISHED:
+            return "ANNOTATION-COMPLETE";
+        case CURATION_FINISHED:
+            return "CURATION-COMPLETE";
+        case CURATION_IN_PROGRESS:
+            return "CURATION-IN-PROGRESS";
+        default:
+            throw new IllegalArgumentException("Unknown project state [" + aState + "]");
+        }
+    }
+    
     public static String sourceDocumentStateToString(SourceDocumentState aState)
     {
+        if (aState == null) {
+            return null;
+        }
+        
         switch (aState) {
         case NEW:
             return "NEW";
@@ -1083,6 +1135,10 @@ public class RemoteApiController2
     
     public static AnnotationDocumentState parseAnnotationDocumentState(String aState)
     {
+        if (aState == null) {
+            return null;
+        }
+        
         switch (aState) {
         case "NEW":
             return AnnotationDocumentState.NEW;
@@ -1100,6 +1156,10 @@ public class RemoteApiController2
     
     public static String annotationDocumentStateToString(AnnotationDocumentState aState)
     {
+        if (aState == null) {
+            return null;
+        }
+        
         switch (aState) {
         case NEW:
             return "NEW";

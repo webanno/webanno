@@ -17,29 +17,32 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.automation.service;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.MIRA;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.MIRA_TEMPLATE;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.TRAIN;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipFile;
+import java.util.Objects;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
@@ -49,12 +52,12 @@ import org.apache.uima.util.CasCreationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAware;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.AutomationStatus;
 import de.tudarmstadt.ukp.clarin.webanno.automation.model.MiraTemplate;
@@ -66,23 +69,16 @@ import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
 @Component(AutomationService.SERVICE_NAME)
 public class MiraAutomationServiceImpl
-    implements AutomationService, ProjectLifecycleAware
+    implements AutomationService
 {
- 
-
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
-    @Resource(name = "automationCasStorageService")
-    private AutomationCasStorageService automationCasStorageService;
     
     @Value(value = "${repository.path}")
     private File dir;
 
-    @Resource(name = "casDoctor")
-    private CasDoctor casDoctor;
-    
-    @Resource(name = "importExportService")
-    private ImportExportService importExportService;
+    private @Autowired AutomationCasStorageService automationCasStorageService;
+    private @Autowired CasDoctor casDoctor;
+    private @Autowired ImportExportService importExportService;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -91,8 +87,8 @@ public class MiraAutomationServiceImpl
     public List<String> listTemplates(Project aProject)
     {
         // list all MIRA template files
-        File[] files = new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + MIRA
-                + MIRA_TEMPLATE).listFiles();
+        File[] files = new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aProject.getId() + MIRA + MIRA_TEMPLATE).listFiles();
 
         // Name of the MIRA template files
         List<String> templateFiles = new ArrayList<>();
@@ -113,8 +109,8 @@ public class MiraAutomationServiceImpl
                 "FROM MiraTemplate ORDER BY trainFeature ASC ", MiraTemplate.class).getResultList();
         List<MiraTemplate> templatesInThisProject = new ArrayList<>();
         for (MiraTemplate miraTemplate : allTenplates) {
-            if (miraTemplate.getTrainFeature() != null
-                    && miraTemplate.getTrainFeature().getProject().getId() == aProject.getId()) {
+            if (nonNull(miraTemplate.getTrainFeature()) && Objects.equals(
+                    miraTemplate.getTrainFeature().getProject().getId(), aProject.getId())) {
                 templatesInThisProject.add(miraTemplate);
             }
         }
@@ -125,8 +121,8 @@ public class MiraAutomationServiceImpl
     public void removeTemplate(Project aProject, String aFileName, String aUsername)
         throws IOException
     {
-        FileUtils.forceDelete(new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + MIRA
-                + MIRA_TEMPLATE + aFileName));
+        FileUtils.forceDelete(new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aProject.getId() + MIRA + MIRA_TEMPLATE + aFileName));
         
         Logging.setMDC(aProject.getId(), aUsername);
         log.info("Removed template file [{}] from project [{}] ({})", aFileName, aProject.getName(),
@@ -138,8 +134,8 @@ public class MiraAutomationServiceImpl
     public void createTemplate(Project aProject, File aContent, String aFileName, String aUsername)
         throws IOException
     {
-        String templatePath = dir.getAbsolutePath() + PROJECT + aProject.getId() + MIRA
-                + MIRA_TEMPLATE;
+        String templatePath = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId()
+                + MIRA + MIRA_TEMPLATE;
         FileUtils.forceMkdir(new File(templatePath));
         copyLarge(new FileInputStream(aContent), new FileOutputStream(new File(templatePath
                 + aFileName)));
@@ -223,14 +219,14 @@ public class MiraAutomationServiceImpl
     @Override
     public File getMiraDir(AnnotationFeature aFeature)
     {
-        return new File(dir, PROJECT + aFeature.getProject().getId() + MIRA);
+        return new File(dir, "/" + PROJECT_FOLDER + "/" + aFeature.getProject().getId() + MIRA);
     }
 
     @Override
     @Transactional
     public void createTemplate(MiraTemplate aTemplate)
     {
-        if (aTemplate.getId() == 0) {
+        if (isNull(aTemplate.getId())) {
             entityManager.persist(aTemplate);
         }
         else {
@@ -302,8 +298,9 @@ public class MiraAutomationServiceImpl
     public File getDocumentFolder(TrainingDocument trainingDocument)
         throws IOException
     {
-        File trainingDocFolder = new File(dir, PROJECT + trainingDocument.getProject().getId()
-                + TRAIN + trainingDocument.getId() + SOURCE);
+        File trainingDocFolder = new File(dir,
+                "/" + PROJECT_FOLDER + "/" + trainingDocument.getProject().getId() + TRAIN
+                        + trainingDocument.getId() + "/" + SOURCE_FOLDER);
         FileUtils.forceMkdir(trainingDocFolder);
         return trainingDocFolder;
     }
@@ -344,8 +341,8 @@ public class MiraAutomationServiceImpl
     {       
         entityManager.remove(aDocument);
 
-        String path = dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + TRAIN
-                + aDocument.getId();
+        String path = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aDocument.getProject().getId() + TRAIN + aDocument.getId();
         // remove from file both source and related annotation file
         if (new File(path).exists()) {
             FileUtils.forceDelete(new File(path));
@@ -404,7 +401,7 @@ public class MiraAutomationServiceImpl
     public void createTrainingDocument(TrainingDocument aDocument)
         throws IOException
     {
-        if (aDocument.getId() == 0) {
+        if (isNull(aDocument.getId())) {
             entityManager.persist(aDocument);
         }
         else {
@@ -444,8 +441,8 @@ public class MiraAutomationServiceImpl
     @Override
     public File getTrainingDocumentFile(TrainingDocument aDocument)
     {
-        File documentUri = new File(dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId()
-                + TRAIN + aDocument.getId() + SOURCE);
+        File documentUri = new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aDocument.getProject().getId() + TRAIN + aDocument.getId() + "/" + SOURCE_FOLDER);
         return new File(documentUri, aDocument.getName());
     }
 
@@ -477,36 +474,79 @@ public class MiraAutomationServiceImpl
     @Override
     public File getCasFile(TrainingDocument aDocument)
     {
-        File documentUri = new File(dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId()
-                + TRAIN + aDocument.getId() + ANNOTATION);
+        File documentUri = new File(
+                dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId()
+                        + TRAIN + aDocument.getId() + "/" + ANNOTATION_FOLDER);
         return new File(documentUri, FilenameUtils.removeExtension(aDocument.getName()) + ".ser");
     }
-
+    
     @Override
-    public void afterProjectCreate(Project aProject)
-        throws Exception
+    @Transactional
+    public void uploadTrainingDocument(File aFile, TrainingDocument aDocument)
+        throws IOException
     {
-        // Nothing at the moment
+        // Check if the file has a valid format / can be converted without error
+        JCas cas = null;
+        try {
+            if (aDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
+                if (!isTabSepFileFormatCorrect(aFile)) {
+                    throw new IOException(
+                            "This TAB-SEP file is not in correct format. It should have two columns separated by TAB!");
+                }
+            }
+            else {
+                cas = importExportService.importCasFromFile(aFile, aDocument.getProject(),
+                        aDocument.getFormat());
+                automationCasStorageService.analyzeAndRepair(aDocument, cas.getCas());
+            }
+        }
+        catch (IOException e) {
+            removeTrainingDocument(aDocument);
+            throw e;
+        }
+        catch (Exception e) {
+            removeTrainingDocument(aDocument);
+            throw new IOException(e.getMessage(), e);
+        }
+
+        // Copy the original file into the repository
+        File targetFile = getTrainingDocumentFile(aDocument);
+        FileUtils.forceMkdir(targetFile.getParentFile());
+        FileUtils.copyFile(aFile, targetFile);
+
+        // Copy the initial conversion of the file into the repository
+        if (cas != null) {
+            CasPersistenceUtils.writeSerializedCas(cas, getCasFile(aDocument));
+        }
+
+        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                String.valueOf(aDocument.getProject().getId()))) {
+            Project project = aDocument.getProject();
+            log.info("Imported training document [{}]({}) to project [{}]({})", 
+                    aDocument.getName(), aDocument.getId(), project.getName(), project.getId());
+        }
     }
 
-    @Override
-    public void beforeProjectRemove(Project aProject)
-        throws Exception
+    /**
+     * Check if a TAB-Sep training file is in correct format before importing
+     */
+    private boolean isTabSepFileFormatCorrect(File aFile)
     {
-        for (TrainingDocument document : listTrainingDocuments(aProject)) {
-            removeTrainingDocument(document);
+        try {
+            LineIterator it = new LineIterator(new FileReader(aFile));
+            while (it.hasNext()) {
+                String line = it.next();
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+                if (line.split("\t").length != 2) {
+                    return false;
+                }
+            }
         }
-        for (MiraTemplate template : listMiraTemplates(aProject)) {
-            removeMiraTemplate(template);
+        catch (Exception e) {
+            return false;
         }
-    }
-
-    @Override
-    public void onProjectImport(ZipFile zip,
-            de.tudarmstadt.ukp.clarin.webanno.export.model.Project aExportedProject,
-            Project aProject)
-        throws Exception
-    {
-        // Nothing at the moment
+        return true;
     }
 }

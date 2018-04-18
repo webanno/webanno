@@ -19,7 +19,6 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.correction;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectByAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED;
-import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition.transition;
 import static org.apache.uima.fit.util.JCasUtil.select;
 
 import java.io.IOException;
@@ -45,6 +44,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +52,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectType;
 import de.tudarmstadt.ukp.clarin.webanno.api.SecurityUtil;
-import de.tudarmstadt.ukp.clarin.webanno.api.SettingsService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorBase;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
@@ -65,6 +65,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotationEditor;
+import de.tudarmstadt.ukp.clarin.webanno.brat.config.BratProperties;
 import de.tudarmstadt.ukp.clarin.webanno.brat.util.BratAnnotatorUtility;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
@@ -72,7 +73,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -91,14 +91,12 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.ExportDocumentDialog;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.GuidelinesDialog;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog.OpenDocumentDialog;
-import de.tudarmstadt.ukp.clarin.webanno.ui.core.menu.MenuItem;
-import de.tudarmstadt.ukp.clarin.webanno.ui.core.menu.MenuItemCondition;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.SuggestionViewPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.CurationContainer;
-import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.CurationUserSegmentForAnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.SourceListView;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.SuggestionBuilder;
+import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.UserAnnotationSegment;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import wicket.contrib.input.events.EventType;
 import wicket.contrib.input.events.InputBehavior;
@@ -108,7 +106,6 @@ import wicket.contrib.input.events.key.KeyType;
  * This is the main class for the correction page. Displays in the lower panel the Automatically
  * annotated document and in the upper panel the corrected annotation
  */
-@MenuItem(icon = "images/check_box.png", label = "Correction", prio = 120)
 @MountPath("/correction.html")
 @ProjectType(id = WebAnnoConst.PROJECT_TYPE_CORRECTION, prio = 120)
 public class CorrectionPage
@@ -118,12 +115,13 @@ public class CorrectionPage
 
     private static final long serialVersionUID = 1378872465851908515L;
 
+    private @SpringBean CasStorageService casStorageService;
     private @SpringBean DocumentService documentService;
     private @SpringBean CurationDocumentService curationDocumentService;
     private @SpringBean CorrectionDocumentService correctionDocumentService;
     private @SpringBean ProjectService projectService;
     private @SpringBean ConstraintsService constraintsService;
-    private @SpringBean SettingsService settingsService;
+    private @SpringBean BratProperties defaultPreferences;
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean UserDao userRepository;
 
@@ -173,17 +171,16 @@ public class CorrectionPage
         rightSidebar.setOutputMarkupId(true);
         add(rightSidebar);
 
-        LinkedList<CurationUserSegmentForAnnotationDocument> sentences = new LinkedList<>();
-        CurationUserSegmentForAnnotationDocument curationUserSegmentForAnnotationDocument = 
-                new CurationUserSegmentForAnnotationDocument();
+        List<UserAnnotationSegment> segments = new LinkedList<>();
+        UserAnnotationSegment userAnnotationSegment = new UserAnnotationSegment();
         if (getModelObject().getDocument() != null) {
-            curationUserSegmentForAnnotationDocument.setSelectionByUsernameAndAddress(
-                    annotationSelectionByUsernameAndAddress);
-            curationUserSegmentForAnnotationDocument.setBratAnnotatorModel(getModelObject());
-            sentences.add(curationUserSegmentForAnnotationDocument);
+            userAnnotationSegment
+                    .setSelectionByUsernameAndAddress(annotationSelectionByUsernameAndAddress);
+            userAnnotationSegment.setAnnotatorState(getModelObject());
+            segments.add(userAnnotationSegment);
         }
-        suggestionView = new SuggestionViewPanel("correctionView",
-                new Model<>(sentences))
+        
+        suggestionView = new SuggestionViewPanel("correctionView", new ListModel<>(segments))
         {
             private static final long serialVersionUID = 2583509126979792202L;
 
@@ -200,7 +197,7 @@ public class CorrectionPage
                     JCas editorCas = getEditorCas();
                     setCurationSegmentBeginEnd(editorCas);
 
-                    suggestionView.updatePanel(aTarget, curationContainer, annotationEditor,
+                    suggestionView.updatePanel(aTarget, curationContainer,
                             annotationSelectionByUsernameAndAddress, curationSegment);
                     
                     annotationEditor.requestRender(aTarget);
@@ -245,27 +242,6 @@ public class CorrectionPage
                 // Reload the page using AJAX. This does not add the project/document ID to the URL,
                 // but being AJAX it flickers less.
                 actionLoadDocument(aTarget);
-                
-//                aCallbackTarget.addChildren(getPage(), IFeedback.class);
-//                try {
-//                    actionLoadDocument(aCallbackTarget);
-//
-//                    String username = SecurityContextHolder.getContext().getAuthentication()
-//                            .getName();
-//                    User user = userRepository.get(username);
-//                    detailEditor.setEnabled(
-//                            !FinishImage.isFinished(getModel(), user, documentService));
-//                    detailEditor.loadFeatureEditorModels(aCallbackTarget);
-//                }
-//                catch (Exception e) {
-//                    LOG.error("Unable to load data", e);
-//                    error("Unable to load data: " + ExceptionUtils.getRootCauseMessage(e));
-//                }
-//                aCallbackTarget.add(finishDocumentIcon);
-//                aCallbackTarget.appendJavaScript(
-//                        "Wicket.Window.unloadConfirmation=false;window.location.reload()");
-//                aCallbackTarget.add(documentNamePanel);
-//                aCallbackTarget.add(getOrCreatePositionInfoLabel());
             }
         });
 
@@ -398,7 +374,6 @@ public class CorrectionPage
             {
                 aTarget.addChildren(getPage(), IFeedback.class);
                 aTarget.add(getOrCreatePositionInfoLabel());
-                aTarget.add(suggestionView);
 
                 try {
                     AnnotatorState state = getModelObject();
@@ -407,16 +382,13 @@ public class CorrectionPage
                     annotationEditor.requestRender(aTarget);
 
                     // info(bratAnnotatorModel.getMessage());
-                    SuggestionBuilder builder = new SuggestionBuilder(documentService,
-                            correctionDocumentService, curationDocumentService, annotationService,
-                            userRepository);
+                    SuggestionBuilder builder = new SuggestionBuilder(casStorageService,
+                            documentService, correctionDocumentService, curationDocumentService,
+                            annotationService, userRepository);
                     curationContainer = builder.buildCurationContainer(state);
                     setCurationSegmentBeginEnd(editorCas);
                     curationContainer.setBratAnnotatorModel(state);
 
-                    suggestionView.updatePanel(aTarget, curationContainer, annotationEditor,
-                            annotationSelectionByUsernameAndAddress, curationSegment);
-                    
                     update(aTarget);
                 }
                 catch (Exception e) {
@@ -485,13 +457,12 @@ public class CorrectionPage
     private void update(AjaxRequestTarget target)
         throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
-        suggestionView.updatePanel(target, curationContainer, annotationEditor,
+        suggestionView.updatePanel(target, curationContainer,
                 annotationSelectionByUsernameAndAddress, curationSegment);
 
         gotoPageTextField.setModelObject(getModelObject().getFirstVisibleUnitIndex());
 
         target.add(gotoPageTextField);
-        target.add(suggestionView);
         target.add(getOrCreatePositionInfoLabel());
     }
     
@@ -521,7 +492,7 @@ public class CorrectionPage
         state.setFirstVisibleUnit(sentences.get(selectedSentence - 1));
         state.setFocusUnitIndex(selectedSentence);        
         
-        SuggestionBuilder builder = new SuggestionBuilder(documentService,
+        SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                 correctionDocumentService, curationDocumentService, annotationService,
                 userRepository);
         curationContainer = builder.buildCurationContainer(state);
@@ -540,7 +511,7 @@ public class CorrectionPage
         annotationEditor.requestRender(aTarget);
 
         curationContainer.setBratAnnotatorModel(getModelObject());
-        suggestionView.updatePanel(aTarget, curationContainer, annotationEditor,
+        suggestionView.updatePanel(aTarget, curationContainer,
                 annotationSelectionByUsernameAndAddress, curationSegment);
     }
     
@@ -557,7 +528,7 @@ public class CorrectionPage
                     state.getFirstVisibleUnitAddress());
             state.setFirstVisibleUnit(sentence);
 
-            SuggestionBuilder builder = new SuggestionBuilder(documentService,
+            SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
                     userRepository);
             curationContainer = builder.buildCurationContainer(state);
@@ -601,12 +572,9 @@ public class CorrectionPage
             AnnotationDocument annotationDocument = documentService.getAnnotationDocument(
                     state.getDocument(), state.getUser());
 
-            annotationDocument.setState(transition(ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED));
-            
-            // manually update state change!! No idea why it is not updated in the DB
-            // without calling createAnnotationDocument(...)
-            documentService.createAnnotationDocument(annotationDocument);
-            
+            documentService.transitionAnnotationDocumentState(annotationDocument,
+                    ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED);
+
             aCallbackTarget.add(finishDocumentIcon);
             aCallbackTarget.add(finishDocumentLink);
             aCallbackTarget.add(detailEditor);
@@ -657,7 +625,7 @@ public class CorrectionPage
             }
 
             // Update the CASes
-            documentService.upgradeCas(editorCas.getCas(), annotationDocument);
+            annotationService.upgradeCas(editorCas.getCas(), annotationDocument);
             correctionDocumentService.upgradeCorrectionCas(correctionCas.getCas(),
                     state.getDocument());
 
@@ -673,7 +641,7 @@ public class CorrectionPage
             state.setConstraints(constraintsService.loadConstraints(state.getProject()));
 
             // Load user preferences
-            PreferencesUtil.loadPreferences(username, settingsService, projectService,
+            PreferencesUtil.loadPreferences(username, defaultPreferences, projectService,
                     annotationService, state, state.getMode());
 
             // Initialize the visible content
@@ -694,6 +662,8 @@ public class CorrectionPage
             gotoPageTextField.setModelObject(1);
 
             setCurationSegmentBeginEnd(editorCas);
+            suggestionView.init(aTarget, curationContainer,
+                    annotationSelectionByUsernameAndAddress, curationSegment);
             update(aTarget);
 
             // Re-render the whole page because the font size
@@ -702,11 +672,8 @@ public class CorrectionPage
             }
 
             // Update document state
-            if (state.getDocument().getState().equals(SourceDocumentState.NEW)) {
-                state.getDocument().setState(SourceDocumentStateTransition
-                        .transition(SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS));
-                documentService.createSourceDocument(state.getDocument());
-            }
+            documentService.transitionSourceDocumentState(state.getDocument(),
+                    SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS);            
             
             // Reset the editor
             detailEditor.reset(aTarget);
@@ -725,7 +692,7 @@ public class CorrectionPage
     {
         try {
             AnnotatorState state = getModelObject();
-            SuggestionBuilder builder = new SuggestionBuilder(documentService,
+            SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
                     userRepository);
             curationContainer = builder.buildCurationContainer(state);
@@ -737,16 +704,5 @@ public class CorrectionPage
         catch (Exception e) {
             handleException(aTarget, e);
         }
-    }
-    
-    /**
-     * Only project admins and annotators can see this page
-     */
-    @MenuItemCondition
-    public static boolean menuItemCondition(ProjectService aRepo, UserDao aUserRepo)
-    {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = aUserRepo.get(username);
-        return SecurityUtil.annotationEnabeled(aRepo, user, WebAnnoConst.PROJECT_TYPE_CORRECTION);
     }
 }

@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -63,7 +64,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
-import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3Writer;
+import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3XWriter;
 
 public class ExportUtil
 {
@@ -71,7 +72,7 @@ public class ExportUtil
     
     private static final String ANNOTATION_ORIGINAL_FOLDER = "/annotation/";
     private static final String CONSTRAINTS = "/constraints/";
-    private static final String LOG_FOLDER = "/" + ProjectService.LOG_DIR;
+    private static final String LOG_FOLDER = "/" + ProjectService.LOG_FOLDER;
     private static final String GUIDELINES_FOLDER = "/" + ImportUtil.GUIDELINE;
     private static final String ANNOTATION_CAS_FOLDER = "/"
             + ImportUtil.ANNOTATION_AS_SERIALISED_CAS + "/";
@@ -89,9 +90,10 @@ public class ExportUtil
     }
 
     public static de.tudarmstadt.ukp.clarin.webanno.export.model.Project exportProjectSettings(
-            AnnotationSchemaService annotationService, AutomationService automationService,
-            DocumentService documentService, ProjectService projectService, Project aProject,
-            File aProjectSettings, File aExportTempDir)
+            AnnotationSchemaService annotationService,
+            Optional<AutomationService> automationService, DocumentService documentService,
+            ProjectService projectService, Project aProject, File aProjectSettings,
+            File aExportTempDir)
     {
         de.tudarmstadt.ukp.clarin.webanno.export.model.Project exProjekt =
                 new de.tudarmstadt.ukp.clarin.webanno.export.model.Project();
@@ -193,34 +195,39 @@ public class ExportUtil
         exProjekt.setSourceDocuments(sourceDocuments);
         exProjekt.setAnnotationDocuments(annotationDocuments);
         
-        List<de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument> trainDocuments = new
-                ArrayList<>();
-        List<TrainingDocument> trainingDocuments = automationService
-                .listTrainingDocuments(aProject);
-        
-        Map<String, de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature> fm =
-                new HashMap<>();
-        for (de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature f : 
-                featureToExFeatures.values()) {
-            fm.put(f.getName(), f);
-        }
-        for (TrainingDocument trainingDocument : trainingDocuments) {
-
-            de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument exDocument = 
-                    new de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument();
-            exDocument.setFormat(trainingDocument.getFormat());
-            exDocument.setName(trainingDocument.getName());
-            exDocument.setState(trainingDocument.getState());
-            exDocument.setTimestamp(trainingDocument.getTimestamp());
-            exDocument.setSentenceAccessed(trainingDocument.getSentenceAccessed());
-            if (trainingDocument.getFeature() != null) {
-                exDocument.setFeature(fm.get(trainingDocument.getFeature().getName()));
+        if (automationService.isPresent()) {
+            List<de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument> trainDocuments = 
+                    new ArrayList<>();
+            List<TrainingDocument> trainingDocuments = automationService.get()
+                    .listTrainingDocuments(aProject);
+            
+            Map<String, de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature> fm =
+                    new HashMap<>();
+            for (de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature f : 
+                    featureToExFeatures.values()) {
+                fm.put(f.getName(), f);
             }
-            trainDocuments.add(exDocument);
-
+            for (TrainingDocument trainingDocument : trainingDocuments) {
+    
+                de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument exDocument = 
+                        new de.tudarmstadt.ukp.clarin.webanno.export.model.TrainingDocument();
+                exDocument.setFormat(trainingDocument.getFormat());
+                exDocument.setName(trainingDocument.getName());
+                exDocument.setState(trainingDocument.getState());
+                exDocument.setTimestamp(trainingDocument.getTimestamp());
+                exDocument.setSentenceAccessed(trainingDocument.getSentenceAccessed());
+                if (trainingDocument.getFeature() != null) {
+                    exDocument.setFeature(fm.get(trainingDocument.getFeature().getName()));
+                }
+                trainDocuments.add(exDocument);
+    
+            }
+            
+            exProjekt.setTrainingDocuments(trainDocuments);
         }
-        
-        exProjekt.setTrainingDocuments(trainDocuments);
+        else {
+            exProjekt.setTrainingDocuments(new ArrayList<>());
+        }
 
         List<ProjectPermission> projectPermissions = new ArrayList<>();
 
@@ -238,29 +245,34 @@ public class ExportUtil
         exProjekt.setProjectPermissions(projectPermissions);
 
         // export automation Mira template
-        List<de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate> exTemplates =
-                new ArrayList<>();
-        for (MiraTemplate template : automationService.listMiraTemplates(aProject)) {
-            de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate exTemplate =
-                    new de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate();
-            exTemplate.setAnnotateAndPredict(template.isAnnotateAndRepeat());
-            exTemplate.setAutomationStarted(template.isAutomationStarted());
-            exTemplate.setCurrentLayer(template.isCurrentLayer());
-            exTemplate.setResult(template.getResult());
-            exTemplate.setTrainFeature(featureToExFeatures.get(template.getTrainFeature()));
-
-            if (template.getOtherFeatures().size() > 0) {
-                Set<de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature>
-                        exOtherFeatures = new HashSet<>();
-                for (AnnotationFeature feature : template.getOtherFeatures()) {
-                    exOtherFeatures.add(featureToExFeatures.get(feature));
+        if (automationService.isPresent()) {
+            List<de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate> exTemplates =
+                    new ArrayList<>();
+            for (MiraTemplate template : automationService.get().listMiraTemplates(aProject)) {
+                de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate exTemplate =
+                        new de.tudarmstadt.ukp.clarin.webanno.export.model.MiraTemplate();
+                exTemplate.setAnnotateAndPredict(template.isAnnotateAndRepeat());
+                exTemplate.setAutomationStarted(template.isAutomationStarted());
+                exTemplate.setCurrentLayer(template.isCurrentLayer());
+                exTemplate.setResult(template.getResult());
+                exTemplate.setTrainFeature(featureToExFeatures.get(template.getTrainFeature()));
+    
+                if (template.getOtherFeatures().size() > 0) {
+                    Set<de.tudarmstadt.ukp.clarin.webanno.export.model.AnnotationFeature>
+                            exOtherFeatures = new HashSet<>();
+                    for (AnnotationFeature feature : template.getOtherFeatures()) {
+                        exOtherFeatures.add(featureToExFeatures.get(feature));
+                    }
+                    exTemplate.setOtherFeatures(exOtherFeatures);
                 }
-                exTemplate.setOtherFeatures(exOtherFeatures);
+                exTemplates.add(exTemplate);
             }
-            exTemplates.add(exTemplate);
+    
+            exProjekt.setMiraTemplates(exTemplates);
         }
-
-        exProjekt.setMiraTemplates(exTemplates);
+        else {
+            exProjekt.setMiraTemplates(new ArrayList<>());
+        }
         
         return exProjekt;
     }
@@ -269,8 +281,7 @@ public class ExportUtil
      * Copy source documents from the file system of this project to the export folder
      */
     public static void exportSourceDocuments(DocumentService documentService,
-            AutomationService automationService, ProjectExportRequest model, Project aProject,
-            File aCopyDir)
+            ProjectExportRequest model, Project aProject, File aCopyDir)
         throws IOException, ProjectExportException
     {
         File sourceDocumentDir = new File(aCopyDir + SOURCE_FOLDER);
@@ -351,8 +362,10 @@ public class ExportUtil
             ProjectExportRequest aModel, File aCopyDir)
         throws IOException, UIMAException, ClassNotFoundException
     {
+        Project project = aModel.project.getObject();
+        
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = documentService
-                .listSourceDocuments(aModel.project);
+                .listSourceDocuments(project);
         int i = 1;
         int initProgress = aModel.progress;
         for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
@@ -381,7 +394,7 @@ public class ExportUtil
             
             LOG.info("Exported annotation document content for user [" + INITIAL_CAS_PSEUDO_USER
                     + "] for source document [" + sourceDocument.getId() + "] in project ["
-                    + aModel.project.getName() + "] with id [" + aModel.project.getId() + "]");
+                    + project.getName() + "] with id [" + project.getId() + "]");
 
             //
             // Export per-user annotation document
@@ -404,7 +417,7 @@ public class ExportUtil
                 if (!aModel.messages.contains(msg)) {
                     aModel.messages.add(msg);
                 }
-                writer = WebannoTsv3Writer.class;
+                writer = WebannoTsv3XWriter.class;
             }
 
             // Export annotations from regular users
@@ -447,8 +460,8 @@ public class ExportUtil
                     
                     LOG.info("Exported annotation document content for user ["
                             + annotationDocument.getUser() + "] for source document ["
-                            + sourceDocument.getId() + "] in project [" + aModel.project.getName()
-                            + "] with id [" + aModel.project.getId() + "]");
+                            + sourceDocument.getId() + "] in project [" + project.getName()
+                            + "] with id [" + project.getId() + "]");
                 }
             }
             
@@ -456,8 +469,8 @@ public class ExportUtil
             // annotation_ser
             // If this project is a correction project, add the auto-annotated CAS to same
             // folder as CURATION_FOLDER
-            if (WebAnnoConst.PROJECT_TYPE_AUTOMATION.equals(aModel.project.getMode())
-                    || WebAnnoConst.PROJECT_TYPE_CORRECTION.equals(aModel.project.getMode())) {
+            if (WebAnnoConst.PROJECT_TYPE_AUTOMATION.equals(project.getMode())
+                    || WebAnnoConst.PROJECT_TYPE_CORRECTION.equals(project.getMode())) {
                 File correctionCasFile = documentService.getCasFile(sourceDocument,
                         CORRECTION_USER);
                 if (correctionCasFile.exists()) {
@@ -510,7 +523,7 @@ public class ExportUtil
     {
         File guidelineDir = new File(aCopyDir + GUIDELINES_FOLDER);
         FileUtils.forceMkdir(guidelineDir);
-        File annotationGuidlines = projectService.getGuidelinesFile(aProject);
+        File annotationGuidlines = projectService.getGuidelinesFolder(aProject);
         if (annotationGuidlines.exists()) {
             for (File annotationGuideline : annotationGuidlines.listFiles()) {
                 FileUtils.copyFileToDirectory(annotationGuideline, guidelineDir);
@@ -566,20 +579,22 @@ public class ExportUtil
         throws UIMAException, IOException, ClassNotFoundException,
         ProjectExportException
     {
+        Project project = aModel.project.getObject();
+        
         // Get all the source documents from the project
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = documentService
-                .listSourceDocuments(aModel.project);
+                .listSourceDocuments(project);
 
         // Determine which format to use for export.
         Class<?> writer;
         if (FORMAT_AUTO.equals(aModel.format)) {
-            writer = WebannoTsv3Writer.class;
+            writer = WebannoTsv3XWriter.class;
         }
         else {
             writer = importExportService.getWritableFormats().get(
                     importExportService.getWritableFormatId(aModel.format));
             if (writer == null) {
-                writer = WebannoTsv3Writer.class;
+                writer = WebannoTsv3XWriter.class;
             }
         }
         

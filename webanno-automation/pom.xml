@@ -1,4 +1,4 @@
-<!--
+  <!--
   Copyright 2012
   Ubiquitous Knowledge Processing (UKP) Lab
   Technische Universität Darmstadt
@@ -20,7 +20,7 @@
   <parent>
     <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
     <artifactId>webanno</artifactId>
-    <version>3.4.0-SNAPSHOT</version>
+    <version>3.5.0-SNAPSHOT</version>
   </parent>
   <artifactId>webanno-automation</artifactId>
   <name>WebAnno - Core - Automation</name>
@@ -38,10 +38,6 @@
     <dependency>
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-support</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-      <artifactId>webanno-model-export</artifactId>
     </dependency>
     <dependency>
         <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
@@ -86,6 +82,10 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>
   </dependencies>
 </project>

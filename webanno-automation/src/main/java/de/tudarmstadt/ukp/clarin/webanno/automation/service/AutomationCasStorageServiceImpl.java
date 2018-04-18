@@ -17,14 +17,13 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.automation.service;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.TRAIN;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import javax.annotation.Resource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
@@ -35,6 +34,7 @@ import org.apache.uima.util.CasCreationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -57,8 +57,7 @@ public class AutomationCasStorageServiceImpl
     @Value(value = "${repository.path}")
     private File dir;
     
-    @Resource(name = "casDoctor")
-    private CasDoctor casDoctor;
+    private @Autowired CasDoctor casDoctor;
     
     public AutomationCasStorageServiceImpl()
     {
@@ -232,8 +231,9 @@ public class AutomationCasStorageServiceImpl
     public File getAutomationFolder(TrainingDocument aDocument)
         throws IOException
     {
-        File annotationFolder = new File(dir, PROJECT + aDocument.getProject().getId() + TRAIN
-                + aDocument.getId() + ANNOTATION);
+        File annotationFolder = new File(dir,
+                "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + TRAIN
+                        + aDocument.getId() + "/" + ANNOTATION_FOLDER);
         FileUtils.forceMkdir(annotationFolder);
         return annotationFolder;
     }

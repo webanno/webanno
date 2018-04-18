@@ -21,20 +21,26 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CHAIN_TYPE;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.RELATION_TYPE;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.SPAN_TYPE;
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.ZipFile;
+import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FeatureStructure;
@@ -51,19 +57,26 @@ import org.apache.uima.util.CasCreationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAware;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.ArcAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.ChainAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.SpanAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupport;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
+import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
@@ -72,43 +85,71 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.SurfaceForm;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 
 /**
  * Implementation of methods defined in the {@link AnnotationSchemaService} interface
  */
 @Component(AnnotationSchemaService.SERVICE_NAME)
 public class AnnotationSchemaServiceImpl
-    implements AnnotationSchemaService, ProjectLifecycleAware
+    implements AnnotationSchemaService
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Value(value = "${repository.path}")
     private File dir;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-    
-    private @Resource FeatureSupportRegistry featureSupportRegistry;
+    private @PersistenceContext EntityManager entityManager;
+    private @Autowired FeatureSupportRegistry featureSupportRegistry;
+    private @Autowired ApplicationEventPublisher applicationEventPublisher;
+    private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
+    private List<ProjectInitializer> initializers;
 
     public AnnotationSchemaServiceImpl()
     {
         // Nothing to do
     }
 
+    @EventListener
+    public void onContextRefreshedEvent(ContextRefreshedEvent aEvent)
+    {
+        init();
+    }
+    
+    /* package private */ void init()
+    {
+        List<ProjectInitializer> inits = new ArrayList<>();
+
+        if (initializerProxy != null) {
+            inits.addAll(initializerProxy);
+            AnnotationAwareOrderComparator.sort(inits);
+        
+            Set<Class<? extends ProjectInitializer>> initializerClasses = new HashSet<>();
+            for (ProjectInitializer init : inits) {
+                if (initializerClasses.add(init.getClass())) {
+                    log.info("Found project initializer: {}",
+                            ClassUtils.getAbbreviatedName(init.getClass(), 20));
+                }
+                else {
+                    throw new IllegalStateException("There cannot be more than once instance "
+                            + "of each project initializer class! Duplicate instance of class: "
+                                    + init.getClass());
+                }
+            }
+        }
+        
+        initializers = Collections.unmodifiableList(inits);
+    }
+
     @Override
     @Transactional
     public void createTag(Tag aTag)
-        throws IOException
     {
-        entityManager.persist(aTag);
+        if (isNull(aTag.getId())) {
+            entityManager.persist(aTag);
+        }
+        else {
+            entityManager.merge(aTag);
+        }
 
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aTag.getTagSet().getProject().getId()))) {
@@ -123,10 +164,8 @@ public class AnnotationSchemaServiceImpl
     @Override
     @Transactional
     public void createTagSet(TagSet aTagSet)
-        throws IOException
     {
-
-        if (aTagSet.getId() == 0) {
+        if (isNull(aTagSet.getId())) {
             entityManager.persist(aTagSet);
         }
         else {
@@ -144,9 +183,8 @@ public class AnnotationSchemaServiceImpl
     @Override
     @Transactional
     public void createLayer(AnnotationLayer aLayer)
-        throws IOException
     {
-        if (aLayer.getId() == 0) {
+        if (isNull(aLayer.getId())) {
             entityManager.persist(aLayer);
         }
         else {
@@ -165,7 +203,7 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public void createFeature(AnnotationFeature aFeature)
     {
-        if (aFeature.getId() == 0) {
+        if (isNull(aFeature.getId())) {
             entityManager.persist(aFeature);
         }
         else {
@@ -224,6 +262,25 @@ public class AnnotationSchemaServiceImpl
         catch (NoResultException e) {
             return false;
 
+        }
+    }
+
+    @Override
+    @Transactional(noRollbackFor = NoResultException.class)
+    public boolean existsLayer(String aName, Project aProject)
+    {
+        try {
+            entityManager
+                    .createQuery(
+                            "FROM AnnotationLayer WHERE name = :name AND project = :project",
+                            AnnotationLayer.class)
+                    .setParameter("name", aName)
+                    .setParameter("project", aProject)
+                    .getSingleResult();
+            return true;
+        }
+        catch (NoResultException e) {
+            return false;
         }
     }
 
@@ -382,374 +439,37 @@ public class AnnotationSchemaServiceImpl
         return tagSet;
     }
 
-    private AnnotationFeature createFeature(String aName, String aUiName, String aDescription,
-            String aType, TagSet aTagSet, Project aProject)
-        throws IOException
-    {
-        AnnotationFeature feature = new AnnotationFeature();
-        feature.setDescription(aDescription);
-        feature.setName(aName);
-        feature.setType(aType);
-        feature.setProject(aProject);
-        feature.setUiName(aUiName);
-        feature.setTagset(aTagSet);        
-        createFeature(feature);
-        
-        return feature;
-    }
-
     @Override
     @Transactional
-    public void initializeTypesForProject(Project aProject, String[] aPostags,
-            String[] aPosTagDescriptions, String[] aDepTags, String[] aDepTagDescriptions,
-            String[] aNeTags, String[] aNeTagDescriptions, String[] aCorefTypeTags,
-            String[] aCorefRelTags)
+    public void initializeProject(Project aProject)
         throws IOException
     {
-        createTokenLayer(aProject);
-
-        String[] posTags = aPostags.length > 0 ? aPostags : new String[] { "$(", "$,", "$.",
-                "ADJA", "ADJD", "ADV", "APPO", "APPR", "APPRART", "APZR", "ART", "CARD", "FM",
-                "ITJ", "KOKOM", "KON", "KOUI", "KOUS", "NE", "NN", "PAV", "PDAT", "PDS", "PIAT",
-                "PIDAT", "PIS", "PPER", "PPOSAT", "PPOSS", "PRELAT", "PRELS", "PRF", "PROAV",
-                "PTKA", "PTKANT", "PTKNEG", "PTKVZ", "PTKZU", "PWAT", "PWAV", "PWS", "TRUNC",
-                "VAFIN", "VAIMP", "VAINF", "VAPP", "VMFIN", "VMINF", "VMPP", "VVFIN", "VVIMP",
-                "VVINF", "VVIZU", "VVPP", "XY", "--" };
-        String[] posTagDescriptions = aPosTagDescriptions.length == posTags.length
-                ? aPosTagDescriptions : new String[] {
-                        "sonstige Satzzeichen; satzintern \nBsp: - [,]()",
-                        "Komma \nBsp: ,",
-                        "Satzbeendende Interpunktion \nBsp: . ? ! ; :   ",
-                        "attributives Adjektiv \nBsp: [das] große [Haus]",
-                        "adverbiales oder prädikatives Adjektiv \nBsp: [er fährt] schnell, [er ist] schnell",
-                        "Adverb \nBsp: schon, bald, doch ",
-                        "Postposition \nBsp: [ihm] zufolge, [der Sache] wegen",
-                        "Präposition; Zirkumposition links \nBsp: in [der Stadt], ohne [mich]",
-                        "Präposition mit Artikel \nBsp: im [Haus], zur [Sache]",
-                        "Zirkumposition rechts \nBsp: [von jetzt] an",
-                        "bestimmter oder unbestimmter Artikel \nBsp: der, die, das, ein, eine",
-                        "Kardinalzahl \nBsp: zwei [Männer], [im Jahre] 1994",
-                        "Fremdsprachliches Material \nBsp: [Er hat das mit ``] A big fish ['' übersetzt]",
-                        "Interjektion \nBsp: mhm, ach, tja",
-                        "Vergleichskonjunktion \nBsp: als, wie",
-                        "nebenordnende Konjunktion \nBsp: und, oder, aber",
-                        "unterordnende Konjunktion mit ``zu'' und Infinitiv \nBsp: um [zu leben], anstatt [zu fragen]",
-                        "unterordnende Konjunktion mit Satz \nBsp: weil, daß, damit, wenn, ob ",
-                        "Eigennamen \nBsp: Hans, Hamburg, HSV ",
-                        "normales Nomen \nBsp: Tisch, Herr, [das] Reisen",
-                        "Pronominaladverb \nBsp: dafür, dabei, deswegen, trotzdem ",
-                        "attribuierendes Demonstrativpronomen \nBsp: jener [Mensch]",
-                        "substituierendes Demonstrativpronomen \nBsp: dieser, jener",
-                        "attribuierendes Indefinitpronomen ohne Determiner \nBsp: kein [Mensch], irgendein [Glas]   ",
-                        "attribuierendes Indefinitpronomen mit Determiner \nBsp: [ein] wenig [Wasser], [die] beiden [Brüder] ",
-                        "substituierendes Indefinitpronomen \nBsp: keiner, viele, man, niemand ",
-                        "irreflexives Personalpronomen \nBsp: ich, er, ihm, mich, dir",
-                        "attribuierendes Possessivpronome \nBsp: mein [Buch], deine [Mutter] ",
-                        "substituierendes Possessivpronome \nBsp: meins, deiner",
-                        "attribuierendes Relativpronomen \nBsp: [der Mann ,] dessen [Hund]   ",
-                        "substituierendes Relativpronomen \nBsp: [der Hund ,] der  ",
-                        "reflexives Personalpronomen \nBsp: sich, einander, dich, mir",
-                        "PROAV",
-                        "Partikel bei Adjektiv oder Adverb \nBsp: am [schönsten], zu [schnell]",
-                        "Antwortpartikel \nBsp: ja, nein, danke, bitte  ",
-                        "Negationspartikel \nBsp: nicht",
-                        "abgetrennter Verbzusatz \nBsp: [er kommt] an, [er fährt] rad   ",
-                        "``zu'' vor Infinitiv \nBsp: zu [gehen]",
-                        "attribuierendes Interrogativpronomen \nBsp: welche [Farbe], wessen [Hut]  ",
-                        "adverbiales Interrogativ- oder Relativpronomen \nBsp: warum, wo, wann, worüber, wobei",
-                        "substituierendes Interrogativpronomen \nBsp: wer, was",
-                        "Kompositions-Erstglied \nBsp: An- [und Abreise]",
-                        "finites Verb, aux \nBsp: [du] bist, [wir] werden  ",
-                        "Imperativ, aux \nBsp: sei [ruhig !]  ",
-                        "Infinitiv, aux \nBsp:werden, sein  ",
-                        "Partizip Perfekt, aux \nBsp: gewesen ",
-                        "finites Verb, modal \nBsp: dürfen  ", "Infinitiv, modal \nBsp: wollen ",
-                        "Partizip Perfekt, modal \nBsp: gekonnt, [er hat gehen] können ",
-                        "finites Verb, voll \nBsp: [du] gehst, [wir] kommen [an]   ",
-                        "Imperativ, voll \nBsp: komm [!] ",
-                        "Infinitiv, voll \nBsp: gehen, ankommen",
-                        "Infinitiv mit ``zu'', voll \nBsp: anzukommen, loszulassen ",
-                        "Partizip Perfekt, voll \nBsp:gegangen, angekommen ",
-                        "Nichtwort, Sonderzeichen enthaltend \nBsp:3:7, H2O, D2XW3", "--" };
-
-        TagSet posFeatureTagset = createTagSet(
-                "Stuttgart-Tübingen-Tag-Set \nGerman Part of Speech tagset "
-                        + "STTS Tag Table (1995/1999): "
-                        + "http://www.ims.uni-stuttgart.de/projekte/corplex/TagSets/stts-table.html",
-            "STTS", "de", posTags, posTagDescriptions, aProject);
+        Deque<ProjectInitializer> deque = new LinkedList<>(initializers);
+        Set<Class<? extends ProjectInitializer>> initsSeen = new HashSet<>();
+        Set<ProjectInitializer> initsDeferred = SetUtils.newIdentityHashSet();
         
-        createPOSLayer(aProject, posFeatureTagset);
-
-        String[] depTags = aDepTags.length > 0 ? aDepTags : new String[] { "ADV", "APP", "ATTR",
-                "AUX", "AVZ", "CJ", "DET", "ETH", "EXPL", "GMOD", "GRAD", "KOM", "KON", "KONJ",
-                "NEB", "OBJA", "OBJA2", "OBJA3", "OBJC", "OBJC2", "OBJC3", "OBJD", "OBJD2",
-                "OBJD3", "OBJG", "OBJG2", "OBJG3", "OBJI", "OBJI2", "OBJI3", "OBJP", "OBJP2",
-                "OBJP3", "PAR", "PART", "PN", "PP", "PRED", "-PUNCT-", "REL", "ROOT", "S", "SUBJ",
-                "SUBJ2", "SUBJ3", "SUBJC", "SUBJC2", "SUBJC3", "SUBJI", "SUBJI2", "CP", "PD", "RE",
-                "CD", "DA", "SVP", "OP", "MO", "JU", "CVC", "NG", "SB", "SBP", "AG", "PM", "OCRC",
-                "OG", "SUBJI3", "VOK", "ZEIT", "$", "--", "OC", "OA", "MNR", "NK", "RC", "EP",
-                "CC", "CM", "UC", "AC", "PNC" };
-        String[] depTagsDescription = aDepTagDescriptions.length == depTags.length
-                ? aDepTagDescriptions : depTags;
-        TagSet deFeatureTagset = createTagSet("Dependency annotation", "Tiger", "de", depTags,
-                depTagsDescription, aProject);
-        createDepLayer(aProject, deFeatureTagset);
-
-        String[] neTags = aNeTags.length > 0 ? aNeTags : new String[] { "PER", "PERderiv",
-                "PERpart", "LOC", "LOCderiv", "LOCpart", "ORG", "ORGderiv", "ORGpart", "OTH",
-                "OTHderiv", "OTHpart" };
-        String[] neTagDescriptions = aNeTagDescriptions.length == neTags.length ? aNeTagDescriptions
-                : new String[] { "Person", "Person derivative", "Hyphenated part  is person",
-                        "Location derivatives", "Location derivative",
-                        "Hyphenated part  is location", "Organization", "Organization derivative",
-                        "Hyphenated part  is organization",
-                        "Other: Every name that is not a location, person or organisation",
-                        "Other derivative", "Hyphenated part  is Other" };
-        TagSet neFeatureTagset = createTagSet("Named Entity annotation", "NER_WebAnno", "de",
-                neTags, neTagDescriptions, aProject);
-        createNeLayer(aProject, neFeatureTagset);
-
-        // Coref Layer
-        TagSet corefTypeFeatureTagset = createTagSet("coreference type annotation", "BART", "de",
-                aCorefTypeTags.length > 0 ? aCorefTypeTags : new String[] { "nam" },
-                aCorefTypeTags.length > 0 ? aCorefTypeTags : new String[] { "nam" }, aProject);
-        TagSet corefRelFeatureTagset = createTagSet("coreference relation annotation", "TuebaDZ",
-                "de", aCorefRelTags.length > 0 ? aCorefRelTags : new String[] { "anaphoric" },
-                aCorefRelTags.length > 0 ? aCorefRelTags : new String[] { "anaphoric" }, aProject);
-        createCorefLayer(aProject, corefTypeFeatureTagset, corefRelFeatureTagset);
-
-        createLemmaLayer(aProject);
-
-        createChunkLayer(aProject);
-    }
-
-    @Override
-    @Transactional
-    public void initializeTypesForProject(Project aProject)
-        throws IOException
-    {
-        // Default layers with default tagsets
-        createTokenLayer(aProject);
-
-        TagSet posTagSet = JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/mul-pos-ud.json").getInputStream(), this);
-        createPOSLayer(aProject, posTagSet);
-
-        TagSet depTagSet = JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/mul-dep-ud.json").getInputStream(), this);
-        createDepLayer(aProject, depTagSet);
-
-        TagSet nerTagSet = JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/de-ne-webanno.json").getInputStream(), this);
-        createNeLayer(aProject, nerTagSet);
-
-        TagSet corefTypeTagSet = JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/de-coref-type-bart.json").getInputStream(), this);
-        TagSet corefRelTagSet = JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/de-coref-rel-tuebadz.json").getInputStream(), this);
-        createCorefLayer(aProject, corefTypeTagSet, corefRelTagSet);
-
-        createLemmaLayer(aProject);
-
-        createChunkLayer(aProject);
-
-        createSurfaceFormLayer(aProject);
-
-        // Extra tagsets
-        JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/de-pos-stts.json").getInputStream(), this);
-        JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/de-dep-tiger.json").getInputStream(), this);
-        JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/en-dep-sd.json").getInputStream(), this);
-        JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/en-pos-ptb-tt.json").getInputStream(), this);
-        JsonImportUtil.importTagSetFromJson(aProject,
-                new ClassPathResource("/tagsets/mul-pos-upos.json").getInputStream(), this);
-    }
-    
-    private void createLemmaLayer(Project aProject)
-        throws IOException
-    {
-        AnnotationLayer tokenLayer = getLayer(Token.class.getName(), aProject);
-        AnnotationFeature tokenLemmaFeature = createFeature("lemma", "lemma", aProject, tokenLayer,
-                Lemma.class.getName());
-        tokenLemmaFeature.setVisible(true);
-
-        AnnotationLayer lemmaLayer = new AnnotationLayer(Lemma.class.getName(), "Lemma", SPAN_TYPE,
-                aProject, true);
-        lemmaLayer.setAttachType(tokenLayer);
-        lemmaLayer.setAttachFeature(tokenLemmaFeature);
-        createLayer(lemmaLayer);
-
-        AnnotationFeature lemmaFeature = new AnnotationFeature();
-        lemmaFeature.setDescription("lemma Annotation");
-        lemmaFeature.setName("value");
-        lemmaFeature.setType(CAS.TYPE_NAME_STRING);
-        lemmaFeature.setProject(aProject);
-        lemmaFeature.setUiName("Lemma value");
-        lemmaFeature.setLayer(lemmaLayer);
-        createFeature(lemmaFeature);
-    }
-
-    private AnnotationLayer createCorefLayer(Project aProject, TagSet aCorefTypeTags,
-            TagSet aCorefRelTags)
-        throws IOException
-    {
-        AnnotationLayer base = new AnnotationLayer(
-                "de.tudarmstadt.ukp.dkpro.core.api.coref.type.Coreference", "Coreference",
-                CHAIN_TYPE, aProject, true);
-        base.setCrossSentence(true);
-        base.setAllowStacking(true);
-        base.setMultipleTokens(true);
-        base.setLockToTokenOffset(false);
-        createLayer(base);
-
-        AnnotationFeature corefTypeFeature = createFeature("referenceType", "referenceType",
-                "Coreference type", CAS.TYPE_NAME_STRING, aCorefTypeTags, aProject);
-        corefTypeFeature.setLayer(base);
-        corefTypeFeature.setVisible(true);
-
-        AnnotationFeature corefRelFeature = createFeature("referenceRelation", "referenceRelation",
-                "Coreference relation", CAS.TYPE_NAME_STRING, aCorefRelTags, aProject);
-        corefRelFeature.setLayer(base);
-        corefRelFeature.setVisible(true);
-
-        return base;
-    }
-
-    private void createNeLayer(Project aProject, TagSet aTagset)
-        throws IOException
-    {
-        AnnotationFeature neFeature = createFeature("value", "value", "Named entity type",
-                CAS.TYPE_NAME_STRING, aTagset, aProject);
-
-        AnnotationLayer neLayer = new AnnotationLayer(NamedEntity.class.getName(), "Named Entity",
-                SPAN_TYPE, aProject, true);
-        neLayer.setAllowStacking(true);
-        neLayer.setMultipleTokens(true);
-        neLayer.setLockToTokenOffset(false);
-        createLayer(neLayer);
-
-        neFeature.setLayer(neLayer);
-    }
-
-    private void createChunkLayer(Project aProject)
-        throws IOException
-    {
-        AnnotationLayer chunkLayer = new AnnotationLayer(Chunk.class.getName(), "Chunk", SPAN_TYPE,
-                aProject, true);
-        chunkLayer.setAllowStacking(false);
-        chunkLayer.setMultipleTokens(true);
-        chunkLayer.setLockToTokenOffset(false);
-        createLayer(chunkLayer);
-
-        AnnotationFeature chunkValueFeature = new AnnotationFeature();
-        chunkValueFeature.setDescription("Chunk tag");
-        chunkValueFeature.setName("chunkValue");
-        chunkValueFeature.setType(CAS.TYPE_NAME_STRING);
-        chunkValueFeature.setProject(aProject);
-        chunkValueFeature.setUiName("Tag");
-        chunkValueFeature.setLayer(chunkLayer);
-        createFeature(chunkValueFeature);
-    }
-
-    private void createSurfaceFormLayer(Project aProject)
-        throws IOException
-    {
-        AnnotationLayer surfaceFormLayer = new AnnotationLayer(SurfaceForm.class.getName(),
-                "Surface form", SPAN_TYPE, aProject, true);
-        surfaceFormLayer.setAllowStacking(false);
-        // The surface form must be locked to tokens for CoNLL-U writer to work properly
-        surfaceFormLayer.setLockToTokenOffset(false);
-        surfaceFormLayer.setMultipleTokens(true);
-        createLayer(surfaceFormLayer);
-
-        AnnotationFeature surfaceFormValueFeature = new AnnotationFeature();
-        surfaceFormValueFeature.setDescription("Original surface text");
-        surfaceFormValueFeature.setName("value");
-        surfaceFormValueFeature.setType(CAS.TYPE_NAME_STRING);
-        surfaceFormValueFeature.setProject(aProject);
-        surfaceFormValueFeature.setUiName("Form");
-        surfaceFormValueFeature.setLayer(surfaceFormLayer);
-        createFeature(surfaceFormValueFeature);
-    }
-
-    private void createDepLayer(Project aProject, TagSet aTagset)
-        throws IOException
-    {
-        // Dependency Layer
-        AnnotationLayer depLayer = new AnnotationLayer(Dependency.class.getName(), "Dependency",
-                RELATION_TYPE, aProject, true);
-        AnnotationLayer tokenLayer = getLayer(Token.class.getName(), aProject);
-        List<AnnotationFeature> tokenFeatures = listAnnotationFeature(tokenLayer);
-        AnnotationFeature tokenPosFeature = null;
-        for (AnnotationFeature feature : tokenFeatures) {
-            if (feature.getName().equals("pos")) {
-                tokenPosFeature = feature;
-                break;
+        while (!deque.isEmpty()) {
+            ProjectInitializer initializer = deque.pop();
+            
+            if (initsDeferred.contains(initializer)) {
+                throw new IllegalStateException("Circular initializer dependencies in "
+                        + initsDeferred + " via " + initializer);
+            }
+            
+            if (initsSeen.containsAll(initializer.getDependencies())) {
+                log.debug("Applying project initializer: {}", initializer);
+                initializer.configure(aProject);
+                initsSeen.add(initializer.getClass());
+                initsDeferred.clear();
+            }
+            else {
+                log.debug(
+                        "Deferring project initializer as dependencies are not yet fulfilled: [{}]",
+                        initializer);
+                deque.add(initializer);
+                initsDeferred.add(initializer);
             }
         }
-        depLayer.setAttachType(tokenLayer);
-        depLayer.setAttachFeature(tokenPosFeature);
-
-        createLayer(depLayer);
-
-        AnnotationFeature featRel = createFeature("DependencyType", "Relation",
-                "Dependency relation", CAS.TYPE_NAME_STRING, aTagset, aProject);
-        featRel.setLayer(depLayer);
-        
-        String[] flavors = { DependencyFlavor.BASIC, DependencyFlavor.ENHANCED };
-        String[] flavorDesc = { DependencyFlavor.BASIC, DependencyFlavor.ENHANCED };
-        TagSet flavorsTagset = createTagSet("Dependency flavors", "Dependency flavors", "mul",
-                flavors, flavorDesc, aProject);
-        AnnotationFeature featFlavor = createFeature("flavor", "Flavor",
-                "Dependency relation", CAS.TYPE_NAME_STRING, flavorsTagset, aProject);
-        featFlavor.setLayer(depLayer);
-    }
-
-    private void createPOSLayer(Project aProject, TagSet aPosTagset)
-        throws IOException
-    {
-        AnnotationLayer tokenLayer = getLayer(Token.class.getName(), aProject);
-        
-        AnnotationLayer posLayer = new AnnotationLayer(POS.class.getName(), "POS", SPAN_TYPE,
-                aProject, true);
-        AnnotationFeature tokenPosFeature = createFeature("pos", "pos", aProject, tokenLayer,
-                POS.class.getName());
-        tokenPosFeature.setVisible(true);
-        posLayer.setAttachType(tokenLayer);
-        posLayer.setAttachFeature(tokenPosFeature);
-        createLayer(posLayer);
-
-        AnnotationFeature posFeature = createFeature("PosValue", "PosValue", "Part-of-speech tag",
-                CAS.TYPE_NAME_STRING, aPosTagset, aProject);
-        posFeature.setLayer(posLayer);
-    }
-
-    private AnnotationLayer createTokenLayer(Project aProject)
-        throws IOException
-    {
-        AnnotationLayer tokenLayer = new AnnotationLayer(Token.class.getName(), "Token", SPAN_TYPE,
-                aProject, true);
-
-        createLayer(tokenLayer);
-        return tokenLayer;
-    }
-
-    private AnnotationFeature createFeature(String aName, String aUiname, Project aProject,
-            AnnotationLayer aLayer, String aType)
-    {
-        AnnotationFeature feature = new AnnotationFeature();
-        feature.setName(aName);
-        feature.setEnabled(true);
-        feature.setType(aType);
-        feature.setUiName(aUiname);
-        feature.setLayer(aLayer);
-        feature.setProject(aProject);
-
-        createFeature(feature);
-        return feature;
     }
 
     @Override
@@ -804,7 +524,7 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public List<AnnotationFeature> listAnnotationFeature(AnnotationLayer aLayer)
     {
-        if (aLayer == null || aLayer.getId() == 0) {
+        if (isNull(aLayer) || isNull(aLayer.getId())) {
             return new ArrayList<>();
         }
 
@@ -860,7 +580,7 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public void removeTag(Tag aTag)
     {
-        entityManager.remove(aTag);
+        entityManager.remove(entityManager.contains(aTag) ? aTag : entityManager.merge(aTag));
     }
 
     @Override
@@ -870,7 +590,8 @@ public class AnnotationSchemaServiceImpl
         for (Tag tag : listTags(aTagSet)) {
             entityManager.remove(tag);
         }
-        entityManager.remove(aTagSet);
+        entityManager
+                .remove(entityManager.contains(aTagSet) ? aTagSet : entityManager.merge(aTagSet));
     }
 
     @Override
@@ -897,91 +618,59 @@ public class AnnotationSchemaServiceImpl
     }
 
     @Override
-    public List<TypeSystemDescription> getProjectTypes(Project aProject)
+    public TypeSystemDescription getProjectTypes(Project aProject)
     {
         // Create a new type system from scratch
-        List<TypeSystemDescription> types = new ArrayList<>();
+        TypeSystemDescription tsd = new TypeSystemDescription_impl();
         for (AnnotationLayer type : listAnnotationLayer(aProject)) {
             if (type.getType().equals(SPAN_TYPE) && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
                 TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-                List<AnnotationFeature> features = listAnnotationFeature(type);
-                for (AnnotationFeature feature : features) {
-                    generateFeature(tsd, td, feature);
-                }
-
-                types.add(tsd);
+                
+                generateFeatures(tsd, td, type);
             }
             else if (type.getType().equals(RELATION_TYPE) && !type.isBuiltIn()) {
-                TypeSystemDescription tsd = new TypeSystemDescription_impl();
                 TypeDescription td = tsd.addType(type.getName(), "", CAS.TYPE_NAME_ANNOTATION);
                 AnnotationLayer attachType = type.getAttachType();
 
                 td.addFeature(WebAnnoConst.FEAT_REL_TARGET, "", attachType.getName());
                 td.addFeature(WebAnnoConst.FEAT_REL_SOURCE, "", attachType.getName());
 
-                List<AnnotationFeature> features = listAnnotationFeature(type);
-                for (AnnotationFeature feature : features) {
-                    generateFeature(tsd, td, feature);
-                }
-
-                types.add(tsd);
+                generateFeatures(tsd, td, type);
             }
             else if (type.getType().equals(CHAIN_TYPE) && !type.isBuiltIn()) {
-                TypeSystemDescription tsdchains = new TypeSystemDescription_impl();
-                TypeDescription tdChains = tsdchains.addType(type.getName() + "Chain", "",
-                        CAS.TYPE_NAME_ANNOTATION);
+                TypeDescription tdChains = tsd.addType(type.getName() + "Chain", "",
+                        CAS.TYPE_NAME_ANNOTATION_BASE);
                 tdChains.addFeature("first", "", type.getName() + "Link");
-                types.add(tsdchains);
-
-                TypeSystemDescription tsdLink = new TypeSystemDescription_impl();
-                TypeDescription tdLink = tsdLink.addType(type.getName() + "Link", "",
+                
+                // Custom features on chain layers are currently not supported
+                // generateFeatures(tsd, tdChains, type);
+                
+                TypeDescription tdLink = tsd.addType(type.getName() + "Link", "",
                         CAS.TYPE_NAME_ANNOTATION);
                 tdLink.addFeature("next", "", type.getName() + "Link");
                 tdLink.addFeature("referenceType", "", CAS.TYPE_NAME_STRING);
                 tdLink.addFeature("referenceRelation", "", CAS.TYPE_NAME_STRING);
-                types.add(tsdLink);
             }
         }
 
-        return types;
+        return tsd;
     }
     
-    private void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
-            AnnotationFeature aFeature)
+    private void generateFeatures(TypeSystemDescription aTSD, TypeDescription aTD,
+            AnnotationLayer aLayer)
     {
-        switch (aFeature.getMultiValueMode()) {
-        case NONE:
-            if (aFeature.isVirtualFeature()) {
-                aTD.addFeature(aFeature.getName(), "", CAS.TYPE_NAME_STRING);
-            }
-            else {
-                aTD.addFeature(aFeature.getName(), "", aFeature.getType());
-            }
-            break;
-        case ARRAY: {
-            switch (aFeature.getLinkMode()) {
-            case WITH_ROLE: {
-                // Link type
-                TypeDescription linkTD = aTSD.addType(aFeature.getLinkTypeName(), "",
-                        CAS.TYPE_NAME_TOP);
-                linkTD.addFeature(aFeature.getLinkTypeRoleFeatureName(), "", CAS.TYPE_NAME_STRING);
-                linkTD.addFeature(aFeature.getLinkTypeTargetFeatureName(), "", aFeature.getType());
-                // Link feature
-                aTD.addFeature(aFeature.getName(), "", CAS.TYPE_NAME_FS_ARRAY, linkTD.getName(),
-                        false);
-                break;
-            }
-            default:
-                throw new IllegalArgumentException("Unsupported link mode ["
-                        + aFeature.getLinkMode() + "] on feature [" + aFeature.getName() + "]");
-            }
-            break;
+        List<AnnotationFeature> features = listAnnotationFeature(aLayer);
+        for (AnnotationFeature feature : features) {
+            FeatureSupport fs = featureSupportRegistry.getFeatureSupport(feature);
+            fs.generateFeature(aTSD, aTD, feature);
         }
-        default:
-            throw new IllegalArgumentException("Unsupported multi-value mode ["
-                    + aFeature.getMultiValueMode() + "] on feature [" + aFeature.getName() + "]");
-        }
+    }
+
+    @Override
+    public void upgradeCas(CAS aCas, AnnotationDocument aAnnotationDocument)
+        throws UIMAException, IOException
+    {
+        upgradeCas(aCas, aAnnotationDocument.getDocument(), aAnnotationDocument.getUser());
     }
 
     @Override
@@ -990,9 +679,9 @@ public class AnnotationSchemaServiceImpl
     {
         TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
                 .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = getProjectTypes(aSourceDocument.getProject());
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
+        TypeSystemDescription projectTypes = getProjectTypes(aSourceDocument.getProject());
+        TypeSystemDescription allTypes = CasCreationUtils
+                .mergeTypeSystems(asList(projectTypes, builtInTypes));
 
         // Prepare template for new CAS
         CAS newCas = JCasFactory.createJCas(allTypes).getCas();
@@ -1031,15 +720,16 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public TypeAdapter getAdapter(AnnotationLayer aLayer)
     {
-        return getAdapter(this, featureSupportRegistry, aLayer);
+        return getAdapter(this, featureSupportRegistry, applicationEventPublisher, aLayer);
     }
     
     public static TypeAdapter getAdapter(AnnotationSchemaService aSchemaService,
-            FeatureSupportRegistry aFeatureSupportRegistry, AnnotationLayer aLayer)
+            FeatureSupportRegistry aFeatureSupportRegistry,
+            ApplicationEventPublisher aEventPublisher, AnnotationLayer aLayer)
     {
         switch (aLayer.getType()) {
         case WebAnnoConst.SPAN_TYPE: {
-            SpanAdapter adapter = new SpanAdapter(aFeatureSupportRegistry, aLayer,
+            SpanAdapter adapter = new SpanAdapter(aFeatureSupportRegistry, aEventPublisher, aLayer,
                     aSchemaService.listAnnotationFeature(aLayer));
             adapter.setLockToTokenOffsets(aLayer.isLockToTokenOffset());
             adapter.setAllowStacking(aLayer.isAllowStacking());
@@ -1048,8 +738,9 @@ public class AnnotationSchemaServiceImpl
             return adapter;
         }
         case WebAnnoConst.RELATION_TYPE: {
-            ArcAdapter adapter = new ArcAdapter(aFeatureSupportRegistry, aLayer, aLayer.getId(),
-                    aLayer.getName(), WebAnnoConst.FEAT_REL_TARGET, WebAnnoConst.FEAT_REL_SOURCE,
+            ArcAdapter adapter = new ArcAdapter(aFeatureSupportRegistry, aEventPublisher, aLayer,
+                    aLayer.getId(), aLayer.getName(), WebAnnoConst.FEAT_REL_TARGET,
+                    WebAnnoConst.FEAT_REL_SOURCE,
                     aLayer.getAttachFeature() == null ? null : aLayer.getAttachFeature().getName(),
                     aLayer.getAttachType().getName(), aSchemaService.listAnnotationFeature(aLayer));
 
@@ -1060,9 +751,9 @@ public class AnnotationSchemaServiceImpl
             // default is chain (based on operation, change to CoreferenceLinK)
         }
         case WebAnnoConst.CHAIN_TYPE: {
-            ChainAdapter adapter = new ChainAdapter(aFeatureSupportRegistry, aLayer, aLayer.getId(),
-                    aLayer.getName() + ChainAdapter.CHAIN, aLayer.getName(), "first", "next",
-                    aSchemaService.listAnnotationFeature(aLayer));
+            ChainAdapter adapter = new ChainAdapter(aFeatureSupportRegistry, aEventPublisher,
+                    aLayer, aLayer.getId(), aLayer.getName() + ChainAdapter.CHAIN, aLayer.getName(),
+                    "first", "next", aSchemaService.listAnnotationFeature(aLayer));
 
             adapter.setLinkedListBehavior(aLayer.isLinkedListBehavior());
 
@@ -1072,41 +763,5 @@ public class AnnotationSchemaServiceImpl
             throw new IllegalArgumentException(
                     "No adapter for type with name [" + aLayer.getName() + "]");
         }
-    }
-    
-    @Override
-    public void afterProjectCreate(Project aProject)
-        throws Exception
-    {
-        // Nothing to do
-    }
-
-    @Override
-    @Transactional
-    public void beforeProjectRemove(Project aProject)
-        throws Exception
-    {
-        for (AnnotationFeature feature : listAnnotationFeature(aProject)) {
-            removeAnnotationFeature(feature);
-        }
-
-        // remove the layers too
-        for (AnnotationLayer layer : listAnnotationLayer(aProject)) {
-            removeAnnotationLayer(layer);
-        }
-
-        for (TagSet tagSet : listTagSets(aProject)) {
-            removeTagSet(tagSet);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void onProjectImport(ZipFile aZip,
-            de.tudarmstadt.ukp.clarin.webanno.export.model.Project aExportedProject,
-            Project aProject)
-        throws Exception
-    {
-        // Nothing at the moment
     }
 }

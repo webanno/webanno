@@ -17,7 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.tsv;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeJava;
 import static org.apache.uima.fit.util.CasUtil.getType;
 import static org.apache.uima.fit.util.CasUtil.selectFS;
 import static org.apache.uima.fit.util.JCasUtil.select;
@@ -68,7 +67,7 @@ public class WebannoTsv3Writer
     /**
      * Name of configuration parameter that contains the character encoding used by the input files.
      */
-    public static final String PARAM_ENCODING = ComponentParameters.PARAM_SOURCE_ENCODING;
+    public static final String PARAM_ENCODING = ComponentParameters.PARAM_TARGET_ENCODING;
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
@@ -138,6 +137,7 @@ public class WebannoTsv3Writer
         throws AnalysisEngineProcessException
     {
         try (OutputStream docOS = getOutputStream(aJCas, filenameSuffix)) {
+            resetVariables();
             setSlotLinkTypes();
             setLinkMaps(aJCas);
             setTokenSentenceAddress(aJCas);
@@ -149,12 +149,13 @@ public class WebannoTsv3Writer
             for (AnnotationUnit unit : units) {
                 if (sentenceUnits.containsKey(unit)) {
                     String[] sentWithNl = sentenceUnits.get(unit).split("\n");
-                    IOUtils.write(LF + "#Text=" + escapeJava(sentWithNl[0]) + LF, docOS, encoding);
+                    IOUtils.write(LF + "#Text=" + escapeSpecial(sentWithNl[0]) + LF, 
+                            docOS, encoding);
                     // if sentence contains new line character
                     // GITHUB ISSUE 318: New line in sentence should be exported as is
                     if (sentWithNl.length > 1) {
                         for (int i = 0; i < sentWithNl.length - 1; i++) {
-                            IOUtils.write("#Text=" + escapeJava(sentWithNl[i + 1]) + LF, docOS,
+                            IOUtils.write("#Text=" + escapeSpecial(sentWithNl[i + 1]) + LF, docOS,
                                     encoding);
                         }
                     }
@@ -244,7 +245,7 @@ public class WebannoTsv3Writer
     private void writeHeader(OutputStream docOS)
         throws IOException
     {
-        IOUtils.write("#FORMAT=WebAnno TSV 3.1" + LF, docOS, encoding);
+        IOUtils.write("#FORMAT=WebAnno TSV 3.2" + LF, docOS, encoding);
         for (String type : featurePerLayer.keySet()) {
             String annoType;
             if (spanLayers.contains(type)) {
@@ -467,7 +468,7 @@ public class WebannoTsv3Writer
                 int govRef = 0;
                 int depRef = 0;
 
-                // For that unit test case onle, where annotations are on Tokens.
+                // For that unit test case only, where annotations are on Tokens.
                 // The WebAnno world do not ever process Token as an annotation
                 if (!govType.getName().equals(Token.class.getName())
                         && ambigUnits.get(govType.getName()).get(govUnit).equals(true)) {
@@ -1019,7 +1020,55 @@ public class WebannoTsv3Writer
             }
             sentNMumber++;
         }
+    }
 
+    private void resetVariables() {
+        units.clear();
+        subUnits.clear();
+        featurePerLayer.clear();
+        unitsLineNumber.clear();
+        sentenceUnits.clear();
+        annotationsPerPostion.clear();
+        slotFeatureTypes.clear();
+        annotaionRefPerType.clear();
+        ambigUnits.clear();
+        multiAnnosPerUnit.clear();
+        slotLinkTypes.clear();
+        layerMaps.clear();
+    }
+
+    private String escapeSpecial(String aText) {
+        List<String> pat = new ArrayList<>();
+        List<String> esc = new ArrayList<>();
+        for (int i = 0; i < 32; i++) {
+            if (i > 7 && i < 14) {
+                continue;
+            }
+            pat.add(Character.toString((char) i));
+            esc.add("\\" + Character.toString((char) i));
+        }
+        // with a readable Java escape sequence
+        // TAB
+        pat.add("\t");
+        esc.add("\\t");
+        // linefeed
+        pat.add("\n");
+        esc.add("\\n");
+        // formfeed
+        pat.add("\f");
+        esc.add("\\f");
+        // carriage return
+        pat.add("\r");
+        esc.add("\\r");
+        // backspace
+        pat.add("\b");
+        esc.add("\\b");
+        // backslash
+        pat.add("\\");
+        esc.add("\\\\");
+
+        return StringUtils.replaceEach(aText, 
+                pat.toArray(new String[pat.size()]), esc.toArray(new String[esc.size()]));
     }
 
     class SubTokenAnno

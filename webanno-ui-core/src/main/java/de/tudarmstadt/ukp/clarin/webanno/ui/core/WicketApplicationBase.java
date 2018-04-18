@@ -32,6 +32,7 @@ import org.apache.wicket.devutils.stateless.StatelessChecker;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.PageRequestHandlerTracker;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.SharedResourceReference;
@@ -48,6 +49,7 @@ import org.wicketstuff.annotation.scan.AnnotatedMountScanner;
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
 import com.github.sommeri.less4j.LessCompiler.Configuration;
 import com.googlecode.wicket.jquery.ui.settings.JQueryUILibrarySettings;
+
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.less.BootstrapLess;
@@ -65,6 +67,7 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.config.FontAwesomeResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.config.JQueryUIResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.config.KendoResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.css.theme.CustomBootstrapLessReference;
+import de.tudarmstadt.ukp.clarin.webanno.ui.core.kendo.WicketJQueryFocusPatchBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.login.LoginPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.page.MenuBar;
 
@@ -112,8 +115,16 @@ public abstract class WicketApplicationBase
         initShowExceptionPage();
 
         initMDCLifecycle();
+        
+        // Allow fetching the current page from non-Wicket code
+        initPageRequestTracker();
     }
     
+    private void initPageRequestTracker()
+    {
+        getRequestCycleListeners().add(new PageRequestHandlerTracker());
+    }
+
     protected void initWebFrameworks()
     {
         // Enable dynamic switching between JQuery 1 and JQuery 2 based on the browser
@@ -164,6 +175,7 @@ public abstract class WicketApplicationBase
         getComponentInstantiationListeners().add(component -> {
             if (component instanceof Page) {
                 component.add(new KendoResourceBehavior());
+                component.add(new WicketJQueryFocusPatchBehavior());
             }
         });
     }

@@ -19,7 +19,6 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.project.casdoctor;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,6 +38,8 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
@@ -60,7 +61,7 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelBa
 public class ProjectCasDoctorPanel
     extends ProjectSettingsPanelBase
 {
-    // private final static Logger LOG = LoggerFactory.getLogger(ProjectCasDoctorPanel.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ProjectCasDoctorPanel.class);
 
     private static final long serialVersionUID = 2116717853865353733L;
 
@@ -92,6 +93,13 @@ public class ProjectCasDoctorPanel
         form.add(new LambdaAjaxButton<FormModel>("check", this::actionCheck));
         form.add(new LambdaAjaxButton<FormModel>("repair", this::actionRepair));
         add(createMessageSetsView());
+    }
+    
+    @Override
+    protected void onModelChanged()
+    {
+        super.onModelChanged();
+        formModel = new FormModel();
     }
     
     private ListView<LogMessageSet> createMessageSetsView()
@@ -207,9 +215,11 @@ public class ProjectCasDoctorPanel
                     }
                     casDoctor.analyze(project, initialCas.getCas(), messageSet.messages);
                 }
-                catch (FileNotFoundException e) {
+                catch (Exception e) {
                     messageSet.messages.add(new LogMessage(getClass(), LogLevel.ERROR,
-                            e.getMessage()));
+                            "Error reading initial CAS for [" + sd.getName() + "]: "
+                                    + e.getMessage()));
+                    LOG.error("Error reading initial CAS for [" + sd.getName() + "]", e);
                 }
                 noticeIfThereAreNoMessages(messageSet);
                 formModel.messageSets.add(messageSet);

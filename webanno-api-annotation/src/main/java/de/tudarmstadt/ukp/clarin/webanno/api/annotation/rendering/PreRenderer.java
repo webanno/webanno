@@ -17,12 +17,10 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.apache.uima.jcas.JCas;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
@@ -39,23 +37,15 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 @Component
 public class PreRenderer
 {
-    private @Resource FeatureSupportRegistry featureSupportRegistry;
-    private @Resource AnnotationSchemaService annotationService;
+    private @Autowired FeatureSupportRegistry featureSupportRegistry;
+    private @Autowired AnnotationSchemaService annotationService;
 
     public void render(VDocument aResponse, AnnotatorState aState, JCas aJCas,
             List<AnnotationLayer> aLayers)
     {
-        // Render visible (custom) layers
+        // Render (custom) layers
         for (AnnotationLayer layer : aLayers) {
             List<AnnotationFeature> features = annotationService.listAnnotationFeature(layer);
-            List<AnnotationFeature> invisibleFeatures = new ArrayList<>();
-            for (AnnotationFeature feature : features) {
-                if (!feature.isVisible()) {
-                    invisibleFeatures.add(feature);
-                }
-            }
-            features.removeAll(invisibleFeatures);
-
             TypeAdapter adapter = annotationService.getAdapter(layer);
             Renderer renderer = getRenderer(adapter);
             renderer.render(aJCas, features, aResponse, aState);

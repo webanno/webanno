@@ -35,11 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
-import de.tudarmstadt.ukp.clarin.webanno.api.SettingsService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy.ColoringStrategyType;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
+import de.tudarmstadt.ukp.clarin.webanno.brat.config.BratProperties;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -73,7 +73,7 @@ public class PreferencesUtil
      * @throws BeansException hum?
      * @throws IOException hum?
      */
-    public static void loadPreferences(String aUsername, SettingsService aSettingsService,
+    public static void loadPreferences(String aUsername, BratProperties aDefaultPreferences,
             ProjectService aRepositoryService, AnnotationSchemaService aAnnotationService,
             AnnotatorState aBModel, Mode aMode)
         throws BeansException, IOException
@@ -87,7 +87,7 @@ public class PreferencesUtil
             Properties props = aRepositoryService.loadUserSettings(aUsername, aBModel.getProject());
             for (Entry<Object, Object> entry : props.entrySet()) {
                 String property = entry.getKey().toString();
-                int index = property.lastIndexOf(".");
+                int index = property.indexOf(".");
                 String propertyName = property.substring(index + 1);
                 String mode = property.substring(0, index);
                 if (wrapper.isWritableProperty(propertyName) && mode.equals(aMode.getName())) {
@@ -116,34 +116,41 @@ public class PreferencesUtil
             }
 
             // set layers according to preferences
-            List<AnnotationLayer> layers = aAnnotationService
-                    .listAnnotationLayer(aBModel.getProject());
-            if (preference.getAnnotationLayers() != null)
-                layers.forEach(layer -> layer.setEnabled(
-                        preference.getAnnotationLayers().contains(layer.getId())));
-            aBModel.setAnnotationLayers(layers);
-
+            List<AnnotationLayer> enabledLayers = aAnnotationService
+                    .listAnnotationLayer(aBModel.getProject()).stream()
+                    .filter(l -> l.isEnabled())// only allow enabled layers
+                    .collect(Collectors.toList());
+          
+            List<Long> hiddenLayerIds = preference.getHiddenAnnotationLayerIds();
+            enabledLayers = enabledLayers.stream()
+                    .filter(l -> !hiddenLayerIds.contains(l.getId()))
+                    .collect(Collectors.toList());
+          
+            aBModel.setAnnotationLayers(enabledLayers);
+            
             // Get color preferences for each layer, init with legacy if not found
             Map<Long, ColoringStrategyType> colorPerLayer = preference.getColorPerLayer();
-            if (colorPerLayer == null) {
-                colorPerLayer = new HashMap<>();
-            }
             for (AnnotationLayer layer : aAnnotationService
                     .listAnnotationLayer(aBModel.getProject())) {
                 if (!colorPerLayer.containsKey(layer.getId())) {
                     colorPerLayer.put(layer.getId(), ColoringStrategyType.LEGACY);
                 }
             }
-            preference.setColorPerLayer(colorPerLayer);
 
         }
         // no preference found
         catch (Exception e) {
-            // If no layer preferences are defined, then just assume all layers are enabled
-            List<AnnotationLayer> layers = aAnnotationService.listAnnotationLayer(aBModel
-                    .getProject());
-            aBModel.setAnnotationLayers(layers);
-            preference.setWindowSize(aSettingsService.getNumberOfSentences());
+            // If no layer preferences are defined, 
+            // then just assume all enabled layers are preferred
+            List<AnnotationLayer> enabledLayers = aAnnotationService
+                    .listAnnotationLayer(aBModel.getProject()).stream()
+                    .filter(l -> l.isEnabled())// only allow enabled layers
+                    .collect(Collectors.toList()); 
+            aBModel.setAnnotationLayers(enabledLayers);
+            
+            preference.setWindowSize(aDefaultPreferences.getPageSize());
+            preference.setScrollPage(aDefaultPreferences.isAutoScroll());
+            
             // add default coloring strategy
             Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>();
             for (AnnotationLayer layer : aBModel.getAnnotationLayers()) {

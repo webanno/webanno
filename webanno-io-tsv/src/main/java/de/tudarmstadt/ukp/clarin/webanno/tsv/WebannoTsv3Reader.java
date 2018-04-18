@@ -50,11 +50,13 @@ import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.clarin.webanno.tsv.util.AnnotationUnit;
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
@@ -155,6 +157,9 @@ public class WebannoTsv3Reader
                 if (format == 31) {
                     text = unescapeJava(text);
                 }
+                else if (format == 32) {
+                    text = unEscapeSpecial(text);
+                }
 
                 if (sentLineSb.toString().isEmpty()) {
                     sentLineSb.append(text);
@@ -172,6 +177,9 @@ public class WebannoTsv3Reader
                 }
                 else if ("#FORMAT=WebAnno TSV 3.1".equals(line)) {
                     format = 31;
+                }
+                else if ("#FORMAT=WebAnno TSV 3.2".equals(line)) {
+                    format = 32;
                 }
                 continue;
             }
@@ -505,6 +513,13 @@ public class WebannoTsv3Reader
                             if (type.getName().equals(Lemma.class.getName())) {
                                 units2Tokens.get(unit).setLemma((Lemma) annos.get(i));
                             }
+                            if (type.getName().equals(Stem.class.getName())) {
+                                units2Tokens.get(unit).setStem((Stem) annos.get(i));
+                            }
+                            if (type.getName().equals(MorphologicalFeatures.class.getName())) {
+                                units2Tokens.get(unit)
+                                        .setMorph((MorphologicalFeatures) annos.get(i));
+                            }
                             i++;
                         }
 
@@ -590,6 +605,39 @@ public class WebannoTsv3Reader
         }
 
         return unescapeJava(aAnno);
+    }
+    
+    private String unEscapeSpecial(String aText) {
+        List<String> pat = new ArrayList<>();
+        List<String> esc = new ArrayList<>();
+        for (int i = 0; i < 32; i++) {
+            if (i > 7 && i < 14) {
+                continue;
+            }
+            pat.add(Character.toString((char) i));
+            esc.add("\\" + Character.toString((char) i));
+        }
+        // with a readable Java escape sequence
+        // TAB
+        pat.add("\t");
+        esc.add("\\t");
+        // linefeed
+        pat.add("\n");
+        esc.add("\\n");
+        // formfeed
+        pat.add("\f");
+        esc.add("\\f");
+        // carriage return
+        pat.add("\r");
+        esc.add("\\r");
+        // backspace
+        pat.add("\b");
+        esc.add("\\b");
+        // backslash
+        pat.add("\\");
+        esc.add("\\\\");
+        return StringUtils.replaceEach(aText, 
+                esc.toArray(new String[esc.size()]), pat.toArray(new String[pat.size()]));
     }
 
     /**

@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.jcas.JCas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.ChainAdapter;
@@ -43,15 +45,21 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VAnnotationMarker;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VArc;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VComment;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VDocument;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VMarker;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VObject;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VRange;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VSentenceMarker;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VSpan;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.model.VTextMarker;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.TypeUtil;
+import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotationEditor;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.AnnotationComment;
+import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.AnnotationMarker;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.Argument;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.Entity;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.EntityType;
@@ -59,6 +67,8 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.Offsets;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.Relation;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.RelationType;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.SentenceComment;
+import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.SentenceMarker;
+import de.tudarmstadt.ukp.clarin.webanno.brat.render.model.TextMarker;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
@@ -75,6 +85,8 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
  */
 public class BratRenderer
 {
+    private static final Logger LOG = LoggerFactory.getLogger(BratAnnotationEditor.class);
+    
     public static void render(GetDocumentResponse aResponse, AnnotatorState aState,
             VDocument aVDoc, JCas aJCas, AnnotationSchemaService aAnnotationService)
     {
@@ -115,6 +127,8 @@ public class BratRenderer
             for (VSpan vspan : aVDoc.spans(layer.getId())) {
                 List<Offsets> offsets = toOffsets(vspan.getRanges());
                 String bratLabelText = TypeUtil.getUiLabelText(typeAdapter, vspan.getFeatures());
+                String bratHoverText = TypeUtil.getUiHoverText(typeAdapter, 
+                        vspan.getHoverFeatures());
                 String color;
                 if (vspan.getColorHint() == null) {
                     color = getColor(vspan, coloringStrategy, bratLabelText);
@@ -122,11 +136,19 @@ public class BratRenderer
                     color = vspan.getColorHint();
                 }
                 aResponse.addEntity(
-                        new Entity(vspan.getVid(), vspan.getType(), offsets, bratLabelText, color));
+                        new Entity(vspan.getVid(), vspan.getType(), offsets,
+                                bratLabelText, color, bratHoverText));
             }
 
             for (VArc varc : aVDoc.arcs(layer.getId())) {
-                String bratLabelText = TypeUtil.getUiLabelText(typeAdapter, varc.getFeatures());
+                String bratLabelText;
+                if (varc.getLabelHint() == null) {
+                    bratLabelText = TypeUtil.getUiLabelText(typeAdapter, varc.getFeatures());
+                }
+                else {
+                    bratLabelText = varc.getLabelHint();
+                }
+                
                 String color;
                 if (varc.getColorHint() == null) {
                     color = getColor(varc, coloringStrategy, bratLabelText);
@@ -148,6 +170,9 @@ public class BratRenderer
             case INFO:
                 type = AnnotationComment.ANNOTATOR_NOTES;
                 break;
+            case YIELD:
+                type = "Yield";
+                break;
             default:
                 type = AnnotationComment.ANNOTATOR_NOTES;
                 break;
@@ -164,6 +189,26 @@ public class BratRenderer
             else {
                 aResponse.addComment(
                         new AnnotationComment(vcomment.getVid(), type, vcomment.getComment()));
+            }
+        }
+        
+        // Render markers
+        for (VMarker vmarker : aVDoc.getMarkers()) {
+            if (vmarker instanceof VAnnotationMarker) {
+                VAnnotationMarker marker = (VAnnotationMarker) vmarker;
+                aResponse.addMarker(new AnnotationMarker(vmarker.getType(), marker.getVid()));
+            }
+            else if (vmarker instanceof VSentenceMarker) {
+                VSentenceMarker marker = (VSentenceMarker) vmarker;
+                aResponse.addMarker(new SentenceMarker(vmarker.getType(), marker.getIndex()));
+            }
+            else if (vmarker instanceof VTextMarker) {
+                VTextMarker marker = (VTextMarker) vmarker;
+                aResponse.addMarker(
+                        new TextMarker(marker.getType(), marker.getBegin(), marker.getEnd()));
+            }
+            else {
+                LOG.warn("Unknown how to render marker: [" + vmarker + "]");
             }
         }
     }
@@ -364,5 +409,35 @@ public class BratRenderer
             bratTypeName += ChainAdapter.CHAIN;
         }
         return bratTypeName;
+    }
+    
+    public static String abbreviate(String aName)
+    {
+        if (aName == null || aName.length() < 3) {
+            return aName;
+        }
+        
+        StringBuilder abbr = new StringBuilder();
+        int ti = 0;
+        boolean capitalizeNext = true;
+        for (int i = 0; i < aName.length(); i++) {
+            int ch = aName.charAt(i);
+            
+            if (Character.isWhitespace(ch)) {
+                capitalizeNext = true;
+                ti = 0;
+            }
+            else {
+                if (ti < 3) {
+                    if (capitalizeNext) {
+                        ch = Character.toTitleCase(ch);
+                        capitalizeNext = false;
+                    }
+                    abbr.append((char) ch);
+                }
+                ti ++;
+            }
+        }
+        return abbr.toString();
     }
 }

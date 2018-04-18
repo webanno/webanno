@@ -32,7 +32,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 
 public interface ImportExportService
@@ -117,7 +116,7 @@ public interface ImportExportService
      *             if an I/O error occurs.
      */
     JCas importCasFromFile(File aFile, Project aProject, String aFormat)
-        throws UIMAException, IOException, ClassNotFoundException;
+        throws UIMAException, IOException;
 
     File exportCasToFile(CAS cas, SourceDocument aDocument, String aFileName,
             Class aWriter, boolean aStripExtension)
@@ -154,7 +153,4 @@ public interface ImportExportService
     File exportAnnotationDocument(SourceDocument document, String user, Class writer,
             String fileName, Mode mode, boolean stripExtension)
         throws UIMAException, IOException, ClassNotFoundException;
-    
-    void uploadTrainingDocument(File aFile, TrainingDocument aDocument)
-            throws IOException;
 }

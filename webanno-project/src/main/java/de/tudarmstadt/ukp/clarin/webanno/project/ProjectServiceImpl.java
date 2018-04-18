@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -54,19 +53,21 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAware;
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAwareRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectType;
 import de.tudarmstadt.ukp.clarin.webanno.api.SecurityUtil;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterProjectCreatedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.BeforeProjectRemovedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
@@ -84,14 +85,9 @@ public class ProjectServiceImpl
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @PersistenceContext
-    private EntityManager entityManager;
-    
-    @Resource(name = "userRepository")
-    private UserDao userRepository;
-
-    @Resource
-    private ProjectLifecycleAwareRegistry projectLifecycleAwareRegistry;
+    private @PersistenceContext EntityManager entityManager;
+    private @Autowired UserDao userRepository;
+    private @Autowired ApplicationEventPublisher applicationEventPublisher;
 
     @Value(value = "${repository.path}")
     private File dir;
@@ -113,27 +109,22 @@ public class ProjectServiceImpl
     public void createProject(Project aProject)
         throws IOException
     {
+        if (aProject.getId() != null) {
+            throw new IllegalArgumentException("Project has already been created before.");
+        }
+        
+        aProject.setCreated(new Date());
         entityManager.persist(aProject);
-        String path = dir.getAbsolutePath() + PROJECT + aProject.getId();
-        FileUtils.forceMkdir(new File(path));
         
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aProject.getId()))) {
             log.info("Created project [{}]({})", aProject.getName(), aProject.getId());
         }
         
-        // Notify all relevant service so that they can initialize themselves for the given project
-        for (ProjectLifecycleAware bean : projectLifecycleAwareRegistry.getBeans()) {
-            try {
-                bean.afterProjectCreate(aProject);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        String path = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId();
+        FileUtils.forceMkdir(new File(path));
+        
+        applicationEventPublisher.publishEvent(new AfterProjectCreatedEvent(this, aProject));
     }
 
     @Override
@@ -161,9 +152,14 @@ public class ProjectServiceImpl
     @Transactional
     public boolean existsProject(String aName)
     {
+        String query = 
+                "FROM Project " +
+                "WHERE name = :name";
         try {
-            entityManager.createQuery("FROM Project WHERE name = :name", Project.class)
-                    .setParameter("name", aName).getSingleResult();
+            entityManager
+                    .createQuery(query, Project.class)
+                    .setParameter("name", aName)
+                    .getSingleResult();
             return true;
         }
         catch (NoResultException ex) {
@@ -174,12 +170,15 @@ public class ProjectServiceImpl
     @Override
     public boolean existsProjectPermission(User aUser, Project aProject)
     {
-
+        String query =
+                "FROM ProjectPermission " + 
+                "WHERE user = :user AND project = :project";
         List<ProjectPermission> projectPermissions = entityManager
-                .createQuery(
-                        "FROM ProjectPermission WHERE user = :user AND " + "project =:project",
-                        ProjectPermission.class).setParameter("user", aUser.getUsername())
-                .setParameter("project", aProject).getResultList();
+                .createQuery(query, ProjectPermission.class)
+                .setParameter("user", aUser.getUsername())
+                .setParameter("project", aProject)
+                .getResultList();
+        
         // if at least one permission level exist
         if (projectPermissions.size() > 0) {
             return true;
@@ -187,7 +186,6 @@ public class ProjectServiceImpl
         else {
             return false;
         }
-
     }
 
     @Override
@@ -195,14 +193,16 @@ public class ProjectServiceImpl
     public boolean existsProjectPermissionLevel(User aUser, Project aProject,
             PermissionLevel aLevel)
     {
+        String query =
+                "FROM ProjectPermission " + 
+                "WHERE user = :user AND project = :project AND level = :level";
         try {
             entityManager
-                    .createQuery(
-                            "FROM ProjectPermission WHERE user = :user AND "
-                                    + "project =:project AND level =:level",
-                            ProjectPermission.class)
-                    .setParameter("user", aUser.getUsername()).setParameter("project", aProject)
-                    .setParameter("level", aLevel).getSingleResult();
+                    .createQuery(query, ProjectPermission.class)
+                    .setParameter("user", aUser.getUsername())
+                    .setParameter("project", aProject)
+                    .setParameter("level", aLevel)
+                    .getSingleResult();
             return true;
         }
         catch (NoResultException ex) {
@@ -215,7 +215,6 @@ public class ProjectServiceImpl
     public boolean existsProjectTimeStamp(Project aProject, String aUsername)
     {
         try {
-
             if (getProjectTimeStamp(aProject, aUsername) == null) {
                 return false;
             }
@@ -230,7 +229,6 @@ public class ProjectServiceImpl
     public boolean existsProjectTimeStamp(Project aProject)
     {
         try {
-
             if (getProjectTimeStamp(aProject) == null) {
                 return false;
             }
@@ -244,55 +242,71 @@ public class ProjectServiceImpl
     @Override
     public File getProjectLogFile(Project aProject)
     {
-        return new File(dir.getAbsolutePath() + PROJECT + "project-" + aProject.getId() + ".log");
+        return new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + "project-"
+                + aProject.getId() + ".log");
     }
 
     @Override
-    public File getGuidelinesFile(Project aProject)
+    public File getGuidelinesFolder(Project aProject)
     {
-        return new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE);
+        return new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId() + "/"
+                + GUIDELINES_FOLDER + "/");
     }
 
     @Override
     public File getMetaInfFolder(Project aProject)
     {
-        return new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + META_INF);
+        return new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId() + "/"
+                + META_INF_FOLDER + "/");
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public List<Authority> listAuthorities(User aUser)
     {
+        String query =
+                "FROM Authority " + 
+                "WHERE username = :username";
         return entityManager
-                .createQuery("FROM Authority where username =:username", Authority.class)
+                .createQuery(query, Authority.class)
                 .setParameter("username", aUser).getResultList();
     }
 
     @Override
     public File getGuideline(Project aProject, String aFilename)
     {
-        return new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE + aFilename);
+        return new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId() + "/"
+                + GUIDELINES_FOLDER + "/" + aFilename);
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public List<ProjectPermission> listProjectPermissionLevel(User aUser, Project aProject)
     {
+        String query = 
+                "FROM ProjectPermission " +
+                "WHERE user =:user AND project =:project";
         return entityManager
-                .createQuery("FROM ProjectPermission WHERE user =:user AND " + "project =:project",
-                        ProjectPermission.class).setParameter("user", aUser.getUsername())
-                .setParameter("project", aProject).getResultList();
+                .createQuery(query, ProjectPermission.class)
+                .setParameter("user", aUser.getUsername())
+                .setParameter("project", aProject)
+                .getResultList();
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public List<PermissionLevel> getProjectPermissionLevels(User aUser, Project aProject)
     {
+        String query = 
+                "SELECT level " +
+                "FROM ProjectPermission " +
+                "WHERE user = :user AND " + "project = :project";
         try {
-            String query = "SELECT level FROM ProjectPermission WHERE user =:user AND " + "project =:project";
-            return entityManager.createQuery(query, PermissionLevel.class)
+            return entityManager
+                    .createQuery(query, PermissionLevel.class)
                     .setParameter("user", aUser.getUsername())
-                    .setParameter("project", aProject).getResultList();
+                    .setParameter("project", aProject)
+                    .getResultList();
         }
         catch (NoResultException e) {
             return Collections.emptyList();
@@ -332,12 +346,15 @@ public class ProjectServiceImpl
     @Override
     public List<User> listProjectUsersWithPermissions(Project aProject)
     {
-
+        String query = 
+                "SELECT DISTINCT perm.user " +
+                "FROM ProjectPermission AS perm " +
+                "WHERE perm.project = :project " +
+                "ORDER BY perm.user ASC";
         List<String> usernames = entityManager
-                .createQuery(
-                        "SELECT DISTINCT user FROM ProjectPermission WHERE "
-                                + "project =:project ORDER BY user ASC", String.class)
-                .setParameter("project", aProject).getResultList();
+                .createQuery(query, String.class)
+                .setParameter("project", aProject)
+                .getResultList();
 
         List<User> users = new ArrayList<>();
 
@@ -353,12 +370,16 @@ public class ProjectServiceImpl
     public List<User> listProjectUsersWithPermissions(Project aProject,
             PermissionLevel aPermissionLevel)
     {
+        String query = 
+                "SELECT DISTINCT user " +
+                "FROM ProjectPermission " +
+                "WHERE project = :project AND level = :level " +
+                "ORDER BY user ASC";
         List<String> usernames = entityManager
-                .createQuery(
-                        "SELECT DISTINCT user FROM ProjectPermission WHERE "
-                                + "project =:project AND level =:level ORDER BY user ASC",
-                        String.class).setParameter("project", aProject)
-                .setParameter("level", aPermissionLevel).getResultList();
+                .createQuery(query, String.class)
+                .setParameter("project", aProject)
+                .setParameter("level", aPermissionLevel)
+                .getResultList();
         List<User> users = new ArrayList<>();
         for (String username : usernames) {
             if (userRepository.exists(username)) {
@@ -372,22 +393,33 @@ public class ProjectServiceImpl
     @Transactional
     public Project getProject(String aName)
     {
-        return entityManager.createQuery("FROM Project WHERE name = :name", Project.class)
-                .setParameter("name", aName).getSingleResult();
+        String query = 
+                "FROM Project " + 
+                "WHERE name = :name";
+        return entityManager
+                .createQuery(query, Project.class)
+                .setParameter("name", aName)
+                .getSingleResult();
     }
 
     @Override
     public Project getProject(long aId)
     {
-        return entityManager.createQuery("FROM Project WHERE id = :id", Project.class)
-                .setParameter("id", aId).getSingleResult();
+        String query = 
+                "FROM Project " +
+                "WHERE id = :id";
+        return entityManager
+                .createQuery(query, Project.class)
+                .setParameter("id", aId)
+                .getSingleResult();
     }
 
     @Override
     public void createGuideline(Project aProject, File aContent, String aFileName)
         throws IOException
     {
-        String guidelinePath = dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE;
+        String guidelinePath = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId()
+                + "/" + GUIDELINES_FOLDER + "/";
         FileUtils.forceMkdir(new File(guidelinePath));
         copyLarge(new FileInputStream(aContent), new FileOutputStream(new File(guidelinePath
                 + aFileName)));
@@ -403,19 +435,25 @@ public class ProjectServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public List<ProjectPermission> getProjectPermissions(Project aProject)
     {
+        String query = 
+                "FROM ProjectPermission " +
+                "WHERE project = :project";
         return entityManager
-                .createQuery("FROM ProjectPermission WHERE project =:project",
-                        ProjectPermission.class).setParameter("project", aProject).getResultList();
+                .createQuery(query, ProjectPermission.class)
+                .setParameter("project", aProject)
+                .getResultList();
     }
 
     @Override
     @Transactional
     public Date getProjectTimeStamp(Project aProject, String aUsername)
     {
+        String query = 
+                "SELECT MAX(ann.timestamp) " +
+                "FROM AnnotationDocument AS ann " +
+                "WHERE ann.project = :project AND ann.user = :user";
         return entityManager
-                .createQuery(
-                        "SELECT max(timestamp) FROM AnnotationDocument WHERE project = :project "
-                                + " AND user = :user", Date.class)
+                .createQuery(query, Date.class)
                 .setParameter("project", aProject).setParameter("user", aUsername)
                 .getSingleResult();
     }
@@ -423,29 +461,35 @@ public class ProjectServiceImpl
     @Override
     public Date getProjectTimeStamp(Project aProject)
     {
+        String query = 
+                "SELECT MAX(doc.timestamp) " +
+                "FROM SourceDocument AS doc " +
+                "WHERE doc.project = :project";
         return entityManager
-                .createQuery("SELECT max(timestamp) FROM SourceDocument WHERE project = :project",
-                        Date.class).setParameter("project", aProject).getSingleResult();
+                .createQuery(query, Date.class)
+                .setParameter("project", aProject)
+                .getSingleResult();
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public List<Project> listProjectsWithFinishedAnnos()
     {
-
+        String query = 
+                "SELECT DISTINCT ann.project " +
+                "FROM AnnotationDocument AS ann " +
+                "WHERE ann.state = :state";
         return entityManager
-                .createQuery("SELECT DISTINCT project FROM AnnotationDocument WHERE state = :state",
-                        Project.class)
-                .setParameter("state", AnnotationDocumentState.FINISHED.getName()).getResultList();
-
+                .createQuery(query, Project.class)
+                .setParameter("state", AnnotationDocumentState.FINISHED)
+                .getResultList();
     }
 
     @Override
     public List<String> listGuidelines(Project aProject)
     {
         // list all guideline files
-        File[] files = new File(dir.getAbsolutePath() + PROJECT + aProject.getId() + GUIDELINE)
-                .listFiles();
+        File[] files = getGuidelinesFolder(aProject).listFiles();
 
         // Name of the guideline files
         List<String> annotationGuidelineFiles = new ArrayList<>();
@@ -462,7 +506,11 @@ public class ProjectServiceImpl
     @Transactional
     public List<Project> listProjects()
     {
-        return entityManager.createQuery("FROM Project  ORDER BY name ASC ", Project.class)
+        String query = 
+                "FROM Project " +
+                "ORDER BY name ASC";
+        return entityManager
+                .createQuery(query, Project.class)
                 .getResultList();
     }
 
@@ -471,8 +519,8 @@ public class ProjectServiceImpl
         throws IOException
     {
         Properties property = new Properties();
-        property.load(new FileInputStream(new File(dir.getAbsolutePath() + PROJECT
-                + aProject.getId() + SETTINGS + aUsername + "/"
+        property.load(new FileInputStream(new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER
+                + "/" + aProject.getId() + "/" + SETTINGS_FOLDER + "/" + aUsername + "/"
                 + annotationPreferencePropertiesFileName)));
         return property;
     }
@@ -488,22 +536,7 @@ public class ProjectServiceImpl
             project = entityManager.merge(project);
         }
         
-        // Notify all relevant service so that they can clean up themselves before we remove the
-        // project - notification happens in reverse order
-        List<ProjectLifecycleAware> beans = new ArrayList<>(
-                projectLifecycleAwareRegistry.getBeans());
-        Collections.reverse(beans);
-        for (ProjectLifecycleAware bean : beans) {
-            try {
-                bean.beforeProjectRemove(aProject);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        applicationEventPublisher.publishEvent(new BeforeProjectRemovedEvent(this, aProject));
 
         for (ProjectPermission permissions : getProjectPermissions(aProject)) {
             entityManager.remove(permissions);
@@ -512,7 +545,7 @@ public class ProjectServiceImpl
         entityManager.remove(project);
         
         // remove the project directory from the file system
-        String path = dir.getAbsolutePath() + PROJECT + aProject.getId();
+        String path = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId();
         try {
             FileUtils.deleteDirectory(new File(path));
         }
@@ -533,8 +566,8 @@ public class ProjectServiceImpl
     public void removeGuideline(Project aProject, String aFileName)
         throws IOException
     {
-        FileUtils.forceDelete(new File(dir.getAbsolutePath() + PROJECT + aProject.getId()
-                + GUIDELINE + aFileName));
+        FileUtils.forceDelete(new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aProject.getId() + "/" + GUIDELINES_FOLDER + "/" + aFileName));
         
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aProject.getId()))) {
@@ -561,7 +594,7 @@ public class ProjectServiceImpl
     public void savePropertiesFile(Project aProject, InputStream aIs, String aFileName)
         throws IOException
     {
-        String path = dir.getAbsolutePath() + PROJECT + aProject.getId() + "/"
+        String path = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aProject.getId() + "/"
                 + FilenameUtils.getFullPath(aFileName);
         FileUtils.forceMkdir(new File(path));
 
@@ -591,8 +624,8 @@ public class ProjectServiceImpl
             props.setProperty(aSubject + "." + value.getName(),
                     wrapper.getPropertyValue(value.getName()).toString());
         }
-        String propertiesPath = dir.getAbsolutePath() + PROJECT + aProject.getId() + SETTINGS
-                + aUsername;
+        String propertiesPath = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + aProject.getId() + "/" + SETTINGS_FOLDER + "/" + aUsername;
         // append existing preferences for the other mode
         if (new File(propertiesPath, annotationPreferencePropertiesFileName).exists()) {
             for (Entry<Object, Object> entry : loadUserSettings(aUsername, aProject).entrySet()) {
@@ -625,11 +658,33 @@ public class ProjectServiceImpl
         List<Project> allowedProject = new ArrayList<>();
         List<Project> allProjects = listProjects();
 
+        // if global admin, list all projects
+        if (SecurityUtil.isSuperAdmin(this, user)) {
+            return allProjects;
+        }
+
+        // else only list projects where she is admin / user / curator
+        for (Project project : allProjects) {
+            if (SecurityUtil.isProjectAdmin(project, this, user)
+                    || SecurityUtil.isAnnotator(project, this, user)
+                    || SecurityUtil.isCurator(project, this, user)) {
+                allowedProject.add(project);
+            }
+        }
+        return allowedProject;
+    }
+
+    @Override
+    public List<Project> listManageableProjects(User user)
+    {
+        List<Project> allowedProject = new ArrayList<>();
+        List<Project> allProjects = listProjects();
+
         // if global admin, show all projects
         if (SecurityUtil.isSuperAdmin(this, user)) {
             return allProjects;
         }
-        
+
         // else only projects she is admin of
         for (Project project : allProjects) {
             if (SecurityUtil.isProjectAdmin(project, this, user)) {
@@ -675,7 +730,7 @@ public class ProjectServiceImpl
             // Strip leading "/" that we had in ZIP files prior to 2.0.8 (bug #985)
             String entryName = ZipUtils.normalizeEntryName(entry);
             
-            if (entryName.startsWith(LOG_DIR)) {
+            if (entryName.startsWith(LOG_FOLDER + "/")) {
                 FileUtils.copyInputStreamToFile(zip.getInputStream(entry),
                         getProjectLogFile(aProject));
                 log.info("Imported log for project [" + aProject.getName() + "] with id ["
@@ -700,12 +755,12 @@ public class ProjectServiceImpl
             // Strip leading "/" that we had in ZIP files prior to 2.0.8 (bug #985)
             String entryName = ZipUtils.normalizeEntryName(entry);
             
-            if (entryName.startsWith(GUIDELINE)) {
+            if (entryName.startsWith(GUIDELINES_FOLDER + "/")) {
                 String fileName = FilenameUtils.getName(entry.getName());
                 if (fileName.trim().isEmpty()) {
                     continue;
                 }
-                File guidelineDir = getGuidelinesFile(aProject);
+                File guidelineDir = getGuidelinesFolder(aProject);
                 FileUtils.forceMkdir(guidelineDir);
                 FileUtils.copyInputStreamToFile(zip.getInputStream(entry), new File(guidelineDir,
                         fileName));
@@ -732,9 +787,9 @@ public class ProjectServiceImpl
             // Strip leading "/" that we had in ZIP files prior to 2.0.8 (bug #985)
             String entryName = ZipUtils.normalizeEntryName(entry);
 
-            if (entryName.startsWith(META_INF)) {
+            if (entryName.startsWith(META_INF_FOLDER + "/")) {
                 File metaInfDir = new File(getMetaInfFolder(aProject),
-                        FilenameUtils.getPath(entry.getName().replace(META_INF, "")));
+                        FilenameUtils.getPath(entry.getName().replace(META_INF_FOLDER + "/", "")));
                 // where the file reside in the META-INF/... directory
                 FileUtils.forceMkdir(metaInfDir);
                 FileUtils.copyInputStreamToFile(zip.getInputStream(entry), new File(metaInfDir,

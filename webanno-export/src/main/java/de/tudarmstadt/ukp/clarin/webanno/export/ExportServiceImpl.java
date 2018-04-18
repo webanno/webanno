@@ -18,25 +18,26 @@
 package de.tudarmstadt.ukp.clarin.webanno.export;
 
 import static de.tudarmstadt.ukp.clarin.webanno.export.ImportUtil.EXPORTED_PROJECT;
+import static java.util.Objects.isNull;
 
 import java.io.File;
 import java.io.IOException;
-
-import javax.annotation.Resource;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAwareRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.automation.service.AutomationService;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.ZipUtils;
@@ -46,14 +47,13 @@ public class ExportServiceImpl implements ExportService
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
-    private @Resource AnnotationSchemaService annotationService;
-    private @Resource AutomationService automationService;
-    private @Resource DocumentService documentService;
-    private @Resource ProjectService projectService;
-    private @Resource ConstraintsService constraintsService;
-    private @Resource UserDao userRepository;
-    private @Resource ImportExportService importExportService;
-    private @Resource ProjectLifecycleAwareRegistry projectLifecycleAwareRegistry;
+    private @Autowired AnnotationSchemaService annotationService;
+    private @Autowired DocumentService documentService;
+    private @Autowired ProjectService projectService;
+    private @Autowired UserDao userRepository;
+    private @Autowired ImportExportService importExportService;
+    private @Autowired(required = false) ConstraintsService constraintsService;
+    private @Autowired(required = false) AutomationService automationService;
     
     @Override
     public File generateZipFile(final ProjectExportRequest aRequest)
@@ -71,33 +71,37 @@ public class ExportServiceImpl implements ExportService
         
         try {
             // all metadata and project settings data from the database as JSON file
-            File projectSettings = null;
-            projectSettings = File.createTempFile(EXPORTED_PROJECT, ".json");
+            File projectSettings = File.createTempFile(EXPORTED_PROJECT, ".json");
     
-            if (aRequest.project.getId() == 0) {
+            Project project = aRequest.project.getObject();
+            
+            if (isNull(project.getId())) {
                 throw new ProjectExportException(
                         "Project not yet created. Please save project details first!");
             }
     
             de.tudarmstadt.ukp.clarin.webanno.export.model.Project exProjekt = ExportUtil
-                    .exportProjectSettings(annotationService, automationService, documentService,
-                            projectService, aRequest.project, projectSettings, exportTempDir);
+                    .exportProjectSettings(annotationService,
+                            Optional.ofNullable(automationService), documentService, projectService,
+                            project, projectSettings, exportTempDir);
     
             JSONUtil.generatePrettyJson(exProjekt, projectSettings);
             FileUtils.copyFileToDirectory(projectSettings, exportTempDir);
             
             aRequest.progress = 9;
-            ExportUtil.exportSourceDocuments(documentService, automationService, aRequest,
-                    aRequest.project, exportTempDir);
-            ExportUtil.exportTrainingDocuments(automationService, aRequest, aRequest.project,
-                    exportTempDir);
+            ExportUtil.exportSourceDocuments(documentService, aRequest, project, exportTempDir);
+            if (automationService != null) {
+                ExportUtil.exportTrainingDocuments(automationService, aRequest, project,
+                        exportTempDir);
+            }
             ExportUtil.exportAnnotationDocuments(documentService, importExportService,
                     userRepository, aRequest, exportTempDir);
-            ExportUtil.exportProjectLog(projectService, aRequest.project, exportTempDir);
-            ExportUtil.exportGuideLine(projectService, aRequest.project, exportTempDir);
-            ExportUtil.exportProjectMetaInf(projectService, aRequest.project, exportTempDir);
-            ExportUtil.exportProjectConstraints(constraintsService, aRequest.project,
-                    exportTempDir);
+            ExportUtil.exportProjectLog(projectService, project, exportTempDir);
+            ExportUtil.exportGuideLine(projectService, project, exportTempDir);
+            ExportUtil.exportProjectMetaInf(projectService, project, exportTempDir);
+            if (constraintsService != null) {
+                ExportUtil.exportProjectConstraints(constraintsService, project, exportTempDir);
+            }
             aRequest.progress = 90;
             
             ExportUtil.exportCuratedDocuments(documentService, importExportService, aRequest,

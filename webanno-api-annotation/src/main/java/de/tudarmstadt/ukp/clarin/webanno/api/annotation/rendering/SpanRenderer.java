@@ -25,6 +25,7 @@ import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
@@ -61,6 +62,8 @@ public class SpanRenderer
     public void render(JCas aJcas, List<AnnotationFeature> aFeatures,
             VDocument aResponse, AnnotatorState aBratAnnotatorModel)
     {
+        List<AnnotationFeature> visibleFeatures = aFeatures.stream()
+                .filter(f -> f.isVisible() && f.isEnabled()).collect(Collectors.toList());
         SpanAdapter typeAdapter = getTypeAdapter();
         Type type = getType(aJcas.getCas(), typeAdapter.getAnnotationTypeName());
         
@@ -72,23 +75,34 @@ public class SpanRenderer
         
         for (AnnotationFS fs : selectCovered(aJcas.getCas(), type, windowBegin, windowEnd)) {
             String bratTypeName = TypeUtil.getUiTypeName(typeAdapter);
-            Map<String, String> features = getFeatures(typeAdapter, fs, aFeatures);
+            Map<String, String> features = getFeatures(typeAdapter, fs, visibleFeatures);
+            Map<String, String> hoverFeatures = getHoverFeatures(typeAdapter, fs, aFeatures);
             
             Sentence beginSent = null;
             Sentence endSent = null;
             
             // check if annotation extends beyond viewable window - if yes, then constrain it to 
             // the visible window
-            for (Sentence sentence : visibleSentences) {
+            for (Sentence sent : visibleSentences) {
                 if (beginSent == null) {
-                    if (sentence.getBegin() <= fs.getBegin() && fs.getBegin() < sentence.getEnd()) {
-                        beginSent = sentence;
+                    // Here we catch the first sentence in document order which covers the begin
+                    // offset of the current annotation.
+                    if (sent.getBegin() <= fs.getBegin() && fs.getBegin() <= sent.getEnd()) {
+                        beginSent = sent;
+                    }
+                    // Make sure that zero-width annotations always start and end in the same
+                    // sentence. Zero-width annotations that are on the boundary of two directly
+                    // adjacent sentences (i.e. without whitespace between them) are considered
+                    // to be at the end of the first sentence rather than at the beginning of the
+                    // second sentence.
+                    if (fs.getBegin() == fs.getEnd()) {
+                        endSent = sent;
                     }
                 }
                 
                 if (endSent == null) {
-                    if (sentence.getBegin() <= fs.getEnd() && fs.getEnd() <= sentence.getEnd()) {
-                        endSent = sentence;
+                    if (sent.getBegin() <= fs.getEnd() && fs.getEnd() <= sent.getEnd()) {
+                        endSent = sent;
                     }
                 }
                 
@@ -122,18 +136,19 @@ public class SpanRenderer
                     }
                 }
                 aResponse.add(
-                        new VSpan(typeAdapter.getLayer(), fs, bratTypeName, ranges, features));
+                        new VSpan(typeAdapter.getLayer(), fs, bratTypeName, ranges, features, 
+                                hoverFeatures));
             }
             else {
                 // FIXME It should be possible to remove this case and the if clause because
                 // the case that a FS is inside a single sentence is just a special case
                 aResponse.add(new VSpan(typeAdapter.getLayer(), fs, bratTypeName,
                         new VRange(fs.getBegin() - windowBegin, fs.getEnd() - windowBegin),
-                        features));
+                        features, hoverFeatures));
             }
             
             // Render errors if required features are missing
-            renderRequiredFeatureErrors(aFeatures, fs, aResponse);
+            renderRequiredFeatureErrors(visibleFeatures, fs, aResponse);
 
             // Render slots
             int fi = 0;
@@ -145,7 +160,7 @@ public class SpanRenderer
                         LinkWithRoleModel link = links.get(li);
                         FeatureStructure targetFS = selectByAddr(fs.getCAS(), link.targetAddr);
                         aResponse.add(new VArc(typeAdapter.getLayer(), new VID(fs, fi, li),
-                                bratTypeName, fs, targetFS, features));
+                                bratTypeName, fs, targetFS, link.role, features));
                     }
                 }
                 fi++;

@@ -17,9 +17,10 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
@@ -27,7 +28,6 @@ import static org.apache.uima.fit.util.JCasUtil.select;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -40,10 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -63,17 +60,16 @@ import org.apache.uima.util.CasCreationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
-import de.tudarmstadt.ukp.clarin.webanno.automation.service.AutomationCasStorageService;
-import de.tudarmstadt.ukp.clarin.webanno.automation.service.AutomationService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
@@ -82,7 +78,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.MultiValueMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
-import de.tudarmstadt.ukp.clarin.webanno.model.TrainingDocument;
 import de.tudarmstadt.ukp.clarin.webanno.support.ZipUtils;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
@@ -101,24 +96,9 @@ public class ImportExportServiceImpl
     @Value(value = "${repository.path}")
     private File dir;
     
-    @Resource(name = "casStorageService")
-    private CasStorageService casStorageService;
-    
-    @Resource(name = "automationCasStorageService")
-    private AutomationCasStorageService automationCasStorageService;
-    
-    
-    @Resource(name = "annotationService")
-    private AnnotationSchemaService annotationService;
-
-    @Resource(name = "documentService")
-    private DocumentService documentService;
-    
-    @Resource(name = "automationService")
-    private AutomationService automationService;
-
-    @Resource(name = "formats")
-    private Properties readWriteFileFormats;
+    private @Autowired CasStorageService casStorageService;
+    private @Autowired AnnotationSchemaService annotationService;
+    private @Autowired @Qualifier("formats") Properties readWriteFileFormats;
 
     public ImportExportServiceImpl()
     {
@@ -170,7 +150,7 @@ public class ImportExportServiceImpl
         }
 
         CAS cas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null);
-        CasPersistenceUtils.readSerializedCas(cas.getJCas(), serializedCasFile);
+        CasPersistenceUtils.readSerializedCas(cas, serializedCasFile);
 
         // Update type system the CAS
         annotationService.upgradeCas(cas, aDocument, aUser);
@@ -190,52 +170,6 @@ public class ImportExportServiceImpl
     }
     
     @Override
-    @Transactional
-    public void uploadTrainingDocument(File aFile, TrainingDocument aDocument)
-        throws IOException
-    {
-        // Check if the file has a valid format / can be converted without error
-        JCas cas = null;
-        try {
-            if (aDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
-                if (!isTabSepFileFormatCorrect(aFile)) {
-                    throw new IOException(
-                            "This TAB-SEP file is not in correct format. It should have two columns separated by TAB!");
-                }
-            }
-            else {
-                cas = importCasFromFile(aFile, aDocument.getProject(), aDocument.getFormat());
-                automationCasStorageService.analyzeAndRepair(aDocument, cas.getCas());
-            }
-        }
-        catch (IOException e) {
-            automationService.removeTrainingDocument(aDocument);
-            throw e;
-        }
-        catch (Exception e) {
-            automationService.removeTrainingDocument(aDocument);
-            throw new IOException(e.getMessage(), e);
-        }
-
-        // Copy the original file into the repository
-        File targetFile = automationService.getTrainingDocumentFile(aDocument);
-        FileUtils.forceMkdir(targetFile.getParentFile());
-        FileUtils.copyFile(aFile, targetFile);
-
-        // Copy the initial conversion of the file into the repository
-        if (cas != null) {
-            CasPersistenceUtils.writeSerializedCas(cas, automationService.getCasFile(aDocument));
-        }
-
-        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
-                String.valueOf(aDocument.getProject().getId()))) {
-            Project project = aDocument.getProject();
-            log.info("Imported training document [{}]({}) to project [{}]({})", 
-                    aDocument.getName(), aDocument.getId(), project.getName(), project.getId());
-        }
-    }
-    
-    @Override
     public List<String> getReadableFormatLabels()
     {
         List<String> readableFormats = new ArrayList<>();
@@ -243,7 +177,14 @@ public class ImportExportServiceImpl
             if (key.contains(".label") && !isBlank(readWriteFileFormats.getProperty(key))) {
                 String readerLabel = key.substring(0, key.lastIndexOf(".label"));
                 if (!isBlank(readWriteFileFormats.getProperty(readerLabel + ".reader"))) {
-                    readableFormats.add(readWriteFileFormats.getProperty(key));
+                    try {
+                        Class.forName(readWriteFileFormats.getProperty(readerLabel + ".reader"));
+                        readableFormats.add(readWriteFileFormats.getProperty(key));
+                    }
+                    catch (ClassNotFoundException e) {
+                        log.error("Reader class not found: "
+                                + readWriteFileFormats.getProperty(readerLabel + ".reader"));
+                    }
                 }
             }
         }
@@ -269,15 +210,20 @@ public class ImportExportServiceImpl
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Map<String, Class<CollectionReader>> getReadableFormats()
-        throws ClassNotFoundException
     {
         Map<String, Class<CollectionReader>> readableFormats = new HashMap<>();
         for (String key : readWriteFileFormats.stringPropertyNames()) {
             if (key.contains(".label") && !isBlank(readWriteFileFormats.getProperty(key))) {
                 String readerLabel = key.substring(0, key.lastIndexOf(".label"));
                 if (!isBlank(readWriteFileFormats.getProperty(readerLabel + ".reader"))) {
-                    readableFormats.put(readerLabel, (Class) Class.forName(readWriteFileFormats
-                            .getProperty(readerLabel + ".reader")));
+                    try {
+                        readableFormats.put(readerLabel, (Class) Class.forName(
+                                readWriteFileFormats.getProperty(readerLabel + ".reader")));
+                    }
+                    catch (ClassNotFoundException e) {
+                        log.error("Reader class not found: "
+                                + readWriteFileFormats.getProperty(readerLabel + ".reader"));
+                    }
                 }
             }
         }
@@ -292,7 +238,14 @@ public class ImportExportServiceImpl
             if (key.contains(".label") && !isBlank(readWriteFileFormats.getProperty(key))) {
                 String writerLabel = key.substring(0, key.lastIndexOf(".label"));
                 if (!isBlank(readWriteFileFormats.getProperty(writerLabel + ".writer"))) {
-                    writableFormats.add(readWriteFileFormats.getProperty(key));
+                    try {
+                        Class.forName(readWriteFileFormats.getProperty(writerLabel + ".writer"));
+                        writableFormats.add(readWriteFileFormats.getProperty(key));
+                    }
+                    catch (ClassNotFoundException e) {
+                        log.error("Writer class not found: "
+                                + readWriteFileFormats.getProperty(writerLabel + ".writer"));
+                    }
                 }
             }
         }
@@ -318,7 +271,6 @@ public class ImportExportServiceImpl
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Map<String, Class<JCasAnnotator_ImplBase>> getWritableFormats()
-        throws ClassNotFoundException
     {
         Map<String, Class<JCasAnnotator_ImplBase>> writableFormats = new HashMap<>();
         Set<String> keys = (Set) readWriteFileFormats.keySet();
@@ -327,8 +279,14 @@ public class ImportExportServiceImpl
             if (keyvalue.contains(".label")) {
                 String writerLabel = keyvalue.substring(0, keyvalue.lastIndexOf(".label"));
                 if (readWriteFileFormats.getProperty(writerLabel + ".writer") != null) {
-                    writableFormats.put(writerLabel, (Class) Class.forName(readWriteFileFormats
-                            .getProperty(writerLabel + ".writer")));
+                    try {
+                        writableFormats.put(writerLabel, (Class) Class.forName(
+                                readWriteFileFormats.getProperty(writerLabel + ".writer")));
+                    }
+                    catch (ClassNotFoundException e) {
+                        log.error("Writer class not found: "
+                                + readWriteFileFormats.getProperty(writerLabel + ".reader"));
+                    }
                 }
             }
         }
@@ -338,7 +296,7 @@ public class ImportExportServiceImpl
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public JCas importCasFromFile(File aFile, Project aProject, String aFormat)
-        throws UIMAException, IOException, ClassNotFoundException
+        throws UIMAException, IOException
     {
         Class readerClass = getReadableFormats().get(aFormat);
         if (readerClass == null) {
@@ -348,9 +306,9 @@ public class ImportExportServiceImpl
         // Prepare a CAS with the project type system
         TypeSystemDescription builtInTypes = TypeSystemDescriptionFactory
                 .createTypeSystemDescription();
-        List<TypeSystemDescription> projectTypes = annotationService.getProjectTypes(aProject);
-        projectTypes.add(builtInTypes);
-        TypeSystemDescription allTypes = CasCreationUtils.mergeTypeSystems(projectTypes);
+        TypeSystemDescription projectTypes = annotationService.getProjectTypes(aProject);
+        TypeSystemDescription allTypes = CasCreationUtils
+                .mergeTypeSystems(asList(projectTypes, builtInTypes));
         CAS cas = JCasFactory.createJCas(allTypes).getCas();
 
         // Convert the source document to CAS
@@ -384,7 +342,12 @@ public class ImportExportServiceImpl
         if (!hasTokens) {
             tokenize(jCas);
         }
-
+        
+        if (!JCasUtil.exists(jCas, Token.class) || !JCasUtil.exists(jCas, Sentence.class)) {
+            throw new IOException("The document appears to be empty. Unable to detect any "
+                    + "tokens or sentences. Empty documents cannot be imported.");
+        }
+        
         return jCas;
     }
     
@@ -489,16 +452,17 @@ public class ImportExportServiceImpl
         // Update the source file name in case it is changed for some reason. This is necessary
         // for the writers to create the files under the correct names.
         Project project = aDocument.getProject();
-        File currentDocumentUri = new File(dir.getAbsolutePath() + PROJECT + project.getId()
-                + DOCUMENT + aDocument.getId() + SOURCE);
+        File currentDocumentUri = new File(
+                dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + project.getId() + "/"
+                        + DOCUMENT_FOLDER + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
         DocumentMetaData documentMetadata = DocumentMetaData.get(cas.getJCas());
         documentMetadata.setDocumentUri(new File(currentDocumentUri, aFileName).toURI().toURL()
                 .toExternalForm());
         documentMetadata.setDocumentBaseUri(currentDocumentUri.toURI().toURL().toExternalForm());
         documentMetadata.setCollectionId(currentDocumentUri.toURI().toURL().toExternalForm());
-        documentMetadata.setDocumentUri(new File(dir.getAbsolutePath() + PROJECT + project.getId()
-                + DOCUMENT + aDocument.getId() + SOURCE + "/" + aFileName).toURI().toURL()
-                .toExternalForm());
+        documentMetadata.setDocumentUri(new File(dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
+                + project.getId() + "/" + DOCUMENT_FOLDER + "/" + aDocument.getId() + "/"
+                + SOURCE_FOLDER + "/" + aFileName).toURI().toURL().toExternalForm());
 
         // update with the correct tagset name
         List<AnnotationFeature> features = annotationService.listAnnotationFeature(project);
@@ -639,29 +603,6 @@ public class ImportExportServiceImpl
         return true;
     }
     
-    /**
-     * Check if a TAB-Sep training file is in correct format before importing
-     */
-    private boolean isTabSepFileFormatCorrect(File aFile)
-    {
-        try {
-            LineIterator it = new LineIterator(new FileReader(aFile));
-            while (it.hasNext()) {
-                String line = it.next();
-                if (line.trim().length() == 0) {
-                    continue;
-                }
-                if (line.split("\t").length != 2) {
-                    return false;
-                }
-            }
-        }
-        catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
     /**
      * A Helper method to add {@link TagsetDescription} to {@link CAS}
      *

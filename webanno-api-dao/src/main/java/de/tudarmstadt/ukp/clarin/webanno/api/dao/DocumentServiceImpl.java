@@ -17,10 +17,12 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
+import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS;
+import static java.util.Objects.isNull;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
 import java.io.File;
@@ -31,14 +33,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
-import java.util.zip.ZipFile;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -55,24 +55,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentLifecycleAware;
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentLifecycleAwareRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.ProjectLifecycleAware;
+import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterAnnotationUpdateEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterDocumentCreatedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterDocumentResetEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AnnotationStateChangeEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.BeforeDocumentRemovedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.DocumentStateChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.ProjectStateChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.ProjectState;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -80,51 +90,25 @@ import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
 @Component(DocumentService.SERVICE_NAME)
 public class DocumentServiceImpl
-    implements DocumentService, InitializingBean, ProjectLifecycleAware
+    implements DocumentService, InitializingBean
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Resource(name = "annotationService")
-    private AnnotationSchemaService annotationService;
+    private @Autowired UserDao userRepository;
+    private @Autowired CasStorageService casStorageService;
+    private @Autowired ImportExportService importExportService;
+    private @Autowired ProjectService projectService;
+    private @Autowired ApplicationEventPublisher applicationEventPublisher;
     
-    @Resource(name = "userRepository")
-    private UserDao userRepository;
-
-    @Resource(name = "casStorageService")
-    private CasStorageService casStorageService;
-
-    @Resource(name = "importExportService")
-    private ImportExportService importExportService;
-
-    @Resource
-    private DocumentLifecycleAwareRegistry documentLifecycleAwareRegistry;
-
     @Value(value = "${repository.path}")
     private File dir;
 
-    @Value(value = "${database.dialect}")
-    private String databaseDialect;
-
-    @Value(value = "${database.driver}")
-    private String databaseDriver;
-
-    @Value(value = "${database.url}")
-    private String databaseUrl;
-
-    @Value(value = "${database.username}")
-    private String databaseUsername;
-
     @Override
     public void afterPropertiesSet()
-        throws Exception
     {
-        log.info("Database dialect: " + databaseDialect);
-        log.info("Database driver: " + databaseDriver);
-        log.info("Database URL: " + databaseUrl);
-        log.info("Database username: " + databaseUsername);
         log.info("Document repository path: " + dir);
     }
     
@@ -138,8 +122,8 @@ public class DocumentServiceImpl
     public File getDocumentFolder(SourceDocument aDocument)
         throws IOException
     {
-        File sourceDocFolder = new File(dir, PROJECT + aDocument.getProject().getId() + DOCUMENT
-                + aDocument.getId() + SOURCE);
+        File sourceDocFolder = new File(dir, "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER + "/"
+                + aDocument.getId() + "/" + SOURCE_FOLDER);
         FileUtils.forceMkdir(sourceDocFolder);
         return sourceDocFolder;
     }
@@ -147,9 +131,8 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public void createSourceDocument(SourceDocument aDocument)
-        throws IOException
     {
-        if (aDocument.getId() == 0) {
+        if (isNull(aDocument.getId())) {
             entityManager.persist(aDocument);
         }
         else {
@@ -181,23 +164,23 @@ public class DocumentServiceImpl
     @Transactional
     public void createAnnotationDocument(AnnotationDocument aAnnotationDocument)
     {
-        if (aAnnotationDocument.getId() == 0) {
+        if (isNull(aAnnotationDocument.getId())) {
             entityManager.persist(aAnnotationDocument);
+            
+            try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                    String.valueOf(aAnnotationDocument.getProject().getId()))) {
+                log.info(
+                        "Created annotation document [{}] for user [{}] for source document "
+                        + "[{}]({}) in project [{}]({})",
+                        aAnnotationDocument.getId(), aAnnotationDocument.getUser(), 
+                        aAnnotationDocument.getDocument().getName(),
+                        aAnnotationDocument.getDocument().getId(),
+                        aAnnotationDocument.getProject().getName(),
+                        aAnnotationDocument.getProject().getId());
+            }
         }
         else {
             entityManager.merge(aAnnotationDocument);
-        }
-        
-        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
-                String.valueOf(aAnnotationDocument.getProject().getId()))) {
-            log.info(
-                    "Created annotation document [{}] for user [{}] for source document [{}]({}) "
-                    + "in project [{}]({})",
-                    aAnnotationDocument.getId(), aAnnotationDocument.getUser(), 
-                    aAnnotationDocument.getDocument().getName(),
-                    aAnnotationDocument.getDocument().getId(),
-                    aAnnotationDocument.getProject().getName(),
-                    aAnnotationDocument.getProject().getId());
         }
     }
 
@@ -237,8 +220,9 @@ public class DocumentServiceImpl
     @Override
     public File getSourceDocumentFile(SourceDocument aDocument)
     {
-        File documentUri = new File(dir.getAbsolutePath() + PROJECT
-                + aDocument.getProject().getId() + DOCUMENT + aDocument.getId() + SOURCE);
+        File documentUri = new File(
+                dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId()
+                        + "/" + DOCUMENT_FOLDER + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
         return new File(documentUri, aDocument.getName());
     }
 
@@ -302,40 +286,68 @@ public class DocumentServiceImpl
                 .setParameter("docid", aSourceDocId).setParameter("pid", aProjectId)
                 .getSingleResult();
     }
+    
+    @Override
+    @Transactional
+    public SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
+            SourceDocumentState aState)
+    {
+        SourceDocumentState oldState = aDocument.getState();
+        
+        aDocument.setState(aState);
+        
+        createSourceDocument(aDocument);
+        
+        // Notify about change in document state
+        if (!Objects.equals(oldState, aDocument.getState())) {
+            applicationEventPublisher
+                    .publishEvent(new DocumentStateChangedEvent(this, aDocument, oldState));
+        }
+        
+        return oldState;
+    }
+
+    @Override
+    @Transactional
+    public SourceDocumentState transitionSourceDocumentState(SourceDocument aDocument,
+            SourceDocumentStateTransition aTransition)
+    {
+        return setSourceDocumentState(aDocument,
+                SourceDocumentStateTransition.transition(aTransition));
+    }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public boolean existsFinishedAnnotation(SourceDocument aDocument)
     {
-        List<AnnotationDocument> annotationDocuments = entityManager
-                .createQuery("FROM AnnotationDocument WHERE document = :document",
-                        AnnotationDocument.class).setParameter("document", aDocument)
-                .getResultList();
-        for (AnnotationDocument annotationDocument : annotationDocuments) {
-            if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)) {
-                return true;
-            }
-        }
+        String query = 
+                "SELECT COUNT(*) " +
+                "FROM AnnotationDocument " + 
+                "WHERE document = :document AND state = :state";
+        
+        long count = entityManager.createQuery(query, Long.class)
+            .setParameter("document", aDocument)
+            .setParameter("state", AnnotationDocumentState.FINISHED)
+            .getSingleResult();
 
-        return false;
+        return count > 0;
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public boolean existsFinishedAnnotation(Project aProject)
     {
-        for (SourceDocument document : listSourceDocuments(aProject)) {
-            List<AnnotationDocument> annotationDocuments = entityManager
-                    .createQuery("FROM AnnotationDocument WHERE document = :document",
-                            AnnotationDocument.class).setParameter("document", document)
-                    .getResultList();
-            for (AnnotationDocument annotationDocument : annotationDocuments) {
-                if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        String query = 
+                "SELECT COUNT(*) " +
+                "FROM AnnotationDocument " + 
+                "WHERE document.project = :project AND state = :state";
+        
+        long count = entityManager.createQuery(query, Long.class)
+            .setParameter("project", aProject)
+            .setParameter("state", AnnotationDocumentState.FINISHED)
+            .getSingleResult();
+
+        return count > 0;
     }
 
     @Override
@@ -392,31 +404,18 @@ public class DocumentServiceImpl
     public void removeSourceDocument(SourceDocument aDocument)
         throws IOException
     {
+        // BeforeDocumentRemovedEvent is triggered first, since methods that rely 
+        // on it might need to have access to the associated annotation documents 
+        applicationEventPublisher.publishEvent(new BeforeDocumentRemovedEvent(this, aDocument));
+        
         for (AnnotationDocument annotationDocument : listAllAnnotationDocuments(aDocument)) {
             removeAnnotationDocument(annotationDocument);
-        }
-        
-        // Notify all relevant service so that they can clean up themselves before we remove the
-        // document - notification happens in reverse order
-        List<DocumentLifecycleAware> beans = new ArrayList<>(
-                documentLifecycleAwareRegistry.getBeans());
-        Collections.reverse(beans);
-        for (DocumentLifecycleAware bean : beans) {
-            try {
-                bean.beforeDocumentRemove(aDocument);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
         }
         
         entityManager.remove(
                 entityManager.contains(aDocument) ? aDocument : entityManager.merge(aDocument));
 
-        String path = dir.getAbsolutePath() + PROJECT + aDocument.getProject().getId() + DOCUMENT
+        String path = dir.getAbsolutePath() + "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER + "/"
                 + aDocument.getId();
         // remove from file both source and related annotation file
         if (new File(path).exists()) {
@@ -481,19 +480,8 @@ public class DocumentServiceImpl
             throw new IOException(e.getMessage(), e);
         }
 
-        // Notify all relevant service so that they can initialize themselves for the given document
-        for (DocumentLifecycleAware bean : documentLifecycleAwareRegistry
-                .getBeans()) {
-            try {
-                bean.afterDocumentCreate(aDocument, jcas);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            }
-        }
+        applicationEventPublisher
+                .publishEvent(new AfterDocumentCreatedEvent(this, aDocument, jcas));
         
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aDocument.getProject().getId()))) {
@@ -512,14 +500,14 @@ public class DocumentServiceImpl
 
     @Override
     public JCas createInitialCas(SourceDocument aDocument)
-        throws UIMAException, IOException, ClassNotFoundException
+        throws UIMAException, IOException
     {
         return createInitialCas(aDocument, true);
     }
 
     @Override
     public JCas createInitialCas(SourceDocument aDocument, boolean aAnalyzeRepairAndSave)
-        throws UIMAException, IOException, ClassNotFoundException
+        throws UIMAException, IOException
     {
         // Normally, the initial CAS should be created on document import, but after
         // adding this feature, the existing projects do not yet have initial CASes, so
@@ -548,20 +536,20 @@ public class DocumentServiceImpl
     public JCas readInitialCas(SourceDocument aDocument, boolean aAnalyzeAndRepair)
         throws CASException, ResourceInitializationException, IOException
     {
-        JCas jcas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null).getJCas();
+        CAS cas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null);
         
-        CasPersistenceUtils.readSerializedCas(jcas, getCasFile(aDocument, INITIAL_CAS_PSEUDO_USER));
+        CasPersistenceUtils.readSerializedCas(cas, getCasFile(aDocument, INITIAL_CAS_PSEUDO_USER));
         
         if (aAnalyzeAndRepair) {
-            casStorageService.analyzeAndRepair(aDocument, INITIAL_CAS_PSEUDO_USER, jcas.getCas());
+            casStorageService.analyzeAndRepair(aDocument, INITIAL_CAS_PSEUDO_USER, cas);
         }
         
-        return jcas;
+        return cas.getJCas();
     }
 
     @Override
     public JCas createOrReadInitialCas(SourceDocument aDocument)
-        throws IOException, UIMAException, ClassNotFoundException
+        throws IOException, UIMAException
     {
         if (existsInitialCas(aDocument)) {
             return readInitialCas(aDocument);
@@ -578,13 +566,12 @@ public class DocumentServiceImpl
     public JCas readAnnotationCas(SourceDocument aDocument, User aUser)
         throws IOException
     {
-        // Change the state of the source document to in progress
-        aDocument.setState(SourceDocumentStateTransition
-                .transition(SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS));
-
         // Check if there is an annotation document entry in the database. If there is none,
         // create one.
         AnnotationDocument annotationDocument = createOrGetAnnotationDocument(aDocument, aUser);
+
+        // Change the state of the source document to in progress
+        transitionSourceDocumentState(aDocument, NEW_TO_ANNOTATION_IN_PROGRESS);
 
         return readAnnotationCas(annotationDocument);
     }
@@ -638,6 +625,7 @@ public class DocumentServiceImpl
     }
 
     @Override
+    @Transactional
     public void writeAnnotationCas(JCas aJCas, AnnotationDocument aAnnotationDocument,
             boolean aUpdateTimestamp)
         throws IOException
@@ -648,25 +636,14 @@ public class DocumentServiceImpl
         if (aUpdateTimestamp) {
             // FIXME REC Does it really make sense to set the accessed sentence from the source
             // document?!
-            aAnnotationDocument
-                    .setSentenceAccessed(aAnnotationDocument.getDocument().getSentenceAccessed());
+            aAnnotationDocument.setSentenceAccessed(
+                    aAnnotationDocument.getDocument().getSentenceAccessed());
             aAnnotationDocument.setTimestamp(new Timestamp(new Date().getTime()));
-            aAnnotationDocument.setState(AnnotationDocumentState.IN_PROGRESS);
-            entityManager.merge(aAnnotationDocument);
+            setAnnotationDocumentState(aAnnotationDocument, AnnotationDocumentState.IN_PROGRESS);
         }
         
-        // Notify all relevant service so that they can update themselves for the given document
-        for (DocumentLifecycleAware bean : documentLifecycleAwareRegistry.getBeans()) {
-            try {
-                bean.afterAnnotationUpdate(aAnnotationDocument, aJCas);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }    
+        applicationEventPublisher
+                .publishEvent(new AfterAnnotationUpdateEvent(this, aAnnotationDocument, aJCas));
     }
     
     
@@ -688,63 +665,13 @@ public class DocumentServiceImpl
     }
 
     @Override
-    @Deprecated
-    public void upgradeCasAndSave(SourceDocument aDocument, Mode aMode, String aUsername)
-        throws IOException
-    {
-        User user = userRepository.get(aUsername);
-        if (existsAnnotationDocument(aDocument, user)) {
-            log.debug("Upgrading annotation document [" + aDocument.getName() + "] " + "with ID ["
-                    + aDocument.getId() + "] in project ID [" + aDocument.getProject().getId()
-                    + "] for user [" + aUsername + "] in mode [" + aMode + "]");
-            // DebugUtils.smallStack();
-
-            AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, user);
-            try {
-                CAS cas = readAnnotationCas(annotationDocument).getCas();
-                upgradeCas(cas, annotationDocument);
-                writeAnnotationCas(cas.getJCas(), annotationDocument, false);
-
-                // This is no longer needed because it is handled on the respective pages.
-//                if (aMode.equals(Mode.ANNOTATION)) {
-//                    // In this case we only need to upgrade to annotation document
-//                }
-//                else if (aMode.equals(Mode.AUTOMATION) || aMode.equals(Mode.CORRECTION)) {
-//                    CAS corrCas = readCorrectionCas(aDocument).getCas();
-//                    upgradeCas(corrCas, annotationDocument);
-//                    writeCorrectionCas(corrCas.getJCas(), aDocument, user, false);
-//                }
-//                else {
-//                    CAS curCas = readCurationCas(aDocument).getCas();
-//                    upgradeCas(curCas, annotationDocument);
-//                    writeCurationCas(curCas.getJCas(), aDocument, user);
-//                }
-
-            }
-            catch (Exception e) {
-                // no need to catch, it is acceptable that no curation document
-                // exists to be upgraded while there are annotation documents
-            }
-            
-            try (MDC.MDCCloseable closable = MDC.putCloseable(
-                    Logging.KEY_PROJECT_ID,
-                    String.valueOf(aDocument.getProject().getId()))) {
-                Project project = aDocument.getProject();
-                log.info(
-                        "Upgraded annotations of user [{}] for "
-                                + "document [{}]({}) in project [{}]({}) in mode [{}]",
-                        user.getUsername(), aDocument.getName(), aDocument.getId(),
-                        project.getName(), project.getId(), aMode);
-            }
-        }
-    }
-
-    @Override
-    public void upgradeCas(CAS aCas, AnnotationDocument aAnnotationDocument)
+    public void resetAnnotationCas(SourceDocument aDocument, User aUser)
         throws UIMAException, IOException
     {
-        annotationService.upgradeCas(aCas, aAnnotationDocument.getDocument(),
-                aAnnotationDocument.getUser());
+        AnnotationDocument adoc = getAnnotationDocument(aDocument, aUser);
+        JCas jcas = createOrReadInitialCas(aDocument);
+        writeAnnotationCas(jcas, aDocument, aUser, false);
+        applicationEventPublisher.publishEvent(new AfterDocumentResetEvent(this, adoc, jcas));
     }
     
     /**
@@ -925,27 +852,133 @@ public class DocumentServiceImpl
     }
     
     @Override
-    public void afterProjectCreate(Project aProject)
+    @Transactional
+    public AnnotationDocumentState setAnnotationDocumentState(AnnotationDocument aDocument,
+            AnnotationDocumentState aState)
     {
-        // Nothing to do
-    }
-    
-    @Override
-    public void beforeProjectRemove(Project aProject)
-        throws IOException
-    {
-        for (SourceDocument document : listSourceDocuments(aProject)) {
-            removeSourceDocument(document);
+        AnnotationDocumentState oldState = aDocument.getState();
+        
+        aDocument.setState(aState);
+
+        createAnnotationDocument(aDocument);
+
+        if (!Objects.equals(oldState, aDocument.getState())) {
+            applicationEventPublisher
+                    .publishEvent(new AnnotationStateChangeEvent(this, aDocument, oldState));
         }
+
+        return oldState;
     }
 
     @Override
     @Transactional
-    public void onProjectImport(ZipFile aZip,
-            de.tudarmstadt.ukp.clarin.webanno.export.model.Project aExportedProject,
-            Project aProject)
-        throws Exception
+    public AnnotationDocumentState transitionAnnotationDocumentState(AnnotationDocument aDocument,
+            AnnotationDocumentStateTransition aTransition)
     {
-        // Nothing at the moment
+        return setAnnotationDocumentState(aDocument,
+                AnnotationDocumentStateTransition.transition(aTransition));
+    }
+    
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void onDocumentStateChangeEvent(DocumentStateChangedEvent aEvent)
+    {
+        recalculateProjectState(aEvent.getDocument().getProject());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void onAfterDocumentCreatedEvent(AfterDocumentCreatedEvent aEvent)
+    {
+        recalculateProjectState(aEvent.getDocument().getProject());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void onBeforeDocumentRemovedEvent(BeforeDocumentRemovedEvent aEvent)
+    {
+        recalculateProjectState(aEvent.getDocument().getProject());
+    }
+
+    private void recalculateProjectState(Project aProject)
+    {
+        Project project;
+        try {
+            project = projectService.getProject(aProject.getId());
+        }
+        catch (NoResultException e) {
+            // This happens when this method is called as part of deleting an entire project.
+            // In such a case, the project may no longer be available, so there is no point in
+            // updating its state. So then we do nothing here.
+            return;
+        }
+        
+        String query = 
+                "SELECT new " + SourceDocumentStateStats.class.getName() + "(" +
+                "COUNT(*), " +
+                "SUM(CASE WHEN state = :an  THEN 1 ELSE 0 END), " +
+                "SUM(CASE WHEN (state = :aip OR state is NULL) THEN 1 ELSE 0 END), " +
+                "SUM(CASE WHEN state = :af  THEN 1 ELSE 0 END), " +
+                "SUM(CASE WHEN state = :cip THEN 1 ELSE 0 END), " +
+                "SUM(CASE WHEN state = :cf  THEN 1 ELSE 0 END)) " +
+                "FROM SourceDocument " + 
+                "WHERE project = :project";
+        
+        SourceDocumentStateStats stats = entityManager.createQuery(
+                        query, SourceDocumentStateStats.class)
+                .setParameter("project", aProject)
+                .setParameter("an", SourceDocumentState.NEW)
+                .setParameter("aip", SourceDocumentState.ANNOTATION_IN_PROGRESS)
+                .setParameter("af", SourceDocumentState.ANNOTATION_FINISHED)
+                .setParameter("cip", SourceDocumentState.CURATION_IN_PROGRESS)
+                .setParameter("cf", SourceDocumentState.CURATION_FINISHED)
+                .getSingleResult();
+        
+        ProjectState oldState = project.getState();
+        
+        if (stats.total == stats.cf) {
+            project.setState(ProjectState.CURATION_FINISHED);
+        }
+        else if (stats.total == stats.af) {
+            project.setState(ProjectState.ANNOTATION_FINISHED);
+        }
+        else if (stats.total == stats.an) {
+            project.setState(ProjectState.NEW);
+        }
+        else if (stats.cip > 0) {
+            project.setState(ProjectState.CURATION_IN_PROGRESS);
+        }
+        else if (stats.aip > 0) {
+            project.setState(ProjectState.ANNOTATION_IN_PROGRESS);
+        }
+        else {
+            throw new IllegalStateException("Unable to determine project state.");
+        }
+        
+        if (!Objects.equals(oldState, project.getState())) {
+            applicationEventPublisher.publishEvent(
+                    new ProjectStateChangedEvent(this, project, oldState));
+        }
+        
+        projectService.updateProject(project);
+    }
+
+    public static final class SourceDocumentStateStats
+    {
+        public final long total;
+        public final long an;
+        public final long aip;
+        public final long af;
+        public final long cip;
+        public final long cf;
+        
+        public SourceDocumentStateStats(Long aTotal, Long aAn, Long aAip, Long aAf, Long aCip,
+                Long aCf)
+        {
+            super();
+            total = aTotal != null ? aTotal : 0l;
+            an = aAn != null ? aAn : 0l;
+            aip = aAip != null ? aAip : 0l;
+            af = aAf != null ? aAf : 0l;
+            cip = aCip != null ? aCip : 0l;
+            cf = aCf != null ? aCf : 0l;
+        }
     }
 }

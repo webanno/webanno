@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,6 +39,7 @@ import org.apache.wicket.ajax.json.JSONArray;
 import org.apache.wicket.ajax.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +69,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.ZipUtils;
-import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3Writer;
+import de.tudarmstadt.ukp.clarin.webanno.tsv.WebannoTsv3XWriter;
 
 /**
  * Expose some functions of WebAnno via a RESTful remote API.
@@ -95,20 +95,11 @@ public class RemoteApiController
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    @Resource(name = "projectService")
-    private ProjectService projectRepository;
-
-    @Resource(name = "documentService")
-    private DocumentService documentRepository;
-
-    @Resource(name = "importExportService")
-    private ImportExportService importExportService;
-
-    @Resource(name = "annotationService")
-    private AnnotationSchemaService annotationService;
-
-    @Resource(name = "userRepository")
-    private UserDao userRepository;
+    private @Autowired ProjectService projectRepository;
+    private @Autowired DocumentService documentRepository;
+    private @Autowired ImportExportService importExportService;
+    private @Autowired AnnotationSchemaService annotationService;
+    private @Autowired UserDao userRepository;
 
     /**
      * Create a new project.
@@ -175,7 +166,7 @@ public class RemoteApiController
         Project project = new Project();
         project.setName(aName);
         projectRepository.createProject(project);
-        annotationService.initializeTypesForProject(project);
+        annotationService.initializeProject(project);
         
         // Create permission for the project creator
         projectRepository.createProjectPermission(
@@ -741,7 +732,7 @@ public class RemoteApiController
             String msg = "[" + srcDoc.getName() + "] No writer found for format [" + formatId
                     + "] - exporting as WebAnno TSV instead.";
             LOG.info(msg);
-            writer = WebannoTsv3Writer.class;
+            writer = WebannoTsv3XWriter.class;
         }
 
         // Temporary file of annotation document
@@ -872,7 +863,7 @@ public class RemoteApiController
         if (writer == null) {
             LOG.info("[" + srcDocument.getName() + "] No writer found for format ["
                     + formatId + "] - exporting as WebAnno TSV instead.");
-            writer = WebannoTsv3Writer.class;
+            writer = WebannoTsv3XWriter.class;
         }
 
         // Temporary file of annotation document

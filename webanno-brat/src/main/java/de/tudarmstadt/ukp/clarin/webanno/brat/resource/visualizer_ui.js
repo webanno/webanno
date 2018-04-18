@@ -334,8 +334,10 @@ var VisualizerUI = (function($, window, undefined) {
                     return Util.cmp(a[2], b[2]);
                 }
 
+// WEBANNO EXTENSION BEGIN - #587 Customize mouse hover text   
             var displaySpanComment = function(
-                evt, target, spanId, spanType, mods, spanText, commentText, commentType, normalizations) {
+                evt, target, spanId, spanType, mods, spanText, hoverText, commentText, commentType, normalizations) {
+// WEBANNO EXTENSION END - #587 Customize mouse hover text
 
                     var immediately = false;
                     var comment = ('<div><span class="comment_type_id_wrapper">' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>' + ' ' + '<span class="comment_id">' + 'ID:' + Util.escapeHTML(spanId) + '</span></span>');
@@ -344,7 +346,15 @@ var VisualizerUI = (function($, window, undefined) {
                     }
 
                     comment += '</div>';
-                    comment += ('<div class="comment_text">"' + Util.escapeHTML(spanText) + '"</div>');
+                    
+// WEBANNO EXTENSION BEGIN - #587 Customize mouse hover text
+                    if (hoverText) {
+                        comment += ('<div class="comment_text">' + Util.escapeHTML(hoverText) + '</div>');
+                    } else if (spanText) {
+                        comment += ('<div class="comment_text">"' + Util.escapeHTML(spanText) + '"</div>');
+                    }
+// WEBANNO EXTENSION END - #587 Customize mouse hover text
+                    
                     var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
                     if (validArcTypesForDrag && validArcTypesForDrag[0]) {
                         if (validArcTypesForDrag[0].length) {
@@ -742,6 +752,8 @@ var VisualizerUI = (function($, window, undefined) {
 // unless it believes that the user has logged in.
 // WEBANNO EXTENSION END
       var init = function() {
+// WEBANNO EXTENSION BEGIN
+/*
         dispatcher.post('initForm', [viewspanForm, {
             width: 760,
             no_cancel: true
@@ -749,54 +761,38 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('ajax', [{
             action: 'whoami'
           }, function(response) {
-// WEBANNO EXTENSION BEGIN
-/*
             var auth_button = $('#auth_button');
-*/
-// WEBANNO EXTENSION END
             if (response.user) {
               user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + user + '"', 'comment']]]);
-// WEBANNO EXTENSION BEGIN
-/*
               auth_button.val('Logout ' + user);
-*/
-// WEBANNO EXTENSION END
               dispatcher.post('user', [user]);
-// WEBANNO EXTENSION BEGIN
-/*
               $('.login').show();
-*/
-// WEBANNO EXTENSION END
             } else {
               user = null;
-// WEBANNO EXTENSION BEGIN
-/*
               auth_button.val('Login');
-*/
-// WEBANNO EXTENSION END
               dispatcher.post('user', [null]);
-// WEBANNO EXTENSION BEGIN
-/*
               $('.login').hide();
               // don't show tutorial if there's a specific document (annoyance)
               if (!doc) {
                 dispatcher.post('showForm', [tutorialForm]);
                 $('#tutorial-ok').focus();
               }
-*/
-// WEBANNO EXTENSION END
             }
           },
           { keep: true }
         ]);
+*/
+        // Need to set a  user because many things in brat will not work otherwise
+        user = "dummy";
+        dispatcher.post('user', [user]);
+// WEBANNO EXTENSION END
 // WEBANNO EXTENSION BEGIN
 // /*
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
           if (response.config != undefined) {
 // WEBANNO EXTENSION BEGIN
 // WebAnno sends the configuration as a proper JSON object - no need to parse it
-            Configuration = response.config;
 /*
             // TODO: check for exceptions
             try {
@@ -808,6 +804,7 @@ var VisualizerUI = (function($, window, undefined) {
               configurationChanged();
             }
 */
+            Configuration = response.config;
 // WEBANNO EXTENSION END
             // TODO: make whole-object assignment work
             // @amadanmath: help! This code is horrible
@@ -830,8 +827,6 @@ var VisualizerUI = (function($, window, undefined) {
           }
           dispatcher.post('configurationUpdated');
         }]);
-// */
-// WEBANNO EXTENSION END
       };
 // WEBANNO EXTENSION BEGIN
 /*
@@ -871,9 +866,9 @@ var VisualizerUI = (function($, window, undefined) {
 //       };
       // TODO: spanAndAttributeTypesLoaded is obviously not descriptive of
       // the full function. Rename reasonably.
-        
 */
 // WEBANNO EXTENSION END
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, _entityAttributeTypes, _eventAttributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         relationTypesHash = _relationTypesHash;

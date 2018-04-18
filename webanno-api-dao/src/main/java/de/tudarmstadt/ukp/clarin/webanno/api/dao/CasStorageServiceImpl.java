@@ -17,9 +17,9 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT;
-import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.ANNOTATION_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLDER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.annotation.Resource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
@@ -47,6 +45,8 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -63,7 +63,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 
 @Component(CasStorageService.SERVICE_NAME)
 public class CasStorageServiceImpl
-    implements CasStorageService
+    implements CasStorageService, InitializingBean
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -83,21 +83,28 @@ public class CasStorageServiceImpl
     @Value(value = "${repository.path}")
     private File dir;
     
-    @Value(value = "${backup.keep.time}")
+    @Value(value = "${backup.keep.time:0}")
     private long backupKeepTime;
 
-    @Value(value = "${backup.interval}")
+    @Value(value = "${backup.interval:0}")
     private long backupInterval;
 
-    @Value(value = "${backup.keep.number}")
+    @Value(value = "${backup.keep.number:0}")
     private int backupKeepNumber;
     
-    @Resource(name = "casDoctor")
-    private CasDoctor casDoctor;
+    private @Autowired(required = false) CasDoctor casDoctor;
     
     public CasStorageServiceImpl()
     {
         // Nothing to do
+    }
+    
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        if (casDoctor == null) {
+            log.info("CAS doctor not available - unable to check/repair CASes");
+        }
     }
 
     /**
@@ -118,9 +125,9 @@ public class CasStorageServiceImpl
     {
         File annotationFolder = getAnnotationFolder(aDocument);
         File targetPath = getAnnotationFolder(aDocument);
-        writeCas(aDocument.getProject(), aDocument.getName(), aDocument.getId(), aJcas, aUserName,
-                annotationFolder, targetPath);
-        
+        realWriteCas(aDocument.getProject(), aDocument.getName(), aDocument.getId(), aJcas,
+                aUserName, annotationFolder, targetPath);
+
         // Update the CAS in the cache
         if (isCacheEnabled()) {
             JCasCacheKey key = JCasCacheKey.of(aDocument, aUserName);
@@ -134,7 +141,7 @@ public class CasStorageServiceImpl
         }
     }
     
-    private void writeCas(Project aProject, String aDocumentName, long aDocumentId, JCas aJcas,
+    private void realWriteCas(Project aProject, String aDocumentName, long aDocumentId, JCas aJcas,
             String aUserName, File aAnnotationFolder, File aTargetPath)
         throws IOException
     {
@@ -143,7 +150,9 @@ public class CasStorageServiceImpl
         // DebugUtils.smallStack();
 
         try {
-            casDoctor.analyze(aProject, aJcas.getCas());
+            if (casDoctor != null) {
+                casDoctor.analyze(aProject, aJcas.getCas());
+            }
         }
         catch (CasDoctorException e) {
             StringBuilder detailMsg = new StringBuilder();
@@ -331,12 +340,6 @@ public class CasStorageServiceImpl
     public JCas readCas(SourceDocument aDocument, String aUsername, boolean aAnalyzeAndRepair)
         throws IOException
     {
-        log.debug("Reading annotation document [{}] ({}) for user [{}] in project [{}] ({})",
-                aDocument.getName(), aDocument.getId(), aUsername, aDocument.getProject().getName(),
-                aDocument.getProject().getId());
-
-        // DebugUtils.smallStack();
-
         synchronized (lock) {
             JCas jcas = null;
             
@@ -352,49 +355,62 @@ public class CasStorageServiceImpl
             
             // If the CAS is not in the cache, load it from disk
             if (jcas == null) {
-                File annotationFolder = getAnnotationFolder(aDocument);
-    
-                String file = aUsername + ".ser";
-    
-                try {
-                    File serializedCasFile = new File(annotationFolder, file);
-                    if (!serializedCasFile.exists()) {
-                        throw new FileNotFoundException("Annotation document of user [" + aUsername
-                                + "] for source document [" + aDocument.getName() + "] ("
-                                + aDocument.getId() + ") not found in project["
-                                + aDocument.getProject().getName() + "] ("
-                                + aDocument.getProject().getId() + ")");
-                    }
-    
-                    CAS cas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null);
-                    CasPersistenceUtils.readSerializedCas(cas.getJCas(), serializedCasFile);
-    
-                    if (aAnalyzeAndRepair) {
-                        analyzeAndRepair(aDocument, aUsername, cas);
-                    }
-    
-                    jcas = cas.getJCas();
-                }
-                catch (UIMAException e) {
-                    throw new DataRetrievalFailureException("Unable to parse annotation", e);
-                }
-                
-                // Update the cache
-                if (isCacheEnabled()) {
-                    JCasCacheEntry entry = new JCasCacheEntry();
-                    entry.jcas = jcas;
-                    entry.reads++;
-                    getCache().put(JCasCacheKey.of(aDocument, aUsername), entry);
-                    log.debug("Loaded CAS [{},{}] from disk and stored in cache", aDocument.getId(),
-                            aUsername);
-                }
-                else {
-                    log.debug("Loaded CAS [{},{}] from disk", aDocument.getId(), aUsername);
-                }
+                jcas = realReadCas(aDocument, aUsername, aAnalyzeAndRepair);
             }
             
             return jcas;
         }
+    }
+    
+    private JCas realReadCas(SourceDocument aDocument, String aUsername, boolean aAnalyzeAndRepair)
+        throws IOException
+    {
+        log.debug("Reading annotation document [{}] ({}) for user [{}] in project [{}] ({})",
+                aDocument.getName(), aDocument.getId(), aUsername, aDocument.getProject().getName(),
+                aDocument.getProject().getId());
+        
+        File annotationFolder = getAnnotationFolder(aDocument);
+        
+        String file = aUsername + ".ser";
+
+        JCas jcas;
+        try {
+            CAS cas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null);
+            File serializedCasFile = new File(annotationFolder, file);
+            if (!serializedCasFile.exists()) {
+                throw new FileNotFoundException("Annotation document of user [" + aUsername
+                        + "] for source document [" + aDocument.getName() + "] ("
+                        + aDocument.getId() + ") not found in project["
+                        + aDocument.getProject().getName() + "] ("
+                        + aDocument.getProject().getId() + ")");
+            }
+            
+            CasPersistenceUtils.readSerializedCas(cas, serializedCasFile);
+
+            if (aAnalyzeAndRepair) {
+                analyzeAndRepair(aDocument, aUsername, cas);
+            }
+
+            jcas = cas.getJCas();
+        }
+        catch (UIMAException e) {
+            throw new DataRetrievalFailureException("Unable to parse annotation", e);
+        }
+        
+        // Update the cache
+        if (isCacheEnabled()) {
+            JCasCacheEntry entry = new JCasCacheEntry();
+            entry.jcas = jcas;
+            entry.reads++;
+            getCache().put(JCasCacheKey.of(aDocument, aUsername), entry);
+            log.debug("Loaded CAS [{},{}] from disk and stored in cache", aDocument.getId(),
+                    aUsername);
+        }
+        else {
+            log.debug("Loaded CAS [{},{}] from disk", aDocument.getId(), aUsername);
+        }
+        
+        return jcas;
     }
     
     @Override
@@ -417,44 +433,46 @@ public class CasStorageServiceImpl
     private void analyzeAndRepair(Project aProject, String aDocumentName, long aDocumentId,
             String aUsername, CAS aCas)
     {
-        // Check if repairs are active - if this is the case, we only need to run the repairs
-        // because the repairs do an analysis as a pre- and post-condition. 
-        if (casDoctor.isRepairsActive()) {
-            try {
-                casDoctor.repair(aProject, aCas);
+        if (casDoctor != null) {
+            // Check if repairs are active - if this is the case, we only need to run the repairs
+            // because the repairs do an analysis as a pre- and post-condition. 
+            if (casDoctor.isRepairsActive()) {
+                try {
+                    casDoctor.repair(aProject, aCas);
+                }
+                catch (Exception e) {
+                    throw new DataRetrievalFailureException("Error repairing CAS of user ["
+                            + aUsername + "] for document ["
+                            + aDocumentName + "] (" + aDocumentId + ") in project["
+                            + aProject.getName() + "] ("
+                            + aProject.getId() + ")", e);
+                }
             }
-            catch (Exception e) {
-                throw new DataRetrievalFailureException("Error repairing CAS of user ["
-                        + aUsername + "] for document ["
-                        + aDocumentName + "] (" + aDocumentId + ") in project["
-                        + aProject.getName() + "] ("
-                        + aProject.getId() + ")", e);
-            }
-        }
-        // If the repairs are not active, then we run the analysis explicitly
-        else {
-            try {
-                casDoctor.analyze(aProject, aCas);
-            }
-            catch (CasDoctorException e) {
-                StringBuilder detailMsg = new StringBuilder();
-                detailMsg.append("CAS Doctor found problems for user [")
-                    .append(aUsername)
-                    .append("] in document [")
-                    .append(aDocumentName).append("] (").append(aDocumentId)
-                    .append(") in project[")
-                    .append(aProject.getName()).append("] (").append(aProject.getId()).append(")\n");
-                e.getDetails().forEach(m -> detailMsg.append(
-                        String.format("- [%s] %s%n", m.level, m.message)));
-                
-                throw new DataRetrievalFailureException(detailMsg.toString());
-            }
-            catch (Exception e) {
-                throw new DataRetrievalFailureException("Error analyzing CAS of user ["
-                        + aUsername + "] in document [" + aDocumentName + "] ("
-                        + aDocumentId + ") in project["
-                        + aProject.getName() + "] ("
-                        + aProject.getId() + ")", e);
+            // If the repairs are not active, then we run the analysis explicitly
+            else {
+                try {
+                    casDoctor.analyze(aProject, aCas);
+                }
+                catch (CasDoctorException e) {
+                    StringBuilder detailMsg = new StringBuilder();
+                    detailMsg.append("CAS Doctor found problems for user [")
+                        .append(aUsername)
+                        .append("] in document [")
+                        .append(aDocumentName).append("] (").append(aDocumentId)
+                        .append(") in project[")
+                        .append(aProject.getName()).append("] (").append(aProject.getId()).append(")\n");
+                    e.getDetails().forEach(m -> detailMsg.append(
+                            String.format("- [%s] %s%n", m.level, m.message)));
+                    
+                    throw new DataRetrievalFailureException(detailMsg.toString());
+                }
+                catch (Exception e) {
+                    throw new DataRetrievalFailureException("Error analyzing CAS of user ["
+                            + aUsername + "] in document [" + aDocumentName + "] ("
+                            + aDocumentId + ") in project["
+                            + aProject.getName() + "] ("
+                            + aProject.getId() + ")", e);
+                }
             }
         }
     }
@@ -468,8 +486,8 @@ public class CasStorageServiceImpl
     public File getAnnotationFolder(SourceDocument aDocument)
         throws IOException
     {
-        File annotationFolder = new File(dir, PROJECT + aDocument.getProject().getId() + DOCUMENT
-                + aDocument.getId() + ANNOTATION);
+        File annotationFolder = new File(dir, "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER + "/"
+                + aDocument.getId() + "/" + ANNOTATION_FOLDER);
         FileUtils.forceMkdir(annotationFolder);
         return annotationFolder;
     }
@@ -493,6 +511,7 @@ public class CasStorageServiceImpl
         return new File(aTo.getPath());
     }
     
+    @Override
     public boolean isCacheEnabled()
     {
         RequestCycle requestCycle = RequestCycle.get();
@@ -503,6 +522,15 @@ public class CasStorageServiceImpl
         else {
             // No caching if we are not in a request cycle
             return false;
+        }
+    }
+    
+    @Override
+    public void enableCache()
+    {
+        RequestCycle requestCycle = RequestCycle.get();
+        if (requestCycle != null) {
+            requestCycle.setMetaData(CACHE_DISABLED, false);
         }
     }
     
