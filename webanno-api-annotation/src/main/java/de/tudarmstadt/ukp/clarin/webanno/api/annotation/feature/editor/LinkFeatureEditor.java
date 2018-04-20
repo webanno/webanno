@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.NoResultException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
@@ -58,10 +60,13 @@ import com.googlecode.wicket.kendo.ui.form.combobox.ComboBoxBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.action.AnnotationActionHandler;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupport;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.LinkWithRoleModel;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.evaluator.PossibleValue;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.StyledComboBox;
@@ -74,6 +79,7 @@ public class LinkFeatureEditor
     private static final long serialVersionUID = 7469241620229001983L;
 
     private @SpringBean AnnotationSchemaService annotationService;
+    private @SpringBean FeatureSupportRegistry featureSupportRegistry;
 
     private WebMarkupContainer content;
 
@@ -392,6 +398,46 @@ public class LinkFeatureEditor
         list.removeIf(link -> link.autoCreated && link.targetAddr == -1);
     }
 
+    private void autoAddDefaultSlots()
+    {
+        AnnotationFeature feat = getModelObject().feature;
+        
+        FeatureSupport<LinkFeatureTraits> fs = featureSupportRegistry.getFeatureSupport(feat);
+        LinkFeatureTraits traits = fs.readTraits(feat);
+
+        // Get links list and build role index
+        @SuppressWarnings("unchecked")
+        List<LinkWithRoleModel> links = (List<LinkWithRoleModel>) getModelObject().value;
+        Set<String> roles = new HashSet<>();
+        for (LinkWithRoleModel l : links) {
+            roles.add(l.role);
+        }
+        
+        for (long id : traits.getDefaultSlots()) {
+            try {
+                Tag tag = annotationService.getTag(id);
+                
+                // Check if there is already a slot with the given name
+                if (roles.contains(tag.getName())) {
+                    continue;
+                }
+                
+                // Add empty slot in UI with that name.
+                LinkWithRoleModel m = new LinkWithRoleModel();
+                m.role = tag.getName();
+                // Marking so that can be ignored later.
+                m.autoCreated = true;
+                links.add(m);
+                // NOT arming the slot here!
+            }
+            catch (NoResultException e) {
+                // If a tag is missing, ignore it. We do not have foreign-key constraints in
+                // traits, so it is not an unusal situation that a user deletes a tag still
+                // referenced in a trait.
+            }
+        }
+    }
+    
     private void autoAddImportantTags(List<Tag> aTagset, List<PossibleValue> aPossibleValues)
     {
         if (aTagset == null || aTagset.isEmpty() || aPossibleValues == null
@@ -450,6 +496,7 @@ public class LinkFeatureEditor
         // Update entries for important tags.
         removeAutomaticallyAddedUnusedEntries();
         FeatureState featureState = getModelObject();
+        autoAddDefaultSlots();
         autoAddImportantTags(featureState.tagset, featureState.possibleValues);
 
         // if enabled and constraints rule execution returns anything other than green

@@ -213,6 +213,14 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     @Transactional
+    public Tag getTag(long aId)
+    {
+        return entityManager.createQuery("FROM Tag WHERE id = :id", Tag.class)
+                .setParameter("id", aId).getSingleResult();
+    }
+    
+    @Override
+    @Transactional
     public Tag getTag(String aTagName, TagSet aTagSet)
     {
         return entityManager

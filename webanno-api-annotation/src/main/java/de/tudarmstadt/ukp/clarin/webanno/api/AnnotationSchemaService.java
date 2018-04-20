@@ -76,6 +76,16 @@ public interface AnnotationSchemaService
 
     void createFeature(AnnotationFeature feature);
 
+    
+    /**
+     * Get Tag by its ID
+     * 
+     * @param id
+     *            the tag id.
+     * @return the tag.
+     */
+    Tag getTag(long id);
+
     /**
      * gets a {@link Tag} using its name and a {@link TagSet}
      * 
