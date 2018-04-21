@@ -33,6 +33,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -213,10 +214,17 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     @Transactional
-    public Tag getTag(long aId)
+    public Optional<Tag> getTag(long aId)
     {
-        return entityManager.createQuery("FROM Tag WHERE id = :id", Tag.class)
-                .setParameter("id", aId).getSingleResult();
+        try {
+            final String query = "FROM Tag WHERE id = :id";
+            return Optional.of(entityManager.createQuery(query, Tag.class)
+                    .setParameter("id", aId)
+                    .getSingleResult());
+        }
+        catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
     
     @Override

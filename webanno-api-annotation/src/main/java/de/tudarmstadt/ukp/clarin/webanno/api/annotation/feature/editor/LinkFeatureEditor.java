@@ -20,9 +20,8 @@ package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-import javax.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -414,8 +413,13 @@ public class LinkFeatureEditor
         }
         
         for (long id : traits.getDefaultSlots()) {
-            try {
-                Tag tag = annotationService.getTag(id);
+            Optional<Tag> optionalTag = annotationService.getTag(id);
+            
+            // If a tag is missing, ignore it. We do not have foreign-key constraints in
+            // traits, so it is not an unusal situation that a user deletes a tag still
+            // referenced in a trait.
+            if (optionalTag.isPresent()) {
+                Tag tag = optionalTag.get();
                 
                 // Check if there is already a slot with the given name
                 if (roles.contains(tag.getName())) {
@@ -429,11 +433,6 @@ public class LinkFeatureEditor
                 m.autoCreated = true;
                 links.add(m);
                 // NOT arming the slot here!
-            }
-            catch (NoResultException e) {
-                // If a tag is missing, ignore it. We do not have foreign-key constraints in
-                // traits, so it is not an unusal situation that a user deletes a tag still
-                // referenced in a trait.
             }
         }
     }
