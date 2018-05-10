@@ -874,6 +874,7 @@ public class AnnotationFeatureForm
             // that automatically saves feature editors on change/blur. 
             // Check addAnnotateActionBehavior.
             frag.setOutputMarkupId(true);
+            frag.setOutputMarkupPlaceholderTag(true);
             
             // Ensure that markup IDs of feature editor focus components remain constant across
             // refreshes of the feature editor panel. This is required to restore the focus.
