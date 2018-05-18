@@ -5,7 +5,7 @@
 # this work, you have to use › layout: frontpage
 #
 layout: frontpage
-title: ""
+title: "Welcome"
 #header:
 header-1:
     title: A Flexible, Web-based and Visually Supported System for Distributed Annotations
