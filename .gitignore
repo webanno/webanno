@@ -3,3 +3,5 @@ _site/
 TODO.md
 _sass/old
 .project
+Gemfile
+Gemfile.lock

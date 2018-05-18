@@ -1,3 +1,4 @@
+{% assign stable = (site.data.releases | where:"status", "stable" | first) %}
 
 <div id="navigation" class="sticky">
   <nav class="top-bar" data-topbar>
@@ -94,7 +95,6 @@
 
             {% comment %}   If left side WITH dropdown menu do   {% endcomment %}
             {% else %}
-              {% assign stable = site.data.releases | where: "status", "stable" | first %}
 
               <li class="has-dropdown{% if link.url == page.url %} active{% endif %}">
                 <a href="{{ domain }}{{ link.url | replace: '!LATEST!', stable.version}}"{% if link.url contains 'http' %} target="_blank"{% endif %}>{{ link.title }}</a>

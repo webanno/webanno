@@ -1,0 +1,115 @@
+{% if site.google_analytics_tracking_id %}
+<div id="cookieConsentDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999">
+  <div style="align-self: flex-start;"></div>
+  <div style="width: 50%; max-height: 80%; background: white; display: flex; flex-flow: column; padding: 1em;">
+    <div style="text-align: center;">
+      <h1>Support {{ site.title }} by allowing the use of cookies</h1>
+    </div>
+    <div style="display: flex; flex: 1; overflow: auto; min-height: 3em;">
+      <p>
+        Please support {{ site.title }} project by allowing this site to use cookies to track your activity. 
+        Doing so allows us to get an idea of how interesting our project is to the community. 
+        The <a href="https://www.eugdpr.org">EU General Data Protection Regulation (GDPR)</a> requires us to ask you for
+        your consent about the use of cookies.
+        To learn more about how our site makes use of cookies and uses your activity data, please refer
+        to our <a href="{{ site.url }}/privacy/">privacy policy</a>. You can also always revise
+        the choice you make here by visiting out <a href="{{ site.url }}/privacy/">privacy policy page</a>.
+      </p>
+    </div>
+    <div style="text-align: center;">
+      <p style="font-size: 130%; font-weight: bold;">
+        Do you allow tracking your activity on this site using cookies?
+      </p>
+    </div>
+    <div style="text-align: center;">
+      <button onclick="javascript:gaOptin();" style="font-size: 300%;">Yes, I agree.</button>
+    </div>
+    <div style="text-align: center;">
+      <button onclick="javascript:gaOptout();" style="font-size: 300%;">No, do not track me.</button>
+    </div>
+  </div>
+  <div style="align-self: flex-end;"></div>
+</div>
+<script>
+  var gaProperty = '{{ site.google_analytics_tracking_id }}';
+
+  var disableStr = 'ga-disable-' + gaProperty;
+  
+  /* Check if we need to ask the user for consent; except when we are on the privacy page */
+  if (
+      document.cookie.indexOf(disableStr+'=') == -1 && 
+      window.location.href.indexOf("/privacy/") == -1
+  ) {
+    $("#cookieConsentDialog").css('display', 'flex');
+  }
+  
+  /* Disable tracking if the opt-in/out cookie is not set to false (false = opt-in). */
+  if (document.cookie.indexOf(disableStr + '=false') == -1) {
+    window[disableStr] = true;
+  }
+
+  /* Opt-in function */
+  function gaOptin() {
+    var expiry = new Date();
+    /* Ask again after a bit less than 12 months */
+    expiry.setDate(expiry.getDate() + 360);
+    document.cookie = disableStr + '=false; expires='+ expiry.toUTCString() + '; path=/';
+    window[disableStr] = false;
+    /* Trigger creation of ID cookie so we can include the ID in the consent event */
+    ga('create', '{{ site.google_analytics_tracking_id }}', 'auto');
+    ga('set', 'anonymizeIp', true);
+    /* GA cookie not created until we send an event, so send an exception now */
+    ga('send', 'exception', { 'exDescription': 'cookie generation', 'exFatal': false});
+    /* Log the user giving consent */
+    ga('send', {
+      hitType: 'event',
+      eventCategory: 'TrackingConsent',
+      eventAction: 'consent-granted',
+      eventLabel: Cookies.get('_ga')
+    });
+    $("#cookieConsentDialog").css('display', 'none');
+  }
+
+  /* Opt-out function */
+  function gaOptout() {
+    /* If consent was previously granted as detected, then we log the revoking */
+    if (document.cookie.indexOf(disableStr + '=false') > -1) {
+      /* Log the user revoking consent */
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'TrackingConsent',
+        eventAction: 'consent-revoked',
+        eventLabel: Cookies.get('_ga')
+      });
+    }
+    var expiry = new Date();
+    /* Ask again after a bit less than 12 months */
+    expiry.setDate(expiry.getDate() + 360);
+    document.cookie = disableStr + '=true; expires='+ expiry.toUTCString() + '; path=/';
+    window[disableStr] = true;
+    $("#cookieConsentDialog").css('display', 'none');
+  }
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  {% if page.google_analytics_anchor_tracking %}
+  ga('create', '{{ site.google_analytics_tracking_id }}', 'auto', {'allowAnchor': true});
+  ga('set', 'anonymizeIp', true);
+  ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+  
+  jQuery(document).ready(function () {
+    $('.tocify-item').on('click', function(event) {
+      var anchor = $(event.target).closest('li').attr('data-unique');
+      ga('send', 'pageview', { 'page': location.pathname + location.search + '#' + anchor});
+    });
+  });
+  {% else %}
+  ga('create', '{{ site.google_analytics_tracking_id }}', 'auto');
+  ga('set', 'anonymizeIp', true);
+  ga('send', 'pageview');
+  {% endif %}
+</script>
+{% endif %}
