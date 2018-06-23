@@ -1,6 +1,6 @@
 ---
-title: Use-Case Gallery
-hidden: false
+title: Use Cases
+hidden: true
 permalink: /use-case-gallery/
 ---
 
