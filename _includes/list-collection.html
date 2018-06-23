@@ -11,8 +11,11 @@
 {% endcomment %}
 
 <ul class="side-nav">
-  {% for page in site.[include.collection] %}
-    {% unless page.published == false %}
+  {% if include.sticky-link-url  %}
+    <li><a href="{{ site.url }}{{ include.sticky-link-url }}">{{ include.sticky-link-title }}</a></li>
+  {% endif %}
+  {% for page in (site.[include.collection] | sort: 'title') %}
+    {% unless page.hidden == true %}
     <li><a href="{{ site.url }}{{ page.url }}">{{ page.title }}</a></li>
     {% endunless %}
   {% endfor %}

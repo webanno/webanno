@@ -1,0 +1,69 @@
+---
+layout: default
+format: post
+---
+<div class="row t30" style="max-width: none;">
+    <div class="medium-4 columns {% if page.sidebar == 'left' %} medium-push-3{% endif %}">
+        <article itemscope itemtype="http://schema.org/Article">
+            <header>
+                {% if page.image.title %}
+                <figure>
+                    <img src="{{ site.url }}/images/{{ page.image.title }}" width="970" alt="{{ page.title | escape_once }}" itemprop="image">
+
+                    {% if page.image.caption_url and page.image.caption %}
+                    <figcaption class="text-right">
+                        <a href="{{ page.image.caption_url }}">{{ page.image.caption }}</a>
+                    </figcaption>
+                    {% elsif page.image.caption %}
+                    <figcaption class="text-right">
+                        {{ page.image.caption }}
+                    </figcaption>
+                    {% endif %}
+                </figure>
+                {% endif %}
+
+                <h2 style="margin-top: 0;">{{ page.title }}</h2>
+
+                <span itemprop="name">
+                    {% if page.subheadline %}<p class="subheadline">{{ page.subheadline }}</p>{% endif %}
+                </span>
+            </header>
+
+            {% if page.teaser %}
+            <p class="teaser" itemprop="description">
+                {{ page.teaser }}
+            </p>
+            {% endif %}
+
+            <span itemprop="articleSection">
+            {{ content }}
+            </span>
+
+            {% if page.show_meta == true %}
+            {% include meta_information.html %}
+            {% endif %}
+
+            {% if page.comments == true %}
+            {% include comments.html %}
+            {% endif %}
+        </article>
+    </div><!-- /.medium-6.columns -->
+
+    {% if page.sidebar == "left" %}
+    <div class="medium-5 medium-push-3 columns">
+      {% if page.screenshot %}
+        <a href="{{ page.screenshot }}"><img src="{{ page.thumbnail }}" width="100%" style="border: solid grey 1px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"/></a>
+      {% endif %}
+    </div><!-- /.medium-3.columns -->
+    <div class="medium-3 medium-pull-9 columns">
+        {% include list-collection.html collection=page.collection sticky-link-url=page.sticky-link-url sticky-link-title=page.sticky-link-title %}
+    </div><!-- /.medium-3.columns -->
+    {% endif %}
+
+
+    {% if page.sidebar == "right" %}
+    <div class="medium-3 columns">
+        {% include list-collection.html collection=page.collection sticky-link-url=page.sticky-link-url sticky-link-title=page.sticky-link-title %}
+    </div><!-- /.medium-3.columns -->
+    {% endif %}
+</div><!-- /.row -->
