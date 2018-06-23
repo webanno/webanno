@@ -105,7 +105,7 @@ defaults:
       show_meta: false   # Show metadata beneath all posts
       layout: article
       sidebar: left
-      sticky-link-url: "/use-case-gallery"
+      sticky-link-url: "/use-case-gallery/"
       sticky-link-title: "Use Cases"
       comments: false
 #      author: "your_author_name"

@@ -1,6 +1,6 @@
 ---
 title: Use-Case Gallery
-hidden: true
+hidden: false
 permalink: /use-case-gallery/
 ---
 
