@@ -7,7 +7,7 @@ hidden: false
 ---
 
 **Source:** <i>This example was kindly contributed by 
-<a href="https://www.informatik.tu-darmstadt.de/ukp/ukp_home/staff_ukp/detailseite_mitarbeiter_1_41728.en.jsp">Erik-Lân Do Dinh]</a>, 
+<a href="https://www.informatik.tu-darmstadt.de/ukp/ukp_home/staff_ukp/detailseite_mitarbeiter_1_41728.en.jsp">Erik-Lân Do Dinh</a>, 
 Ubiquitous Knowledge Processing (UKP) Lab, Technische Universität Darmstadt, Germany</i>
 
 We annotate metaphors in historical German texts. Different annotation layers in WebAnno enable

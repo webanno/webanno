@@ -48,19 +48,19 @@ CMC training corpus Janes-Norm 1.2, Slovenian language resource repository CLARI
 [<a href="http://hdl.handle.net/11356/1084">download</a>]</li>
 <li>Erjavec, Tomaž; Fišer, Darja; Čibej, Jaka; Arhar Holdt, Špela; Ljubešić, Nikola; Zupan, Katja. 2017. 
 CMC training corpus Janes-Tag 2.0, Slovenian language resource repository CLARIN.SI, 
-[<a href="http://hdl.handle.net/11356/1123">download</a>]</li>
+[<a href="http://hdl.handle.net/11356/1123">http://hdl.handle.net/11356/1123</a>]</li>
 <li>Arhar Holdt, Špela; Erjavec, Tomaž; Fišer, Darja, 2017, 
 CMC training corpus Janes-Syn 1.0, Slovenian language resource repository CLARIN.SI, 
-[<a href="http://hdl.handle.net/11356/1086">download</a>]</li>
+[<a href="http://hdl.handle.net/11356/1086">http://hdl.handle.net/11356/1086</a>]</li>
 <li>Reher, Špela; Erjavec, Tomaž; Fišer, Darja, 2017, 
 Tweet code-switching corpus Janes-Preklop 1.0, Slovenian language resource repository CLARIN.SI, 
-[<a href="http://hdl.handle.net/11356/1154">download</a>]</li>
+[<a href="http://hdl.handle.net/11356/1154">http://hdl.handle.net/11356/1154</a>]</li>
 <li>Popič, Damjan; Zupan, Katja; Logar, Polona; Kavčič, Teja; Erjavec, Tomaž; Fišer, Darja. 2017. 
 Tweet comma corpus Janes-Vejica 1.0, Slovenian language resource repository CLARIN.SI, 
-[<a href="http://hdl.handle.net/11356/1088">download</a>]</li>
+[<a href="http://hdl.handle.net/11356/1088">http://hdl.handle.net/11356/1088</a>]</li>
 <li>Goli, Teja; Osrajnik, Eneja; Fišer, Darja and Erjavec, Tomaž. 2017. 
 CMC shortening corpus Janes-Kratko 1.0, Slovenian language resource repository CLARIN.SI, 
-[<a href="http://hdl.handle.net/11356/1087">download</a>]</li>
+[<a href="http://hdl.handle.net/11356/1087">http://hdl.handle.net/11356/1087</a>]</li>
 </ul>
 </td>
 </tr>

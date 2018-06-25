@@ -6,8 +6,8 @@ thumbnail: screenshot-thumb.png
 hidden: false
 ---
 
-**Source**: <i>This example was kindly contributed by <a href="http://nilsreiter.de">Nils Reiter</a>,
-Institute for Natural Language Processing (IMS), University in Stuttgart, Germany</i>
+**Source**: <i>This example was kindly contributed by <b>Florian Barth</b>,
+Institute for Literary Studies, Stuttgart University, Germany</i>
 
 The project develops an annotation scheme for *spatial entities* in literature and their 
 classification into the narratological categories of plot-relevant *settings* or *mentioned 

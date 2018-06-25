@@ -8,8 +8,10 @@ hidden: false
 
 __Relational Emotion Annotation for Fiction__
 
-**Source**: <i>This example was kindly contributed by <a href="http://nilsreiter.de">Nils Reiter</a>,
+**Source**: <i>This example was kindly contributed by <a href="http://www.ims.uni-stuttgart.de/institut/mitarbeiter/kimey">Evgeny Kim</a>, 
 Institute for Natural Language Processing (IMS), University in Stuttgart, Germany</i>
+
+
 
 Annotation of a literature corpus with emotions, experiencers of these emotions, as well as causes
 and targets of the emotions. Detailed information can be found in the publication linked below.
