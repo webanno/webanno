@@ -11,6 +11,10 @@
   - title: "Beta versions"
     url: "/downloads-beta"
 
+- title: Examples
+  url: "/use-case-gallery/"
+  side: left
+
 - title: Documentation
   url: "/documentation"
   side: left
