@@ -3,7 +3,7 @@ title: Syntactic dependencies
 permalink: /use-case-gallery/dependency-parsing/
 screenshot: screenshot.png
 thumbnail: screenshot-thumb.png
-hidden: false
+hidden: true
 ---
 
 **Source**: <i>This example was compiled by the WebAnno team.</i>

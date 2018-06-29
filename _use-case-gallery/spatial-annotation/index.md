@@ -20,9 +20,6 @@ The annotation of spaces captures spatial entities within a WebAnno layer, to wh
 attached for the classification of plot-relevance. Moreover, a relation layer serves for
 annotation of coreferences between spatial entities.
 
-##### Data
-* Markus Krug. 2017. [DROC-Release](https://gitlab2.informatik.uni-wuerzburg.de/kallimachos/DROC-Release)
-
 ##### Publications
 
 * G. Viehhauser and F. Barth, “Digitale Modellierung literarischen Raums,” in Dhd Bern 2017. 
@@ -33,3 +30,10 @@ annotation of coreferences between spatial entities.
   Conference Abstracts. McGill University & Université de Montréal. Montréal, Canada. 
   August 8-11, 2017, 2017, pp. 643-646. 
   [[PDF](https://dh2017.adho.org/abstracts/413/413.pdf)]  
+
+
+##### Data
+
+* Markus Krug. 2017. [DROC-Release](https://gitlab2.informatik.uni-wuerzburg.de/kallimachos/DROC-Release)
+
+  

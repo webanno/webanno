@@ -8,11 +8,10 @@ hidden: true
 **Source:** <i>This example was kindly contributed by <a href="http://www.is.informatik.uni-duisburg.de/staff/benikova.html">Darina Benikova</a>, 
 Language Technology Lab, University of Duisburg-Essen, Germany</i>
 
-**Project website:** [SameSame](https://github.com/MeDarina/SameSame)
-
-SameSame is a dataset of potential paraphrases annotated on three granularity levels, namely the 
-sentence level, the event level, and the event element level in order to analyse the 
-compositionality of paraphrases. Here, events were defined as predicate-argument structures.
+[SameSame](https://github.com/MeDarina/SameSame) is a dataset of potential paraphrases annotated 
+on three granularity levels, namely the sentence level, the event level, and the event element 
+level in order to analyse the compositionality of paraphrases. Here, events were defined as 
+predicate-argument structures.
 
 It is based on 41 sentence pairs from the Microsoft Paraphrase Corpus (MSPC) (Dolan and Brockett,
 2005) and 47 tweet pairs from the Twitter Paraphrase Corpus (TPC) (Xu et al., 2014) .

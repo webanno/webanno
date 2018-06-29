@@ -7,13 +7,14 @@ thumbnail: screenshot-thumb.png
 hidden: false
 ---
 
-**Source**: <i>This example was kindly contributed by 
+**Source:** <i>This example was kindly contributed by 
 <a href="https://www.aai.uni-hamburg.de/voror/personen/gonzalez.html">Alicia González Martínez</a>, 
 Universität Hamburg, Germany, ERC-Project COBHUNI</i>
 
-The COBHUNI project investigates how the ideas of prenatal life in Islamic history have developed
-over 1400 years of Islamic history and to show in an overall view, which factors have influenced
-and possibly also changed these ideas at different times.
+
+The [COBHUNI](https://www.cobhuni.uni-hamburg.de) project investigates how the ideas of prenatal 
+life in Islamic history have developed over 1400 years of Islamic history and to show in an 
+overall view, which factors have influenced and possibly also changed these ideas at different times.
 
 The COBHUNI corpus includes a collection of Islamic religious texts from different historical periods.
 
@@ -30,16 +31,7 @@ WebAnno has several essential properties that made it suitable for this project:
 The data was imported into WebAnno by implementing a converter from JSON into XMI using the UIMA 
 and DKPro Core frameworks (code can be found [here](https://gitlab.com/alrazi/ini_xmiconverter)).
 
-<table>
-<tr>
-<th>Project website</th>
-<td><a href="https://www.cobhuni.uni-hamburg.de">www.cobhuni.uni-hamburg.de</a></td>
-</tr>
-<tr>
-</tr>
-<tr>
-<th>Publications</th>
-<td><a href="https://www.cobhuni.uni-hamburg.de/en/cobhuni-presentations.html">Publication overview</a></td>
-</tr>
-</table>
 
+##### Publications
+
+* See [COBHUNI publications overview](https://www.cobhuni.uni-hamburg.de/en/cobhuni-presentations.html)
