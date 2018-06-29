@@ -1,12 +1,11 @@
 ---
 title: REMAN
+subheadline: Relational Emotion Annotation for Fiction
 permalink: /use-case-gallery/reman/
 screenshot: screenshot.png
 thumbnail: screenshot-thumb.png
 hidden: false
 ---
-
-__Relational Emotion Annotation for Fiction__
 
 **Source**: <i>This example was kindly contributed by <a href="http://www.ims.uni-stuttgart.de/institut/mitarbeiter/kimey">Evgeny Kim</a>, 
 Institute for Natural Language Processing (IMS), University in Stuttgart, Germany</i>

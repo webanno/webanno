@@ -5,7 +5,7 @@ format: post
 <div class="row t30" style="max-width: none;">
     <div class="medium-4 columns {% if page.sidebar == 'left' %} medium-push-3{% endif %}">
         <article itemscope itemtype="http://schema.org/Article">
-            <header>
+            <header style="margin-bottom: 1em;">
                 {% if page.image.title %}
                 <figure>
                     <img src="{{ site.url }}/images/{{ page.image.title }}" width="970" alt="{{ page.title | escape_once }}" itemprop="image">

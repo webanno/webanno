@@ -1,12 +1,11 @@
 ---
 title: JANES
+subheadline: Manually annotated datasets of user-generated Slovene
 permalink: /use-case-gallery/janes/
 screenshot: screenshot.png
 thumbnail: screenshot-thumb.png
 hidden: false
 ---
-
-__Manually annotated datasets of user-generated Slovene__
 
 **Source**: <i>This example was kindly contributed by <a href="http://nl.ijs.si/et/">Tomaž Erjavec</a>,
 Department of Knowledge Technologies, Jožef Stefan Institute, Slovenia</i>

@@ -1,5 +1,6 @@
 ---
 title: COBHUNI
+subheadline: Contemporary Bioethics and the History of the Unborn in Islam
 permalink: /use-case-gallery/cobhuni/
 screenshot: screenshot.png
 thumbnail: screenshot-thumb.png
