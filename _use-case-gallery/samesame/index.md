@@ -25,7 +25,7 @@ annotation are present in the final dataset.
 ##### Publications
 
 * Darina Benikova, Torsten Zesch. Same same, but different: Compositionality of Paraphrase 
-  Granularity Levels. <i>Proceedings of the International Conference Recent 
-  Advances in Natural Language Processing, RANLP 2017</i>, Varna, Bulgaria
+  Granularity Levels. Proceedings of the International Conference Recent 
+  Advances in Natural Language Processing, RANLP 2017, Varna, Bulgaria
   [[PDF](http://acl-bg.org/proceedings/2017/RANLP%202017/pdf/RANLP014.pdf)]
   [[BIB](https://aclanthology.info/papers/R17-1014/r17-1014.bib)]

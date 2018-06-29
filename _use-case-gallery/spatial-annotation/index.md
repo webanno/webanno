@@ -20,20 +20,16 @@ The annotation of spaces captures spatial entities within a WebAnno layer, to wh
 attached for the classification of plot-relevance. Moreover, a relation layer serves for
 annotation of coreferences between spatial entities.
 
-<table>
-<tr>
-<th>Publications</th>
-<td>Gabriel Viehhauser and Florian Barth. 2017. Digitale Modellierung literarischen Raums. In 
-<i>Dhd Bern 2017</i>, Conference Abstracts, pages 128–132.
-<br>
-Gabriel Viehhauser and Florian Barth. 2017. Towards a digital narratology of space. In <i>Digital 
-Humanities 2017: Conference Abstracts</i>, pages 643–646. [PDF](https://dh2017.adho.org/abstracts/413/413.pdf)
-</td>
-</tr>
-<tr></tr>
-<tr>
-<th>Data</th>
-<td>Markus Krug. 2017. <a href="https://gitlab2.informatik.uni-wuerzburg.de/kallimachos/DROC-Release">DROC-Release</a>.
-</td>
-</tr>
-</table>
+##### Data
+* Markus Krug. 2017. [DROC-Release](https://gitlab2.informatik.uni-wuerzburg.de/kallimachos/DROC-Release)
+
+##### Publications
+
+* G. Viehhauser and F. Barth, “Digitale Modellierung literarischen Raums,” in Dhd Bern 2017. 
+  Digitale Nachhaltigkeit. Konferenzabstracts. Universität Bern 13. – 18. Februar 2017, 2017, 
+  pp. 128-132. 
+  [[PDF](http://www.dhd2017.ch/wp-content/uploads/2017/03/Abstractband_def3_März.pdf)]  
+* G. Viehhauser and F. Barth, “Towards a Digital Narratology of Space,” in Digital Humanities 2017. 
+  Conference Abstracts. McGill University & Université de Montréal. Montréal, Canada. 
+  August 8-11, 2017, 2017, pp. 643-646. 
+  [[PDF](https://dh2017.adho.org/abstracts/413/413.pdf)]  

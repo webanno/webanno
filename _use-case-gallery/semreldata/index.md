@@ -36,7 +36,7 @@ functionalities.
   (FB2, Technische Universität Darmstadt) 
   [[PDF](https://www.inf.uni-hamburg.de/en/inst/ab/lt/teaching/theses/completed-theses/2016-ma-benikova.pdf)]
 
-* Benikova, Darina, and Chris Biemann (2016). "SemRelData―Multilingual Contextual Annotation of 
-  Semantic Relations between Nominals: Dataset and Guidelines." LREC. 2016. 
+* Benikova, Darina, and Chris Biemann (2016). SemRelData―Multilingual Contextual Annotation of 
+  Semantic Relations between Nominals: Dataset and Guidelines. LREC. 2016. 
   [[PDF](http://www.lrec-conf.org/proceedings/lrec2016/pdf/123_Paper.pdf)]
   [[BIB](http://www.lrec-conf.org/proceedings/lrec2016/summaries/123.html)]
