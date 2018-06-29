@@ -1,9 +1,9 @@
 ---
 title: SameSame
 subheadline: ... but different: Compositionality of Paraphrase
-permalink: /use-case-gallery/nosta-d/
-screenshot: screenshot.png
-thumbnail: screenshot-thumb.png
+permalink: /use-case-gallery/samesame/
+#screenshot: screenshot.png
+#thumbnail: screenshot-thumb.png
 hidden: true
 ---
 
