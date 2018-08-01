@@ -27,13 +27,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.FSUtil;
+import org.apache.uima.jcas.JCas;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.HashMultimap;
@@ -41,6 +44,7 @@ import com.google.common.collect.Multimap;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogLevel;
 import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
@@ -85,12 +89,35 @@ public class NoMultipleIngoingRelationsCheck
             	
             	AnnotationFS existingSource = incoming.get(target);
             	if(existingSource != null) {
-            		target.getCoveredText();
-            		aMessages.add(new LogMessage(this, LogLevel.ERROR,
-                            "Relation [%s] -> [%s] points to entitity that already has an "
-                            + "incoming relation [%s] ->[%s].",
-                            source.getCoveredText(), target.getCoveredText(), 
-                            existingSource.getCoveredText(), target.getCoveredText()));
+            		
+            		// Debug output should include sentence number to make the orientation easier
+            		Optional<Integer> sentenceNumber = Optional.empty();
+                    try {
+                		JCas jcas;
+                        jcas = target.getCAS().getJCas();
+
+                        sentenceNumber = Optional.of(WebAnnoCasUtil.getSentenceNumber(jcas, target.getBegin()));
+                    }
+                    catch (CASException e) {
+                    	// ignore this error and don't output sentence number
+                    	sentenceNumber = Optional.empty();
+                    }
+                    
+                    if(sentenceNumber.isPresent()) {
+                    	aMessages.add(new LogMessage(this, LogLevel.ERROR,
+	                            "Sentence %d: Relation [%s] -> [%s] points to entitity that already has an "
+	                            + "incoming relation [%s] ->[%s].",
+	                            sentenceNumber.get(),
+	                            source.getCoveredText(), target.getCoveredText(), 
+	                            existingSource.getCoveredText(), target.getCoveredText()));
+                    } else {
+	            		
+	            		aMessages.add(new LogMessage(this, LogLevel.ERROR,
+	                            "Relation [%s] -> [%s] points to entitity that already has an "
+	                            + "incoming relation [%s] ->[%s].",
+	                            source.getCoveredText(), target.getCoveredText(), 
+	                            existingSource.getCoveredText(), target.getCoveredText()));
+                    }
                     ok = false;
             	} else {
             		incoming.put(target, source);
