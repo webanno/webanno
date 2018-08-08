@@ -41,81 +41,77 @@ import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
-public class NoMultipleIngoingRelationsCheck
-    implements Check
-{
+public class NoMultipleIngoingRelationsCheck implements Check {
     private @Autowired AnnotationSchemaService annotationService;
 
     @Override
-    public boolean check(Project aProject, CAS aCas, List<LogMessage> aMessages)
-    {
+    public boolean check(Project aProject, CAS aCas, List<LogMessage> aMessages) {
         boolean ok = true;
         for (AnnotationLayer layer : annotationService.listAnnotationLayer(aProject)) {
-            
-        	if (!WebAnnoConst.RELATION_TYPE.equals(layer.getType())) {
+
+            if (!WebAnnoConst.RELATION_TYPE.equals(layer.getType())) {
                 continue;
             }
 
             Type type;
             try {
                 type = getType(aCas, layer.getName());
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 // If the type does not exist, the CAS has not been upgraded. In this case, we
                 // can skip checking the layer because there will be no annotations anyway.
                 continue;
             }
-            
+
             // Remember all nodes that already have a known incoming relation.
             // Map from the target to the existing source, so the source can be used
             // to provide a better debugging output.
             Map<AnnotationFS, AnnotationFS> incoming = new HashMap<>();
-            
+
             for (AnnotationFS rel : select(aCas, type)) {
-            	
-            	AnnotationFS source = getFeature(rel, WebAnnoConst.FEAT_REL_SOURCE,
+
+                AnnotationFS source = getFeature(rel, WebAnnoConst.FEAT_REL_SOURCE,
                         AnnotationFS.class);
-            	AnnotationFS target = getFeature(rel, WebAnnoConst.FEAT_REL_TARGET,
+                AnnotationFS target = getFeature(rel, WebAnnoConst.FEAT_REL_TARGET,
                         AnnotationFS.class);
-            	
-            	AnnotationFS existingSource = incoming.get(target);
-            	if(existingSource != null) {
-            		
-            		// Debug output should include sentence number to make the orientation easier
-            		Optional<Integer> sentenceNumber = Optional.empty();
+
+                AnnotationFS existingSource = incoming.get(target);
+                if (existingSource != null) {
+
+                    // Debug output should include sentence number to make the orientation easier
+                    Optional<Integer> sentenceNumber = Optional.empty();
                     try {
-                		JCas jcas;
+                        JCas jcas;
                         jcas = target.getCAS().getJCas();
 
-                        sentenceNumber = Optional.of(WebAnnoCasUtil.getSentenceNumber(jcas, target.getBegin()));
+                        sentenceNumber = Optional
+                                .of(WebAnnoCasUtil.getSentenceNumber(jcas, target.getBegin()));
+                    } catch (CASException e) {
+                        // ignore this error and don't output sentence number
+                        sentenceNumber = Optional.empty();
                     }
-                    catch (CASException e) {
-                    	// ignore this error and don't output sentence number
-                    	sentenceNumber = Optional.empty();
-                    }
-                    
-                    if(sentenceNumber.isPresent()) {
-                    	aMessages.add(new LogMessage(this, LogLevel.ERROR,
-	                            "Sentence %d: Relation [%s] -> [%s] points to entitity that already has an "
-	                            + "incoming relation [%s] ->[%s].",
-	                            sentenceNumber.get(),
-	                            source.getCoveredText(), target.getCoveredText(), 
-	                            existingSource.getCoveredText(), target.getCoveredText()));
+
+                    if (sentenceNumber.isPresent()) {
+                        aMessages.add(new LogMessage(this, LogLevel.ERROR,
+                                "Sentence %d: Relation [%s] -> [%s] points to entitity that already has an "
+                                        + "incoming relation [%s] ->[%s].",
+                                sentenceNumber.get(), source.getCoveredText(),
+                                target.getCoveredText(), existingSource.getCoveredText(),
+                                target.getCoveredText()));
                     } else {
-	            		
-	            		aMessages.add(new LogMessage(this, LogLevel.ERROR,
-	                            "Relation [%s] -> [%s] points to entitity that already has an "
-	                            + "incoming relation [%s] ->[%s].",
-	                            source.getCoveredText(), target.getCoveredText(), 
-	                            existingSource.getCoveredText(), target.getCoveredText()));
+
+                        aMessages.add(new LogMessage(this, LogLevel.ERROR,
+                                "Relation [%s] -> [%s] points to entitity that already has an "
+                                        + "incoming relation [%s] ->[%s].",
+                                source.getCoveredText(), target.getCoveredText(),
+                                existingSource.getCoveredText(), target.getCoveredText()));
                     }
                     ok = false;
-            	} else {
-            		incoming.put(target, source);
-            	}
+                } else {
+                    incoming.put(target, source);
+                }
             }
         }
-        
+
         return ok;
     }
 }
