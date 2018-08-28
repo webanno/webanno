@@ -2,7 +2,9 @@
 title: MARS
 subheadline: Interplay of Form and Meaning in Complex Medical Terms
 permalink: /use-case-gallery/mars/
-hidden: true
+screenshot: screenshot.png
+thumbnail: screenshot-thumb.png
+hidden: false
 ---
 
 **Source**: <i>This example was kindly contributed by <a href="http://wwwling.arts.kuleuven.be/qlvl/leonie.htm">Leonie Grön</a>,
