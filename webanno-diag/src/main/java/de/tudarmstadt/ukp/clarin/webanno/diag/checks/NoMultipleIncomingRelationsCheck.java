@@ -91,7 +91,7 @@ public class NoMultipleIncomingRelationsCheck implements Check {
 
                             sentenceNumber = Optional
                                     .of(WebAnnoCasUtil.getSentenceNumber(jcas, target.getBegin()));
-                        } catch (CASException e) {
+                        } catch (CASException | IndexOutOfBoundsException e) {
                             // ignore this error and don't output sentence number
                             sentenceNumber = Optional.empty();
                         }

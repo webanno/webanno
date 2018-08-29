@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -64,18 +65,23 @@ public class NoMultipleIncomingRelationsCheckTest {
     @Test
     public void testFail() throws Exception {
 
-        AnnotationLayer layer1 = new AnnotationLayer();
+        AnnotationLayer relationLayer = new AnnotationLayer();
+        relationLayer.setName(Dependency.class.getName());
+        
+        relationLayer.setType(WebAnnoConst.RELATION_TYPE);
         Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
-                .thenReturn(Arrays.asList(layer1));
+                .thenReturn(Arrays.asList(relationLayer));
 
         JCas jcas = JCasFactory.createJCas();
-
+        
         jcas.setDocumentText("This is a test.");
 
         Token spanThis = new Token(jcas, 0, 4);
         spanThis.addToIndexes();
 
         Token spanIs = new Token(jcas, 6, 8);
+        spanIs.addToIndexes();
+        
         Token spanA = new Token(jcas, 9, 10);
         spanA.addToIndexes();
 
