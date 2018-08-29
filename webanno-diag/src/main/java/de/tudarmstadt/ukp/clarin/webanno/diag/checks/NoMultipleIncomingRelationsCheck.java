@@ -98,7 +98,7 @@ public class NoMultipleIncomingRelationsCheck implements Check {
 
                         if (sentenceNumber.isPresent()) {
                             aMessages.add(new LogMessage(this, LogLevel.ERROR,
-                                    "Sentence %d: Relation [%s] -> [%s] points to entitity that already has an "
+                                    "Sentence %d: Relation [%s] -> [%s] points to span that already has an "
                                             + "incoming relation [%s] ->[%s].",
                                     sentenceNumber.get(), source.getCoveredText(),
                                     target.getCoveredText(), existingSource.getCoveredText(),
@@ -106,7 +106,7 @@ public class NoMultipleIncomingRelationsCheck implements Check {
                         } else {
 
                             aMessages.add(new LogMessage(this, LogLevel.ERROR,
-                                    "Relation [%s] -> [%s] points to entitity that already has an "
+                                    "Relation [%s] -> [%s] points to span that already has an "
                                             + "incoming relation [%s] ->[%s].",
                                     source.getCoveredText(), target.getCoveredText(),
                                     existingSource.getCoveredText(), target.getCoveredText()));
