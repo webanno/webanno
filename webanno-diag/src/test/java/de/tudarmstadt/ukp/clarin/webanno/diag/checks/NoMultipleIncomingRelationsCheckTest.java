@@ -18,6 +18,7 @@
 package de.tudarmstadt.ukp.clarin.webanno.diag.checks;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
@@ -106,8 +107,85 @@ public class NoMultipleIncomingRelationsCheckTest {
 
     @Test
     public void testOK() throws Exception {
+        AnnotationLayer relationLayer = new AnnotationLayer();
+        relationLayer.setName(Dependency.class.getName());
+        
+        relationLayer.setType(WebAnnoConst.RELATION_TYPE);
+        Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
+                .thenReturn(Arrays.asList(relationLayer));
 
+        JCas jcas = JCasFactory.createJCas();
+        
+        jcas.setDocumentText("This is a test.");
+
+        Token spanThis = new Token(jcas, 0, 4);
+        spanThis.addToIndexes();
+
+        Token spanIs = new Token(jcas, 6, 8);
+        spanIs.addToIndexes();
+        
+        Token spanA = new Token(jcas, 9, 10);
+        spanA.addToIndexes();
+
+        Dependency dep1 = new Dependency(jcas, 0, 8);
+        dep1.setGovernor(spanThis);
+        dep1.setDependent(spanIs);
+        dep1.addToIndexes();
+
+        Dependency dep2 = new Dependency(jcas, 6, 10);
+        dep2.setGovernor(spanIs);
+        dep2.setDependent(spanA);
+        dep2.addToIndexes();
+
+        List<LogMessage> messages = new ArrayList<>();
+
+        boolean result = check.check(null, jcas.getCas(), messages);
+
+        messages.forEach(System.out::println);
+
+        assertTrue(result);
     }
+    
+    @Test
+    public void testOkBecauseCoref() throws Exception {
 
+        AnnotationLayer relationLayer = new AnnotationLayer();
+        relationLayer.setName(CoreferenceChain.class.getName());
+        
+        relationLayer.setType(WebAnnoConst.CHAIN_TYPE);
+        Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
+                .thenReturn(Arrays.asList(relationLayer));
+
+        JCas jcas = JCasFactory.createJCas();
+        
+        jcas.setDocumentText("This is a test.");
+
+        Token spanThis = new Token(jcas, 0, 4);
+        spanThis.addToIndexes();
+
+        Token spanIs = new Token(jcas, 6, 8);
+        spanIs.addToIndexes();
+        
+        Token spanA = new Token(jcas, 9, 10);
+        spanA.addToIndexes();
+
+        Dependency dep1 = new Dependency(jcas, 0, 8);
+        dep1.setGovernor(spanThis);
+        dep1.setDependent(spanIs);
+        dep1.addToIndexes();
+
+        Dependency dep2 = new Dependency(jcas, 0, 10);
+        dep2.setGovernor(spanA);
+        dep2.setDependent(spanIs);
+        dep2.addToIndexes();
+
+        List<LogMessage> messages = new ArrayList<>();
+
+        boolean result = check.check(null, jcas.getCas(), messages);
+
+        messages.forEach(System.out::println);
+
+        assertTrue(result);
+    }
 
 }
