@@ -17,6 +17,7 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.diag.checks;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,18 +49,17 @@ import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
 @RunWith(SpringRunner.class)
 public class NoMultipleIncomingRelationsCheckTest {
 
-
     @Configuration
-    @Import({AnnotationSchemaService.class, NoMultipleIncomingRelationsCheck.class})
+    @Import({ AnnotationSchemaService.class, NoMultipleIncomingRelationsCheck.class })
     static class Config {
     }
-    
+
     @Rule
     public DkproTestContext testContext = new DkproTestContext();
 
     @MockBean
     private AnnotationSchemaService annotationService;
-    
+
     @Autowired
     NoMultipleIncomingRelationsCheck check;
 
@@ -68,30 +68,30 @@ public class NoMultipleIncomingRelationsCheckTest {
 
         AnnotationLayer relationLayer = new AnnotationLayer();
         relationLayer.setName(Dependency.class.getName());
-        
+
         relationLayer.setType(WebAnnoConst.RELATION_TYPE);
         Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
                 .thenReturn(Arrays.asList(relationLayer));
 
         JCas jcas = JCasFactory.createJCas();
-        
+
         jcas.setDocumentText("This is a test.");
 
         Token spanThis = new Token(jcas, 0, 4);
         spanThis.addToIndexes();
 
-        Token spanIs = new Token(jcas, 6, 8);
+        Token spanIs = new Token(jcas, 5, 7);
         spanIs.addToIndexes();
-        
-        Token spanA = new Token(jcas, 9, 10);
+
+        Token spanA = new Token(jcas, 8, 9);
         spanA.addToIndexes();
 
-        Dependency dep1 = new Dependency(jcas, 0, 8);
+        Dependency dep1 = new Dependency(jcas, 0, 7);
         dep1.setGovernor(spanThis);
         dep1.setDependent(spanIs);
         dep1.addToIndexes();
 
-        Dependency dep2 = new Dependency(jcas, 0, 10);
+        Dependency dep2 = new Dependency(jcas, 0, 9);
         dep2.setGovernor(spanA);
         dep2.setDependent(spanIs);
         dep2.addToIndexes();
@@ -103,19 +103,26 @@ public class NoMultipleIncomingRelationsCheckTest {
         messages.forEach(System.out::println);
 
         assertFalse(result);
+
+        // also check the message itself
+        assertEquals(1, messages.size());
+        assertEquals(
+                "[NoMultipleIncomingRelationsCheck] Relation [This] -> [is] points to entitity that already has an incoming relation [a] ->[is].",
+                messages.get(0).toString());
+
     }
 
     @Test
     public void testOK() throws Exception {
         AnnotationLayer relationLayer = new AnnotationLayer();
         relationLayer.setName(Dependency.class.getName());
-        
+
         relationLayer.setType(WebAnnoConst.RELATION_TYPE);
         Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
                 .thenReturn(Arrays.asList(relationLayer));
 
         JCas jcas = JCasFactory.createJCas();
-        
+
         jcas.setDocumentText("This is a test.");
 
         Token spanThis = new Token(jcas, 0, 4);
@@ -123,7 +130,7 @@ public class NoMultipleIncomingRelationsCheckTest {
 
         Token spanIs = new Token(jcas, 6, 8);
         spanIs.addToIndexes();
-        
+
         Token spanA = new Token(jcas, 9, 10);
         spanA.addToIndexes();
 
@@ -145,19 +152,19 @@ public class NoMultipleIncomingRelationsCheckTest {
 
         assertTrue(result);
     }
-    
+
     @Test
     public void testOkBecauseCoref() throws Exception {
 
         AnnotationLayer relationLayer = new AnnotationLayer();
         relationLayer.setName(CoreferenceChain.class.getName());
-        
+
         relationLayer.setType(WebAnnoConst.CHAIN_TYPE);
         Mockito.when(annotationService.listAnnotationLayer(Mockito.isNull()))
                 .thenReturn(Arrays.asList(relationLayer));
 
         JCas jcas = JCasFactory.createJCas();
-        
+
         jcas.setDocumentText("This is a test.");
 
         Token spanThis = new Token(jcas, 0, 4);
@@ -165,7 +172,7 @@ public class NoMultipleIncomingRelationsCheckTest {
 
         Token spanIs = new Token(jcas, 6, 8);
         spanIs.addToIndexes();
-        
+
         Token spanA = new Token(jcas, 9, 10);
         spanA.addToIndexes();
 
