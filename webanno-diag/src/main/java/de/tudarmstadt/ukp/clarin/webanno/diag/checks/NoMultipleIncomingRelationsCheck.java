@@ -41,7 +41,7 @@ import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
-public class NoMultipleIngoingRelationsCheck implements Check {
+public class NoMultipleIncomingRelationsCheck implements Check {
     private @Autowired AnnotationSchemaService annotationService;
 
     @Override
