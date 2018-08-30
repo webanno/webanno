@@ -107,7 +107,7 @@ public class NoMultipleIncomingRelationsCheckTest {
         // also check the message itself
         assertEquals(1, messages.size());
         assertEquals(
-                "[NoMultipleIncomingRelationsCheck] Relation [This] -> [is] points to entitity that already has an incoming relation [a] ->[is].",
+                "[NoMultipleIncomingRelationsCheck] Relation [This] -> [is] points to span that already has an incoming relation [a] -> [is].",
                 messages.get(0).toString());
 
     }
