@@ -22,11 +22,11 @@ annotation of coreferences between spatial entities.
 
 ##### Publications
 
-* G. Viehhauser and F. Barth, “Digitale Modellierung literarischen Raums,” in Dhd Bern 2017. 
+* G. Viehhauser and F. Barth, "Digitale Modellierung literarischen Raums," in Dhd Bern 2017. 
   Digitale Nachhaltigkeit. Konferenzabstracts. Universität Bern 13. – 18. Februar 2017, 2017, 
   pp. 128-132. 
   [[PDF](http://www.dhd2017.ch/wp-content/uploads/2017/03/Abstractband_def3_März.pdf)]  
-* G. Viehhauser and F. Barth, “Towards a Digital Narratology of Space,” in Digital Humanities 2017. 
+* G. Viehhauser and F. Barth, "Towards a Digital Narratology of Space," in Digital Humanities 2017. 
   Conference Abstracts. McGill University & Université de Montréal. Montréal, Canada. 
   August 8-11, 2017, 2017, pp. 643-646. 
   [[PDF](https://dh2017.adho.org/abstracts/413/413.pdf)]  
