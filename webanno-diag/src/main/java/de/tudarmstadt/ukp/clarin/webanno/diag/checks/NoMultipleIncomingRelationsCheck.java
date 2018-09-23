@@ -41,13 +41,16 @@ import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor.LogMessage;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
-public class NoMultipleIncomingRelationsCheck implements Check {
+public class NoMultipleIncomingRelationsCheck
+    implements Check
+{
     private @Autowired AnnotationSchemaService annotationService;
 
     @Override
-    public boolean check(Project aProject, CAS aCas, List<LogMessage> aMessages) {
+    public boolean check(Project aProject, CAS aCas, List<LogMessage> aMessages)
+    {
         boolean ok = true;
-        if(annotationService == null) {
+        if (annotationService == null) {
             return ok;
         }
         List<AnnotationLayer> allAnnoLayers = annotationService.listAnnotationLayer(aProject);
@@ -61,7 +64,8 @@ public class NoMultipleIncomingRelationsCheck implements Check {
                 Type type;
                 try {
                     type = getType(aCas, layer.getName());
-                } catch (IllegalArgumentException e) {
+                }
+                catch (IllegalArgumentException e) {
                     // If the type does not exist, the CAS has not been upgraded. In this case, we
                     // can skip checking the layer because there will be no annotations anyway.
                     continue;
@@ -91,7 +95,8 @@ public class NoMultipleIncomingRelationsCheck implements Check {
 
                             sentenceNumber = Optional
                                     .of(WebAnnoCasUtil.getSentenceNumber(jcas, target.getBegin()));
-                        } catch (CASException | IndexOutOfBoundsException e) {
+                        }
+                        catch (CASException | IndexOutOfBoundsException e) {
                             // ignore this error and don't output sentence number
                             sentenceNumber = Optional.empty();
                         }
@@ -103,7 +108,8 @@ public class NoMultipleIncomingRelationsCheck implements Check {
                                     sentenceNumber.get(), source.getCoveredText(),
                                     target.getCoveredText(), existingSource.getCoveredText(),
                                     target.getCoveredText()));
-                        } else {
+                        }
+                        else {
 
                             aMessages.add(new LogMessage(this, LogLevel.ERROR,
                                     "Relation [%s] -> [%s] points to span that already has an "
@@ -112,7 +118,8 @@ public class NoMultipleIncomingRelationsCheck implements Check {
                                     existingSource.getCoveredText(), target.getCoveredText()));
                         }
                         ok = false;
-                    } else {
+                    }
+                    else {
                         incoming.put(target, source);
                     }
                 }
@@ -120,6 +127,5 @@ public class NoMultipleIncomingRelationsCheck implements Check {
         }
 
         return ok;
-    }   
-    
+    }
 }
