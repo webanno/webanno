@@ -4,10 +4,10 @@ subheadline: German Named Entity Recognition Data
 permalink: /use-case-gallery/nosta-d/
 screenshot: screenshot.png
 thumbnail: screenshot-thumb.png
-hidden: true
+hidden: false
 ---
 
-**Source**: <i>This example was kindly contributed by <a href="https://www.ltl.uni-due.de/team/torsten-zesch/">Torsten Zesch</a>, 
+**Source:** <i>This example was kindly contributed by <a href="http://www.is.informatik.uni-duisburg.de/staff/benikova.html">Darina Benikova</a>, 
 Language Technology Lab, University of Duisburg-Essen, Germany</i>
 
 
