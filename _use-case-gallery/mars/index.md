@@ -26,6 +26,7 @@ In total, we annotated 25,000 MWEs at both layers. For each concept combination,
 proportion of individual tag sequences at the formal level. This allowed us to evaluate the 
 distribution of grammatical constructions across the different concept combinations.
 
+
 ##### Publications
 
 * Grön, L., Bertels, A., & Heylen, K. (2018). The Interplay of Form and Meaning in Complex Medical 

@@ -31,6 +31,7 @@ together contain 3,075 words, distributed over the following four domains:
 annotations per task. In addition, we asked two annotators to perform all four tasks, to check 
 whether the inter-annotator agreement differs in the two setups.
 
+
 ##### Publications
 
 * Anna Hätty and Sabine Schulte im Walde (2018). A Laypeople Study on Terminology Identification 
