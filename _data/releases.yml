@@ -24,6 +24,10 @@
 ### RELEASE VERSIONS
 ###
 
+- version: 3.4.7
+  date: 2018-11-03
+  status: stable
+
 - version: 3.4.6
   date: 2018-10-03
   status: stable
