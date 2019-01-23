@@ -173,6 +173,10 @@ public class AnnotationDocumentExporter
                         });
             }
 
+            // Codebooks are exported separately
+            if (format.isDocumentLevel()) {
+                format = new WebAnnoTsv3FormatSupport();
+            }
             // Export annotations from regular users
             for (de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument annotationDocument : 
                     documentService.listAnnotationDocuments(sourceDocument)) {

@@ -22,9 +22,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.event.BeforeProjectRemovedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
@@ -32,6 +34,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 public class AnnotationSchemaServiceEventAdapter
 {
     private @Autowired AnnotationSchemaService service;
+    private @Autowired CodebookSchemaService codebookService;
     
     @EventListener
     public void beforeProjectRemove(BeforeProjectRemovedEvent aEvent)
@@ -46,6 +49,11 @@ public class AnnotationSchemaServiceEventAdapter
         // remove the layers too
         for (AnnotationLayer layer : service.listAnnotationLayer(project)) {
             service.removeAnnotationLayer(layer);
+        }
+        
+        // remove codebooks
+        for (Codebook codebook : codebookService.listCodebook(project)) {
+            codebookService.removeCodebook(codebook);
         }
 
         for (TagSet tagSet : service.listTagSets(project)) {

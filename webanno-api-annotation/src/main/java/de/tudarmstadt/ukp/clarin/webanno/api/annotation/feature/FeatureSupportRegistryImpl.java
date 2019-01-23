@@ -35,6 +35,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
+import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 
 @Component
 public class FeatureSupportRegistryImpl
@@ -114,6 +115,33 @@ public class FeatureSupportRegistryImpl
             throw new IllegalArgumentException("Unsupported feature: [" + aFeature.getName() + "]");
         }
         
+        return support;
+    }
+    
+    @Override
+    public FeatureSupport getFeatureSupport(CodebookFeature aFeature) {
+        FeatureSupport support = null;
+
+        if (aFeature.getId() != null) {
+            support = supportCache.get(aFeature.getId());
+        }
+
+        if (support == null) {
+            for (FeatureSupport<?> s : getFeatureSupports()) {
+                support = s;
+                if (aFeature.getId() != null) {
+                    // Store feature in the cache, but only when it has an ID, i.e. it has
+                    // actually been saved.
+                    supportCache.put(aFeature.getId(), s);
+                }
+                break;
+            }
+        }
+
+        if (support == null) {
+            throw new IllegalArgumentException("Unsupported feature: [" + aFeature.getName() + "]");
+        }
+
         return support;
     }
     

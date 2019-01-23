@@ -59,15 +59,20 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorBase;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotationEditor;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
+import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
+import de.tudarmstadt.ukp.clarin.webanno.ui.codebook.curation.CodebookCurationModel;
+import de.tudarmstadt.ukp.clarin.webanno.ui.codebook.curation.CodebookCurationPanel;
+import de.tudarmstadt.ukp.clarin.webanno.ui.codebook.suggestion.CodebookSuggestionPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.AnnotationSelection;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.CurationContainer;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.model.SourceListView;
@@ -97,9 +102,16 @@ public class CurationPanel
     private final WebMarkupContainer crossSentAnnoView;
 
     private AnnotationPageBase annotationPageBase;
+    private final WebMarkupContainer sentencesListViewCon;
+    private final WebMarkupContainer crossSentAnnoViewCon;
+    
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel editor;
     private AnnotatorState state;
+
+    public CodebookSuggestionPanel codebooksuggestionPanel;
+    public CodebookCurationPanel codebookCurationPanel;
+    private CodebookCurationModel cModel = new CodebookCurationModel();
 
     private ListView<String> crossSentAnnoList;
     
@@ -143,7 +155,9 @@ public class CurationPanel
             userAnnotationSegments.setAnnotatorState(state);
             segments.add(userAnnotationSegments);
         }
+        add(createCodebookSuggestionView());
         
+        add(createCodebookCurationView());
         // update source list model only first time.
         sourceListModel = sourceListModel == null ? getModelObject().getCurationViews()
                 : sourceListModel;
@@ -212,7 +226,8 @@ public class CurationPanel
                 setEnabled(state.getDocument() != null && !documentService
                         .getSourceDocument(state.getDocument().getProject(),
                                 state.getDocument().getName())
-                        .getState().equals(SourceDocumentState.CURATION_FINISHED));
+                        .getState().equals(SourceDocumentState.CURATION_FINISHED)
+                        && !state.getPreferences().isShowCodebook());
             }
             
             @Override
@@ -236,7 +251,12 @@ public class CurationPanel
         crossSentAnnoView = new WebMarkupContainer("crossSentAnnoView");
         crossSentAnnoView.setOutputMarkupPlaceholderTag(true);
         crossSentAnnoView.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
-        add(crossSentAnnoView);
+     //   add(crossSentAnnoView);
+        
+        crossSentAnnoViewCon = new WebMarkupContainer("crossSentAnnoViewCon");
+        crossSentAnnoViewCon.setOutputMarkupId(true);
+        add(crossSentAnnoViewCon.add(crossSentAnnoView));
+        
         crossSentAnnoList = new ListView<String>("crossSentAnnoList",
                 this::invisibleCrossSentenceAnnotations)
         {
@@ -271,7 +291,7 @@ public class CurationPanel
         sentencesListView = new WebMarkupContainer("sentencesListView");
         sentencesListView.setOutputMarkupPlaceholderTag(true);
         sentencesListView.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
-        add(sentencesListView);
+        //add(sentencesListView);
         sentencesListView.add(new ListView<SourceListView>("sentencesList",
                 LoadableDetachableModel.of(() -> getModelObject().getCurationViews()))
         {
@@ -283,6 +303,12 @@ public class CurationPanel
                 item.add(new SentenceLink("sentenceNumber", item.getModel()));
             }
         });
+        
+        // add container for list of sentences panel
+        sentencesListViewCon = new WebMarkupContainer("sentencesListViewCon");
+        sentencesListViewCon.setOutputMarkupId(true);
+        sentencesListViewCon.add(sentencesListView);
+        add(sentencesListViewCon);
     }
     
     private List<String> invisibleCrossSentenceAnnotations()
@@ -451,6 +477,12 @@ public class CurationPanel
         
         suggestionViewPanel.init(aTarget, aCC, annotationSelectionByUsernameAndAddress,
                 curationView);
+        cModel = new CodebookCurationModel();
+        cModel.setProject(state.getProject());
+        cModel.setDocument(state.getDocument());
+       
+        codebookCurationPanel.setProjectModel(aTarget, cModel);
+        codebooksuggestionPanel.setModel(aTarget, cModel);
     }
 
     public void updatePanel(AjaxRequestTarget aTarget, CurationContainer aCC)
@@ -467,6 +499,8 @@ public class CurationPanel
         
         // Render the sentence list sidebar
         aTarget.add(sentencesListView);
+        
+        decideSideBarSetup(aTarget);
     }
     
     private void commonUpdate() throws IOException
@@ -527,5 +561,155 @@ public class CurationPanel
     public AnnotationDetailEditorPanel getEditor()
     {
         return editor;
+    }
+
+    public void decideSideBarSetup(AjaxRequestTarget aTarget) {
+        if (getModelObject().getAnnotatorState().getPreferences().isShowCodebook()) {
+            codebookCurationPanel.getParent().add(new AttributeModifier("style", getVStyle(0.05)));
+            aTarget.add(codebookCurationPanel.getParent());
+
+            codebooksuggestionPanel.getParent().add(new AttributeModifier("style", visible()));
+            aTarget.add(codebooksuggestionPanel.getParent());
+
+            editor.getParent().add(new AttributeModifier("style", hidden()));
+            aTarget.add(editor.getParent());
+
+            sentencesListViewCon.add(new AttributeModifier("style", hidden()));
+            aTarget.add(sentencesListViewCon);
+
+            suggestionViewPanel.add(new AttributeModifier("style", hidden()));
+            aTarget.add(suggestionViewPanel);
+
+            crossSentAnnoViewCon.add(new AttributeModifier("style", hidden()));
+            aTarget.add(crossSentAnnoViewCon);
+
+        } else {
+
+            codebooksuggestionPanel.getParent().add(new AttributeModifier("style", hidden()));
+            aTarget.add(codebooksuggestionPanel.getParent());
+
+            codebookCurationPanel.getParent().add(new AttributeModifier("style", hidden()));
+            aTarget.add(codebookCurationPanel.getParent());
+
+            editor.getParent().add(new AttributeModifier("style", getVStyle(0.025)));
+            aTarget.add(editor.getParent());
+
+            sentencesListViewCon.add(new AttributeModifier("style", visible()));
+            aTarget.add(sentencesListViewCon);
+
+            suggestionViewPanel.add(new AttributeModifier("style", visible()));
+            aTarget.add(suggestionViewPanel);
+
+            crossSentAnnoViewCon.add(new AttributeModifier("style", visible()));
+            aTarget.add(crossSentAnnoViewCon);
+
+        }
+    }
+
+    private String hidden() {
+        return "visibility:hidden;display:none";
+    }
+
+    private String visible() {
+        return "visibility:visible";
+    }
+
+    private String getVStyle(double n) {
+        double siebarSide = getModelObject().getAnnotatorState().getPreferences().getSidebarSize()
+                * n;
+        String style = String.format("flex: %f;",
+                Math.min(siebarSide, n * AnnotationPreference.SIDEBAR_SIZE_MAX))
+                + "; visibility:visible";
+        return style;
+    }
+
+    private WebMarkupContainer createCodebookSuggestionView() {
+        WebMarkupContainer codebooksuggestionView = new WebMarkupContainer(
+                "codebooksuggestionView");
+        codebooksuggestionView.setOutputMarkupId(true);
+        // Override sidebar width from preferences
+        codebooksuggestionView.add(new AttributeModifier("style", () -> String
+                .format("flex-basis: %d%%;", state.getPreferences().getSidebarSize())));
+        codebooksuggestionPanel = createCodebookSuggestionViewPanel();
+        codebooksuggestionPanel.setOutputMarkupId(true);
+
+        codebooksuggestionView.add(codebooksuggestionPanel);
+        // Hide at the beginning
+        codebooksuggestionView.add(new AttributeModifier("style", hidden()));
+        return codebooksuggestionView;
+    }
+
+    private WebMarkupContainer createCodebookCurationView() {
+        WebMarkupContainer codebooksuggestionView = new WebMarkupContainer("codebookCurationView");
+        codebooksuggestionView.setOutputMarkupId(true);
+        // Override sidebar width from preferences
+        codebooksuggestionView.add(new AttributeModifier("style", () -> String
+                .format("flex-basis: %d%%;", state.getPreferences().getSidebarSize())));
+        codebookCurationPanel = createCodebookCurationViewPanel();
+        codebookCurationPanel.setOutputMarkupId(true);
+
+        codebooksuggestionView.add(codebookCurationPanel);
+        // Hide at the beginning
+        codebooksuggestionView.add(new AttributeModifier("style", hidden()));
+        return codebooksuggestionView;
+    }
+
+    private CodebookSuggestionPanel createCodebookSuggestionViewPanel() {
+        return new CodebookSuggestionPanel("codebooksuggestionPanel", Model.of(cModel)) {
+            private static final long serialVersionUID = -2221935309927059772L;
+
+            @Override
+            public void onMerge(AjaxRequestTarget aTarget, CodebookFeature aFeature,
+                    String aAnnotation) {
+                codebookCurationPanel.update(aTarget, aFeature, aAnnotation);
+                aTarget.add(codebookCurationPanel);
+                aTarget.add(codebooksuggestionPanel);
+
+            }
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+
+                setEnabled(state.getDocument() != null && !documentService
+                        .getSourceDocument(state.getDocument().getProject(),
+                                state.getDocument().getName())
+                        .getState().equals(SourceDocumentState.CURATION_FINISHED));
+            }
+
+        };
+    }
+
+    private CodebookCurationPanel createCodebookCurationViewPanel() {
+        return new CodebookCurationPanel("codebookCurationPanel", Model.of(cModel)) {
+
+            private static final long serialVersionUID = -8641392262991463999L;
+
+            @Override
+            public void onShowSuggestions(AjaxRequestTarget aTarget, CodebookFeature aFeature) {
+                codebooksuggestionPanel.setSuggestionModel(aTarget, aFeature);
+                aTarget.add(codebooksuggestionPanel);
+
+            }
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+
+                setEnabled(state.getDocument() != null && !documentService
+                        .getSourceDocument(state.getDocument().getProject(),
+                                state.getDocument().getName())
+                        .getState().equals(SourceDocumentState.CURATION_FINISHED));
+            }
+            
+            @Override
+            protected void onJcasUpdate(Long aTimeStamp) {
+                state.setAnnotationDocumentTimestamp(aTimeStamp);
+            }
+            
+            
+           
+
+        };
     }
 }

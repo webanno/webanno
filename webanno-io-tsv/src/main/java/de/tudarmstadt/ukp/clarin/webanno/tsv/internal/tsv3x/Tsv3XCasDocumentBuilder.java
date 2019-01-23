@@ -111,6 +111,11 @@ public class Tsv3XCasDocumentBuilder
         // Scan all annotations of the types defined in the schema and use them to set up sub-token
         // units.
         for (Type type : aSchema.getUimaTypes()) {
+            
+            // exclude codebook types 
+            if (type.getName().startsWith("webanno.codebook")) {
+                continue;
+            }
             LayerType layerType = aSchema.getLayerType(type);
             
             boolean addDisambiguationIdIfStacked = SPAN.equals(layerType);

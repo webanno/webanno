@@ -927,4 +927,25 @@ public class DocumentServiceImpl
     {
         projectService.recalculateProjectState(aEvent.getDocument().getProject());
     }
+    
+    @Override
+    @Transactional
+    public void writeCodebookAnnotationCas(JCas aJCas, AnnotationDocument aAnnotationDocument,
+            boolean aUpdateTimestamp)
+        throws IOException
+    {
+        casStorageService.writeCas(aAnnotationDocument.getDocument(), aJCas,
+                aAnnotationDocument.getUser());
+    }
+    
+    
+    @Override
+    @Transactional
+    public void writeCodebookAnnotationCas(JCas aJcas, SourceDocument aDocument, User aUser,
+            boolean aUpdateTimestamp)
+        throws IOException
+    {
+        AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, aUser);
+        writeCodebookAnnotationCas(aJcas, annotationDocument, aUpdateTimestamp);
+    }
 }

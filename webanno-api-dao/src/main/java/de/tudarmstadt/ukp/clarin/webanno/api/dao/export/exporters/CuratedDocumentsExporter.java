@@ -42,6 +42,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExporter;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoCsvFormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -124,11 +125,14 @@ public class CuratedDocumentsExporter
 
                     // Copy secondary export format for convenience - not used during import
                     try {
-                        File curationFile = importExportService.exportAnnotationDocument(
-                                sourceDocument, WebAnnoConst.CURATION_USER, format,
-                                WebAnnoConst.CURATION_USER, Mode.CURATION);
-                        FileUtils.copyFileToDirectory(curationFile, curationDir);
-                        FileUtils.forceDelete(curationFile);
+                        if (!format.getClass().getName()
+                                .equals(WebAnnoCsvFormatSupport.class.getName())) {
+                            File curationFile = importExportService.exportAnnotationDocument(
+                                    sourceDocument, WebAnnoConst.CURATION_USER, format,
+                                    WebAnnoConst.CURATION_USER, Mode.CURATION);
+                            FileUtils.copyFileToDirectory(curationFile, curationDir);
+                            FileUtils.forceDelete(curationFile);
+                        }
                     }
                     catch (Exception e) {
                         // error("Unexpected error while exporting project: " +

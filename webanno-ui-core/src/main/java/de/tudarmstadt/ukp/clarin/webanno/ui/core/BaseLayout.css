@@ -132,6 +132,26 @@ tr.even:hover{
     background:#CCCCAA;
 }
 
+.cbheader1{
+	  background-color:#B90F22;
+	  color:white;
+	  align:left;
+	  padding-left: 8px !important;
+}
+.cbheader2{
+	  background-color:#B90F22;
+	  color:white;
+	  align:right;
+}
+.cbtr1{
+	  align:left;
+	  padding-left: 8px !important;
+}
+.cbtr2{
+	  align:right;
+}
+
+
 .headers,
 .headers a:link,
 .headers a:visited{
@@ -273,4 +293,10 @@ div.left-tabpanel div.tab-row a:hover {
   border-bottom-left-radius:  0px;
   border-left: none;
 }
+ 
+.codebook-panel {
+      color: #fff;
+      background-color: #337ab7;
+      border-color: #337ab7;
+    }
 

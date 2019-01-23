@@ -88,6 +88,10 @@ public class ExportedProject
     
     private Map<String, Object> properties = new HashMap<>();
     
+    @JsonProperty("codebooks")
+    private List<ExportedCodebook> codebooks = new ArrayList<>();
+
+    
     public String getName()
     {
         return name;
@@ -273,4 +277,14 @@ public class ExportedProject
     {
         return properties;
     }
+
+    public List<ExportedCodebook> getCodebooks() {
+        return codebooks;
+    }
+
+    public void setCodebooks(List<ExportedCodebook> codebooks) {
+        this.codebooks = codebooks;
+    }
+    
+    
 }

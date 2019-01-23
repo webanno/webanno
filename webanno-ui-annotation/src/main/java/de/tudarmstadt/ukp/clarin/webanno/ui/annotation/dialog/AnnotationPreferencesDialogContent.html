@@ -42,6 +42,15 @@
                   </div>
                 </div>
               </div>
+              <div class="form-group" wicket:enclosure="codebooksPerPage">
+                <label wicket:for="codebooksPerPage" class="col-sm-4 control-label"><wicket:label key="codebooksPerPage"/></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <input wicket:id="codebooksPerPage" type="number" class="form-control text-right"></input>
+                    <span class="input-group-addon">codebooks</span>
+                  </div>
+                </div>
+              </div> 
               <div class="form-group" wicket:enclosure="fontZoom">
                 <label wicket:for="fontZoom" class="col-sm-4 control-label"><wicket:label key="fontZoom"/></label>
                 <div class="col-sm-8">
@@ -50,6 +59,26 @@
                     <span class="input-group-addon">%</span>
                   </div>
                 </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                <div wicket:id="showEditorCont">
+                  <div class="checkbox">
+                    <label wicket:for="showEditor">
+                      <input wicket:id="showEditor" type="checkbox"/> <wicket:label key="showEditor"/>
+                    </label>
+                  </div>
+                 </div>
+                </div>              
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                  <div class="checkbox">
+                    <label wicket:for="showCodebook">
+                      <input wicket:id="showCodebook" type="checkbox"/> <wicket:label key="showCodebook"/>
+                    </label>
+                  </div>
+                </div>              
               </div>
               <div class="form-group" wicket:enclosure="windowSize">
                 <label wicket:for="windowSize" class="col-sm-4 control-label"><wicket:label key="windowSize"/></label>

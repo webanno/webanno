@@ -25,6 +25,8 @@ import java.util.Optional;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.model.ParsedConstraints;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -173,4 +175,11 @@ public interface AnnotatorState
     List<FeatureState> getFeatureStates();
 
     FeatureState getFeatureState(AnnotationFeature aFeature);
+    
+    List<CodebookFeatureState> getCodebookFeatureStates();
+    
+    CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature);
+    
+    void setCodebooks( List<Codebook> aCodebooks);
+
 }

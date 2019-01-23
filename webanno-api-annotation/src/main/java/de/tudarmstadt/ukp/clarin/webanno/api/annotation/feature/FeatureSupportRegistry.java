@@ -24,6 +24,7 @@ import java.util.List;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 
 public interface FeatureSupportRegistry
 {
@@ -76,4 +77,5 @@ public interface FeatureSupportRegistry
     <T extends FeatureSupport<?>> T getFeatureSupport(String aFeatureSupportId);
 
     FeatureType getFeatureType(AnnotationFeature aFeature);
+    FeatureSupport getFeatureSupport(CodebookFeature aFeature);
 }

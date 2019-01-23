@@ -64,6 +64,12 @@ public class WebAnnoConst
     public static final String PROJECT_TYPE_AUTOMATION = "automation";
     public static final String PROJECT_TYPE_CORRECTION = "correction";
     
+    public static final String CODEBOOK_EXT = ".csv";
+    public static final String EXCEL_TYPE = "excel";
+    public static final String CSV_TYPE = "csv";
+    public static final String CODEBOOK_FEATURE_NAME = "code"; 
+    public static final String  CODEBOOK_NAME_PREFIX = "webanno.codebook.";
+    
     public static final List<String> RESTRICTED_FEATURE_NAMES = new ArrayList<String>(Arrays.asList(
             "address", "begin", "end", "coveredText", "booleanValue", "doubleValue", "byteValue",
             "CAS", "CASImpl", "class", "featureValue", "floatValue", "longValue", "lowLevelCas",

@@ -32,6 +32,7 @@ import java.util.zip.ZipFile;
 import org.apache.uima.cas.CAS;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedAnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedAnnotationLayer;
@@ -40,6 +41,8 @@ import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnchoringMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
@@ -266,6 +269,55 @@ public class ImportUtil
             if (aFeatureToExFeature != null) {
                 aFeatureToExFeature.put(feature, exFeature);
             }
+        }
+        exLayer.setFeatures(exFeatures);
+        return exLayer;
+    }
+
+    @Deprecated
+    public static de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook exportCodebook(
+            Codebook aCodebook, AnnotationSchemaService aAnnotationService,
+            CodebookSchemaService aCodebookService) {
+        de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook exLayer = 
+                new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook();
+        exLayer.setDescription(aCodebook.getDescription());
+        exLayer.setName(aCodebook.getName());
+        exLayer.setProjectName(aCodebook.getProject().getName());
+        exLayer.setUiName(aCodebook.getUiName());
+
+        List<de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature> exFeatures = 
+                new ArrayList<>();
+        for (CodebookFeature feature : aCodebookService.listCodebookFeature(aCodebook)) {
+            de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature exFeature = 
+                    new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature();
+            exFeature.setDescription(feature.getDescription());
+            exFeature.setName(feature.getName());
+            exFeature.setProjectName(feature.getProject().getName());
+            exFeature.setType(feature.getType());
+            exFeature.setUiName(feature.getUiName());
+            
+            if (feature.getTagset() != null) {
+                TagSet tagSet = feature.getTagset();
+                ExportedTagSet exTagSet = 
+                        new ExportedTagSet();
+                exTagSet.setDescription(tagSet.getDescription());
+                exTagSet.setLanguage(tagSet.getLanguage());
+                exTagSet.setName(tagSet.getName());
+                exTagSet.setCreateTag(tagSet.isCreateTag());
+
+                List<ExportedTag> exportedTags = 
+                        new ArrayList<>();
+                for (Tag tag : aAnnotationService.listTags(tagSet)) {
+                    ExportedTag exTag = 
+                            new ExportedTag();
+                    exTag.setDescription(tag.getDescription());
+                    exTag.setName(tag.getName());
+                    exportedTags.add(exTag);
+                }
+                exTagSet.setTags(exportedTags);
+                exFeature.setTagSet(exTagSet);
+            }
+            exFeatures.add(exFeature);
         }
         exLayer.setFeatures(exFeatures);
         return exLayer;

@@ -54,6 +54,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
@@ -119,6 +120,7 @@ public class CorrectionPage
     private @SpringBean DocumentService documentService;
     private @SpringBean CurationDocumentService curationDocumentService;
     private @SpringBean CorrectionDocumentService correctionDocumentService;
+    private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean ProjectService projectService;
     private @SpringBean ConstraintsService constraintsService;
     private @SpringBean BratPropertiesImpl defaultPreferences;
@@ -393,7 +395,7 @@ public class CorrectionPage
                     // info(bratAnnotatorModel.getMessage());
                     SuggestionBuilder builder = new SuggestionBuilder(casStorageService,
                             documentService, correctionDocumentService, curationDocumentService,
-                            annotationService, userRepository);
+                            annotationService, codebookService, userRepository);
                     curationContainer = builder.buildCurationContainer(state);
                     setCurationSegmentBeginEnd(editorCas);
                     curationContainer.setBratAnnotatorModel(state);
@@ -508,7 +510,7 @@ public class CorrectionPage
         
         SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                 correctionDocumentService, curationDocumentService, annotationService,
-                userRepository);
+                codebookService, userRepository);
         curationContainer = builder.buildCurationContainer(state);
         setCurationSegmentBeginEnd(editorCas);
         curationContainer.setBratAnnotatorModel(state);
@@ -544,7 +546,7 @@ public class CorrectionPage
 
             SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
-                    userRepository);
+                    codebookService, userRepository);
             curationContainer = builder.buildCurationContainer(state);
             setCurationSegmentBeginEnd(editorCas);
             curationContainer.setBratAnnotatorModel(state);
@@ -710,7 +712,7 @@ public class CorrectionPage
             AnnotatorState state = getModelObject();
             SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
-                    userRepository);
+                    codebookService, userRepository);
             curationContainer = builder.buildCurationContainer(state);
             setCurationSegmentBeginEnd(getEditorCas());
             curationContainer.setBratAnnotatorModel(state);

@@ -204,5 +204,9 @@
       <artifactId>webanno-io-tsv</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>com.googlecode.wicket-jquery-ui</groupId>
+    	<artifactId>wicket-kendo-ui</artifactId>
+    </dependency>
   </dependencies>
 </project>

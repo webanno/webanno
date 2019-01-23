@@ -20,11 +20,17 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.project.documents;
 import static java.util.Objects.isNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.uima.UIMAException;
+import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
+import org.apache.uima.jcas.JCas;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -38,15 +44,24 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
+import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoCsvFormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoExcelFormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
+import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
+import de.tudarmstadt.ukp.clarin.webanno.ui.project.codebooks.CodebookAnnotationDocument;
+import de.tudarmstadt.ukp.clarin.webanno.ui.project.codebooks.CodebookDocumentUtil;
 
 public class ImportDocumentsPanel extends Panel
 {
@@ -56,7 +71,8 @@ public class ImportDocumentsPanel extends Panel
     
     private @SpringBean DocumentService documentService;
     private @SpringBean ImportExportService importExportService;
-    
+    private @SpringBean UserDao userRepository;
+    private @SpringBean AnnotationSchemaService annotationService;
     private FileUploadField fileUpload;
 
     private IModel<String> format;
@@ -113,35 +129,132 @@ public class ImportDocumentsPanel extends Panel
             error("Project not yet created, please save project details!");
             return;
         }
+        FormatSupport documentFormat = importExportService.getFormatByName(format.getObject())
+                .get();
+        if (documentFormat.getClass().getName().equals(WebAnnoCsvFormatSupport.class.getName())) {
+            readCSV(uploadedFiles, project, documentFormat);
+        } else if (documentFormat.getClass().getName()
+                .equals(WebAnnoExcelFormatSupport.class.getName())) {
+            readExcel(uploadedFiles, project, documentFormat);
+        }
 
+        else {
+            for (FileUpload documentToUpload : uploadedFiles) {
+                String fileName = documentToUpload.getClientFileName();
+
+                if (documentService.existsSourceDocument(project, fileName)) {
+                    error("Document " + fileName + " already uploaded ! Delete "
+                            + "the document if you want to upload again");
+                    continue;
+                }
+
+                try {
+                    SourceDocument document = new SourceDocument();
+                    document.setName(fileName);
+                    document.setProject(project);
+                    document.setFormat(documentFormat.getId());
+
+                    try (InputStream is = documentToUpload.getInputStream()) {
+                        documentService.uploadSourceDocument(is, document);
+                    }
+                    info("File [" + fileName + "] has been imported successfully!");
+                } catch (Exception e) {
+                    error("Error while uploading document " + fileName + ": "
+                            + ExceptionUtils.getRootCauseMessage(e));
+                    LOG.error(fileName + ": " + e.getMessage(), e);
+                }
+            }
+        }
+        WicketUtil.refreshPage(aTarget, getPage());
+    }
+
+    private void readCSV(List<FileUpload> uploadedFiles, Project project,
+            FormatSupport documentFormat) {
         for (FileUpload documentToUpload : uploadedFiles) {
             String fileName = documentToUpload.getClientFileName();
-
-            if (documentService.existsSourceDocument(project, fileName)) {
-                error("Document " + fileName + " already uploaded ! Delete "
-                        + "the document if you want to upload again");
-                continue;
-            }
-
             try {
-                SourceDocument document = new SourceDocument();
-                document.setName(fileName);
-                document.setProject(project);
-                document.setFormat(importExportService.getFormatByName(format.getObject())
-                        .get().getId());
-                
-                try (InputStream is = documentToUpload.getInputStream()) {
+                List<CodebookAnnotationDocument> codebookDocuments = CodebookDocumentUtil
+                        .getCodebookAnnotations(documentToUpload);
+                for (CodebookAnnotationDocument cD : codebookDocuments) {
+                    SourceDocument document = new SourceDocument();
+                    document.setName(cD.getDocumentName());
+                    document.setProject(project);
+                    document.setFormat(documentFormat.getId());                   
+                    InputStream is = CodebookDocumentUtil.getStream(cD);
                     documentService.uploadSourceDocument(is, document);
+                    for (int u = 0; u < cD.getAnnotators().size(); u++) {
+
+                        try {
+                            User user = userRepository.get(cD.getAnnotators().get(u));
+
+                            AnnotationDocument annotationDocument = documentService
+                                    .createOrGetAnnotationDocument(document, user);
+                            JCas editorCas = documentService
+                                    .readAnnotationCas(annotationDocument);
+                            annotationService.upgradeCas(editorCas.getCas(),
+                                    annotationDocument);
+                            if (cD.getCodebooks().get(u).isEmpty()) {
+                                continue;
+                            }
+                            for (int h = 2; h < cD.getHeaders().size() - 1; h++) {
+                                String annotation = cD.getCodebooks().get(u).get(h - 2);
+                                String codebook = cD.getHeaders().get(h);
+                                Type type = editorCas.getTypeSystem().getType(codebook);
+                                Feature f = type.getFeatureByBaseName(
+                                        WebAnnoConst.CODEBOOK_FEATURE_NAME);
+                                AnnotationFS fs = editorCas.getCas().createAnnotation(type, 0,
+                                        0);
+                                fs.setFeatureValueFromString(f, annotation);
+                                editorCas.addFsToIndexes(fs);
+
+                            }
+                            documentService.writeAnnotationCas(editorCas.getCas().getJCas(),
+                                    annotationDocument, false);
+                        } catch (Exception e) {
+                            error("Unable to create Annotation CAS for the user "
+                                    + cD.getAnnotators().get(u) + " Cause: " + e.getMessage());
+                        }
+                    }
+
                 }
                 info("File [" + fileName + "] has been imported successfully!");
-            }
-            catch (Exception e) {
+
+            } catch (IOException | UIMAException e) {
                 error("Error while uploading document " + fileName + ": "
-                    + ExceptionUtils.getRootCauseMessage(e));
+                        + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error(fileName + ": " + e.getMessage(), e);
             }
         }
-        
-        WicketUtil.refreshPage(aTarget, getPage());
     }
+    
+    private void readExcel(List<FileUpload> uploadedFiles, Project project,
+            FormatSupport documentFormat) {
+        for (FileUpload documentToUpload : uploadedFiles) {
+            String fileName = documentToUpload.getClientFileName();
+            try {
+                List<CodebookAnnotationDocument> codebookDocuments = CodebookDocumentUtil
+                        .readExcelData(documentToUpload);
+                for (CodebookAnnotationDocument cD : codebookDocuments) {
+                    SourceDocument document = new SourceDocument();
+                    document.setName(cD.getDocumentName());
+                    document.setProject(project);
+                    document.setFormat(documentFormat.getId());                   
+                    InputStream is = CodebookDocumentUtil.getExcelStream(cD);
+                    documentService.uploadSourceDocument(is, document);
+                }
+                info("File [" + fileName + "] has been imported successfully!");
+
+            } catch (IOException | UIMAException e) {
+                error("Error while uploading document " + fileName + ": "
+                        + ExceptionUtils.getRootCauseMessage(e));
+                LOG.error(fileName + ": " + e.getMessage(), e);
+            } catch (Exception e) {
+                error("Error while uploading document " + fileName + ": "
+                        + ExceptionUtils.getRootCauseMessage(e));
+                LOG.error(fileName + ": " + e.getMessage(), e);
+            }
+        }
+    }
+    
+    
 }

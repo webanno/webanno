@@ -63,6 +63,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
@@ -121,6 +122,7 @@ public class CurationPage
     private @SpringBean CurationDocumentService curationDocumentService;
     private @SpringBean ProjectService projectService;
     private @SpringBean ConstraintsService constraintsService;
+    private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean BratProperties defaultPreferences;
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean UserDao userRepository;
@@ -581,6 +583,10 @@ public class CurationPage
             aCallbackTarget.add(finishDocumentIcon);
             aCallbackTarget.add(finishDocumentLink);
             aCallbackTarget.add(curationPanel.getEditor());
+            
+            aCallbackTarget.add(curationPanel.codebookCurationPanel);
+            aCallbackTarget.add(curationPanel.codebooksuggestionPanel);
+      
             aCallbackTarget.add(remergeDocumentLink);
         });
         finishDocumentDialog.show(aTarget);
@@ -661,7 +667,7 @@ public class CurationPage
     
             SuggestionBuilder cb = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
-                    userRepository);
+                    codebookService, userRepository);
             AnnotationDocument randomAnnotationDocument = null;
             if (finishedAnnotationDocuments.size() > 0) {
                 randomAnnotationDocument = finishedAnnotationDocuments.get(0);
@@ -699,7 +705,7 @@ public class CurationPage
     
             SuggestionBuilder builder = new SuggestionBuilder(casStorageService, documentService,
                     correctionDocumentService, curationDocumentService, annotationService,
-                    userRepository);
+                    codebookService, userRepository);
             curationContainer = builder.buildCurationContainer(state);
             curationContainer.setBratAnnotatorModel(state);
             curationPanel.getEditor().reset(aTarget);
@@ -707,6 +713,7 @@ public class CurationPage
             updateSentenceNumber(mergeJCas, state.getFirstVisibleUnitAddress());
             curationPanel.init(aTarget, curationContainer);
             //curationPanel.updatePanel(aTarget, curationContainer);
+            curationPanel.decideSideBarSetup(aTarget);
             
             // Load constraints
             state.setConstraints(constraintsService.loadConstraints(state.getProject()));

@@ -19,10 +19,12 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.dialog;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.wicket.NonResettingRestartException;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -38,9 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
+import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormSubmittingBehavior;
@@ -59,9 +64,12 @@ public class ExportDocumentDialogContent
     private static final Logger LOG = LoggerFactory.getLogger(ExportDocumentDialogContent.class);
 
     private @SpringBean ImportExportService importExportService;
+    private @SpringBean CodebookSchemaService codebookService;
 
     private IModel<AnnotatorState> state;
     private IModel<Preferences> preferences;
+
+    private String format;
 
     public ExportDocumentDialogContent(String aId, final ModalWindow modalWindow,
             IModel<AnnotatorState> aModel)
@@ -107,14 +115,33 @@ public class ExportDocumentDialogContent
                         .equals(SELECTEXPORT.AUTOMATED.toString()) ? "CORRECTION_USER"
                                 : SecurityContextHolder.getContext().getAuthentication()
                                         .getName();
+        format = preferences.getObject().format;
+        FormatSupport formatSuport = importExportService.getFormatByName(format).get();
+        String filename = state.getObject().getDocument().getName();
+        File tmpDir = null;
         try {
-            downloadFile = importExportService.exportAnnotationDocument(
-                    state.getObject().getDocument(), username,
-                    importExportService.getFormatByName(preferences.getObject().format)
-                            .get(),
-                    state.getObject().getDocument().getName(), state.getObject().getMode());
-        }
-        catch (Exception e) {
+            if (formatSuport.isDocumentLevel()) {  
+                tmpDir = File.createTempFile("webanno", "export");
+                tmpDir.delete();
+                tmpDir.mkdirs();
+                filename = new File(tmpDir,
+                        FilenameUtils.getBaseName(filename) + WebAnnoConst.CODEBOOK_EXT)
+                                .getAbsolutePath();
+                List<String> codebooks = new ArrayList<>();
+                for (Codebook codebok : codebookService
+                        .listCodebook(state.getObject().getProject())) {
+                    codebooks.add(codebok.getName());
+                }
+                
+                downloadFile = importExportService.exportCodebookDocument(
+                        state.getObject().getDocument(), username, filename,
+                        state.getObject().getMode(), tmpDir, true, true, codebooks);
+            } else {
+                downloadFile = importExportService.exportAnnotationDocument(
+                        state.getObject().getDocument(), username, formatSuport, filename,
+                        state.getObject().getMode());
+            }
+        } catch (Exception e) {
             LOG.error("Export failed", e);
             error("Export failed:" + ExceptionUtils.getRootCauseMessage(e));
             // This will cause the open dialog to pop up again, but at least

@@ -91,7 +91,8 @@
   <wicket:panel>
     <div class="annotation-editor-container flex-content flex-h-container flex-gutter">
 
-      <div class="flex-sidebar flex-v-container flex-gutter" wicket:enclosure="sentencesListView">
+      <!--<div class="flex-sidebar flex-v-container flex-gutter" wicket:enclosure="sentencesListView"> -->
+       <div wicket:id="sentencesListViewCon" class="flex-sidebar flex-v-container flex-gutter">
         <div class="flex-content panel panel-default panel-flex">
           <div class="panel-heading">
             <h3 class="panel-title">Sentences</h3>
@@ -106,6 +107,15 @@
         </div>
       </div>
 
+      <div wicket:id="codebookCurationView" class="scrolling flex-content">
+        <div wicket:id="codebookCurationPanel">
+        </div>
+      </div>
+<!--
+      <div wicket:id="codebookCurationView" class="scrolling flex-sidebar flex-v-container" style="height: 100%;">
+          <wicket:container wicket:id="codebookCurationPanel"/>
+      </div>
+-->
       <div class="flex-content flex-v-container">
         <div class="flex-content flex-v-container flex-gutter">
           <div class="flex-content flex-v-container flex-gutter flex-only-internal-gutter" style="flex: 0.75;">
@@ -115,8 +125,9 @@
               </div>
               <div wicket:id="mergeView" class="panel-body text-center flex-v-container"></div>
             </div>
-    
-            <div class="panel panel-default" wicket:enclosure="crossSentAnnoView">
+           
+    		<!--<div class="panel panel-default" wicket:enclosure="crossSentAnnoView">-->
+            <div wicket:id="crossSentAnnoViewCon" class="panel panel-default" wicket:enclosure="crossSentAnnoView">
               <div class="panel-heading">
                 <h3 class="panel-title">Invisible annotations on other pages</h3>
               </div>
@@ -136,6 +147,11 @@
             </div>
           </div>
         </div>
+
+          <div wicket:id="codebooksuggestionView" class="scrolling flex-content">
+            <div wicket:id="codebooksuggestionPanel">
+            </div>
+          </div>
       </div>
 
       <div wicket:id="rightSidebar" class="flex-sidebar flex-v-container">

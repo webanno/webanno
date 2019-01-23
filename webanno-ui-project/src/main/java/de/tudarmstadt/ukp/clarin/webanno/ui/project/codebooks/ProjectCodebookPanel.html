@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--
+#Copyright 2019
+#Ubiquitous Knowledge Processing (UKP) Lab  Technische Universität Darmstadt and Language Technology Universität Hamburg
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+  <wicket:panel>
+    <div class="scrolling flex-content flex-h-container flex-gutter">
+      <div class="flex-content flex-v-container">
+        <form wicket:id="codebookSelectionForm" class="flex-content panel panel-default panel-flex">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <wicket:message key="codebooks.categories"/>
+              <span class="pull-right">
+                <a target="_blank" wicket:message="href:layers.help.link">
+                  <wicket:message key="help" />
+                </a>
+              </span>
+            </h3>
+          </div>
+          <div class="panel-body fit-child-snug_2">
+            <select wicket:id="codebookSelection" size="2" class="form-control">
+            <wicket:container wicket:id="codebooks">   
+                <option wicket:id="codebook"></option>
+              </wicket:container>
+            </select>
+          </div>
+				
+          <div class="panel-footer text-right">
+            <input wicket:id="create" type="submit" class="btn btn-primary" wicket:message="value:new.codebook.create"/>
+          </div>  
+          </form>
+
+
+        <form wicket:id="importCodebookForm" class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><wicket:message key="import.codebooks"/></h3>
+          </div>
+          <div class="panel-body form-horizontal">
+            <div class="form-group">
+              <label wicket:for="content" class="col-sm-4 control-label">
+                <wicket:label key="filesToImport"/>
+              </label>
+              <div class="col-sm-8">
+                <input wicket:id="content" type="file" multiple />
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer text-right">
+            <input wicket:id="import" type="submit" class="btn btn-primary" wicket:message="value:import"/>
+          </div>            
+        </form> 
+      </div>
+      
+      <form wicket:id="codebookDetailForm" class="flex-content flex-v-container flex-gutter">
+         <div wicket:id="confirmationDialog"></div>
+        <div class="flex-content panel panel-default panel-flex">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <wicket:message key="codebook.details"/>
+            </h3>
+          </div>
+          <div class="scrolling panel-body flex-v-container">
+            <div class="panel-small panel panel-default panel-flex min-content-height">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <wicket:message key="properties"/>
+                  <span class="pull-right">
+                    <a target="_blank" wicket:message="href:properties.help.link">
+                      <wicket:message key="help" />
+                    </a>
+                  </span>
+                </h3>
+              </div>
+              <div class="panel-body form-horizontal">
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label wicket:for="uiName" class="col-sm-4 control-label">
+                      <wicket:label key="name"/>
+                    </label>
+                    <div class="col-sm-8">
+                      <input wicket:id="uiName" class="form-control"/>
+                    </div>
+                  </div>                
+                  <div class="form-group">
+                    <label wicket:for="description" class="col-sm-4 control-label">
+                      <wicket:label key="description"/>
+                    </label>
+                    <div class="col-sm-8">
+                      <textarea wicket:id="description" rows="4" class="form-control"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="panel panel-default panel-small panel-flex min-content-height">
+              <div class="panel-heading">
+                <h3 class="panel-title">Re-order codebooks
+                </h3>
+              </div>
+              <div class="panel-body form-horizontal">
+                <div class="col-sm-12">
+                <div>
+              	<a href="#" wicket:id="moveUpLink"><img wicket:id="moveUpIcon"></img></a>
+                </div>
+                <div>
+                <a href="#" wicket:id="movedownLink"><img wicket:id="movedownIcon"></img></a>
+                </div>
+                </div>
+              </div>              
+            </div>
+            
+            
+            <div class="panel panel-default panel-small panel-flex min-content-height">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <wicket:message key="technicalProperties"/>
+                  <span class="pull-right">
+                    <a target="_blank" wicket:message="href:properties.help.link">
+                      <wicket:message key="help" />
+                    </a>
+                  </span>
+                </h3>
+              </div>
+              <div class="panel-body form-horizontal">
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label"> <wicket:message
+                        key="internalName" />
+                    </label>
+                    <div class="col-sm-8">
+                      <span class="form-control" readonly=""><wicket:container
+                          wicket:id="name" /></span>
+                    </div>
+                  </div> 
+                </div>
+              </div>           
+              
+            </div>
+    
+          </div>  
+          <div class="panel-footer flex-h-container">
+            <div>
+              <label wicket:for="exportMode" class="text-nowrap">
+                <wicket:label key="format"/>
+              </label>
+              <select wicket:id="exportMode" class="form-component flex-content"></select>
+              <input wicket:id="export" type="button" class="btn btn-default" wicket:message="value:export"/> 
+            </div>
+            <div class="flex-content text-right">
+              <input wicket:id="save" type="submit" class="btn btn-primary" wicket:message="value:save"/> 
+                <input wicket:id="delete" type="button" class="btn btn-danger" wicket:message="value:delete"/>
+              <input wicket:id="close" type="button" class="btn btn-default" wicket:message="value:close"/> 
+            </div>
+          </div>
+        </div>
+      </form>
+      
+      <div class="flex-content flex-v-container flex-gutter">
+        
+        <div class="flex-content flex-h-container flex-gutter">
+          <div wicket:id="tagSelector" class="flex-h-container flex-no-gutter" style="flex: .3;"></div>
+        <div wicket:id="tagEditor" class="flex-content flex-h-container flex-no-gutter">Codes</div>
+      </div>       
+      </div>
+    </div>
+  </wicket:panel>
+</body>
+</html>

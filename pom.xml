@@ -237,6 +237,11 @@
       </dependency>
       <dependency>
         <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-io-csv</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
         <artifactId>webanno-dkprocore</artifactId>
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
@@ -878,6 +883,16 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi</artifactId>
+		<version>3.10-FINAL</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi-ooxml</artifactId>
+		<version>3.10-FINAL</version>
+	</dependency>
     </dependencies>
   </dependencyManagement>
   <modules>
@@ -891,6 +906,7 @@
     <module>webanno-io-tsv</module>
     <module>webanno-io-conll</module>
     <module>webanno-io-xmi</module>
+    <module>webanno-io-csv</module>
     <!-- Core -->
     <module>webanno-model</module>
     <module>webanno-project</module>

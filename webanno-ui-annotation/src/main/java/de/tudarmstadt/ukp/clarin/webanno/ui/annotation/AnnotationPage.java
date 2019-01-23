@@ -70,6 +70,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensio
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorFactory;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.event.DocumentOpenedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreference;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.BratProperties;
@@ -92,6 +93,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublishe
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.DecoratedObject;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicketstuff.UrlParametersReceivingBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.codebook.CodebookEditorPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.component.DocumentNamePanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.component.FinishImage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
@@ -146,6 +148,8 @@ public class AnnotationPage
     
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel detailEditor;    
+    
+    private CodebookEditorPanel codebookdetailEditor; 
 
     public AnnotationPage()
     {
@@ -195,6 +199,8 @@ public class AnnotationPage
 
         add(createLeftSidebar());
         
+        add(createCodebookSidebar());
+                
         add(createDocumentInfoLabel());
 
         add(getOrCreatePositionInfoLabel());
@@ -345,6 +351,25 @@ public class AnnotationPage
         };
     }
     
+    
+    private CodebookEditorPanel createCodebookDetailEditor() 
+    {
+        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(getModelObject()))
+        {
+            private static final long serialVersionUID = 2857345299480098279L;
+           
+            @Override
+            protected void onConfigure()
+            {
+                super.onConfigure();
+                
+                AnnotatorState state = AnnotationPage.this.getModelObject();
+                setEnabled(state.getDocument() != null && !documentService
+                        .isAnnotationFinished(state.getDocument(), state.getUser()));
+            }
+        };
+    }
+     
     private AnnotationEditorBase createAnnotationEditor()
     {
         String editorId = getModelObject().getPreferences().getEditor();
@@ -369,6 +394,21 @@ public class AnnotationPage
         leftSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
                 .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
         return leftSidebar;
+    }
+    
+    private WebMarkupContainer createCodebookSidebar() {
+        WebMarkupContainer codebookPanel = new WebMarkupContainer("codebookSidebar");
+        codebookPanel.setOutputMarkupId(true);
+        // Override sidebar width from preferences
+        codebookPanel.add(new AttributeModifier("style", LambdaModel.of(() -> String
+                .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
+        codebookdetailEditor = createCodebookDetailEditor();
+        codebookdetailEditor.setOutputMarkupId(true);
+        
+        codebookPanel.add(codebookdetailEditor);
+        // Hide at the beginning
+        codebookPanel.add(new AttributeModifier("style", "visibility:hidden;display:none"));
+        return codebookPanel;
     }
     
     private WebMarkupContainer createRightSidebar()
@@ -491,8 +531,12 @@ public class AnnotationPage
                     state.getFirstVisibleUnitAddress());
             state.setFirstVisibleUnit(sentence);
             
+            decideSideBarSetup(aTarget);
             // The selection of layers may have changed. Update the dropdown
             detailEditor.getAnnotationFeatureForm().updateLayersDropdown();
+            
+            // update codebook editor
+            codebookdetailEditor.setProjectModel(aTarget, state);
             
             AnnotationEditorBase newAnnotationEditor = createAnnotationEditor();
             annotationEditor.replaceWith(newAnnotationEditor);
@@ -506,6 +550,35 @@ public class AnnotationPage
             error("Error reading CAS " + e.getMessage());
             aTarget.addChildren(getPage(), IFeedback.class);
         }
+    }
+    
+    // Decide which one of the sidebars to show (codebook editor or annotation
+    // editor, not both of them)
+    private void decideSideBarSetup(AjaxRequestTarget aTarget) {
+        if (getModelObject().getPreferences().isShowCodebook()) {
+
+            codebookdetailEditor.getParent().add(new AttributeModifier("style", getVStyle(1.5)));
+            aTarget.add(codebookdetailEditor.getParent());
+        } else {
+            codebookdetailEditor.getParent()
+                    .add(new AttributeModifier("style", "visibility:hidden;display:none"));
+            aTarget.add(codebookdetailEditor.getParent());
+        }
+        if (getModelObject().getPreferences().isShowEditor()) {
+            detailEditor.getParent().add(new AttributeModifier("style", getVStyle(1.5)));
+            aTarget.add(detailEditor.getParent());
+        } else {
+            detailEditor.getParent()
+                    .add(new AttributeModifier("style", "visibility:hidden;display:none"));
+            aTarget.add(detailEditor.getParent());
+        }
+    }
+
+    private String getVStyle(double n) {
+        String style = String.format("flex-basis: %f%%;",
+                        Math.min(getModelObject().getPreferences().getSidebarSize() * n,
+                                AnnotationPreference.SIDEBAR_SIZE_MAX)) + "; visibility:visible";
+        return style;
     }
     
     private void actionFinishDocument(AjaxRequestTarget aTarget)
@@ -527,6 +600,7 @@ public class AnnotationPage
             aCallbackTarget.add(finishDocumentIcon);
             aCallbackTarget.add(finishDocumentLink);
             aCallbackTarget.add(detailEditor);
+            aCallbackTarget.add(codebookdetailEditor);
             aCallbackTarget.add(createOrGetResetDocumentLink());
         });
         finishDocumentDialog.show(aTarget);
@@ -603,6 +677,10 @@ public class AnnotationPage
             detailEditor.reset(null);
             // Populate the layer dropdown box
             detailEditor.loadFeatureEditorModels(editorCas, null);
+            
+         // update codebook editor
+            codebookdetailEditor.setProjectModel(aTarget, state);
+            decideSideBarSetup(aTarget);
             
             if (aTarget != null) {
                 // Update URL for current document

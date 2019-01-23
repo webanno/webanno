@@ -43,9 +43,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
@@ -59,6 +61,7 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentServic
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -83,6 +86,7 @@ public class SuggestionBuilder
 
     private final AnnotationSchemaService annotationService;
     private final DocumentService documentService;
+    private final CodebookSchemaService codebookService;
     private final CorrectionDocumentService correctionDocumentService;
     private final CurationDocumentService curationDocumentService;
     private final UserDao userRepository;
@@ -98,7 +102,8 @@ public class SuggestionBuilder
             DocumentService aDocumentService,
             CorrectionDocumentService aCorrectionDocumentService,
             CurationDocumentService aCurationDocumentService,
-            AnnotationSchemaService aAnnotationService, UserDao aUserDao)
+            AnnotationSchemaService aAnnotationService, 
+            CodebookSchemaService aCodebookService, UserDao aUserDao)
     {
         documentService = aDocumentService;
         correctionDocumentService = aCorrectionDocumentService;
@@ -106,6 +111,7 @@ public class SuggestionBuilder
         annotationService = aAnnotationService;
         userRepository = aUserDao;
         casStorageService = aCasStorageService;
+        codebookService = aCodebookService;
     }
 
     public CurationContainer buildCurationContainer(AnnotatorState aBModel)
@@ -492,6 +498,16 @@ public class SuggestionBuilder
         }
         return entryTypes;
     }
+    
+    public static List<Type> getCodebookTypes(JCas mergeJCas, List<Codebook> aCodebooks) {
+        List<Type> entryTypes = new LinkedList<>();
+
+        for (Codebook codebook : aCodebooks) {
+            CodebookAdapter cA = new CodebookAdapter(codebook);
+            entryTypes.add(cA.getAnnotationType(mergeJCas.getCas()));
+        }
+        return entryTypes;
+    }
 
     /**
      * For the first time a curation page is opened, create a MergeCas that contains only agreeing
@@ -533,6 +549,10 @@ public class SuggestionBuilder
                 LinkCompareBehavior.LINK_ROLE_AS_LABEL, jCases, 0,
                 mergeJCas.getDocumentText().length());
 
+        mergeJCas = MergeCas.reMergeCas(diff, jCases);  
+        entryTypes = getCodebookTypes(mergeJCas, codebookService.listCodebook(aProject));
+        diff = CasDiff2.doCodebookDiff(codebookService, aProject, entryTypes,
+                null, jCases, 0, 0);
         mergeJCas = MergeCas.reMergeCas(diff, jCases);
 
         curationDocumentService.writeCurationCas(mergeJCas, randomAnnotationDocument.getDocument(),

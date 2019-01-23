@@ -46,6 +46,11 @@ public class AnnotationPreference
     public static final int SIDEBAR_SIZE_MAX = 50;
     public static final int SIDEBAR_SIZE_DEFAULT = 20;
     
+    public static final int CODEBOOKS_PER_PAGE = 12;
+    private int codebooksPerPage ;
+    private boolean showCodebook = false;
+    private boolean showEditor = true;
+    
     // Id of annotation layers, to be stored in the properties file comma separated: 12, 34,....
     @Deprecated
     private List<Long> annotationLayers;
@@ -252,6 +257,15 @@ public class AnnotationPreference
     {
         editor = aEditor;
     }
+    
+    public int getCodebooksPerPage()
+    {
+        return codebooksPerPage < 1 ? CODEBOOKS_PER_PAGE : codebooksPerPage;
+    }
+
+    public void setCodebooksPerPage(int codebooksPerPage) {
+        this.codebooksPerPage = codebooksPerPage;
+    }
 
     public void setDefaultLayer(long aLayerId)
     {
@@ -261,5 +275,21 @@ public class AnnotationPreference
     public long getDefaultLayer()
     {
         return defaultLayer;
+    }
+    public boolean isShowCodebook() {
+        return showCodebook;
+    }
+
+    public void setShowCodebook(boolean aShowCodebook) {
+        this.showCodebook = aShowCodebook;
+    }
+    
+    
+    public boolean isShowEditor() {
+        return showEditor;
+    }
+
+    public void setShowEditor(boolean aShowEditor) {
+        this.showEditor = aShowEditor;
     }
 }

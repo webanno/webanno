@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring;
 
 import static java.util.Arrays.asList;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 
 public abstract class ColoringStrategy
@@ -258,6 +260,67 @@ public abstract class ColoringStrategy
         return filtered.toArray(new String[filtered.size()]);
     }
 
+    public static String getCodebookAnnotationStyle(Codebook aCodeBook) {
+        String[] colors = ColoringStrategy.PALETTE_CODEBOOK;
+        String codeColor = colors[(aCodeBook.getOrder() - 1) % colors.length];
+        Color bgcolor = getBgColor(aCodeBook);
+        String bgcolorHex = String.format("#%02x%02x%02x", bgcolor.getRed(), bgcolor.getGreen(),
+                bgcolor.getBlue());
+
+        return "color:" + codeColor + ";font-weight: bold;" + "background-color:" + bgcolorHex
+                + ";";
+    }
+    
+    public static String getCodebookDiffColor(boolean aHasDiff) {
+
+        if (aHasDiff) {
+
+            return "background-color: #eea7a7;";
+        } else {
+
+            return "background-color: #a0cc9c;";
+        }
+    }
+    
+    public static String getCodebookDiffColor(boolean aHasDiff, boolean isAddressed) {
+
+
+        if (aHasDiff && !isAddressed) {
+
+            return "background-color: #A9E2F3;";
+        } 
+
+        else if (aHasDiff && isAddressed) {
+
+            return "background-color: #eea7a7;";
+        } 
+
+        else {
+
+            return "background-color: #a0cc9c;";
+        }
+    }
+    
+    
+    public static String getCodebookFgStyle(Codebook aCodeBook) {
+        String[] colors = ColoringStrategy.PALETTE_CODEBOOK;
+        String codeColor = aCodeBook.getOrder() == 0 ? colors[0]
+                : colors[(aCodeBook.getOrder() - 1) % colors.length];
+        return "color:" + codeColor + ";font-weight: bold;";
+    }
+    
+    public static String getCodebookBgStyle(Codebook aCodeBook) {
+        Color bgcolor = getBgColor(aCodeBook);
+        String bgcolorHex = String.format("#%02x%02x%02x", bgcolor.getRed(), bgcolor.getGreen(),
+                bgcolor.getBlue());
+
+        return "background-color:" + bgcolorHex + ";";
+    }
+
+    private static Color getBgColor(Codebook aCodeBook) {
+        return  new Color(182, 178, 178);
+    }
+    
     public static boolean isTooLight(String aColor, int aThreshold)
     {
         // http://24ways.org/2010/calculating-color-contrast/
@@ -311,5 +374,12 @@ public abstract class ColoringStrategy
     public final static String[] PALETTE_NORMAL_FILTERED = filterLightColors(PALETTE_NORMAL,
             LIGHTNESS_FILTER_THRESHOLD);
 
+    public final static String[] PALETTE_CODEBOOK = { "#000099", "#0E1FF2", "#031D4F", "#074C03",
+            "#311E1E", "#5A2618", "#9B2DA4", "#331A3F", "#683A9A", "#ff7f00",
+            "#DF5D11", "#e31a1c" };
+
+    public final static String[] PALETTE_CODEBOOK_FILTERED = filterLightColors(PALETTE_CODEBOOK,
+            LIGHTNESS_FILTER_THRESHOLD);
+    
     public abstract String getColor(VID aVid, String aLabel);
 }

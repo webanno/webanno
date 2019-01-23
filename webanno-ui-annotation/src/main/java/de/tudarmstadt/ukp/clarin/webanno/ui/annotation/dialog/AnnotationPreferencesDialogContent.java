@@ -31,8 +31,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -59,6 +61,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.UserPreferencesService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
@@ -143,6 +146,20 @@ public class AnnotationPreferencesDialogContent
         form.add(new LambdaAjaxButton<>("save", this::actionSave));
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
         
+        // show codebook?
+        form. add(new CheckBox("showCodebook"));
+        WebMarkupContainer showEditorCont = new WebMarkupContainer("showEditorCont");
+        showEditorCont.add(new AttributeModifier("style", 
+                stateModel.getObject().getMode().getName().equals(Mode.ANNOTATION.getName())
+                ? "visibility:visible"
+                : "visibility:hidden;display:none"));        
+        CheckBox showEditor = new CheckBox("showEditor");
+        form.add(showEditorCont.add(showEditor));
+        NumberTextField<Integer> codebooksPerPage = new NumberTextField<>("codebooksPerPage");
+        codebooksPerPage.setType(Integer.class);
+        codebooksPerPage.setMinimum(1);
+        form.add(codebooksPerPage);
+       
         add(form);
     }
 
@@ -163,6 +180,10 @@ public class AnnotationPreferencesDialogContent
             prefs.setColorPerLayer(model.colorPerLayer);
             prefs.setReadonlyLayerColoringBehaviour(model.readonlyLayerColoringBehaviour);
             prefs.setEditor(model.editor.getKey());
+            
+            prefs.setShowCodebook(model.showCodebook);
+            prefs.setShowEditor(model.showEditor);
+            prefs.setCodebooksPerPage(model.codebooksPerPage);
 
             state.setAnnotationLayers(model.annotationLayers.stream()
                     .filter(l -> !prefs.getHiddenAnnotationLayerIds().contains(l.getId()))
@@ -215,6 +236,10 @@ public class AnnotationPreferencesDialogContent
                                 || state.getMode().equals(CURATION))))
                 .collect(Collectors.toList());
 
+        model.codebooksPerPage = prefs.getCodebooksPerPage();
+        model.showCodebook = prefs.isShowCodebook();
+        model.showEditor = prefs.isShowEditor();
+        
         return model;
     }
     
@@ -280,5 +305,9 @@ public class AnnotationPreferencesDialogContent
         private List<AnnotationLayer> annotationLayers;
         private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour;
         private Map<Long, ColoringStrategyType> colorPerLayer;
+        
+        private int codebooksPerPage;
+        private boolean showCodebook;
+        private boolean showEditor;
     }
 }

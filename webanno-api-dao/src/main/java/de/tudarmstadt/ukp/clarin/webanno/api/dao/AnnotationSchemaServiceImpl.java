@@ -74,6 +74,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.layer.LayerSupport;
@@ -82,6 +83,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
+import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -105,6 +107,9 @@ public class AnnotationSchemaServiceImpl
     private @Autowired FeatureSupportRegistry featureSupportRegistry;
     private @Autowired ApplicationEventPublisher applicationEventPublisher;
     private @Autowired LayerSupportRegistry layerSupportRegistry;
+    
+    private @Autowired CodebookSchemaService codebookService;
+    
     private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
     private List<ProjectInitializer> initializers;
 
@@ -724,6 +729,11 @@ public class AnnotationSchemaServiceImpl
             layerSupport.generateTypes(tsd, type);
         }
 
+        for (Codebook codebook : codebookService.listCodebook(aProject)) {
+            TypeDescription td = tsd.addType(codebook.getName(), "", CAS.TYPE_NAME_ANNOTATION);
+            codebookService.generateFeatures(tsd, td, codebook);
+        }
+        
         return tsd;
     }
     

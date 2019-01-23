@@ -175,6 +175,10 @@
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-io-xmi</artifactId>
     </dependency>
+    <dependency>
+      <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+      <artifactId>webanno-io-csv</artifactId>
+    </dependency>
 
     <!-- DATABASE / HIBERNATE -->
 
@@ -423,6 +427,7 @@
               <!-- WebAnno IO Modules - used via Spring -->
               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-tei</usedDependency>
               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-tsv</usedDependency>
+               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-csv</usedDependency>
               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-tcf</usedDependency>
               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-json</usedDependency>
               <usedDependency>de.tudarmstadt.ukp.clarin.webanno:webanno-io-xmi</usedDependency>
