@@ -376,6 +376,16 @@
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
+		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+		<artifactId>webanno-codebook</artifactId>
+		<version>3.6.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+		<artifactId>webanno-ui-tagsets</artifactId>
+		<version>3.6.0-SNAPSHOT</version>
+	</dependency>
+      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${json.version}</version>
@@ -939,6 +949,8 @@
     <!-- Documentation -->
     <module>webanno-doc</module>
     <module>webanno-automation</module>
+    <module>webanno-codebook</module>
+    <module>webanno-ui-tagsets</module>
   </modules>
   <build>
     <plugins>

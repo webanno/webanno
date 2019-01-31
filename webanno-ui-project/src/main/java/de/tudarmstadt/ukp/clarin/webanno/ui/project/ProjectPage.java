@@ -67,7 +67,6 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelFa
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.ui.project.detail.ProjectDetailPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.project.guidelines.ProjectGuidelinesPanel;
-import de.tudarmstadt.ukp.clarin.webanno.ui.project.tagsets.ProjectTagSetsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.project.users.ProjectUsersPanel;
 
 /**

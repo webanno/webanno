@@ -49,6 +49,8 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.CodebookAnnotationDocument;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.CodebookDocumentUtil;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoCsvFormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoExcelFormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -60,8 +62,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelec
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
-import de.tudarmstadt.ukp.clarin.webanno.ui.project.codebooks.CodebookAnnotationDocument;
-import de.tudarmstadt.ukp.clarin.webanno.ui.project.codebooks.CodebookDocumentUtil;
 
 public class ImportDocumentsPanel extends Panel
 {

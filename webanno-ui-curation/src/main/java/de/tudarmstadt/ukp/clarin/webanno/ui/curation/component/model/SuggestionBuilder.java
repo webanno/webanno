@@ -47,10 +47,11 @@ import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.Configuration;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.ConfigurationSet;
@@ -61,7 +62,6 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentServic
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -498,16 +498,6 @@ public class SuggestionBuilder
         }
         return entryTypes;
     }
-    
-    public static List<Type> getCodebookTypes(JCas mergeJCas, List<Codebook> aCodebooks) {
-        List<Type> entryTypes = new LinkedList<>();
-
-        for (Codebook codebook : aCodebooks) {
-            CodebookAdapter cA = new CodebookAdapter(codebook);
-            entryTypes.add(cA.getAnnotationType(mergeJCas.getCas()));
-        }
-        return entryTypes;
-    }
 
     /**
      * For the first time a curation page is opened, create a MergeCas that contains only agreeing
@@ -549,9 +539,10 @@ public class SuggestionBuilder
                 LinkCompareBehavior.LINK_ROLE_AS_LABEL, jCases, 0,
                 mergeJCas.getDocumentText().length());
 
-        mergeJCas = MergeCas.reMergeCas(diff, jCases);  
-        entryTypes = getCodebookTypes(mergeJCas, codebookService.listCodebook(aProject));
-        diff = CasDiff2.doCodebookDiff(codebookService, aProject, entryTypes,
+        mergeJCas = MergeCas.reMergeCas(diff, jCases);
+        entryTypes = CurationUtil.getCodebookTypes(mergeJCas,
+                codebookService.listCodebook(aProject));
+        diff = CodebookDiff.doCodebookDiff(codebookService, aProject, entryTypes,
                 null, jCases, 0, 0);
         mergeJCas = MergeCas.reMergeCas(diff, jCases);
 

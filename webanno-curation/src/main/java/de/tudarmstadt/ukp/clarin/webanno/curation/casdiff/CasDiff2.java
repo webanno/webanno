@@ -58,12 +58,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.RelationAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
@@ -233,29 +231,6 @@ public class CasDiff2
         }
         
         return doDiff(entryTypes, aAdapters, casMap, aBegin, aEnd, aLinkCompareBehavior);
-    }
-    
-    public static DiffResult doCodebookDiff(CodebookSchemaService aService, Project aProject,
-            List<Type> aEntryTypes, LinkCompareBehavior aLinkCompareBehavior,
-            Map<String, JCas> aCasMap, int aBegin, int aEnd)
-    {
-        List<DiffAdapter> adapters = new ArrayList<>();
-        for (Codebook codebook : aService.listCodebook(aProject)) {
-            Set<String> codebookFeatures = new HashSet<>();
-            aService.listCodebookFeature(codebook).forEach(f -> codebookFeatures.add(f.getName()));
-            adapters.add(new CodebookDiffAdapter(codebook.getName(), codebookFeatures));
-        }
-
-        List<String> entryTypes = new ArrayList<>();
-        for (Type t : aEntryTypes) {
-            entryTypes.add(t.getName());
-        }
-        
-        Map<String, List<JCas>> casMap = new LinkedHashMap<>();
-        for (Entry<String, JCas> e : aCasMap.entrySet()) {
-            casMap.put(e.getKey(), asList(e.getValue()));
-        }
-        return doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior);
     }
 
     /**
