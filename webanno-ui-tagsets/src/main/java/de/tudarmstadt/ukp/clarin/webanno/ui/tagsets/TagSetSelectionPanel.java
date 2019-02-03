@@ -25,7 +25,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
@@ -69,7 +69,7 @@ public class TagSetSelectionPanel
         if (selectedProject.getObject() != null) {
             List<TagSet> allTagsets = annotationSchemaService
                     .listTagSets(selectedProject.getObject());
-            allTagsets.removeIf(t -> t.getName().startsWith(WebAnnoConst.CODEBOOK_NAME_PREFIX));
+            allTagsets.removeIf(t -> t.getName().startsWith(CodebookConst.CODEBOOK_NAME_PREFIX));
             return allTagsets;
         } else {
             return Collections.emptyList();

@@ -74,6 +74,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.BratProperties;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorModel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorPanel;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -354,7 +355,9 @@ public class AnnotationPage
     
     private CodebookEditorPanel createCodebookDetailEditor() 
     {
-        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(getModelObject()))
+        CodebookEditorModel model = null;
+        //model.setp
+        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(model))
         {
             private static final long serialVersionUID = 2857345299480098279L;
            
@@ -366,6 +369,16 @@ public class AnnotationPage
                 AnnotatorState state = AnnotationPage.this.getModelObject();
                 setEnabled(state.getDocument() != null && !documentService
                         .isAnnotationFinished(state.getDocument(), state.getUser()));
+            }
+            @Override
+            protected JCas onGetJCas() throws IOException
+            {
+                return getEditorCas();
+            }
+            
+            @Override
+            protected void onJcasUpdate(Long aTimeStamp) {
+                AnnotationPage.this.getModelObject().setAnnotationDocumentTimestamp(aTimeStamp);
             }
         };
     }
@@ -536,7 +549,7 @@ public class AnnotationPage
             detailEditor.getAnnotationFeatureForm().updateLayersDropdown();
             
             // update codebook editor
-            codebookdetailEditor.setProjectModel(aTarget, state);
+            codebookdetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
             
             AnnotationEditorBase newAnnotationEditor = createAnnotationEditor();
             annotationEditor.replaceWith(newAnnotationEditor);
@@ -679,7 +692,7 @@ public class AnnotationPage
             detailEditor.loadFeatureEditorModels(editorCas, null);
             
          // update codebook editor
-            codebookdetailEditor.setProjectModel(aTarget, state);
+            codebookdetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
             decideSideBarSetup(aTarget);
             
             if (aTarget != null) {
@@ -885,5 +898,14 @@ public class AnnotationPage
                 }
             }
         }
+    }
+    
+    private CodebookEditorModel getCodebookEditorModel() {
+        CodebookEditorModel model = new CodebookEditorModel();
+        model.setDocument(getModelObject().getDocument());
+        model.setCodebooksPerPage(getModelObject().getPreferences().getCodebooksPerPage());
+        model.setUser(getModelObject().getUser());
+        model.setProject(getModelObject().getProject());
+        return model;
     }
 }

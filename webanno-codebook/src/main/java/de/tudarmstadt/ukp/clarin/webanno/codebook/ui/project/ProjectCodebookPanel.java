@@ -77,21 +77,21 @@ import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
-import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
-import de.tudarmstadt.ukp.clarin.webanno.api.event.CodebookConfigurationChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ImportUtil;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
@@ -208,7 +208,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private class CodebookSelectionForm extends Form<Codebook> {
         private static final long serialVersionUID = -1L;
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({ })
         public CodebookSelectionForm(String id, IModel<Codebook> aModel) {
             super(id, aModel);
 
@@ -239,9 +239,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                             if (project.getId() != null) {
                                 List<Codebook> codes = codebookService.listCodebook(project);
                                 for (Codebook code : codes) {
-                                    // colors.put(code, ColoringStrategy.getCodebookAnnotationStyle
-                                    // (code.getOrder()));
-                                    colors.put(code, ColoringStrategy.getCodebookFgStyle(code));
+                                    colors.put(code, 
+                                            ColoringStrategy.getCodebookFgStyle(code.getOrder()));
                                 }
                                 return codes;
                             }
@@ -627,7 +626,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                         + "codebook has been created.");
                 return;
             }
-            String internalName = WebAnnoConst.CODEBOOK_NAME_PREFIX + codebookName;
+            String internalName = CodebookConst.CODEBOOK_NAME_PREFIX + codebookName;
             if (codebookService.existsCodebook(internalName, project)) {
                 error("A codebook with the name [" + internalName
                         + "] already exists in this project.");

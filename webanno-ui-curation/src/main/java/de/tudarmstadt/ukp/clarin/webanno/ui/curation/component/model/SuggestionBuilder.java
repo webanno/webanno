@@ -43,7 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CorrectionDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
@@ -51,6 +50,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationExce
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.Configuration;

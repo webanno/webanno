@@ -63,11 +63,11 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotationEditor;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationModel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion.CodebookSuggestionPanel;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior;
@@ -707,9 +707,6 @@ public class CurationPanel
                 state.setAnnotationDocumentTimestamp(aTimeStamp);
             }
             
-            
-           
-
         };
     }
 }

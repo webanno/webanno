@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 /**

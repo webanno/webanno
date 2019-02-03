@@ -1,0 +1,103 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+ # Copyright 2019
+ # Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt 
+ # and Language Technology Lab Universität Hamburg
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #  http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+   
+  <!-- CODEBOOK schema -->
+  	<changeSet author="WebAnno Team" id="1512223050574-20">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="codebook_feature" />
+			</not>
+		</preConditions>
+		<createTable tableName="codebook_feature">
+			<column autoIncrement="true" name="id" type="BIGINT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="description" type="LONGTEXT" />
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="type" type="VARCHAR(255)" />
+			<column name="uiName" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="project" type="BIGINT" />
+			<column name="codebook" type="BIGINT" />
+			<column name="tag_set" type="BIGINT" />
+		</createTable>
+	</changeSet>
+	
+		<changeSet author="WebAnno Team" id="1512223050574-20.2"
+		failOnError="false">
+		<addUniqueConstraint
+			tableName="codebook_feature"
+			constraintName="UK-codebook_feature"
+			columnNames="codebook name, project" />
+	</changeSet>
+
+	<!-- Add index (project) on (annotation_feature) -->
+	<changeSet author="WebAnno Team" id="1512223050574-20.4">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="codebook_feature"
+					indexName="FK-codebook_feature" />
+			</not>
+		</preConditions>
+		<createIndex indexName="FK-codebook_feature"
+			tableName="codebook_feature">
+			<column name="project" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet author="WebAnno Team" id="1512223050574-30">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="codebook" />
+			</not>
+		</preConditions>
+		<createTable tableName="codebook">
+			<column autoIncrement="true" name="id" type="BIGINT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="LONGTEXT" />
+			<column name="uiName" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="codebookorder" type="INT">
+			<constraints nullable="false" />
+			</column>
+			<column name="project" type="BIGINT" />
+		</createTable>
+	</changeSet>	
+
+	<changeSet author="WebAnno Team" id="1512223050574-30.1"
+		failOnError="false">
+		<addUniqueConstraint tableName="codebook"
+			constraintName="UK-codebook" columnNames="name, project" />
+	</changeSet>
+</databaseChangeLog>

@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 

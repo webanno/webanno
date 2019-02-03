@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import static java.util.Comparator.comparing;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureType;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 
 public interface CodebookFeatureSupportRegistry
 {
@@ -32,7 +33,7 @@ public interface CodebookFeatureSupportRegistry
     {
         List<FeatureType> allTypes = new ArrayList<>();
 
-        for (FeatureSupport<?> featureSupport : getFeatureSupports()) {
+        for (CodebookFeatureSupport<?> featureSupport : getFeatureSupports()) {
             List<FeatureType> types = featureSupport.getPrimitiveFeatureTypes();
             types.stream().filter(it -> !it.isInternal()).forEach(allTypes::add);
         }
@@ -41,7 +42,9 @@ public interface CodebookFeatureSupportRegistry
 
         return allTypes;
     }
-    List<FeatureSupport> getFeatureSupports();
-    <T> FeatureSupport<T> getFeatureSupport(CodebookFeature aFeature);
+    List<CodebookFeatureSupport> getFeatureSupports();
+    <T> CodebookFeatureSupport<T> getFeatureSupport(CodebookFeature aFeature);
     FeatureType getCodebookFeatureType(CodebookFeature aFeature);
+    <T extends CodebookFeatureSupport<?>> T getFeatureSupport(String aFeatureSupportId);
+
 }

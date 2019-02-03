@@ -38,8 +38,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.model.ParsedConstraints;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -618,31 +616,5 @@ public class AnnotatorStateImpl
     public void setAnnotationDocumentTimestamp(long aAnnotationDocumentTimestamp)
     {
         annotationDocumentTimestamp = aAnnotationDocumentTimestamp;
-    }
-    private final List<CodebookFeatureState> codebookModels = new ArrayList<>();  
-    
-    private List<Codebook> codebooks;
-    
-    @Override
-    public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature)
-    {
-        for (CodebookFeatureState f : codebookModels) {
-            if (Objects.equals(f.feature.getId(), aFeature.getId())) {
-                return f;
-            }
-        }
-        return null;
-    }
-    @Override
-    public void setCodebooks(List<Codebook> aCodebooks) {
-     
-        this.codebooks = aCodebooks;
-        
-    }
-    
-    @Override
-    public List<CodebookFeatureState> getCodebookFeatureStates()
-    {
-        return codebookModels;
     }
 }

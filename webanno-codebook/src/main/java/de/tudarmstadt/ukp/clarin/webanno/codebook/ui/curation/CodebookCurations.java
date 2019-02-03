@@ -19,8 +19,8 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation;
 
 import java.io.Serializable;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 
 public class CodebookCurations implements Serializable {
     private static final long serialVersionUID = -338943332519737951L;

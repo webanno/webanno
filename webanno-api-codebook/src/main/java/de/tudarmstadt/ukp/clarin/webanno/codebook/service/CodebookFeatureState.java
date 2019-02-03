@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.annotation.model;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 
 public class CodebookFeatureState

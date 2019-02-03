@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.CodebookFeatureState;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion.CodebookSuggestions;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 

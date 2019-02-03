@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.dao.export.exporters;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.export;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,19 +31,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExporter;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook;
+import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
@@ -57,10 +59,11 @@ public class CodebookExporter implements ProjectExporter {
     private @Autowired DocumentService documentService;
     private @Autowired UserDao userRepository;
     private @Autowired ImportExportService importExportService;
-    
+
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     private static final String CODEBOOKS_FOLDER = "/codebooks/";
+
     @Override
     public void exportData(ProjectExportRequest aRequest, ExportedProject aExProject, File aStage)
             throws Exception {
@@ -69,15 +72,12 @@ public class CodebookExporter implements ProjectExporter {
         exportCodebookAnnotations(aRequest, aExProject, aStage);
     }
 
-    public void exportCodebookAnnotations(ProjectExportRequest aRequest,
-            ExportedProject aExProject, File aStage)
-        throws IOException, UIMAException, ClassNotFoundException
-    {      
+    public void exportCodebookAnnotations(ProjectExportRequest aRequest, ExportedProject aExProject,
+            File aStage) throws IOException, UIMAException, ClassNotFoundException {
         Project project = aRequest.getProject();
-        
-        File codebookDir = new File(aStage.getAbsolutePath()
-                + CODEBOOKS_FOLDER);
-        
+
+        File codebookDir = new File(aStage.getAbsolutePath() + CODEBOOKS_FOLDER);
+
         FileUtils.forceMkdir(codebookDir);
         appendCodebooks(project, codebookDir);
     }
@@ -87,29 +87,26 @@ public class CodebookExporter implements ProjectExporter {
         List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = documentService
                 .listSourceDocuments(project);
         List<String> codebooks = new ArrayList<>();
-        for (Codebook codebok:codebookService.listCodebook(project)) {
+        for (Codebook codebok : codebookService.listCodebook(project)) {
             codebooks.add(codebok.getName());
         }
         boolean withHeader = true;
-        File codebookFile = new File(codebookDir, project.getName() + WebAnnoConst.CODEBOOK_EXT);
+        File codebookFile = new File(codebookDir, project.getName() + CodebookConst.CODEBOOK_EXT);
         for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
-            boolean withText  = true;// do not write the text for each annotation document
+            boolean withText = true;// do not write the text for each annotation document
             for (de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument annotationDocument : 
-                    documentService.listAnnotationDocuments(sourceDocument)) {
-                if (
-                        userRepository.get(annotationDocument.getUser()) != null && 
-                        !annotationDocument.getState().equals(AnnotationDocumentState.NEW) && 
-                        !annotationDocument.getState().equals(AnnotationDocumentState.IGNORE)
-                ) {
-                   
-                    File annotationFileAsSerialisedCas = documentService.getCasFile(
-                            sourceDocument, annotationDocument.getUser());
+                documentService.listAnnotationDocuments(sourceDocument)) {
+                if (userRepository.get(annotationDocument.getUser()) != null
+                        && !annotationDocument.getState().equals(AnnotationDocumentState.NEW)
+                        && !annotationDocument.getState().equals(AnnotationDocumentState.IGNORE)) {
+
+                    File annotationFileAsSerialisedCas = documentService.getCasFile(sourceDocument,
+                            annotationDocument.getUser());
 
                     if (annotationFileAsSerialisedCas.exists()) {
                         codebookFile = importExportService.exportCodebookDocument(sourceDocument,
-                                annotationDocument.getUser(), 
-                                codebookFile.getAbsolutePath(), Mode.ANNOTATION, codebookDir,
-                                withHeader, withText, codebooks);
+                                annotationDocument.getUser(), codebookFile.getAbsolutePath(),
+                                Mode.ANNOTATION, codebookDir, withHeader, withText, codebooks);
                         withHeader = false;
                         withText = false;
                     }
@@ -123,27 +120,23 @@ public class CodebookExporter implements ProjectExporter {
         }
         return codebookFile;
     }
-    
+
     private void exportCodebooks(ProjectExportRequest aRequest, ExportedProject aExProject) {
-        List<de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook> 
-            exportedCodebooks = new ArrayList<>();
+        List<ExportedCodebook> exportedCodebooks = new ArrayList<>();
         for (Codebook codebook : codebookService.listCodebook(aRequest.getProject())) {
-            de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook 
-                exLayer = new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook();
+            ExportedCodebook exLayer = new ExportedCodebook();
             exLayer.setDescription(codebook.getDescription());
             exLayer.setName(codebook.getName());
             exLayer.setProjectName(codebook.getProject().getName());
             exLayer.setUiName(codebook.getUiName());
-            List<de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature> 
-                exFeatures = new ArrayList<>();
+            List<ExportedCodebookFeature> exFeatures = new ArrayList<>();
             for (CodebookFeature feature : codebookService.listCodebookFeature(codebook)) {
-                de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature  exFeature 
-                    = new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature();
-                exFeature.setDescription(feature.getDescription());
-                exFeature.setName(feature.getName());
-                exFeature.setProjectName(feature.getProject().getName());
-                exFeature.setType(feature.getType());
-                exFeature.setUiName(feature.getUiName());
+                ExportedCodebookFeature exF = new ExportedCodebookFeature();
+                exF.setDescription(feature.getDescription());
+                exF.setName(feature.getName());
+                exF.setProjectName(feature.getProject().getName());
+                exF.setType(feature.getType());
+                exF.setUiName(feature.getUiName());
 
                 if (feature.getTagset() != null) {
                     TagSet tagSet = feature.getTagset();
@@ -161,9 +154,9 @@ public class CodebookExporter implements ProjectExporter {
                         exportedTags.add(exTag);
                     }
                     exTagSet.setTags(exportedTags);
-                    exFeature.setTagSet(exTagSet);
+                    exF.setTagSet(exTagSet);
                 }
-                exFeatures.add(exFeature);
+                exFeatures.add(exF);
             }
             exLayer.setFeatures(exFeatures);
             exportedCodebooks.add(exLayer);

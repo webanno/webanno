@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.model;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
 
@@ -35,6 +35,9 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
 /**
  * A feature for Codebook annotation type

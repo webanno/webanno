@@ -22,15 +22,11 @@ import static java.util.Arrays.asList;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,14 +41,11 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.InputFiel
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.KendoAutoCompleteTextFeatureEditor;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.KendoComboboxTextFeatureEditor;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.NumberFeatureEditor;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.UimaStringCodebookTraitsEditor;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor.UimaStringTraitsEditor;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 
 @Component
 public class PrimitiveUimaFeatureSupport
@@ -246,60 +239,6 @@ public class PrimitiveUimaFeatureSupport
     public List<FeatureType> getPrimitiveFeatureTypes()
     {
         return Collections.unmodifiableList(primitiveTypes);
-    }
-    
-
-    @Override
-    public void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
-            CodebookFeature aFeature) {
-        aTD.addFeature(aFeature.getName(), "", aFeature.getType());
-        
-    }
-
-    @Override
-    public Panel createCodebookTraitsEditor(String aId,  IModel<CodebookFeature> aFeatureModel)
-    {
-        CodebookFeature feature = aFeatureModel.getObject();
-        
-        Panel editor;
-        switch (feature.getType()) {
-        case CAS.TYPE_NAME_INTEGER:
-        case CAS.TYPE_NAME_FLOAT:
-        case CAS.TYPE_NAME_BOOLEAN:
-            editor =  new EmptyPanel(aId);;
-            break;
-        case CAS.TYPE_NAME_STRING:
-            editor = new UimaStringCodebookTraitsEditor(aId, aFeatureModel);
-            break;
-        default:
-            throw unsupportedFeatureTypeException(feature);
-        }
-        return editor;
-    }
-    
-    @Override
-    public void configureCodeBookFeature(CodebookFeature aFeature)
-    {
-        // If the feature is not a string feature, force the tagset to null.
-        if (!(CAS.TYPE_NAME_STRING.equals(aFeature.getType()))) {
-            aFeature.setTagset(null);
-        }
-    }
-    
-    @Override
-    public <T> T getFeatureValue(CodebookFeature aFeature, FeatureStructure aFS)
-    {
-        Feature feature = aFS.getType().getFeatureByBaseName(aFeature.getName());
-        final String effectiveType = aFeature.getType();
-        
-        // Sanity check
-        if (!Objects.equals(effectiveType, feature.getRange().getName())) {
-            throw new IllegalArgumentException("Actual feature type ["
-                    + feature.getRange().getName() + "] does not match expected feature type ["
-                    + effectiveType + "].");
-        }
-
-        return WebAnnoCasUtil.getFeature(aFS, aFeature.getName());
     }
 }
 

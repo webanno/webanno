@@ -43,7 +43,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 
 /**
  * Extension point for new types of annotation features. 
@@ -106,8 +105,6 @@ public interface FeatureSupport<T>
     void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
             AnnotationFeature aFeature);
 
-    void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD, 
-            CodebookFeature aFeature);
     /**
      * Checks whether tagsets are supported on the given feature which must be provided by the
      * current feature support (i.e. {@link #accepts(AnnotationFeature)} must have returned
@@ -269,16 +266,7 @@ public interface FeatureSupport<T>
         Object value = unwrapFeatureValue(aFeature, fs.getCAS(), aValue);
         setFeature(fs, aFeature, value);
     }
-
-    default void setFeatureValue(JCas aJcas, CodebookFeature aFeature, int aAddress,
-            Object aValue)
-    {
-        FeatureStructure fs = selectByAddr(aJcas, FeatureStructure.class, aAddress);
-        setFeature(fs, aFeature, aValue);
-    }
-    
-    <V> V getFeatureValue(CodebookFeature aFeature, FeatureStructure aFS);
-    
+   
     default <V> V getFeatureValue(AnnotationFeature aFeature, FeatureStructure aFS)
     {
         Object value;
@@ -333,12 +321,6 @@ public interface FeatureSupport<T>
         return new IllegalArgumentException("Unsupported link mode [" + aFeature.getLinkMode()
                 + "] on feature [" + aFeature.getName() + "]");
     }
-    
-    default IllegalArgumentException unsupportedFeatureTypeException(CodebookFeature aFeature)
-    {
-        return new IllegalArgumentException("Unsupported type [" + aFeature.getType()
-                + "] on feature [" + aFeature.getName() + "]");
-    }
 
     default IllegalArgumentException unsupportedMultiValueModeException(
             AnnotationFeature aFeature)
@@ -375,20 +357,4 @@ public interface FeatureSupport<T>
     }
     
     List<FeatureType> getPrimitiveFeatureTypes();
-    
-    default Optional<FeatureType> getCodebookFeatureType(CodebookFeature aCodebookFeature)
-    {
-        return getPrimitiveFeatureTypes().stream()
-                .filter(t -> t.getName().equals(aCodebookFeature.getType())).findFirst();
-    }
-
-    default Panel createCodebookTraitsEditor(String aId, IModel<CodebookFeature> aFeatureModel)
-    {
-        return new EmptyPanel(aId);
-    }
-    
-    default void configureCodeBookFeature(CodebookFeature aFeature)
-    {
-        // Nothing to do
-    }
 }

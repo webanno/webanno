@@ -87,6 +87,10 @@
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-codebook</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+    	<artifactId>webanno-api-codebook</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>

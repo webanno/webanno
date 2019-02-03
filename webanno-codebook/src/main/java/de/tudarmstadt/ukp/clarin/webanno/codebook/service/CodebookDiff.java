@@ -24,19 +24,19 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.CodebookDiffAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.LinkCompareBehavior;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class CodebookDiff {

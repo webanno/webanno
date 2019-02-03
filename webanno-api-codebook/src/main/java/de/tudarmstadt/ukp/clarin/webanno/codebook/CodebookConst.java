@@ -15,27 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.event;
+package de.tudarmstadt.ukp.clarin.webanno.codebook;
 
-import org.springframework.context.ApplicationEvent;
+public class CodebookConst {
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-
-public class CodebookConfigurationChangedEvent
-    extends ApplicationEvent
-{
-    private static final long serialVersionUID = -6859433860519240811L;
-    
-    private final Project project;
-
-    public CodebookConfigurationChangedEvent(Object aSource, Project aProject)
-    {
-        super(aSource);
-        project = aProject;
-    }
-
-    public Project getProject()
-    {
-        return project;
-    }
+    public static final String CODEBOOK_EXT = ".csv";
+    public static final String EXCEL_TYPE = "excel";
+    public static final String CSV_TYPE = "csv";
+    public static final String CODEBOOK_FEATURE_NAME = "code"; 
+    public static final String  CODEBOOK_NAME_PREFIX = "webanno.codebook.";
 }

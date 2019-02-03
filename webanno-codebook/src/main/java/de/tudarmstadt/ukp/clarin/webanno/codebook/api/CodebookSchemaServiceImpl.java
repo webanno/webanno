@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.dao;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.api;
 
 import static java.util.Objects.isNull;
 
@@ -38,12 +38,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupport;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupport;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
@@ -61,7 +61,7 @@ public class CodebookSchemaServiceImpl
 
     private @PersistenceContext EntityManager entityManager;
     private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
-    private @Autowired FeatureSupportRegistry featureSupportRegistry;
+    private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
     public CodebookSchemaServiceImpl()
     {
         // Nothing to do
@@ -238,7 +238,7 @@ public class CodebookSchemaServiceImpl
     {
         List<CodebookFeature> features = listCodebookFeature(aCodebook);
         for (CodebookFeature feature : features) {
-            FeatureSupport fs = featureSupportRegistry.getFeatureSupport(feature);
+            CodebookFeatureSupport fs = featureSupportRegistry.getFeatureSupport(feature);
             fs.generateFeature(aTSD, aTD, feature);
         }
     }

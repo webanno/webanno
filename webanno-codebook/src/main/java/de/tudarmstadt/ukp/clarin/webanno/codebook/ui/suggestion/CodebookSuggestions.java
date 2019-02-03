@@ -20,8 +20,8 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion;
 
 import java.io.Serializable;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 
 public class CodebookSuggestions implements Serializable {
     private static final long serialVersionUID = -9080221531125974763L;

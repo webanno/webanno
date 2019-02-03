@@ -18,14 +18,26 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 
 public class CodebookEditorModel implements Serializable {
 
     private static final long serialVersionUID = -628789175872734603L;
     private Codebook codebook;
     private String code;
+    private int codebooksPerPage;
+    private User user;
+    private SourceDocument document;
+    private Project project;
+    
+    private List<CodebookFeatureState> codebookFeatureStates = new ArrayList<>();
     
     public CodebookEditorModel() {
 
@@ -49,6 +61,46 @@ public class CodebookEditorModel implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public int getCodebooksPerPage() {
+        return codebooksPerPage;
+    }
+
+    public void setCodebooksPerPage(int codebooksPerPage) {
+        this.codebooksPerPage = codebooksPerPage;
+    }
+
+    public SourceDocument getDocument() {
+        return document;
+    }
+
+    public void setDocument(SourceDocument document) {
+        this.document = document;
+    }
+
+    public List<CodebookFeatureState> getCodebookFeatureStates() {
+        return codebookFeatureStates;
+    }
+
+    public void setCodebookFeatureStates(List<CodebookFeatureState> codebookFeatureStates) {
+        this.codebookFeatureStates = codebookFeatureStates;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
     
 }

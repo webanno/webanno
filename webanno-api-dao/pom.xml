@@ -82,7 +82,10 @@
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-io-csv</artifactId>
     </dependency>
-
+ 	<dependency>
+      <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+      <artifactId>webanno-api-codebook</artifactId>
+    </dependency>
     <!-- Spring dependencies -->
 
     <dependency>

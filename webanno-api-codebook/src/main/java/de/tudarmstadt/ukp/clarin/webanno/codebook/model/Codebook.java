@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.model;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
 
@@ -29,6 +29,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 @Entity
 @Table(name = "codebook", uniqueConstraints = {

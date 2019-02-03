@@ -1,7 +1,7 @@
 /*
  * Copyright 2019
  * Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt
- * and Language Technology Universität Hamburg
+ * and Language Technology lab Universität Hamburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,23 +40,22 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensionRegistry;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationModel;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 
 public class CodebookSuggestionPanel extends Panel {

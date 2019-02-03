@@ -21,8 +21,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * All required contents of {@link de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature} to be
- * exported.
+ * All required contents of
+ * {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature} to
+ * be exported.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExportedCodebookFeature

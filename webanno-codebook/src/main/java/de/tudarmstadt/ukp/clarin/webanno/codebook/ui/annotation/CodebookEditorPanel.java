@@ -17,7 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateUtils.verifyAndUpdateDocumentTimestamp;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getAddr;
 
 import java.io.IOException;
@@ -52,17 +51,16 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.wicket.kendo.ui.form.combobox.ComboBox;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensionRegistry;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.CodebookFeatureState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 
 public  class CodebookEditorPanel extends Panel {
@@ -75,7 +73,7 @@ public  class CodebookEditorPanel extends Panel {
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean AnnotationEditorExtensionRegistry extensionRegistry;
 
-    private AnnotatorState as;
+    private CodebookEditorModel as;
 
     private WebMarkupContainer codebooksGroup;
     private PageableListView<CodebookEditorModel> codebooks;
@@ -83,17 +81,17 @@ public  class CodebookEditorPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(CodebookEditorPanel.class);
 
-    public AnnotatorState getModelObject() {
-        return (AnnotatorState) getDefaultModelObject();
+    public CodebookEditorModel getModelObject() {
+        return (CodebookEditorModel) getDefaultModelObject();
     }
 
-    public CodebookEditorPanel(String id, IModel<AnnotatorState> aModel) {
+    public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel) {
         super(id, aModel);
 
         setOutputMarkupId(true);
 
         as = aModel.getObject();
-        int codebooksPerPage = as == null ? 10 : as.getPreferences().getCodebooksPerPage();
+        int codebooksPerPage = as == null ? 10 : as.getCodebooksPerPage();
         codebooks = new PageableListView<CodebookEditorModel>("codebooks", getCodebooksModel(),
                 codebooksPerPage) {
             private static final long serialVersionUID = 1L;
@@ -131,7 +129,7 @@ public  class CodebookEditorPanel extends Panel {
                                 writeCodebookCas(jcas);
                                 return;
                             }
-                            AnnotatorState state = CodebookEditorPanel.this.getModelObject();
+                            CodebookEditorModel state = CodebookEditorPanel.this.getModelObject();
                             state.getCodebookFeatureStates()
                                     .add(new CodebookFeatureState(feature, code.getModelObject()));
                             saveCodebookAnnotation(feature, jcas);
@@ -146,18 +144,12 @@ public  class CodebookEditorPanel extends Panel {
                     @Override
                     public void onConfigure(final Component component) {
                         super.onConfigure(component);
-                        // component.setEnabled(!codes.isEmpty());
                     }
                 });
-
-                // COLOR the codes for curation ONLY
-                // code.add(new AttributeModifier("style", ColoringStrategy
-                // .getCodebookAnnotationStyle(feature.getCodebook())));
-
                 code.add(new AttributeModifier("style",
-                        ColoringStrategy.getCodebookBgStyle(feature.getCodebook())));
+                        ColoringStrategy.getCodebookBgStyle()));
                 item.add(new AttributeModifier("style",
-                        ColoringStrategy.getCodebookBgStyle(feature.getCodebook())));
+                        ColoringStrategy.getCodebookBgStyle()));
                 item.add(code);
             }
         };
@@ -210,13 +202,13 @@ public  class CodebookEditorPanel extends Panel {
         return codebookService.listCodebook(as.getProject());
     }
 
-    public void setProjectModel(AjaxRequestTarget aTarget, AnnotatorState aState) {
+    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState) {
         as = aState;
         setDefaultModelObject(as);
         codebooks.setModelObject(getCodebooksModel());
-        codebooks.setItemsPerPage(as.getPreferences().getCodebooksPerPage());
+        codebooks.setItemsPerPage(as.getCodebooksPerPage());
         navigator.add(new AttributeModifier("style",
-                getCodebooksModel().size() <= as.getPreferences().getCodebooksPerPage()
+                getCodebooksModel().size() <= as.getCodebooksPerPage()
                         ? "visibility:hidden;display:none"
                         : "visibility:visible"));
         aTarget.add(navigator);
@@ -240,7 +232,7 @@ public  class CodebookEditorPanel extends Panel {
 
     private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, JCas aJCas)
             throws IOException, AnnotationException {
-        AnnotatorState state = getModelObject();
+        CodebookEditorModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
 
         for (CodebookFeatureState featureState : featureStates) {
@@ -273,33 +265,34 @@ public  class CodebookEditorPanel extends Panel {
             aAdapter.setFeatureValue(aJCas, featureState.feature, annoId, featureState.value);
         }
     }
-    
+
     public JCas getCodebookCas() throws IOException {
-        AnnotatorState state = getModelObject();
+        CodebookEditorModel state = getModelObject();
 
         if (state.getDocument() == null) {
             throw new IllegalStateException("Please open a document first!");
         }
-
-        // If we have a timestamp, then use it to detect if there was a concurrent
-        // access
-        verifyAndUpdateDocumentTimestamp(state, documentService
-                .getAnnotationCasTimestamp(state.getDocument(), state.getUser().getUsername()));
-
-        return documentService.readAnnotationCas(state.getDocument(),
-                state.getUser().getUsername());
+        return (onGetJCas());
     }
 
     private void writeCodebookCas(JCas aJCas) throws IOException {
        
-        AnnotatorState state = getModelObject();
+        CodebookEditorModel state = getModelObject();
         documentService.writeAnnotationCas(aJCas, state.getDocument(), state.getUser(), true);
 
         // Update timestamp in state
         Optional<Long> diskTimestamp = documentService
                 .getAnnotationCasTimestamp(state.getDocument(), state.getUser().getUsername());
         if (diskTimestamp.isPresent()) {
-            state.setAnnotationDocumentTimestamp(diskTimestamp.get());
+            onJcasUpdate(diskTimestamp.get());
         }
+    }
+    
+    protected void onJcasUpdate(Long aTimeStamp) {
+        // Overriden in CurationPanel
+    }
+    
+    protected JCas onGetJCas() throws IOException {     
+        return null;
     }
 }

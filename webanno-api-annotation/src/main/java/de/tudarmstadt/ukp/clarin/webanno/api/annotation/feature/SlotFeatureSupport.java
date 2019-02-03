@@ -51,7 +51,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.LinkWithRoleModel;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 import de.tudarmstadt.ukp.clarin.webanno.model.MultiValueMode;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
@@ -292,18 +291,5 @@ public class SlotFeatureSupport
     @Override
     public List<FeatureType> getPrimitiveFeatureTypes() {
         return new ArrayList<>();
-    }
-
-    @Override
-    public <V> V getFeatureValue(CodebookFeature aFeature, FeatureStructure aFS) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
-            CodebookFeature aFeature) {
-        // TODO Auto-generated method stub
-        
     }
 }

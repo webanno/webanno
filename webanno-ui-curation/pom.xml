@@ -88,6 +88,10 @@
       <artifactId>webanno-codebook</artifactId>
     </dependency>
     <dependency>
+    	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+    	<artifactId>webanno-api-codebook</artifactId>
+    </dependency>
+    <dependency>
       <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
       <artifactId>de.tudarmstadt.ukp.dkpro.core.api.lexmorph-asl</artifactId>
     </dependency>
@@ -206,10 +210,6 @@
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-io-tsv</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>com.googlecode.wicket-jquery-ui</groupId>
-    	<artifactId>wicket-kendo-ui</artifactId>
     </dependency>
   </dependencies>
 </project>

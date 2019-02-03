@@ -41,8 +41,64 @@
 			<artifactId>webanno-api-dao</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+			<artifactId>webanno-model-export</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+			<artifactId>webanno-api-codebook</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+			<artifactId>webanno-export</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+			<artifactId>webanno-support</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+			<artifactId>webanno-api-annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.danekja</groupId>
+			<artifactId>jdk-serializable-functional</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 </project>

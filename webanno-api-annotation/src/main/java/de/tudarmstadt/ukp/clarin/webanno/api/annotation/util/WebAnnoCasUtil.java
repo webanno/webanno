@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.LinkWithRoleModel;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
@@ -927,12 +926,4 @@ public class WebAnnoCasUtil
                 && StringUtils.isBlank(FSUtil.getFeature(aFS, aFeature.getName(), String.class));
     }
     
-    public static void setFeature(FeatureStructure aFS, CodebookFeature aFeature, Object aValue)
-    {
-        if (aFeature == null) {
-            return;
-        }
-        Feature feature = aFS.getType().getFeatureByBaseName(aFeature.getName());
-        aFS.setStringValue(feature, (String) aValue);
-    }
 }

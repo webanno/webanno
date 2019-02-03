@@ -1148,80 +1148,16 @@
     </update>
   </changeSet>
   
-  <!-- CODEBOOK schema -->
-  	<changeSet author="WebAnno Team" id="1512223050574-20">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<tableExists tableName="codebook_feature" />
-			</not>
-		</preConditions>
-		<createTable tableName="codebook_feature">
-			<column autoIncrement="true" name="id" type="BIGINT">
-				<constraints primaryKey="true" />
-			</column>
-			<column name="description" type="LONGTEXT" />
-			<column name="name" type="VARCHAR(255)">
-				<constraints nullable="false" />
-			</column>
-			<column name="type" type="VARCHAR(255)" />
-			<column name="uiName" type="VARCHAR(255)">
-				<constraints nullable="false" />
-			</column>
-			<column name="project" type="BIGINT" />
-			<column name="codebook" type="BIGINT" />
-			<column name="tag_set" type="BIGINT" />
-		</createTable>
-	</changeSet>
-	
-		<changeSet author="WebAnno Team" id="1512223050574-20.2"
-		failOnError="false">
-		<addUniqueConstraint
-			tableName="codebook_feature"
-			constraintName="UK-codebook_feature"
-			columnNames="codebook name, project" />
-	</changeSet>
-
-	<!-- Add index (project) on (annotation_feature) -->
-	<changeSet author="WebAnno Team" id="1512223050574-20.4">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<indexExists tableName="codebook_feature"
-					indexName="FK-codebook_feature" />
-			</not>
-		</preConditions>
-		<createIndex indexName="FK-codebook_feature"
-			tableName="codebook_feature">
-			<column name="project" />
-		</createIndex>
-	</changeSet>
-
-	<changeSet author="WebAnno Team" id="1512223050574-30">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<tableExists tableName="codebook" />
-			</not>
-		</preConditions>
-		<createTable tableName="codebook">
-			<column autoIncrement="true" name="id" type="BIGINT">
-				<constraints primaryKey="true" />
-			</column>
-			<column name="name" type="VARCHAR(255)">
-				<constraints nullable="false" />
-			</column>
-			<column name="description" type="LONGTEXT" />
-			<column name="uiName" type="VARCHAR(255)">
-				<constraints nullable="false" />
-			</column>
-			<column name="codebookorder" type="INT">
-			<constraints nullable="false" />
-			</column>
-			<column name="project" type="BIGINT" />
-		</createTable>
-	</changeSet>	
-
-	<changeSet author="WebAnno Team" id="1512223050574-30.1"
-		failOnError="false">
-		<addUniqueConstraint tableName="codebook"
-			constraintName="UK-codebook" columnNames="name, project" />
-	</changeSet>
+  <changeSet author="WebAnno Team" id="20100129-1">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="annotation_type" columnName="validation_mode"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="annotation_type">
+      <column name="validation_mode" type="VARCHAR(255)" defaultValue="never">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>  
 </databaseChangeLog>

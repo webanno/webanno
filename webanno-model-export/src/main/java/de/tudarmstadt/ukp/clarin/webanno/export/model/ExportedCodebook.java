@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * All required contents of a
- * {@link de.tudarmstadt.ukp.clarin.webanno.model.Codebook} project to be
+ * {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook} project to be
  * exported.
  *
  *

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureType;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 
 @Component
 public class CodebookFeatureSupportRegistryImpl
@@ -42,14 +43,14 @@ public class CodebookFeatureSupportRegistryImpl
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final List<FeatureSupport> featureSupportsProxy;
+    private final List<CodebookFeatureSupport> featureSupportsProxy;
     
-    private List<FeatureSupport> featureSupports;
+    private List<CodebookFeatureSupport> featureSupports;
     
-    private final Map<Long, FeatureSupport> supportCache = new HashMap<>();
+    private final Map<Long, CodebookFeatureSupport> supportCache = new HashMap<>();
 
     public CodebookFeatureSupportRegistryImpl(
-            @Lazy @Autowired(required = false) List<FeatureSupport> aFeatureSupports)
+            @Lazy @Autowired(required = false) List<CodebookFeatureSupport> aFeatureSupports)
     {
         featureSupportsProxy = aFeatureSupports;
     }
@@ -62,13 +63,13 @@ public class CodebookFeatureSupportRegistryImpl
     
     public void init()
     {
-        List<FeatureSupport> fsp = new ArrayList<>();
+        List<CodebookFeatureSupport> fsp = new ArrayList<>();
 
         if (featureSupportsProxy != null) {
             fsp.addAll(featureSupportsProxy);
             AnnotationAwareOrderComparator.sort(fsp);
         
-            for (FeatureSupport<?> fs : fsp) {
+            for (CodebookFeatureSupport<?> fs : fsp) {
                 log.info("Found feature support: {}",
                         ClassUtils.getAbbreviatedName(fs.getClass(), 20));
             }
@@ -85,7 +86,7 @@ public class CodebookFeatureSupportRegistryImpl
         }
     
         FeatureType featureType = null;
-        for (FeatureSupport<?> s : getFeatureSupports()) {
+        for (CodebookFeatureSupport<?> s : getFeatureSupports()) {
             Optional<FeatureType> ft = s.getCodebookFeatureType(aFeature);
             if (ft.isPresent()) {
                 featureType = ft.get();
@@ -96,15 +97,15 @@ public class CodebookFeatureSupportRegistryImpl
     }
     
     @Override
-    public FeatureSupport getFeatureSupport(CodebookFeature aFeature) {
-        FeatureSupport support = null;
+    public CodebookFeatureSupport getFeatureSupport(CodebookFeature aFeature) {
+        CodebookFeatureSupport support = null;
 
         if (aFeature.getId() != null) {
             support = supportCache.get(aFeature.getId());
         }
 
         if (support == null) {
-            for (FeatureSupport<?> s : getFeatureSupports()) {
+            for (CodebookFeatureSupport<?> s : getFeatureSupports()) {
                 support = s;
                 if (aFeature.getId() != null) {
                     // Store feature in the cache, but only when it has an ID, i.e. it has
@@ -123,8 +124,15 @@ public class CodebookFeatureSupportRegistryImpl
     }
     
     @Override
-    public List<FeatureSupport> getFeatureSupports()
+    public List<CodebookFeatureSupport> getFeatureSupports()
     {
         return featureSupports;
+    }
+
+    @Override
+    public CodebookFeatureSupport getFeatureSupport(String aId)
+    {
+        return getFeatureSupports().stream().filter(fs -> fs.getId().equals(aId)).findFirst()
+                .orElse(null);
     }
 }

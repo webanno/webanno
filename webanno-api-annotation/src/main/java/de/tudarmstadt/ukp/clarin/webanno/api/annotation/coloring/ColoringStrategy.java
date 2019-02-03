@@ -32,7 +32,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.LinkMode;
 
 public abstract class ColoringStrategy
@@ -260,10 +259,10 @@ public abstract class ColoringStrategy
         return filtered.toArray(new String[filtered.size()]);
     }
 
-    public static String getCodebookAnnotationStyle(Codebook aCodeBook) {
+    public static String getCodebookAnnotationStyle(int aOrder) {
         String[] colors = ColoringStrategy.PALETTE_CODEBOOK;
-        String codeColor = colors[(aCodeBook.getOrder() - 1) % colors.length];
-        Color bgcolor = getBgColor(aCodeBook);
+        String codeColor = colors[(aOrder - 1) % colors.length];
+        Color bgcolor = getBgColor();
         String bgcolorHex = String.format("#%02x%02x%02x", bgcolor.getRed(), bgcolor.getGreen(),
                 bgcolor.getBlue());
 
@@ -302,22 +301,22 @@ public abstract class ColoringStrategy
     }
     
     
-    public static String getCodebookFgStyle(Codebook aCodeBook) {
+    public static String getCodebookFgStyle(int aOrder) {
         String[] colors = ColoringStrategy.PALETTE_CODEBOOK;
-        String codeColor = aCodeBook.getOrder() == 0 ? colors[0]
-                : colors[(aCodeBook.getOrder() - 1) % colors.length];
+        String codeColor = aOrder == 0 ? colors[0]
+                : colors[(aOrder - 1) % colors.length];
         return "color:" + codeColor + ";font-weight: bold;";
     }
     
-    public static String getCodebookBgStyle(Codebook aCodeBook) {
-        Color bgcolor = getBgColor(aCodeBook);
+    public static String getCodebookBgStyle() {
+        Color bgcolor = getBgColor();
         String bgcolorHex = String.format("#%02x%02x%02x", bgcolor.getRed(), bgcolor.getGreen(),
                 bgcolor.getBlue());
 
         return "background-color:" + bgcolorHex + ";";
     }
 
-    private static Color getBgColor(Codebook aCodeBook) {
+    private static Color getBgColor() {
         return  new Color(182, 178, 178);
     }
     

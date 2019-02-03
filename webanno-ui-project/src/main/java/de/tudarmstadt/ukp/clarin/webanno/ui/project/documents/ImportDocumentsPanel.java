@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.CodebookAnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.CodebookDocumentUtil;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoCsvFormatSupport;
@@ -201,7 +201,7 @@ public class ImportDocumentsPanel extends Panel
                                 String codebook = cD.getHeaders().get(h);
                                 Type type = editorCas.getTypeSystem().getType(codebook);
                                 Feature f = type.getFeatureByBaseName(
-                                        WebAnnoConst.CODEBOOK_FEATURE_NAME);
+                                        CodebookConst.CODEBOOK_FEATURE_NAME);
                                 AnnotationFS fs = editorCas.getCas().createAnnotation(type, 0,
                                         0);
                                 fs.setFeatureValueFromString(f, annotation);

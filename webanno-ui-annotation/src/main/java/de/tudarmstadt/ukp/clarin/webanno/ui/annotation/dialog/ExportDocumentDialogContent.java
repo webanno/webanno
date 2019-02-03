@@ -40,12 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
-import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
-import de.tudarmstadt.ukp.clarin.webanno.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormSubmittingBehavior;
@@ -125,7 +125,7 @@ public class ExportDocumentDialogContent
                 tmpDir.delete();
                 tmpDir.mkdirs();
                 filename = new File(tmpDir,
-                        FilenameUtils.getBaseName(filename) + WebAnnoConst.CODEBOOK_EXT)
+                        FilenameUtils.getBaseName(filename) + CodebookConst.CODEBOOK_EXT)
                                 .getAbsolutePath();
                 List<String> codebooks = new ArrayList<>();
                 for (Codebook codebok : codebookService
