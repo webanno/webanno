@@ -1,6 +1,6 @@
 /*
- * Copyright 2016
- * Ubiquitous Knowledge Processing (UKP) Lab
+ * Copyright 2019
+ * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency;
+package de.tudarmstadt.ukp.clarin.webanno.model;
 
-public final class DependencyFlavor
+import de.tudarmstadt.ukp.clarin.webanno.support.PersistentEnumUserType;
+
+/**
+ * Implementation of {@link PersistentEnumUserType}
+ */
+public class ValidationModeType
+    extends PersistentEnumUserType<ValidationMode>
 {
-    public static final String BASIC = "basic";
-    public static final String ENHANCED = "enhanced";
-    
-    private DependencyFlavor() {
-        // Prevent instantiation
+    @Override
+    public Class<ValidationMode> returnedClass()
+    {
+        return ValidationMode.class;
     }
 }

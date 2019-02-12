@@ -1,5 +1,5 @@
 /*
- * Copyright 2015
+ * Copyright 2019
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
@@ -15,28 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.json;
+package de.tudarmstadt.ukp.clarin.webanno.model;
 
-import static de.tudarmstadt.ukp.dkpro.core.testing.IOTestRunner.testOneWay;
+import de.tudarmstadt.ukp.clarin.webanno.support.PersistentEnum;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-
-import de.tudarmstadt.ukp.dkpro.core.io.conll.Conll2000Reader;
-import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
-
-@Ignore
-public class JsonWriterTest
+/**
+ * Validation mode.
+ */
+public enum ValidationMode
+    implements PersistentEnum
 {
-    @Test
-    public void oneWay()
-        throws Exception
+    /**
+     * Never validate.
+     */
+    NEVER("never"),
+    
+    /**
+     * Validate always.
+     */
+    ALWAYS("always");
+
+    private final String id;
+
+    ValidationMode(String aId)
     {
-        testOneWay(Conll2000Reader.class, JsonWriter.class,
-                "conll/2000/chunk2000_ref.json", "conll/2000/chunk2000_test.conll");
+        id = aId;
     }
 
-    @Rule
-    public DkproTestContext testContext = new DkproTestContext();
+    @Override
+    public String getId()
+    {
+        return id;
+    }
 }
