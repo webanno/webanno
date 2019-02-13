@@ -55,7 +55,7 @@
   </distributionManagement>
   <properties>
     <jackson.version>2.9.8</jackson.version>
-    <uima.version>2.10.2</uima.version>
+    <uima.version>2.10.3</uima.version>
     <uimafit.version>2.4.0</uimafit.version>
     <spring.version>5.1.3.RELEASE </spring.version>
     <spring.boot.version>1.5.18.RELEASE</spring.boot.version>
@@ -68,11 +68,11 @@
     <wicket-jquery-ui.version>${wicket.version}</wicket-jquery-ui.version>
     <wicket-bootstrap.version>2.0.6</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>2.0.2</wicket-jquery-selectors.version>
-    <wicket-webjars.version>2.0.8</wicket-webjars.version>    
+    <wicket-webjars.version>2.0.8</wicket-webjars.version>
     <wicket-spring-boot.version>2.1.5</wicket-spring-boot.version>
     <hibernate.version>5.3.7.Final</hibernate.version>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-    <dkpro.version>1.7.0</dkpro.version>
+    <dkpro.version>1.10.0</dkpro.version>
     <springfox.version>2.7.0</springfox.version>
     <batik.version>1.9.1</batik.version>
     <json.version>20180130</json.version>
@@ -237,17 +237,12 @@
       </dependency>
       <dependency>
         <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-        <artifactId>webanno-io-csv</artifactId>
-        <version>3.6.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-        <artifactId>webanno-dkprocore</artifactId>
-        <version>3.6.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
         <artifactId>webanno-diag</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-io-csv</artifactId>
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -599,7 +594,7 @@
         <groupId>org.dom4j</groupId>
         <artifactId>dom4j</artifactId>
         <version>2.1.1</version>
-        <!--  
+        <!--
         <exclusions>
           <exclusion>
             <groupId>xml-apis</groupId>
@@ -861,7 +856,7 @@
         <artifactId>hsqldb</artifactId>
         <version>2.4.1</version>
       </dependency>
-      <!--  
+      <!--
       <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
@@ -882,6 +877,18 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+        <artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
+        <version>${dkpro.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
       <dependency>
         <!-- Import dependency management from Wicket -->
         <groupId>org.apache.wicket</groupId>
@@ -932,7 +939,6 @@
     <module>webanno-model-export</module>
     <module>webanno-support</module>
     <module>webanno-support-standalone</module>
-    <module>webanno-dkprocore</module>
     <module>webanno-diag</module>
     <module>webanno-remote</module>
     <module>webanno-security</module>
@@ -1031,7 +1037,7 @@
         <configuration>
           <failOnWarning>true</failOnWarning>
           <usedDependencies combine.children="append">
-            <!-- 
+            <!--
               - Logging is used via reflection and cannot be detected by Maven
             -->
             <usedDependency>org.apache.logging.log4j:log4j-slf4j-impl</usedDependency>
@@ -1039,7 +1045,7 @@
             <usedDependency>org.slf4j:log4j-over-slf4j</usedDependency>
             <usedDependency>org.slf4j:jcl-over-slf4j</usedDependency>
             <usedDependency>commons-logging:commons-logging</usedDependency>
-            <!-- 
+            <!--
               - JAXB is used via reflection and cannot be detected by Maven
             -->
             <usedDependency>javax.xml.bind:jaxb-api</usedDependency>
