@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.uima.cas.CAS;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.wicket.MarkupContainer;
@@ -128,7 +127,7 @@ public class PrimitiveUimaFeatureSupport
     }
 
     @Override
-    public void setFeatureValue(JCas aJcas, AnnotationFeature aFeature, int aAddress, Object aValue)
+    public void setFeatureValue(CAS aCas, AnnotationFeature aFeature, int aAddress, Object aValue)
     {
         if (
                 aValue != null &&
@@ -149,7 +148,7 @@ public class PrimitiveUimaFeatureSupport
             }
         }
 
-        FeatureSupport.super.setFeatureValue(aJcas, aFeature, aAddress, aValue);
+        FeatureSupport.super.setFeatureValue(aCas, aFeature, aAddress, aValue);
     }
 
     @Override
@@ -249,7 +248,7 @@ public class PrimitiveUimaFeatureSupport
     public void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
             AnnotationFeature aFeature)
     {
-        aTD.addFeature(aFeature.getName(), "", aFeature.getType());
+        aTD.addFeature(aFeature.getName(), aFeature.getDescription(), aFeature.getType());
     }
 
     @Override
@@ -261,6 +260,21 @@ public class PrimitiveUimaFeatureSupport
         }
     }
 
+    @Override
+    public String renderFeatureValue(AnnotationFeature aFeature, String aLabel)
+    {
+        if (CAS.TYPE_NAME_BOOLEAN.equals(aFeature.getType()) && aLabel != null) {
+            if ("true".equals(aLabel)) {
+                return "+" + aFeature.getUiName();
+            }
+            else {
+                return "-" + aFeature.getUiName();
+            }
+        }
+        else {
+            return FeatureSupport.super.renderFeatureValue(aFeature, aLabel);
+        }
+    }
     @Override
     public List<FeatureType> getPrimitiveFeatureTypes()
     {

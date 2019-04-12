@@ -5,7 +5,7 @@ All annotations belong to an annotation *layer*. Each layer has a structural *ty
 
 == Creating a custom layer
 
-This section provides a short walkthrough on the creation of a custom layer. The following sections act as reference documentation providing additional details on each step. In the following example, we will create a custom layer called *Sentiment* with a feature called *Polarity* that can be *negative*, *neutral*, or *positive*.
+This section provides a short walk-through on the creation of a custom layer. The following sections act as reference documentation providing additional details on each step. In the following example, we will create a custom layer called *Sentiment* with a feature called *Polarity* that can be *negative*, *neutral*, or *positive*.
 
 . Create the layer _Sentiment_
   * Go to the *Layers* tab in your project's settings and press the *Create layer* button
@@ -43,7 +43,7 @@ Now you have created your first custom layer.
 | Chunk
 | Span
 | Lock to multiple tokens,
-no stacking,
+no overlap,
 no sentence boundary crossing
 
 | Coreference
@@ -52,13 +52,13 @@ no sentence boundary crossing
 
 | Dependency
 | Relation over POS,
-| No stacking,
+| Any overlap,
 no sentence boundary crossing
 
 | Lemma
 | Span
 | Locked to token offsets,
-no stacking,
+no overlap,
 no sentence boundary crossing
 
 | Named Entity
@@ -68,7 +68,7 @@ no sentence boundary crossing
 | Part of Speech (POS)
 | Span
 | Locked to token offsets,
-no stacking,
+no overlap,
 no sentence boundary crossing
 |====
 
@@ -91,6 +91,21 @@ The coloring of the layers signal the following:
 |===
 
 To create a custom layer, select *Create Layer* in the *Layers* frame. Then, the following frame will be displayed. 
+
+.Exporting layers
+At times, it is useful to export the configuration of a layer or of all layers, e.g. to copy them
+to another project. There are two options:
+
+* **JSON (selected layer)**: exports the currently selected layer as JSON. If the layer depends on
+  other layers, these are included as well in the JSON export.
+* **UIMA (all layers)**: exports a UIMA type system description containing all layers of the project.
+  This includes built-in types (i.e. DKPro Core types) and it may include additional types required
+  to allow loading the type system description file again. However, this type system description
+  is usually not sufficient to interpret XMI files produced by {product-name}. Be sure to load XMI
+  files together with the type system description file which was included in the XMI export.
+  
+Both types of files can be imported back into {product-name}. Note that any built-in types that
+have have been included in the files are ignored on import.
 
 [[sect_projects_layers_properties]]
 == Properties 
@@ -187,8 +202,8 @@ in order for the **Sentence-level** mode to allow annotating multiple sentences,
 **Allow crossing sentence boundary** setting must be enabled, otherwise only individual sentences
 can be annotated.
 
-| Allow stacking
-| Allow multiple annotations in this layer to be made at exactly the same position. If this option is disabled, a new annotation made at the same location as an existing annotation will replace the existing annotation.
+| Overlap
+| This setting controls if and how annotations may overlap. For **span layers**, overlap is defined in terms of the span offsets. If any character offset that is part of span A is also part of span B, then they are considered to be **overlapping**. If two spans have exactly the same offsets, then they are considered to be **stacking**. For **relation layers**, overlap is defined in terms of the end points of the relation. If two relations share any end point (source or target), they are considered to be **overlapping**. If two relations have exactly the same end points, they are considered to be **stacking**. Note that some export formats are unable to deal with stacked or overlapping annotations. E.g. the CoNLL formats cannot deal with overlapping or stacked named entities.
 
 | Allow crossing sentence boundary
 _(chain)_
