@@ -544,10 +544,10 @@ public interface DocumentService
     Optional<Long> getAnnotationCasTimestamp(SourceDocument aDocument, String aUsername)
         throws IOException;
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void writeCodebookAnnotationCas(JCas jCas, AnnotationDocument annotationDocument,
+    void writeCodebookAnnotationCas(CAS jCas, AnnotationDocument annotationDocument,
             boolean aUpdateTimestamp)
         throws IOException;
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void writeCodebookAnnotationCas(JCas jCas, SourceDocument document, User user,
+    void writeCodebookAnnotationCas(CAS jCas, SourceDocument document, User user,
             boolean aUpdateTimestamp) throws IOException;
 }

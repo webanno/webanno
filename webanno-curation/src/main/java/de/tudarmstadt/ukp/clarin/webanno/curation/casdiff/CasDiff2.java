@@ -1905,9 +1905,9 @@ public class CasDiff2
             String collectionId = null;
             String documentId = null;
             try {
-                DocumentMetaData dmd = DocumentMetaData.get(aFS.getCAS());
-                collectionId = dmd.getCollectionId();
-                documentId = dmd.getDocumentId();
+                FeatureStructure dmd = WebAnnoCasUtil.getDocumentMetadata(aFS.getCAS());
+                collectionId = FSUtil.getFeature(dmd, "collectionId", String.class);
+                documentId = FSUtil.getFeature(dmd, "documentId", String.class);
             } catch (IllegalArgumentException e) {
                 // We use this information only for debugging - so we can ignore if the
                 // information

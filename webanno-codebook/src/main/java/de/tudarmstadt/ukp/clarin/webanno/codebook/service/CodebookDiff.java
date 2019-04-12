@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 
@@ -44,7 +45,7 @@ public class CodebookDiff {
     
     public static DiffResult doCodebookDiff(CodebookSchemaService aService, Project aProject,
             List<Type> aEntryTypes, LinkCompareBehavior aLinkCompareBehavior,
-            Map<String, JCas> aCasMap, int aBegin, int aEnd)
+            Map<String, CAS> aCasMap, int aBegin, int aEnd)
     {
         List<DiffAdapter> adapters = new ArrayList<>();
         for (Codebook codebook : aService.listCodebook(aProject)) {
@@ -58,8 +59,8 @@ public class CodebookDiff {
             entryTypes.add(t.getName());
         }
         
-        Map<String, List<JCas>> casMap = new LinkedHashMap<>();
-        for (Entry<String, JCas> e : aCasMap.entrySet()) {
+        Map<String, List<CAS>> casMap = new LinkedHashMap<>();
+        for (Entry<String, CAS> e : aCasMap.entrySet()) {
             casMap.put(e.getKey(), asList(e.getValue()));
         }
         return CasDiff2.doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior);

@@ -493,8 +493,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                         for (AnnotationDocument ann : documentService
                                 .listAllAnnotationDocuments(doc)) {
                             try {
-                                JCas cas = casStorageService.readCas(doc, ann.getUser());
-                                annotationService.upgradeCas(cas.getCas(), doc, ann.getUser());
+                                CAS cas = casStorageService.readCas(doc, ann.getUser());
+                                annotationService.upgradeCas(cas, doc, ann.getUser());
                                 casStorageService.writeCas(doc, cas, ann.getUser());
                             } catch (FileNotFoundException e) {
                                 // If there is no CAS file, we do not have to upgrade it. Ignoring.
@@ -503,8 +503,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
                         // Also upgrade the curation CAS if it exists
                         try {
-                            JCas cas = casStorageService.readCas(doc, CURATION_USER);
-                            annotationService.upgradeCas(cas.getCas(), doc, CURATION_USER);
+                            CAS cas = casStorageService.readCas(doc, CURATION_USER);
+                            annotationService.upgradeCas(cas, doc, CURATION_USER);
                             casStorageService.writeCas(doc, cas, CURATION_USER);
                         } catch (FileNotFoundException e) {
                             // If there is no CAS file, we do not have to upgrade it. Ignoring.

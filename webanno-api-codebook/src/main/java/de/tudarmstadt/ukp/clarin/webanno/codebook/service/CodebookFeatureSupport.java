@@ -22,9 +22,10 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.jcas.JCas;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -48,10 +49,10 @@ public interface CodebookFeatureSupport<T>
     void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD, 
             CodebookFeature aFeature);
 
-    default void setFeatureValue(JCas aJcas, CodebookFeature aFeature, int aAddress,
+    default void setFeatureValue(CAS aJcas, CodebookFeature aFeature, int aAddress,
             Object aValue)
     {
-        FeatureStructure fs = selectByAddr(aJcas, FeatureStructure.class, aAddress);
+        FeatureStructure fs = selectByAddr(aJcas, AnnotationFS.class, aAddress);
         setFeature(fs, aFeature, aValue);
     }
     

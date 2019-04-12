@@ -107,7 +107,7 @@ public  class CodebookEditorPanel extends Panel {
                 CodebookAdapter adapter = new CodebookAdapter(codebook);
                 CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
 
-                JCas jcas = null;
+                CAS jcas = null;
                 try {
                     jcas = getCodebookCas();
                 } catch (IOException e1) {
@@ -122,7 +122,7 @@ public  class CodebookEditorPanel extends Panel {
                     @Override
                     public void onUpdate(AjaxRequestTarget aTarget) {
                         try {
-                            JCas jcas  = getCodebookCas();
+                            CAS jcas  = getCodebookCas();
                             if (code.getModelObject() == null) {
                                 CodebookAdapter adapter = new CodebookAdapter(codebook);
                                 adapter.delete(jcas, feature);
@@ -219,7 +219,7 @@ public  class CodebookEditorPanel extends Panel {
         });
     }
 
-    private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, JCas aJCas)
+    private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)
             throws AnnotationException, IOException {
 
         CodebookAdapter adapter = new CodebookAdapter(aCodebookFeature.getCodebook());
@@ -230,7 +230,7 @@ public  class CodebookEditorPanel extends Panel {
 
     }
 
-    private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, JCas aJCas)
+    private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, CAS aJCas)
             throws IOException, AnnotationException {
         CodebookEditorModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
@@ -266,7 +266,7 @@ public  class CodebookEditorPanel extends Panel {
         }
     }
 
-    public JCas getCodebookCas() throws IOException {
+    public CAS getCodebookCas() throws IOException {
         CodebookEditorModel state = getModelObject();
 
         if (state.getDocument() == null) {
@@ -275,7 +275,7 @@ public  class CodebookEditorPanel extends Panel {
         return (onGetJCas());
     }
 
-    private void writeCodebookCas(JCas aJCas) throws IOException {
+    private void writeCodebookCas(CAS aJCas) throws IOException {
        
         CodebookEditorModel state = getModelObject();
         documentService.writeAnnotationCas(aJCas, state.getDocument(), state.getUser(), true);
@@ -292,7 +292,7 @@ public  class CodebookEditorPanel extends Panel {
         // Overriden in CurationPanel
     }
     
-    protected JCas onGetJCas() throws IOException {     
+    protected CAS onGetJCas() throws IOException {     
         return null;
     }
 }

@@ -29,7 +29,6 @@ import java.util.Optional;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.jcas.JCas;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -192,7 +191,7 @@ public class CodebookCurationPanel extends Panel {
             return codebooksModel;
         }
 
-        Map<String, JCas> jCases = setSuggestionCases();
+        Map<String, CAS> jCases = setSuggestionCases();
         for (Codebook codebook : listCodebooks()) {
 
             List<Codebook> types = new ArrayList<>();
@@ -209,7 +208,7 @@ public class CodebookCurationPanel extends Panel {
         return codebooksModel;
     }
     
-    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, JCas> jCases) {
+    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases) {
         DiffResult diff = CodebookDiff
                 .doCodebookDiff(codebookService, codebook.getProject(),
                         CurationUtil.getCodebookTypes(
@@ -254,15 +253,15 @@ public class CodebookCurationPanel extends Panel {
     }
 
 
-    private Map<String, JCas> setSuggestionCases() {
-        Map<String, JCas> jCases = new HashMap<>();
+    private Map<String, CAS> setSuggestionCases() {
+        Map<String, CAS> jCases = new HashMap<>();
         List<AnnotationDocument> annotationDocuments = documentService
                 .listAnnotationDocuments(cModel.getDocument());
         for (AnnotationDocument annotationDocument : annotationDocuments) {
             String username = annotationDocument.getUser();
             if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)
                     || username.equals(WebAnnoConst.CURATION_USER)) {
-                JCas jCas;
+                CAS jCas;
                 try {
                     jCas = documentService.readAnnotationCas(annotationDocument);
                     jCases.put(username, jCas);
@@ -281,7 +280,7 @@ public class CodebookCurationPanel extends Panel {
         return jCases;
     }
 
-    public JCas getCas() throws IOException {
+    public CAS getCas() throws IOException {
         CodebookCurationModel state = getModelObject();
         return curationDocumentService.readCurationCas(state.getDocument());
 
@@ -303,7 +302,7 @@ public class CodebookCurationPanel extends Panel {
             throws AnnotationException, IOException {
 
         CodebookAdapter adapter = new CodebookAdapter(aCodebookFeature.getCodebook());
-        JCas jcas = getCas();
+        CAS jcas = getCas();
         if (aAnnotation == null) {
             adapter.delete(jcas, aCodebookFeature);
             writerCas(jcas);
@@ -319,7 +318,7 @@ public class CodebookCurationPanel extends Panel {
 
     }
 
-    private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, JCas aJCas)
+    private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, CAS aJCas)
             throws IOException, AnnotationException {
         CodebookCurationModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
@@ -352,7 +351,7 @@ public class CodebookCurationPanel extends Panel {
         }
     }
 
-    private void writerCas(JCas aJCas) throws IOException {
+    private void writerCas(CAS aJCas) throws IOException {
         CodebookCurationModel model = getModelObject();
         curationDocumentService.writeCurationCas(aJCas, model.getDocument(), true);
         

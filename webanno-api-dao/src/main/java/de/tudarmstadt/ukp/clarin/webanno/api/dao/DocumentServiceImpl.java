@@ -930,7 +930,7 @@ public class DocumentServiceImpl
     
     @Override
     @Transactional
-    public void writeCodebookAnnotationCas(JCas aJCas, AnnotationDocument aAnnotationDocument,
+    public void writeCodebookAnnotationCas(CAS aJCas, AnnotationDocument aAnnotationDocument,
             boolean aUpdateTimestamp)
         throws IOException
     {
@@ -941,7 +941,7 @@ public class DocumentServiceImpl
     
     @Override
     @Transactional
-    public void writeCodebookAnnotationCas(JCas aJcas, SourceDocument aDocument, User aUser,
+    public void writeCodebookAnnotationCas(CAS aJcas, SourceDocument aDocument, User aUser,
             boolean aUpdateTimestamp)
         throws IOException
     {

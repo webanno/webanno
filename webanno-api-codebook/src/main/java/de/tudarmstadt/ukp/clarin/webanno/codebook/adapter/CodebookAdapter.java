@@ -30,7 +30,6 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.CasUtil;
-import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
@@ -57,29 +56,29 @@ public class CodebookAdapter
         * @throws AnnotationException
         *             if the annotation cannot be created/updated.
         */
-    public Integer add(JCas aJCas) throws AnnotationException {
+    public Integer add(CAS aJCas) throws AnnotationException {
 
-        return createAnnotation(aJCas.getCas(), 0, 0);
+        return createAnnotation(aJCas, 0, 0);
 
     }
     
     // get feature Value of existing  annotation 
-    public Serializable getExistingCodeValue(JCas aJCas, CodebookFeature aFeature)
+    public Serializable getExistingCodeValue(CAS aJCas, CodebookFeature aFeature)
     {
                
-        Type type = CasUtil.getType(aJCas.getCas(), getAnnotationTypeName());
+        Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
         String value = null;
-        for (AnnotationFS fs : CasUtil.selectCovered(aJCas.getCas(), type, 0, 0)) {
+        for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
             value =  WebAnnoCasUtil.getFeature(fs, aFeature.getName()); 
         }
         
         return value;
     }
     
-    public AnnotationFS getExistingFs(JCas aJCas, CodebookFeature aFeature) {
+    public AnnotationFS getExistingFs(CAS aJCas, CodebookFeature aFeature) {
 
-        Type type = CasUtil.getType(aJCas.getCas(), getAnnotationTypeName());
-        List<AnnotationFS> fs = CasUtil.selectCovered(aJCas.getCas(), type, 0, 0);
+        Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
+        List<AnnotationFS> fs = CasUtil.selectCovered(aJCas, type, 0, 0);
         if (!fs.isEmpty()) {
             return fs.get(0);
         }
@@ -105,10 +104,10 @@ public class CodebookAdapter
 
 
     
-    public void delete(JCas aJCas, CodebookFeature aFeature) {
+    public void delete(CAS aJCas, CodebookFeature aFeature) {
 
-        Type type = CasUtil.getType(aJCas.getCas(), getAnnotationTypeName());
-        for (AnnotationFS fs : CasUtil.selectCovered(aJCas.getCas(), type, 0, 0)) {
+        Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
+        for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
             aJCas.removeFsFromIndexes(fs);
         }
     }
@@ -147,10 +146,10 @@ public class CodebookAdapter
 
 
     
-    public void setFeatureValue(JCas aJcas, CodebookFeature aFeature, int aAddress,
+    public void setFeatureValue(CAS aJcas, CodebookFeature aFeature, int aAddress,
             Object aValue)
     {
-        FeatureStructure fs = selectByAddr(aJcas, FeatureStructure.class, aAddress);
+        FeatureStructure fs = selectByAddr(aJcas, AnnotationFS.class, aAddress);
         setFeature(fs, aFeature, aValue);
     }
   

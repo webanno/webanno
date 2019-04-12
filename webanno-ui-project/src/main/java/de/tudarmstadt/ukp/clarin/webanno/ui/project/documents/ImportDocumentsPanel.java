@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.jcas.JCas;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -189,9 +189,9 @@ public class ImportDocumentsPanel extends Panel
 
                             AnnotationDocument annotationDocument = documentService
                                     .createOrGetAnnotationDocument(document, user);
-                            JCas editorCas = documentService
+                            CAS editorCas = documentService
                                     .readAnnotationCas(annotationDocument);
-                            annotationService.upgradeCas(editorCas.getCas(),
+                            annotationService.upgradeCas(editorCas,
                                     annotationDocument);
                             if (cD.getCodebooks().get(u).isEmpty()) {
                                 continue;
@@ -202,13 +202,13 @@ public class ImportDocumentsPanel extends Panel
                                 Type type = editorCas.getTypeSystem().getType(codebook);
                                 Feature f = type.getFeatureByBaseName(
                                         CodebookConst.CODEBOOK_FEATURE_NAME);
-                                AnnotationFS fs = editorCas.getCas().createAnnotation(type, 0,
+                                AnnotationFS fs = editorCas.createAnnotation(type, 0,
                                         0);
                                 fs.setFeatureValueFromString(f, annotation);
                                 editorCas.addFsToIndexes(fs);
 
                             }
-                            documentService.writeAnnotationCas(editorCas.getCas().getJCas(),
+                            documentService.writeAnnotationCas(editorCas,
                                     annotationDocument, false);
                         } catch (Exception e) {
                             error("Unable to create Annotation CAS for the user "

@@ -729,6 +729,11 @@ public class AnnotationSchemaServiceImpl
                 .filter(layer -> !layer.isBuiltIn())
                 .forEachOrdered(layer -> layerSupportRegistry.getLayerSupport(layer)
                         .generateTypes(tsd, layer));
+        
+        for (Codebook codebook : codebookService.listCodebook(aProject)) {
+            TypeDescription td = tsd.addType(codebook.getName(), "", CAS.TYPE_NAME_ANNOTATION);
+            codebookService.generateFeatures(tsd, td, codebook);
+        }
 
         return tsd;
     }

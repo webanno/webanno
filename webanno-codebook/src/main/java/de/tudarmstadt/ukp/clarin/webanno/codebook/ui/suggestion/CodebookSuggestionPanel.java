@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.uima.cas.CAS;
 import org.apache.uima.jcas.JCas;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -153,7 +154,7 @@ public class CodebookSuggestionPanel extends Panel {
     }
 
     private List<CodebookSuggestions> getSuggestions(CodebookFeature feature) {
-        Map<String, JCas> jCases = setSuggestionCases();
+        Map<String, CAS> jCases = setSuggestionCases();
         List<Codebook> types = new ArrayList<>();
         types.add(feature.getCodebook());
         CodebookAdapter adapter = new CodebookAdapter(feature.getCodebook());
@@ -166,7 +167,7 @@ public class CodebookSuggestionPanel extends Panel {
             }
             String existingCode = (String) adapter.getExistingCodeValue(jCases.get(username),
                     feature);
-            Map<String, JCas> suggestionCas = new HashMap<>();
+            Map<String, CAS> suggestionCas = new HashMap<>();
             suggestionCas.put(username, jCases.get(username));
             suggestionCas.put(WebAnnoConst.CURATION_USER, jCases.get(WebAnnoConst.CURATION_USER));
             CodebookSuggestions suggestion = new CodebookSuggestions(username, existingCode,
@@ -178,15 +179,15 @@ public class CodebookSuggestionPanel extends Panel {
         return suggestions;
     }
 
-    private Map<String, JCas> setSuggestionCases() {
-        Map<String, JCas> jCases = new HashMap<>();
+    private Map<String, CAS> setSuggestionCases() {
+        Map<String, CAS> jCases = new HashMap<>();
         List<AnnotationDocument> annotationDocuments = documentService
                 .listAnnotationDocuments(cModel.getDocument());
         for (AnnotationDocument annotationDocument : annotationDocuments) {
             String username = annotationDocument.getUser();
             if (annotationDocument.getState().equals(AnnotationDocumentState.FINISHED)
                     || username.equals(WebAnnoConst.CURATION_USER)) {
-                JCas jCas;
+                CAS jCas;
                 try {
                     jCas = documentService.readAnnotationCas(annotationDocument);
                     jCases.put(username, jCas);
@@ -205,7 +206,7 @@ public class CodebookSuggestionPanel extends Panel {
         return jCases;
     }
 
-    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, JCas> jCases) {
+    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases) {
         DiffResult diff = CodebookDiff
                 .doCodebookDiff(codebookService, codebook.getProject(),
                         CurationUtil.getCodebookTypes(
@@ -220,7 +221,7 @@ public class CodebookSuggestionPanel extends Panel {
         return false;
     }
 
-    public JCas getCas() throws IOException {
+    public CAS getCas() throws IOException {
         CodebookCurationModel state = getModelObject();
         return curationDocumentService.readCurationCas(state.getDocument());
 
