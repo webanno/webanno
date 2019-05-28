@@ -75,6 +75,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CasUpgradeMode;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
@@ -860,11 +861,29 @@ public class AnnotationSchemaServiceImpl
 
         return (TypeSystemDescription_impl) mergeTypeSystems(typeSystems);
     }
+    
     @Override
     public void upgradeCas(CAS aCas, AnnotationDocument aAnnotationDocument)
         throws UIMAException, IOException
     {
         upgradeCas(aCas, aAnnotationDocument.getDocument(), aAnnotationDocument.getUser());
+    }
+
+    @Override
+    public void upgradeCas(CAS aCas, SourceDocument aSourceDocument, String aUser,
+            CasUpgradeMode aMode)
+        throws UIMAException, IOException
+    {
+        switch (aMode) {
+        case NO_CAS_UPGRADE:
+            return;
+        case AUTO_CAS_UPGRADE:
+            upgradeCasIfRequired(aCas, aSourceDocument, aUser);
+            return;
+        case FORCE_CAS_UPGRADE:
+            upgradeCas(aCas, aSourceDocument, aUser);
+            return;
+        }
     }
 
     @Override
@@ -918,6 +937,8 @@ public class AnnotationSchemaServiceImpl
 
         upgradeCas(aCas, ts);
     }
+    
+    
     
     @Override
     public CAS prepareCasForExport(CAS aCas, SourceDocument aSourceDocument)
