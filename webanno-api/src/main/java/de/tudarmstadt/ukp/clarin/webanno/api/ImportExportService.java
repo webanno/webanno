@@ -143,25 +143,4 @@ public interface ImportExportService
     File exportAnnotationDocument(SourceDocument document, String user, FormatSupport aFormat,
             String fileName, Mode mode, boolean stripExtension)
         throws UIMAException, IOException, ClassNotFoundException;
-    
-    /**
-     * 
-     * @param cas
-     * @param document The {@link SourceDocument} with the codebook annotation
-     * @param fileName The name of the exported annotation file
-     * @param exportDir 
-     * @param withHeaders
-     * @param annotator The user who assigns the category value
-     * @param documentName  The document name to be exported
-     * @return
-     * @throws IOException
-     * @throws UIMAException
-     */
-    File exportCodebooks(CAS cas, SourceDocument document, String fileName, File exportDir,
-            boolean withHeaders, boolean withText, List<String> codebooks, String annotator,
-            String documentName) throws IOException, UIMAException;
-
-    File exportCodebookDocument(SourceDocument document, String user, String fileName, Mode mode,
-            File exportDir, boolean withHeaders, boolean withText, List<String> codebooks)
-            throws UIMAException, IOException, ClassNotFoundException;
 }

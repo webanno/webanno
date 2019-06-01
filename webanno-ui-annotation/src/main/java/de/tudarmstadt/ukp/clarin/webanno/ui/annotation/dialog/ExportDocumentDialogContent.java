@@ -44,6 +44,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -64,6 +65,7 @@ public class ExportDocumentDialogContent
     private static final Logger LOG = LoggerFactory.getLogger(ExportDocumentDialogContent.class);
 
     private @SpringBean ImportExportService importExportService;
+    private @SpringBean CodebookImportExportService codebookImportExportService;
     private @SpringBean CodebookSchemaService codebookService;
 
     private IModel<AnnotatorState> state;
@@ -133,7 +135,7 @@ public class ExportDocumentDialogContent
                     codebooks.add(codebok.getName());
                 }
                 
-                downloadFile = importExportService.exportCodebookDocument(
+                downloadFile = codebookImportExportService.exportCodebookDocument(
                         state.getObject().getDocument(), username, filename,
                         state.getObject().getMode(), tmpDir, true, true, codebooks);
             } else {

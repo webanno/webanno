@@ -26,7 +26,6 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.exists;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectSentences;
 import static java.util.Collections.unmodifiableList;
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.apache.uima.fit.factory.CollectionReaderFactory.createReader;
 import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
 import static org.apache.uima.fit.util.CasUtil.getType;
@@ -73,7 +72,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
-import de.tudarmstadt.ukp.clarin.webanno.csv.WebannoCsvWriter;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -501,63 +499,5 @@ public class ImportExportServiceImpl
             fs.setStringValue(nameFeature, aTagSetName);
             aCas.addFsToIndexes(fs);
         }
-    }
-    
-    
-    @Override
-    @Transactional
-    public File exportCodebookDocument(SourceDocument aDocument, String aUser, String aFileName,
-            Mode aMode, File aExportDir, boolean aWithHeaders, boolean aWithText,
-            List<String> aCodebooks) throws UIMAException, IOException, ClassNotFoundException {
-        File annotationFolder = casStorageService.getAnnotationFolder(aDocument);
-        String serializedCasFileName;
-        // for Correction, it will export the corrected document (of the logged in user)
-        // (CORRECTION_USER.ser is the automated result displayed for the user to correct it, not
-        // the final result) for automation, it will export either the corrected document
-        // (Annotated) or the automated document
-        if (aMode.equals(Mode.ANNOTATION) || aMode.equals(Mode.AUTOMATION)
-                || aMode.equals(Mode.CORRECTION)) {
-            serializedCasFileName = aUser + ".ser";
-        }
-        // The merge result will be exported
-        else {
-            serializedCasFileName = WebAnnoConst.CURATION_USER + ".ser";
-        }
-
-        // Read file
-        File serializedCasFile = new File(annotationFolder, serializedCasFileName);
-        if (!serializedCasFile.exists()) {
-            throw new FileNotFoundException("CAS file [" + serializedCasFileName
-                    + "] not found in [" + annotationFolder + "]");
-        }
-
-        CAS cas = CasCreationUtils.createCas((TypeSystemDescription) null, null, null);
-        CasPersistenceUtils.readSerializedCas(cas, serializedCasFile);
-
-        // Update type system the CAS
-        annotationService.upgradeCas(cas, aDocument, aUser);
-        String documentName = aDocument.getName();
-        File exportFile = exportCodebooks(cas, aDocument, aFileName, aExportDir, aWithHeaders,
-                aWithText, aCodebooks, aUser, documentName);
-
-        return exportFile;
-    }
-    
-    @Override
-    public File exportCodebooks(CAS cas, SourceDocument aDocument, String aFileName,
-            File aExportDir, boolean aWithHeaders, boolean aWithText, List<String> aCodebooks,
-            String aAnnotator, String documentName) throws IOException, UIMAException {
-
-        AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
-                JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,
-                "withHeaders", aWithHeaders, "withText", aWithText, "codebooks", aCodebooks,
-                "annotator", aAnnotator, "documentName", documentName);
-
-        runPipeline(cas, writer);
-
-        File exportFile = new File(aFileName);
-        //FileUtils.copyFile(aExportDir.listFiles()[0], exportFile);
-        return exportFile;
-
     }
 }
