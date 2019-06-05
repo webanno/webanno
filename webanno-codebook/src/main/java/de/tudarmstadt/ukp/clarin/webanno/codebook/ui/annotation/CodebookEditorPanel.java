@@ -20,7 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getAddr;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,12 +42,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.wicket.jquery.core.Options;
+import com.googlecode.wicket.jquery.ui.widget.tooltip.TooltipBehavior;
+import com.googlecode.wicket.kendo.ui.KendoUIBehavior;
 import com.googlecode.wicket.kendo.ui.form.combobox.ComboBox;
+import com.googlecode.wicket.kendo.ui.form.combobox.ComboBoxBehavior;
+
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
@@ -61,30 +65,35 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
+import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.support.StyledComboBox;
 
-public  class CodebookEditorPanel extends Panel {
+public class CodebookEditorPanel
+    extends Panel
+{
+    /**
+     * Function to return tooltip using jquery Docs for the JQuery tooltip widget that we configure
+     * below: https://api.jqueryui.com/tooltip/
+     */
+    protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
+            + "'<div class=\"tooltip-title\">'+($(this).text() "
+            + "? $(this).text() : 'no title')+'</div>"
+            + "<div class=\"tooltip-content tooltip-pre\">'+($(this).attr('title') "
+            + "? $(this).attr('title') : 'no description' )+'</div>' }";
     private static final long serialVersionUID = -9151455840010092452L;
-
+    private static final Logger LOG = LoggerFactory.getLogger(CodebookEditorPanel.class);
     private @SpringBean ProjectService projectRepository;
-
     private @SpringBean DocumentService documentService;
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean AnnotationEditorExtensionRegistry extensionRegistry;
-
     private CodebookEditorModel as;
-
     private WebMarkupContainer codebooksGroup;
     private PageableListView<CodebookEditorModel> codebooks;
     private PagingNavigator navigator;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CodebookEditorPanel.class);
-
-    public CodebookEditorModel getModelObject() {
-        return (CodebookEditorModel) getDefaultModelObject();
-    }
-
-    public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel) {
+    public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
+    {
         super(id, aModel);
 
         setOutputMarkupId(true);
@@ -92,16 +101,17 @@ public  class CodebookEditorPanel extends Panel {
         as = aModel.getObject();
         int codebooksPerPage = as == null ? 10 : as.getCodebooksPerPage();
         codebooks = new PageableListView<CodebookEditorModel>("codebooks", getCodebooksModel(),
-                codebooksPerPage) {
+                codebooksPerPage)
+        {
             private static final long serialVersionUID = 1L;
 
-
             @Override
-            protected void populateItem(final ListItem<CodebookEditorModel> item) {
-                final CodebookEditorModel model = (CodebookEditorModel) item.getModelObject();
+            protected void populateItem(final ListItem<CodebookEditorModel> item)
+            {
+                final CodebookEditorModel model = item.getModelObject();
                 Codebook codebook = model.getCodebook();
                 item.add(new Label("codebook", codebook.getUiName()));
-                List<String> codes = getTags(codebook);
+                List<Tag> codes = getTags(codebook);
 
                 CodebookAdapter adapter = new CodebookAdapter(codebook);
                 CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
@@ -109,19 +119,79 @@ public  class CodebookEditorPanel extends Panel {
                 CAS jcas = null;
                 try {
                     jcas = getCodebookCas();
-                } catch (IOException e1) {
+                }
+                catch (IOException e1) {
                     // TODO why it is here??
                 }
                 String existingCode = (String) adapter.getExistingCodeValue(jcas, feature);
-                ComboBox<String> code = new ComboBox<String>("code",
-                        new Model<String>(existingCode), codes);
-                code.add(new AjaxFormComponentUpdatingBehavior("change") {
+
+                // this adds a ComboBox where each item has a DescriptionTooltipBehavior
+                // TODO I would encapsulate this in an own class for better reusability
+                ComboBox<Tag> code = new StyledComboBox<Tag>("code", new Model<>(existingCode),
+                        codes)
+                {
+                    private static final long serialVersionUID = -1735612345658462932L; // TODO
+                                                                                        // generate
+                                                                                        // valid ID
+
+                    @Override
+                    protected void onInitialize()
+                    {
+                        super.onInitialize();
+
+                        // Ensure proper order of the initializing JS header items: first combo box
+                        // behavior (in super.onInitialize()), then tooltip.
+                        Options options = new Options(
+                                DescriptionTooltipBehavior.makeTooltipOptions());
+                        options.set("content", FUNCTION_FOR_TOOLTIP);
+                        add(new TooltipBehavior("#" + getMarkupId() + "_listbox *[title]", options)
+                        {
+                            private static final long serialVersionUID = 1854141593969780149L;
+
+                            @Override
+                            protected String $()
+                            {
+                                // REC: It takes a moment for the KendoDatasource to load the data
+                                // and
+                                // for the Combobox to render the hidden dropdown. I did not find
+                                // a way to hook into this process and to get notified when the
+                                // data is available in the dropdown, so trying to handle this
+                                // with a slight delay hoping that all is set up after 1 second.
+                                return "try {setTimeout(function () { " + super.$()
+                                        + " }, 1000); } catch (err) {}; ";
+                            }
+                        });
+                    }
+
+                    @Override
+                    protected void onConfigure()
+                    {
+                        super.onConfigure();
+
+                        // Trigger a re-loading of the tagset from the server as constraints may
+                        // have
+                        // changed the ordering
+                        Optional<AjaxRequestTarget> target = RequestCycle.get()
+                                .find(AjaxRequestTarget.class);
+                        if (target.isPresent()) {
+                            LOG.trace("onInitialize() requesting datasource re-reading");
+                            target.get()
+                                    .appendJavaScript(String.format(
+                                            "var $w = %s; if ($w) { $w.dataSource.read(); }",
+                                            KendoUIBehavior.widget(this, ComboBoxBehavior.METHOD)));
+                        }
+                    }
+                };
+
+                code.add(new AjaxFormComponentUpdatingBehavior("change")
+                {
                     private static final long serialVersionUID = 5179816588460867471L;
 
                     @Override
-                    public void onUpdate(AjaxRequestTarget aTarget) {
+                    public void onUpdate(AjaxRequestTarget aTarget)
+                    {
                         try {
-                            CAS jcas  = getCodebookCas();
+                            CAS jcas = getCodebookCas();
                             if (code.getModelObject() == null) {
                                 CodebookAdapter adapter = new CodebookAdapter(codebook);
                                 adapter.delete(jcas, feature);
@@ -132,23 +202,26 @@ public  class CodebookEditorPanel extends Panel {
                             state.getCodebookFeatureStates()
                                     .add(new CodebookFeatureState(feature, code.getModelObject()));
                             saveCodebookAnnotation(feature, jcas);
-                        } catch (IOException | AnnotationException e) {
+                        }
+                        catch (IOException | AnnotationException e) {
                             error("Unable to update" + e.getMessage());
                         }
                     }
                 });
-                code.add(new Behavior() {
+                code.add(new Behavior()
+                {
                     private static final long serialVersionUID = -8375331706930026335L;
 
                     @Override
-                    public void onConfigure(final Component component) {
+                    public void onConfigure(final Component component)
+                    {
                         super.onConfigure(component);
                     }
                 });
-                code.add(new AttributeModifier("style",
-                        ColoringStrategy.getCodebookBgStyle()));
-                item.add(new AttributeModifier("style",
-                        ColoringStrategy.getCodebookBgStyle()));
+                code.add(new AttributeModifier("style", ColoringStrategy.getCodebookBgStyle()));
+                item.add(new AttributeModifier("style", ColoringStrategy.getCodebookBgStyle()));
+                item.add(new DescriptionTooltipBehavior(codebook.getUiName(),
+                        codebook.getDescription()));
                 item.add(code);
             }
         };
@@ -168,7 +241,13 @@ public  class CodebookEditorPanel extends Panel {
         form.add(codebooksGroup);
     }
 
-    private List<CodebookEditorModel> getCodebooksModel() {
+    public CodebookEditorModel getModelObject()
+    {
+        return (CodebookEditorModel) getDefaultModelObject();
+    }
+
+    private List<CodebookEditorModel> getCodebooksModel()
+    {
         List<CodebookEditorModel> codebooks = new ArrayList<CodebookEditorModel>();
 
         for (Codebook codebook : listCodebooks()) {
@@ -178,7 +257,8 @@ public  class CodebookEditorPanel extends Panel {
         return codebooks;
     }
 
-    List<String> getTags(Codebook aCodebook) {
+    List<Tag> getTags(Codebook aCodebook)
+    {
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
@@ -187,21 +267,19 @@ public  class CodebookEditorPanel extends Panel {
         if (codebookFeature.getTagset() == null) {
             return new ArrayList<>();
         }
-        List<String> tags = new ArrayList<>();
-        for (Tag tag : annotationService.listTags(codebookFeature.getTagset())) {
-            tags.add(tag.getName());
-        }
-        return tags;
+        return new ArrayList<>(annotationService.listTags(codebookFeature.getTagset()));
     }
 
-    private List<Codebook> listCodebooks() {
+    private List<Codebook> listCodebooks()
+    {
         if (as == null) {
             return new ArrayList<>();
         }
         return codebookService.listCodebook(as.getProject());
     }
 
-    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState) {
+    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState)
+    {
         as = aState;
         setDefaultModelObject(as);
         codebooks.setModelObject(getCodebooksModel());
@@ -219,7 +297,8 @@ public  class CodebookEditorPanel extends Panel {
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)
-            throws AnnotationException, IOException {
+        throws AnnotationException, IOException
+    {
 
         CodebookAdapter adapter = new CodebookAdapter(aCodebookFeature.getCodebook());
         writeCodebookFeatureModelsToCas(adapter, aJCas);
@@ -230,7 +309,8 @@ public  class CodebookEditorPanel extends Panel {
     }
 
     private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, CAS aJCas)
-            throws IOException, AnnotationException {
+        throws IOException, AnnotationException
+    {
         CodebookEditorModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
 
@@ -258,14 +338,16 @@ public  class CodebookEditorPanel extends Panel {
 
             if (existingFs != null) {
                 annoId = getAddr(existingFs);
-            } else {
+            }
+            else {
                 annoId = aAdapter.add(aJCas);
             }
             aAdapter.setFeatureValue(aJCas, featureState.feature, annoId, featureState.value);
         }
     }
 
-    public CAS getCodebookCas() throws IOException {
+    public CAS getCodebookCas() throws IOException
+    {
         CodebookEditorModel state = getModelObject();
 
         if (state.getDocument() == null) {
@@ -274,8 +356,9 @@ public  class CodebookEditorPanel extends Panel {
         return (onGetJCas());
     }
 
-    private void writeCodebookCas(CAS aJCas) throws IOException {
-       
+    private void writeCodebookCas(CAS aJCas) throws IOException
+    {
+
         CodebookEditorModel state = getModelObject();
         documentService.writeAnnotationCas(aJCas, state.getDocument(), state.getUser(), true);
 
@@ -286,12 +369,14 @@ public  class CodebookEditorPanel extends Panel {
             onJcasUpdate(diskTimestamp.get());
         }
     }
-    
-    protected void onJcasUpdate(Long aTimeStamp) {
+
+    protected void onJcasUpdate(Long aTimeStamp)
+    {
         // Overriden in CurationPanel
     }
-    
-    protected CAS onGetJCas() throws IOException {     
+
+    protected CAS onGetJCas() throws IOException
+    {
         return null;
     }
 }
