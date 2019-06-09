@@ -26,13 +26,21 @@
   - title: "Admin Guide"
     url: "/releases/!LATEST!/docs/admin-guide.html"
 
-- title: "Issues"
-  url: "http://github.com/webanno/webanno/issues"
+
+- title: Publications
+  url: "/publications/"
   side: left
 
-- title: Source
-  url: "http://github.com/webanno/webanno"
+- title: GitHub
+  url: "http://github.com/webanno/webanno/"
   side: left
+  dropdown:
+  - title: "Issues"
+    url: "http://github.com/webanno/webanno/issues"
+    side: left
+  - title: Source
+    url: "http://github.com/webanno/webanno"
+    side: left
 
 - title: "Contact"
   url: "/contact"
