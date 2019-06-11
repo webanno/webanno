@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.api;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import static java.util.Objects.isNull;
 
@@ -33,17 +33,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
+// import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
+//import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupport;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
@@ -60,7 +57,7 @@ public class CodebookSchemaServiceImpl
     private File dir;
 
     private @PersistenceContext EntityManager entityManager;
-    private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
+  //  private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
     private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
     public CodebookSchemaServiceImpl()
     {

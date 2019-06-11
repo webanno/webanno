@@ -76,6 +76,10 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.ImportExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.RepositoryProperties;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.export.ProjectExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistryImpl;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.project.ProjectServiceImpl;
@@ -93,6 +97,7 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.AeroRemoteApiCont
 @EnableWebSecurity
 @EntityScan({
     "de.tudarmstadt.ukp.clarin.webanno.model",
+    "de.tudarmstadt.ukp.clarin.webanno.codebook.model",
     "de.tudarmstadt.ukp.clarin.webanno.security.model" })
 @TestPropertySource(locations = "classpath:RemoteApiController2Test.properties")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -308,12 +313,26 @@ public class RemoteApiController2Test
         {
             return new AnnotationSchemaServiceImpl();
         }
+        @Bean
+        public CodebookSchemaService codebookService()
+        {
+            return new CodebookSchemaServiceImpl();
+        }
+        
         
         @Bean
         public FeatureSupportRegistry featureSupportRegistry()
         {
             return new FeatureSupportRegistryImpl(Collections.emptyList());
         }
+        
+        
+        @Bean
+        public CodebookFeatureSupportRegistry codebookFeatureSupportRegistry()
+        {
+            return new CodebookFeatureSupportRegistryImpl(Collections.emptyList());
+        }
+        
         
         @Bean
         public CasStorageService casStorageService()
@@ -368,6 +387,7 @@ public class RemoteApiController2Test
                             null),
                     new ChainLayerSupport(featureSupportRegistry(), null, annotationService(),
                             null)));
+            
         }
     }
 }

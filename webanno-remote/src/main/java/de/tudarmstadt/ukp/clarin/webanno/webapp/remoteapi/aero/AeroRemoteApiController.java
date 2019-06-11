@@ -89,6 +89,8 @@ import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.export.ImportUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -159,6 +161,7 @@ public class AeroRemoteApiController
     private @Autowired ProjectService projectService;
     private @Autowired ImportExportService importExportService;
     private @Autowired AnnotationSchemaService annotationService;
+    private @Autowired CodebookSchemaService codebookService;
     private @Autowired UserDao userRepository;
     private @Autowired ProjectExportService exportService;
 
@@ -338,6 +341,12 @@ public class AeroRemoteApiController
                 new ProjectPermission(project, owner, PermissionLevel.CURATOR));
         projectService.createProjectPermission(
                 new ProjectPermission(project, owner, PermissionLevel.ANNOTATOR));
+        
+        Codebook codebook = new Codebook();
+        codebook.setName("codebook1");
+        codebook.setUiName("codebook1");
+        codebook.setProject(project);
+        codebookService.createCodebook(codebook);
         
         RResponse<RProject> response = new RResponse<>(new RProject(project));
         return ResponseEntity.created(aUcb.path(API_BASE + "/" + PROJECTS + "/{id}")
