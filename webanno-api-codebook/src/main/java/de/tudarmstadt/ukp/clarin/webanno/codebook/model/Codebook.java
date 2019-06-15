@@ -30,6 +30,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 @Entity
@@ -55,6 +58,7 @@ public class Codebook implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "project")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Project project;
 
 /*    @ManyToOne
