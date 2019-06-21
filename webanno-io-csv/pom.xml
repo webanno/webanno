@@ -23,7 +23,9 @@
     <version>3.6.0-SNAPSHOT</version>
   </parent>
   <artifactId>webanno-io-csv</artifactId>
-  
+
+  <name>WebAnno - IO - CSV</name>
+
   <dependencies>
       <dependency>
       <groupId>org.apache.uima</groupId>
@@ -61,6 +63,47 @@
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-context</artifactId>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+      <artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+      <artifactId>de.tudarmstadt.ukp.dkpro.core.io.xmi-asl</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  <name>WebAnno - IO - CSV</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!--generate types dynamically -->
+        <groupId>org.apache.uima</groupId>
+        <artifactId>jcasgen-maven-plugin</artifactId>
+        <version>${uima.version}</version>
+        <configuration>
+          <limitToProject>true</limitToProject>
+          <outputDirectory>${project.build.directory}/generated-test-sources/jcasgen</outputDirectory>
+          <typeSystemIncludes>
+            <include>src/test/resources/desc/type/**/*.xml</include>
+          </typeSystemIncludes>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
