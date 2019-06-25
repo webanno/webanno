@@ -80,9 +80,9 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.Agree
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.AgreementResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.ConcreteAgreementMeasure;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.PairwiseAnnotationResult;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.PermissionLevel;
@@ -350,13 +350,13 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                             Map<String, List<CAS>> casMap = getCases();
 
                             Project project = projectSelectionForm.getModelObject().project;
-                            List<DiffAdapter> adapters = CasDiff2.getAdapters(annotationService,
+                            List<DiffAdapter> adapters = CasDiff.getAdapters(annotationService,
                                     project);
 
                             CodebookAgreementFormModel pref = CodebookAgreementForm.this
                                     .getModelObject();
 
-                            DiffResult diff = CasDiff2.doDiff(
+                            DiffResult diff = CasDiff.doDiff(
                                     asList(feature.getCodebook().getName()), adapters, null,
                                     casMap);
                             return AgreementUtils.getPairwiseAgreement(
@@ -393,13 +393,13 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                                     Map<String, List<CAS>> casMap = getCases();
 
                                     Project project = projectSelectionForm.getModelObject().project;
-                                    List<DiffAdapter> adapters = CasDiff2
+                                    List<DiffAdapter> adapters = CasDiff
                                             .getAdapters(annotationService, project);
 
                                     CodebookAgreementFormModel pref = CodebookAgreementForm.this
                                             .getModelObject();
 
-                                    DiffResult diff = CasDiff2.doDiff(
+                                    DiffResult diff = CasDiff.doDiff(
                                             asList(feature.getCodebook().getName()), adapters,
                                             null, casMap);
 
