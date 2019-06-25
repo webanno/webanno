@@ -151,7 +151,7 @@ public class AnnotationPage
     private LambdaAjaxLink finishDocumentLink;
     
     private AnnotationEditorBase annotationEditor;
-    private AnnotationDetailEditorPanel detailEditor;
+    private AnnotationDetailEditorPanel detailEditor;    
 
     private CodebookEditorPanel codebookdetailEditor;
 
@@ -195,8 +195,8 @@ public class AnnotationPage
         // Ensure that a user is set
         getModelObject().setUser(userRepository.getCurrentUser());
 
-        add(createUrlFragmentBehavior());
-
+        add(createUrlFragmentBehavior());      
+        
         createAnnotationEditor(null);
         
         add(createRightSidebar());
@@ -360,7 +360,7 @@ public class AnnotationPage
         AnnotatorState state = getModelObject();
         
         String editorId = getModelObject().getPreferences().getEditor();
-
+        
         AnnotationEditorFactory factory = editorRegistry.getEditorFactory(editorId);
         if (factory == null) {
             factory = editorRegistry.getDefaultEditorFactory();
@@ -528,9 +528,9 @@ public class AnnotationPage
             AnnotatorState state = getModelObject();
             
             CAS cas = getEditorCas();
-
-            // The number of visible sentences may have changed - let the state recalculate
-            // the visible sentences
+            
+            // The number of visible sentences may have changed - let the state recalculate 
+            // the visible sentences 
             state.getPagingStrategy().recalculatePage(state, cas);
 
             decideSideBarSetup(aTarget);
@@ -538,7 +538,7 @@ public class AnnotationPage
             detailEditor.getAnnotationFeatureForm().updateLayersDropdown();
             
             createAnnotationEditor(aTarget);
-
+            
             // Reload all AJAX-enabled children of the page but not the page itself!
             WicketUtil.refreshPage(aTarget, getPage());
         }
