@@ -824,85 +824,6 @@ public class CasDiff
     }
     
     /**
-     * 
-     * Codebooks will have no specific begin/end position. Lets keep the begin/end position, if
-     * in the future we implement codebooks based on regions such as paragraphs
-     *
-     */
-    public static class CodebookPosition extends Position_ImplBase
-    {
-        private final int begin;
-        private final int end;
-        private final String text;
-
-        public CodebookPosition(String aCollectionId, String aDocumentId, int aCasId, String aType,
-                int aBegin, int aEnd, String aText, String aFeature, String aRole,
-                int aLinkTargetBegin, int aLinkTargetEnd, String aLinkTargetText,
-                LinkCompareBehavior aLinkCompareBehavior)
-        {
-            super(aCollectionId, aDocumentId, aCasId, aType, aFeature, aRole, aLinkTargetBegin,
-                    aLinkTargetEnd, aLinkTargetText, aLinkCompareBehavior);
-            begin = aBegin;
-            end = aEnd;
-            text = aText;
-        }
-        
-        /**
-         * @return the begin offset.
-         */
-        public int getBegin()
-        {
-            return begin;
-        }
-
-        /**
-         * @return the end offset.
-         */
-        public int getEnd()
-        {
-            return end;
-        }
-
-        @Override
-        public int compareTo(Position aOther)
-        {
-            int superCompare = super.compareTo(aOther);
-            if (superCompare != 0) {
-                return superCompare;
-            }
-            else {
-                CodebookPosition otherSpan = (CodebookPosition) aOther;
-                if (begin == otherSpan.begin) {
-                    return otherSpan.end - end;
-                }
-                else {
-                    return begin - otherSpan.begin;
-                }
-            }
-        }
-
-        @Override
-        public String toString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Codebook [");
-            toStringFragment(builder);
-            builder.append(", Codebook=(").append(begin).append('-').append(end).append(')');
-            builder.append('[').append(text).append(']');
-            builder.append(']');
-            return builder.toString();
-        }
-
-        @Override
-        public String toMinimalString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.append(begin).append('-').append(end).append(" [").append(text).append(']');
-            return builder.toString();
-        }
-    }
-    
-    /**
      * Represents a span position in the text.
      */
     public static class RelationPosition extends Position_ImplBase
@@ -1961,38 +1882,6 @@ public class CasDiff
                     aLinkCompareBehavior);
         }
     }
-
-    public static class CodebookDiffAdapter extends DiffAdapter_ImplBase {
-        public CodebookDiffAdapter(String aType, Set<String> aLabelFeatures) {
-            super(aType, aLabelFeatures);
-        }
-
-        @Override
-        public Position getPosition(int aCasId, FeatureStructure aFS, String aFeature, String aRole,
-                int aLinkTargetBegin, int aLinkTargetEnd,
-                LinkCompareBehavior aLinkCompareBehavior) {
-
-            AnnotationFS annoFS = (AnnotationFS) aFS;
-
-            String collectionId = null;
-            String documentId = null;
-            try {
-                FeatureStructure dmd = WebAnnoCasUtil.getDocumentMetadata(aFS.getCAS());
-                collectionId = FSUtil.getFeature(dmd, "collectionId", String.class);
-                documentId = FSUtil.getFeature(dmd, "documentId", String.class);
-            } catch (IllegalArgumentException e) {
-                // We use this information only for debugging - so we can ignore if the
-                // information
-                // is missing.
-            }
-            return new CodebookPosition(collectionId, documentId, aCasId, getType(), 0, 0,
-                    annoFS.getCoveredText(), aFeature, aRole, aLinkTargetBegin, aLinkTargetEnd,
-                    null, aLinkCompareBehavior);
-
-        }
-
-    }
-    
     
     public static List<DiffAdapter> getAdapters(AnnotationSchemaService annotationService,
             Project project)
