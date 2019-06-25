@@ -371,20 +371,20 @@
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-codebook</artifactId>
-	<version>3.6.0-SNAPSHOT</version>
-	</dependency>
-	      <dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-api-codebook</artifactId>
-		<version>3.6.0-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-ui-tagsets</artifactId>
-		<version>3.6.0-SNAPSHOT</version>
-	</dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-codebook</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-api-codebook</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-ui-tagsets</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
@@ -934,6 +934,9 @@
     <module>webanno-constraints</module>
     <module>webanno-export</module>
     <module>webanno-api-automation</module>
+    <module>webanno-automation</module>
+    <module>webanno-codebook</module>
+    <module>webanno-api-codebook</module>
     <!-- UI -->
     <module>webanno-brat</module>
     <module>webanno-ui-core</module>
@@ -944,13 +947,10 @@
     <module>webanno-ui-monitoring</module>
     <module>webanno-ui-annotation</module>
     <module>webanno-ui-automation</module>
+    <module>webanno-ui-tagsets</module>
     <module>webanno-webapp</module>
     <!-- Documentation -->
     <module>webanno-doc</module>
-    <module>webanno-automation</module>
-    <module>webanno-codebook</module>
-    <module>webanno-ui-tagsets</module>
-    <module>webanno-api-codebook</module>
   </modules>
   <build>
     <plugins>
