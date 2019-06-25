@@ -1882,7 +1882,7 @@ public class CasDiff
                     aLinkCompareBehavior);
         }
     }
-    
+
     public static List<DiffAdapter> getAdapters(AnnotationSchemaService annotationService,
             Project project)
     {
