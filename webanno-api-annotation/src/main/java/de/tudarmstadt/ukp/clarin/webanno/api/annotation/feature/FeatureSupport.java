@@ -367,6 +367,4 @@ public interface FeatureSupport<T>
     {
         return unsupportedMultiValueModeException(aFeatureState.feature);
     }
-
-    List<FeatureType> getPrimitiveFeatureTypes();
 }

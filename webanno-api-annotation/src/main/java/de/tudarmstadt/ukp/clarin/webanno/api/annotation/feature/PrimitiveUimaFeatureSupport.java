@@ -275,9 +275,4 @@ public class PrimitiveUimaFeatureSupport
             return FeatureSupport.super.renderFeatureValue(aFeature, aLabel);
         }
     }
-    @Override
-    public List<FeatureType> getPrimitiveFeatureTypes()
-    {
-        return Collections.unmodifiableList(primitiveTypes);
-    }
 }

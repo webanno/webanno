@@ -309,9 +309,4 @@ public class SlotFeatureSupport
             log.error("Unable to write traits", e);
         }
     }
-    
-    @Override
-    public List<FeatureType> getPrimitiveFeatureTypes() {
-        return new ArrayList<>();
-    }
 }
