@@ -32,11 +32,11 @@ import org.apache.uima.cas.Type;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.CodebookDiffAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.LinkCompareBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.CodebookDiffAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.LinkCompareBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class CodebookDiff {
@@ -62,6 +62,6 @@ public class CodebookDiff {
         for (Entry<String, CAS> e : aCasMap.entrySet()) {
             casMap.put(e.getKey(), asList(e.getValue()));
         }
-        return CasDiff2.doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior);
+        return CasDiff.doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior);
     }
 }
