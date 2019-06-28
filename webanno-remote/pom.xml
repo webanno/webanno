@@ -254,10 +254,6 @@
       <artifactId>webanno-io-text</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-    	<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-    	<artifactId>webanno-api-codebook</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <pluginManagement>
