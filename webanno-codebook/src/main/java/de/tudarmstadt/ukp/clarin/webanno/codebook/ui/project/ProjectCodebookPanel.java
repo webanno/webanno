@@ -82,6 +82,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRe
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ImportUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
@@ -149,7 +150,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel) {
         super(id, aProjectModel);
         setOutputMarkupId(true);
-
+        add(CodebookLayoutCssResourceBehavior.get());
         Model<Codebook> codebook = Model.of();
 
         codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebook);

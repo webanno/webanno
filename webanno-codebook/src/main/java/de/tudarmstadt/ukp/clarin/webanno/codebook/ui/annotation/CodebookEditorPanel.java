@@ -60,6 +60,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensio
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
@@ -97,7 +98,7 @@ public class CodebookEditorPanel
         super(id, aModel);
 
         setOutputMarkupId(true);
-
+        add(CodebookLayoutCssResourceBehavior.get());
         as = aModel.getObject();
         int codebooksPerPage = as == null ? 10 : as.getCodebooksPerPage();
         codebooks = new PageableListView<CodebookEditorModel>("codebooks", getCodebooksModel(),

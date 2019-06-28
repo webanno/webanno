@@ -56,6 +56,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensio
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
@@ -91,7 +92,7 @@ public class CodebookCurationPanel extends Panel {
         super(id, aModel);
 
         setOutputMarkupId(true);
-
+        add(CodebookLayoutCssResourceBehavior.get());
         cModel = aModel.getObject();
 
         curations = new PageableListView<CodebookCurations>("curations",
