@@ -15,10 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.export.model;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.export;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 
 /**
  * All required contents of

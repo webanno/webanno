@@ -50,8 +50,6 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebannoCsvWriter;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
@@ -75,7 +73,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String CODEBOOKS_FOLDER = "/codebooks/";
-
+    private static final String CODEBOOKS = "codebooks";
     @Override
     public void exportData(ProjectExportRequest aRequest, ExportedProject aExProject, File aStage)
             throws Exception {
@@ -173,7 +171,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
             exLayer.setFeatures(exFeatures);
             exportedCodebooks.add(exLayer);
         }
-        aExProject.setCodebooks(exportedCodebooks);
+        aExProject.setProperty(CODEBOOKS, exportedCodebooks);
     }
 
     @Override

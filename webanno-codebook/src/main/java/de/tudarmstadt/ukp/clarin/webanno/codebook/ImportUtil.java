@@ -30,21 +30,21 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
 public class ImportUtil {
-    public static de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook exportCodebook(
+    public static de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exportCodebook(
             Codebook aCodebook, AnnotationSchemaService aAnnotationService,
             CodebookSchemaService aCodebookService) {
-        de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook exLayer = 
-                new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook();
+        de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exLayer = 
+                new de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook();
         exLayer.setDescription(aCodebook.getDescription());
         exLayer.setName(aCodebook.getName());
         exLayer.setProjectName(aCodebook.getProject().getName());
         exLayer.setUiName(aCodebook.getUiName());
 
-        List<de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature> exFeatures = 
+        List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature> exFeatures = 
                 new ArrayList<>();
         for (CodebookFeature feature : aCodebookService.listCodebookFeature(aCodebook)) {
-            de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature exFeature = 
-                    new de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature();
+            de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature exFeature = 
+                    new de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature();
             exFeature.setDescription(feature.getDescription());
             exFeature.setName(feature.getName());
             exFeature.setProjectName(feature.getProject().getName());

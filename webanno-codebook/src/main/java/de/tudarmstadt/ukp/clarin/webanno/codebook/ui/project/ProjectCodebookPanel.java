@@ -84,11 +84,11 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.ImportUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -556,7 +556,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             try {
                 Codebook codebook = codebookDetailForm.getModelObject();
 
-                de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook 
+                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
                     exCodebook = ImportUtil
                         .exportCodebook(codebook, annotationService, codebookService);
 
@@ -574,11 +574,11 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
         private IResourceStream exportAllCodebook() {
             try {
-                List<de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook> 
+                List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook> 
                         codebooks = new ArrayList<>();
                 for (Codebook codebook : codebookService
                         .listCodebook(getModelObject().getProject())) {
-                    de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook 
+                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
                         exCodebook = ImportUtil
                             .exportCodebook(codebook, annotationService, codebookService);
                     codebooks.add(exCodebook);
