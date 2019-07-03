@@ -11,8 +11,10 @@ consists of the following classes and interfaces:
   behaviors of specific layer types.
 * The `LayerBehaviorRegistry` and its default implementation `LayerBehaviorRegistryImpl` 
   serve as an access point to the different supported layer behaviors.
-  Any `LayerBehavior` defined in `de.tudarmstadt.ukp.clarin.webanno.api.annotation` is
-  loaded, and will be named in the logs when the web app is launched.
+  Any Spring component implementing the `LayerBehavior` interface is
+  loaded, and will be named in the logs when the web app is launched. The classpath scanning
+  used to locate Spring beans is limited to specific Java packages, e.g. any packages starting
+  with `de.tudarmstadt.ukp.clarin.webanno`.
 
 A layer behavior may have any of the following responsibilities:
 
