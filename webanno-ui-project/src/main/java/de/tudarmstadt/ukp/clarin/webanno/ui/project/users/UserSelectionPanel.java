@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.core.env.Environment;
 
 import com.googlecode.wicket.jquery.core.JQueryBehavior;
 import com.googlecode.wicket.jquery.core.Options;
@@ -59,12 +60,16 @@ class UserSelectionPanel
     
     private OverviewListChoice<User> overviewList;
     private MultiSelect<User> usersToAdd;
+    private @SpringBean Environment env;
 
     public UserSelectionPanel(String id, IModel<Project> aProject, IModel<User> aUser)
     {
         super(id);
         
         setOutputMarkupId(true);
+        
+        final boolean hideUsernames = shouldHideUserNames();
+        final int userNameMinLengthForSuggestions = getUsernameMinLength();
         
         projectModel = aProject;
         userModel = aUser;
@@ -83,12 +88,18 @@ class UserSelectionPanel
             private static final long serialVersionUID = 8231304829756188352L;
 
             @Override
-            public void onConfigure(JQueryBehavior aBehavior)
-            {
+            public void onConfigure(JQueryBehavior aBehavior) {
                 super.onConfigure(aBehavior);
                 aBehavior.setOption("placeholder", Options.asString(getString("placeholder")));
-                aBehavior.setOption("filter", Options.asString("contains"));
-                aBehavior.setOption("autoClose", false);
+                if (hideUsernames) {
+                    aBehavior.setOption("filter", Options.asString("equals"));
+                    aBehavior.setOption("autoClose", true);
+                    aBehavior.setOption("minLength", userNameMinLengthForSuggestions);
+                    aBehavior.setOption("enforceMinLength", true);
+                } else {
+                    aBehavior.setOption("filter", Options.asString("contains"));
+                    aBehavior.setOption("autoClose", false);
+                }
             }
         };
         usersToAdd.setModel(usersToAddModel);
@@ -141,4 +152,25 @@ class UserSelectionPanel
         
         aTarget.add(this);
     }
+    
+    private final boolean shouldHideUserNames() {
+        boolean hideUserNames = false;
+        try {
+            hideUserNames = Boolean.valueOf(env.getProperty("hideusernames"));
+        } catch (Exception e) {
+            hideUserNames = false;
+        }
+        return hideUserNames;
+    }
+
+    private final int getUsernameMinLength() {
+        int usernameMinLengthForSuggestions = 2;
+        try {
+            usernameMinLengthForSuggestions = Integer.parseInt(env.getProperty("usernameMinLengthForSuggestions"));
+        } catch (Exception e) {
+            usernameMinLengthForSuggestions = 2;
+        }
+        return usernameMinLengthForSuggestions;
+    }
+    
 }
