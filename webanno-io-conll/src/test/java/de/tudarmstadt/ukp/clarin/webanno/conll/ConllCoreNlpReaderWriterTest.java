@@ -27,10 +27,9 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.dkpro.core.testing.DkproTestContext;
 import org.junit.Rule;
 import org.junit.Test;
-
-import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
 
 public class ConllCoreNlpReaderWriterTest
 {
@@ -47,7 +46,8 @@ public class ConllCoreNlpReaderWriterTest
                 ConllCoreNlpWriter.class,
                 ConllCoreNlpWriter.PARAM_TARGET_LOCATION, "target/test-output/ConllCoreNlpReaderWriterTest-roundTrip",
                 ConllCoreNlpWriter.PARAM_FILENAME_SUFFIX, ".conll",
-                ConllCoreNlpWriter.PARAM_STRIP_EXTENSION, true);
+                ConllCoreNlpWriter.PARAM_STRIP_EXTENSION, true,
+                ConllCoreNlpWriter.PARAM_OVERWRITE, true);
 
         runPipeline(reader, writer);
 

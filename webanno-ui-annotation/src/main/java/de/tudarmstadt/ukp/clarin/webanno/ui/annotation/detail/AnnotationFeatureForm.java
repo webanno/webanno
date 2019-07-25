@@ -18,7 +18,8 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.SPAN_TYPE;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectByAddr;
+import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectAnnotationByAddr;
+import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectFsByAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.model.AnchoringMode.SINGLE_TOKEN;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.enabledWhen;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
@@ -37,9 +38,9 @@ import java.util.stream.Collectors;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.jcas.JCas;
 import org.apache.wicket.Component;
 import org.apache.wicket.MetaDataKey;
+import org.apache.wicket.ajax.AjaxPreventSubmitBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
@@ -68,6 +69,8 @@ import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.wicket.kendo.ui.form.TextField;
+
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.SpanAdapter;
@@ -82,7 +85,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.Selection;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.UserPreferencesService;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
@@ -139,6 +141,7 @@ public class AnnotationFeatureForm
         add(layerSelector = createDefaultAnnotationLayerSelector());
         add(featureEditorPanel = createFeatureEditorPanel());
         add(createSelectedAnnotationTypeLabel());
+        setDefaultButton(null);
     }
 
     private WebMarkupContainer createFeatureEditorPanel()
@@ -152,10 +155,40 @@ public class AnnotationFeatureForm
 
         container.add(createNoFeaturesWarningLabel());
         container.add(featureEditorPanelContent = createFeatureEditorPanelContent());
+        container.add(createFocusResetHelper());
         container.add(createSelectedTextLabel());
         container.add(selectedAnnotationLayer = createSelectedAnnotationLayerLabel());
 
         return container;
+    }
+
+    private TextField<String> createFocusResetHelper()
+    {
+        TextField<String> textfield = new TextField<>("focusResetHelper");
+        textfield.setModel(Model.of());
+        textfield.setOutputMarkupId(true);
+        textfield.add(new AjaxPreventSubmitBehavior());
+        textfield.add(new AjaxFormComponentUpdatingBehavior("focus")
+        {
+            private static final long serialVersionUID = -3030093250599939537L;
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget aTarget)
+            {
+                List<FeatureEditor> editors = new ArrayList<>();
+                featureEditorPanelContent.getItems().next()
+                        .visitChildren(FeatureEditor.class, (e, visit) -> {
+                            editors.add((FeatureEditor) e);
+                            visit.dontGoDeeper();
+                        });
+                
+                if (!editors.isEmpty()) {
+                    aTarget.focusComponent(editors.get(editors.size() - 1).getFocusComponent());
+                }
+            }
+        });
+        
+        return textfield;
     }
 
     private Label createNoFeaturesWarningLabel()
@@ -206,7 +239,7 @@ public class AnnotationFeatureForm
     {
         Label label = new Label("selectedAnnotationType", LoadableDetachableModel.of(() -> {
             try {
-                return String.valueOf(WebAnnoCasUtil.selectByAddr(editorPanel.getEditorCas(),
+                return String.valueOf(selectFsByAddr(editorPanel.getEditorCas(),
                         getModelObject().getSelection().getAnnotation().getId())).trim();
             }
             catch (IOException e) {
@@ -276,34 +309,34 @@ public class AnnotationFeatureForm
         
         // If "remember layer" is set, the we really just update the selected layer...
         // we do not touch the selected annotation not the annotation detail panel
-        if (state.getPreferences().isRememberLayer()) {
-            state.setSelectedAnnotationLayer(state.getDefaultAnnotationLayer());
-        }
-        // If "remember layer" is not set, then changing the layer means that we
-        // want to change the type of the currently selected annotation
-        else if (!Objects.equals(state.getSelectedAnnotationLayer(), 
-                state.getDefaultAnnotationLayer())
-            && state.getSelection().getAnnotation().isSet()) {
-            try {
-                if (state.getSelection().isArc()) {
-                    editorPanel.actionClear(aTarget);
+        if (!state.getPreferences().isRememberLayer()) {
+
+            // If "remember layer" is not set, then changing the layer means that we
+            // want to change the type of the currently selected annotation
+            if (!Objects
+                    .equals(state.getSelectedAnnotationLayer(), state.getDefaultAnnotationLayer())
+                    && state.getSelection().getAnnotation().isSet()) {
+                try {
+                    if (state.getSelection().isArc()) {
+                        editorPanel.actionClear(aTarget);
+                    }
+                    else {
+                        actionReplace(aTarget);
+                    }
                 }
-                else {
-                    actionReplace(aTarget);
+                catch (Exception e) {
+                    handleException(this, aTarget, e);
                 }
             }
-            catch (Exception e) {
-                handleException(this, aTarget, e);
+            // If no annotation is selected, then prime the annotation detail panel for the new type
+            else {
+                state.setSelectedAnnotationLayer(state.getDefaultAnnotationLayer());
+                selectedAnnotationLayer.setDefaultModelObject(
+                        Optional.ofNullable(state.getDefaultAnnotationLayer())
+                                .map(AnnotationLayer::getUiName).orElse(null));
+                aTarget.add(selectedAnnotationLayer);
+                editorPanel.clearFeatureEditorModels(aTarget);
             }
-        }
-        // If no annotation is selected, then prime the annotation detail panel for the new type
-        else {
-            state.setSelectedAnnotationLayer(state.getDefaultAnnotationLayer());
-            selectedAnnotationLayer
-                    .setDefaultModelObject(Optional.ofNullable(state.getDefaultAnnotationLayer())
-                            .map(AnnotationLayer::getUiName).orElse(null));
-            aTarget.add(selectedAnnotationLayer);
-            editorPanel.clearFeatureEditorModels(aTarget);
         }
         
         // Save the currently selected layer as a user preference so it is remains active when a
@@ -389,8 +422,9 @@ public class AnnotationFeatureForm
         AnnotationLayer layer = state.getSelectedAnnotationLayer();
         TypeAdapter adapter = annotationService.getAdapter(layer);
 
-        JCas jCas = editorPanel.getEditorCas();
-        AnnotationFS fs = selectByAddr(jCas, state.getSelection().getAnnotation().getId());
+        CAS cas = editorPanel.getEditorCas();
+        AnnotationFS fs = selectAnnotationByAddr(cas,
+                state.getSelection().getAnnotation().getId());
         
         if (layer.isReadonly()) {
             error("Cannot replace an annotation on a read-only layer.");
@@ -425,9 +459,10 @@ public class AnnotationFeatureForm
 
         AnnotationLayer newLayer = layerSelector.getModelObject();
 
-        JCas jCas = editorPanel.getEditorCas();
-        AnnotationFS fs = selectByAddr(jCas, state.getSelection().getAnnotation().getId());
-        AnnotationLayer currentLayer = annotationService.getLayer(state.getProject(), fs);
+        CAS cas = editorPanel.getEditorCas();
+        AnnotationFS fs = selectAnnotationByAddr(cas,
+                state.getSelection().getAnnotation().getId());
+        AnnotationLayer currentLayer = annotationService.findLayer(state.getProject(), fs);
         
         if (currentLayer.isReadonly()) {
             error("Cannot replace an annotation on a read-only layer.");
@@ -530,7 +565,7 @@ public class AnnotationFeatureForm
         
         List<AnnotationFeature> features = getEnabledAndVisibleFeatures(
                 AnnotationFeatureForm.this.getModelObject()
-                        .getSelectedAnnotationLayer());
+                        .getDefaultAnnotationLayer());
         if (features.size() != 1) {
             // should not come here in the first place (controlled during
             // forward annotation process)
@@ -616,8 +651,10 @@ public class AnnotationFeatureForm
     {
         super.onConfigure();
         
-        // Avoid reversing in read-only layers
-        setEnabled(getModelObject().getDocument() != null && !editorPanel.isAnnotationFinished());
+        // set read only if annotation is finished or the user is viewing other's work
+        setEnabled(getModelObject().getDocument() != null 
+                && !editorPanel.isAnnotationFinished()
+                && getModelObject().getUser().equals(userDao.getCurrentUser()));
     }
 
     public void updateLayersDropdown()
@@ -737,6 +774,18 @@ public class AnnotationFeatureForm
             editor = featureSupport.createEditor("editor", AnnotationFeatureForm.this, editorPanel,
                     AnnotationFeatureForm.this.getModel(), item.getModel());
 
+            // We need to enable the markup ID here because we use it during the AJAX behavior
+            // that automatically saves feature editors on change/blur. 
+            // Check addAnnotateActionBehavior.
+            editor.setOutputMarkupId(true);
+            editor.setOutputMarkupPlaceholderTag(true);
+            
+            // Ensure that markup IDs of feature editor focus components remain constant across
+            // refreshes of the feature editor panel. This is required to restore the focus.
+            editor.getFocusComponent().setOutputMarkupId(true);
+            editor.getFocusComponent()
+                    .setMarkupId(ID_PREFIX + editor.getModelObject().feature.getId());
+            
             if (!featureState.feature.getLayer().isReadonly()) {
                 AnnotatorState state = getModelObject();
 
@@ -762,6 +811,8 @@ public class AnnotationFeatureForm
                 }
 
                 Component labelComponent = editor.getLabelComponent();
+//                labelComponent.setMarkupId(
+//                        ID_PREFIX + editor.getModelObject().feature.getId() + "-w-lbl");
                 labelComponent.add(new AttributeAppender("style", "cursor: help", ";"));
                 labelComponent.add(new DescriptionTooltipBehavior(tooltipTitle.toString(),
                     featureState.feature.getDescription()));
@@ -769,18 +820,6 @@ public class AnnotationFeatureForm
             else {
                 editor.getFocusComponent().setEnabled(false);
             }
-
-            // We need to enable the markup ID here because we use it during the AJAX behavior
-            // that automatically saves feature editors on change/blur. 
-            // Check addAnnotateActionBehavior.
-            editor.setOutputMarkupId(true);
-            editor.setOutputMarkupPlaceholderTag(true);
-            
-            // Ensure that markup IDs of feature editor focus components remain constant across
-            // refreshes of the feature editor panel. This is required to restore the focus.
-            editor.getFocusComponent().setOutputMarkupId(true);
-            editor.getFocusComponent()
-                    .setMarkupId(ID_PREFIX + editor.getModelObject().feature.getId());
             
             item.add(editor);
         }
@@ -853,16 +892,50 @@ public class AnnotationFeatureForm
                         // re-focus after rendering
                         getRequestCycle().setMetaData(IsSidebarAction.INSTANCE, true);
                         
-                        JCas jCas = editorPanel.getEditorCas();
+                        CAS cas = editorPanel.getEditorCas();
                         AnnotationLayer layer = state.getSelectedAnnotationLayer();
                         if (
                                 state.isForwardAnnotation() &&
                                 layer != null &&
                                 layer.equals(state.getDefaultAnnotationLayer())
                         ) {
-                            editorPanel.actionCreateForward(aTarget, jCas);
+                            editorPanel.actionCreateForward(aTarget, cas);
                         } else {
-                            editorPanel.actionCreateOrUpdate(aTarget, jCas);
+                            editorPanel.actionCreateOrUpdate(aTarget, cas);
+                        }
+                        
+                        // If the focus was lost during the update, then try force-focusing the
+                        // next editor or the first one if we are on the last one.
+                        if (aTarget.getLastFocusedElementId() == null) {
+                            List<FeatureEditor> allEditors = new ArrayList<>();
+                            featureEditorPanelContent.visitChildren(FeatureEditor.class,
+                                (editor, visit) -> {
+                                    allEditors.add((FeatureEditor) editor);
+                                    visit.dontGoDeeper();
+                                });
+
+                            if (!allEditors.isEmpty()) {
+                                FeatureEditor currentEditor = getComponent()
+                                        .findParent(FeatureEditor.class);
+                                
+                                int i = allEditors.indexOf(currentEditor);
+                                
+                                // If the current editor cannot be found then move the focus to the
+                                // first editor
+                                if (i == -1) {
+                                    aTarget.focusComponent(allEditors.get(0).getFocusComponent());
+                                }
+                                // ... if it is the last one, say at the last one
+                                else if (i >= (allEditors.size() - 1)) {
+                                    aTarget.focusComponent(allEditors.get(allEditors.size() - 1)
+                                            .getFocusComponent());
+                                }
+                                // ... otherwise move the focus to the next editor
+                                else {
+                                    aTarget.focusComponent(
+                                            allEditors.get(i + 1).getFocusComponent());
+                                }
+                            }
                         }
                     }
                     catch (Exception e) {

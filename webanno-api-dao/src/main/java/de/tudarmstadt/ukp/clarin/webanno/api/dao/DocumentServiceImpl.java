@@ -17,10 +17,12 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 
+import static de.tudarmstadt.ukp.clarin.webanno.api.CasUpgradeMode.NO_CAS_UPGRADE;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.dao.CasMetadataUtils.addOrUpdateCasMetadata;
 import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState.IGNORE;
 import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS;
 import static java.util.Objects.isNull;
@@ -50,7 +52,7 @@ import javax.persistence.PersistenceContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.uima.UIMAException;
-import org.apache.uima.jcas.JCas;
+import org.apache.uima.cas.CAS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -62,6 +64,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
+import de.tudarmstadt.ukp.clarin.webanno.api.CasUpgradeMode;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
@@ -345,9 +348,8 @@ public class DocumentServiceImpl
                 .getSingleResult();
     }
     
-    @Override
     @Transactional
-    public SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
+    private SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
             SourceDocumentState aState)
     {
         Validate.notNull(aDocument, "Source document must be specified");
@@ -524,7 +526,7 @@ public class DocumentServiceImpl
         
         // Import the actual content
         File targetFile = getSourceDocumentFile(aDocument);
-        JCas jcas;
+        CAS cas;
         try {
             FileUtils.forceMkdir(targetFile.getParentFile());
             
@@ -534,7 +536,7 @@ public class DocumentServiceImpl
             
             // Check if the file has a valid format / can be converted without error
             // This requires that the document ID has already been assigned
-            jcas = createOrReadInitialCas(aDocument);
+            cas = createOrReadInitialCas(aDocument);
         }
         catch (IOException e) {
             FileUtils.forceDelete(targetFile);
@@ -549,7 +551,7 @@ public class DocumentServiceImpl
 
         log.trace("Sending AfterDocumentCreatedEvent for {}", aDocument);
         applicationEventPublisher
-                .publishEvent(new AfterDocumentCreatedEvent(this, aDocument, jcas));
+                .publishEvent(new AfterDocumentCreatedEvent(this, aDocument, cas));
         
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aDocument.getProject().getId()))) {
@@ -560,7 +562,7 @@ public class DocumentServiceImpl
     }
     
     @Override
-    public JCas createOrReadInitialCas(SourceDocument aDocument)
+    public CAS createOrReadInitialCas(SourceDocument aDocument)
         throws IOException
     {
         Validate.notNull(aDocument, "Source document must be specified");
@@ -587,7 +589,7 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     @Deprecated
-    public JCas readAnnotationCas(SourceDocument aDocument, User aUser)
+    public CAS readAnnotationCas(SourceDocument aDocument, User aUser)
         throws IOException
     {
         // Check if there is an annotation document entry in the database. If there is none,
@@ -602,23 +604,42 @@ public class DocumentServiceImpl
 
     @Override
     @Transactional
-    public JCas readAnnotationCas(SourceDocument aDocument, String aUserName)
+    public CAS readAnnotationCas(SourceDocument aDocument, String aUserName)
             throws IOException
     {
-        // If there is no CAS yet for the source document, create one.
-        JCas jcas  = casStorageService.readOrCreateCas(aDocument, aUserName, () -> {
-            // Convert the source file into an annotation CAS
-            return createOrReadInitialCas(aDocument);
-        });
-
-        // We intentionally do not upgrade the CAS here because in general the IDs
-        // must remain stable. If an upgrade is required the caller should do it
-        return jcas;
+        return readAnnotationCas(aDocument, aUserName, NO_CAS_UPGRADE);
     }
 
     @Override
     @Transactional
-    public JCas readAnnotationCas(AnnotationDocument aAnnotationDocument)
+    public CAS readAnnotationCas(SourceDocument aDocument, String aUserName,
+            CasUpgradeMode aUpgradeMode)
+            throws IOException
+    {
+        // If there is no CAS yet for the source document, create one.
+        CAS cas = casStorageService.readOrCreateCas(aDocument, aUserName, true, aUpgradeMode,
+            () -> {
+                // Convert the source file into an annotation CAS
+                return createOrReadInitialCas(aDocument);
+            });
+
+        // We intentionally do not upgrade the CAS here because in general the IDs
+        // must remain stable. If an upgrade is required the caller should do it
+        return cas;
+    }
+
+    @Override
+    @Transactional
+    public CAS readAnnotationCas(AnnotationDocument aAnnotationDocument)
+        throws IOException
+    {
+        return readAnnotationCas(aAnnotationDocument, NO_CAS_UPGRADE);
+    }
+
+    @Override
+    @Transactional
+    public CAS readAnnotationCas(AnnotationDocument aAnnotationDocument,
+            CasUpgradeMode aUpgradeMode)
         throws IOException
     {
         Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
@@ -626,7 +647,7 @@ public class DocumentServiceImpl
         SourceDocument aDocument = aAnnotationDocument.getDocument();
         String userName = aAnnotationDocument.getUser();
         
-        return readAnnotationCas(aDocument, userName);
+        return readAnnotationCas(aDocument, userName, aUpgradeMode);
     }
     
     @Override
@@ -641,11 +662,11 @@ public class DocumentServiceImpl
 
     @Override
     @Transactional
-    public void writeAnnotationCas(JCas aJCas, AnnotationDocument aAnnotationDocument,
+    public void writeAnnotationCas(CAS aCas, AnnotationDocument aAnnotationDocument,
             boolean aUpdateTimestamp)
         throws IOException
     {
-        casStorageService.writeCas(aAnnotationDocument.getDocument(), aJCas,
+        casStorageService.writeCas(aAnnotationDocument.getDocument(), aCas,
                 aAnnotationDocument.getUser());
         
         if (aUpdateTimestamp) {
@@ -658,7 +679,7 @@ public class DocumentServiceImpl
         }
         
         applicationEventPublisher
-                .publishEvent(new AfterAnnotationUpdateEvent(this, aAnnotationDocument, aJCas));
+                .publishEvent(new AfterAnnotationUpdateEvent(this, aAnnotationDocument, aCas));
     }
     
     
@@ -671,12 +692,12 @@ public class DocumentServiceImpl
     
     @Override
     @Transactional
-    public void writeAnnotationCas(JCas aJcas, SourceDocument aDocument, User aUser,
+    public void writeAnnotationCas(CAS aCas, SourceDocument aDocument, User aUser,
             boolean aUpdateTimestamp)
         throws IOException
     {
         AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, aUser);
-        writeAnnotationCas(aJcas, annotationDocument, aUpdateTimestamp);
+        writeAnnotationCas(aCas, annotationDocument, aUpdateTimestamp);
     }
 
     @Override
@@ -684,9 +705,14 @@ public class DocumentServiceImpl
         throws UIMAException, IOException
     {
         AnnotationDocument adoc = getAnnotationDocument(aDocument, aUser);
-        JCas jcas = createOrReadInitialCas(aDocument);
-        writeAnnotationCas(jcas, aDocument, aUser, false);
-        applicationEventPublisher.publishEvent(new AfterDocumentResetEvent(this, adoc, jcas));
+        CAS cas = createOrReadInitialCas(aDocument);
+        // Add/update the CAS metadata
+        File casFile = getCasFile(aDocument, aUser.getUsername());
+        if (casFile.exists()) {
+            addOrUpdateCasMetadata(cas, casFile, aDocument, aUser.getUsername());
+        }
+        writeAnnotationCas(cas, aDocument, aUser, false);
+        applicationEventPublisher.publishEvent(new AfterDocumentResetEvent(this, adoc, cas));
     }
     
     @Override

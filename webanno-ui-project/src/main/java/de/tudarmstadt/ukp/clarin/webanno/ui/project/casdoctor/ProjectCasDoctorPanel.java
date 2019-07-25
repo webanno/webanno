@@ -20,6 +20,10 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.project.casdoctor;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CORRECTION_USER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CURATION_USER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PROJECT_TYPE_CORRECTION;
+import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState.CURATION_FINISHED;
+import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState.CURATION_IN_PROGRESS;
+import static java.util.Arrays.asList;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.uima.UIMAException;
-import org.apache.uima.jcas.JCas;
+import org.apache.uima.cas.CAS;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.AbstractChoice.LabelPosition;
@@ -49,6 +53,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.CasPersistenceUtils;
+import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.diag.CasDoctor;
 import de.tudarmstadt.ukp.clarin.webanno.diag.repairs.Repair;
 import de.tudarmstadt.ukp.clarin.webanno.diag.repairs.Repair.Safe;
@@ -69,6 +74,7 @@ public class ProjectCasDoctorPanel
     private static final long serialVersionUID = 2116717853865353733L;
 
     private @SpringBean DocumentService documentService;
+    private @SpringBean CurationDocumentService curationService;
     private @SpringBean CasStorageService casStorageService;
     private @SpringBean ImportExportService importExportService;
 
@@ -160,8 +166,8 @@ public class ProjectCasDoctorPanel
                 LogMessageSet messageSet = new LogMessageSet(sd.getName() + " [INITIAL]");
                 
                 try {
-                    JCas initialCas = createOrReadInitialCasWithoutSaving(sd, messageSet);
-                    casDoctor.repair(project, initialCas.getCas(), messageSet.messages);
+                    CAS initialCas = createOrReadInitialCasWithoutSaving(sd, messageSet);
+                    casDoctor.repair(project, initialCas, messageSet.messages);
                     casStorageService.writeCas(sd, initialCas, INITIAL_CAS_PSEUDO_USER);
                 }
                 catch (Exception e) {
@@ -176,12 +182,12 @@ public class ProjectCasDoctorPanel
             }
             
             // Repair CORRECTION_USER CAS if necessary
-            if (WebAnnoConst.PROJECT_TYPE_CORRECTION.equals(project.getMode())) {
+            if (PROJECT_TYPE_CORRECTION.equals(project.getMode())) {
                 LogMessageSet messageSet = new LogMessageSet(
                         sd.getName() + " [" + CORRECTION_USER + "]");
                 try {
-                    JCas correctionCas = casStorageService.readCas(sd, CORRECTION_USER, false);
-                    casDoctor.repair(project, correctionCas.getCas(), messageSet.messages);
+                    CAS correctionCas = casStorageService.readCas(sd, CORRECTION_USER, false);
+                    casDoctor.repair(project, correctionCas, messageSet.messages);
                     CasPersistenceUtils.writeSerializedCas(correctionCas,
                             documentService.getCasFile(sd, CORRECTION_USER));
                 }
@@ -209,16 +215,22 @@ public class ProjectCasDoctorPanel
                 LogMessageSet messageSet = new LogMessageSet(
                         sd.getName() + " [" + CURATION_USER + "]");
                 try {
-                    JCas curationCas = casStorageService.readCas(sd, CURATION_USER, false);
-                    casDoctor.repair(project, curationCas.getCas(), messageSet.messages);
+                    CAS curationCas = casStorageService.readCas(sd, CURATION_USER, false);
+                    casDoctor.repair(project, curationCas, messageSet.messages);
                     CasPersistenceUtils.writeSerializedCas(curationCas,
                             documentService.getCasFile(sd, CURATION_USER));
                 }
                 catch (FileNotFoundException e) {
-                    // If there is no CAS for the curation user, then curation has not started yet.
-                    // This is not a problem, so we can ignore it.
-                    messageSet.messages.add(
-                            LogMessage.info(getClass(), "Curation seems to have not yet started."));
+                    if (asList(CURATION_IN_PROGRESS, CURATION_FINISHED).contains(sd.getState())) {
+                        messageSet.messages.add(
+                                LogMessage.error(getClass(), "Curation CAS missing."));
+                    }
+                    else {
+                        // If there is no CAS for the curation user, then curation has not started
+                        // yet. This is not a problem, so we can ignore it.
+                        messageSet.messages
+                                .add(LogMessage.info(getClass(), "Curation has not started."));
+                    }
                 }
                 catch (Exception e) {
                     messageSet.messages.add(new LogMessage(getClass(), LogLevel.ERROR,
@@ -238,9 +250,9 @@ public class ProjectCasDoctorPanel
                     LogMessageSet messageSet = new LogMessageSet(
                             sd.getName() + " [" + ad.getUser() + "]");
                     try {
-                        JCas userCas = casStorageService.readCas(ad.getDocument(), ad.getUser(),
+                        CAS userCas = casStorageService.readCas(ad.getDocument(), ad.getUser(),
                                 false);
-                        casDoctor.repair(project, userCas.getCas(), messageSet.messages);
+                        casDoctor.repair(project, userCas, messageSet.messages);
                         CasPersistenceUtils.writeSerializedCas(userCas,
                                 documentService.getCasFile(ad.getDocument(), ad.getUser()));
                     }
@@ -280,8 +292,8 @@ public class ProjectCasDoctorPanel
                 LogMessageSet messageSet = new LogMessageSet(sd.getName() + " [INITIAL]");
                 
                 try {
-                    JCas initialCas = createOrReadInitialCasWithoutSaving(sd, messageSet);
-                    casDoctor.analyze(project, initialCas.getCas(), messageSet.messages);
+                    CAS initialCas = createOrReadInitialCasWithoutSaving(sd, messageSet);
+                    casDoctor.analyze(project, initialCas, messageSet.messages);
                 }
                 catch (Exception e) {
                     messageSet.messages.add(new LogMessage(getClass(), LogLevel.ERROR,
@@ -299,8 +311,8 @@ public class ProjectCasDoctorPanel
                 LogMessageSet messageSet = new LogMessageSet(
                         sd.getName() + " [" + CORRECTION_USER + "]");
                 try {
-                    JCas correctionCas = casStorageService.readCas(sd, CORRECTION_USER, false);
-                    casDoctor.analyze(project, correctionCas.getCas(), messageSet.messages);
+                    CAS correctionCas = casStorageService.readCas(sd, CORRECTION_USER, false);
+                    casDoctor.analyze(project, correctionCas, messageSet.messages);
                 }
                 catch (FileNotFoundException e) {
                     // If there is no CAS for the correction user, then correction has not started
@@ -326,8 +338,8 @@ public class ProjectCasDoctorPanel
                 LogMessageSet messageSet = new LogMessageSet(
                         sd.getName() + " [" + CURATION_USER + "]");
                 try {
-                    JCas curationCas = casStorageService.readCas(sd, CURATION_USER, false);
-                    casDoctor.analyze(project, curationCas.getCas(), messageSet.messages);
+                    CAS curationCas = casStorageService.readCas(sd, CURATION_USER, false);
+                    casDoctor.analyze(project, curationCas, messageSet.messages);
                 }
                 catch (FileNotFoundException e) {
                     // If there is no CAS for the curation user, then curation has not started yet.
@@ -353,9 +365,9 @@ public class ProjectCasDoctorPanel
                     LogMessageSet messageSet = new LogMessageSet(
                             sd.getName() + " [" + ad.getUser() + "]");
                     try {
-                        JCas userCas = casStorageService.readCas(ad.getDocument(), ad.getUser(),
+                        CAS userCas = casStorageService.readCas(ad.getDocument(), ad.getUser(),
                                 false);
-                        casDoctor.analyze(project, userCas.getCas(), messageSet.messages);
+                        casDoctor.analyze(project, userCas, messageSet.messages);
                     }
                     catch (Exception e) {
                         messageSet.messages.add(new LogMessage(getClass(), LogLevel.ERROR,
@@ -374,11 +386,11 @@ public class ProjectCasDoctorPanel
         aTarget.add(this);
     }
     
-    private JCas createOrReadInitialCasWithoutSaving(SourceDocument aDocument,
+    private CAS createOrReadInitialCasWithoutSaving(SourceDocument aDocument,
             LogMessageSet aMessageSet)
         throws IOException, UIMAException
     {
-        JCas cas;
+        CAS cas;
         if (casStorageService.existsCas(aDocument, INITIAL_CAS_PSEUDO_USER)) {
             cas = casStorageService.readCas(aDocument, INITIAL_CAS_PSEUDO_USER, false);
         }

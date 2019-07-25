@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -133,8 +134,44 @@ public class Tsv3XCasDocumentBuilder
                     end = targetFS.getEnd();
                 }
                 
-                TsvToken beginToken = tokenBeginIndex.floorEntry(begin).getValue();
-                TsvToken endToken = tokenEndIndex.ceilingEntry(end).getValue();
+                Entry<Integer, TsvToken> beginTokenEntry = tokenBeginIndex.floorEntry(begin);
+                // If the current annotation has leading whitespace, we have wrongly fetched the
+                // token before the start token using floorEntry(end) - so let's try to correct this
+                if (
+                        // found begin token but found the wrong one
+                        (beginTokenEntry != null && beginTokenEntry.getValue().getEnd() < begin) ||
+                        // didn't find end begin because annotation starts before the first token
+                        beginTokenEntry == null
+                ) {
+                    beginTokenEntry = tokenEndIndex.higherEntry(begin);
+                }
+                if (beginTokenEntry == null) {
+                    throw new IllegalStateException(
+                            "Unable to find begin token starting at or before " + begin
+                                    + " (first token starts at "
+                                    + tokenBeginIndex.pollFirstEntry().getKey()
+                                    + ") for annotation: " + annotation);
+                }
+
+                Entry<Integer, TsvToken> endTokenEntry = tokenEndIndex.ceilingEntry(end);
+                // If the current annotation has trailing whitespace, we have wrongly fetched the
+                // token after the end token using ceilingEntry(end) - so let's try to correct this
+                if (
+                        // found end token but found the wrong one
+                        (endTokenEntry != null && endTokenEntry.getValue().getBegin() > end) ||
+                        // didn't find end token because annotation ends beyond the last token
+                        endTokenEntry == null
+                ) {
+                    endTokenEntry = tokenEndIndex.lowerEntry(end);
+                }
+                if (endTokenEntry == null) {
+                    throw new IllegalStateException("Unable to find end token ending at or after "
+                            + end + " (last token ends at " + tokenEndIndex.pollLastEntry().getKey()
+                            + ") for annotation: " + annotation);
+                }
+                
+                TsvToken beginToken = beginTokenEntry.getValue();
+                TsvToken endToken = endTokenEntry.getValue();
                 
                 // For zero-width annotations, the begin token must match the end token.
                 // Zero-width annotations between two directly adjacent tokens are always
