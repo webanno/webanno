@@ -40,8 +40,8 @@ public class ImportUtil {
         exLayer.setProjectName(aCodebook.getProject().getName());
         exLayer.setUiName(aCodebook.getUiName());
 
-        List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature> exFeatures = 
-                new ArrayList<>();
+        List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature> exFeatures
+                = new ArrayList<>();
         for (CodebookFeature feature : aCodebookService.listCodebookFeature(aCodebook)) {
             de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature exFeature = 
                     new de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature();
