@@ -64,9 +64,9 @@ public class Select2TextFeatureEditor
     private static final long serialVersionUID = 8686646370500180943L;
 
     public Select2TextFeatureEditor(String aId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+            IModel<FeatureState> aModel, boolean enabled)
     {
-        super(aId, aItem, aModel);
+        super(aId, aItem, aModel, enabled);
     }
 
     @Override

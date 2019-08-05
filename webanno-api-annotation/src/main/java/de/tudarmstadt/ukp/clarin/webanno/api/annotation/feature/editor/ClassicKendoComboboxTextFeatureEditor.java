@@ -58,9 +58,9 @@ public class ClassicKendoComboboxTextFeatureEditor
         + "? $(this).attr('title') : 'no description' )+'</div>' }";
     
     public ClassicKendoComboboxTextFeatureEditor(String aId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+            IModel<FeatureState> aModel, boolean enabled)
     {
-        super(aId, aItem, aModel);
+        super(aId, aItem, aModel, enabled);
     }
 
     @Override

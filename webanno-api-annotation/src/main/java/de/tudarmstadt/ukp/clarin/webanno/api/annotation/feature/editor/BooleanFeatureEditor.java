@@ -35,7 +35,8 @@ public class BooleanFeatureEditor
     private static final long serialVersionUID = 5104979547245171152L;
     private final CheckBox field;
 
-    public BooleanFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
+    public BooleanFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel,
+                                boolean enabled)
     {
         super(aId, aItem, new CompoundPropertyModel<>(aModel));
 
@@ -54,6 +55,8 @@ public class BooleanFeatureEditor
                 aTag.put("data-group-cls", "btn-group-justified");
             }
         };
+        
+        field.setEnabled(enabled);
         
         add(field);
     }

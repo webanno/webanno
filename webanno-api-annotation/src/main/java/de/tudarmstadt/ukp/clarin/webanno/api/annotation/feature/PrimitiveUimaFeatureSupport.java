@@ -195,7 +195,7 @@ public class PrimitiveUimaFeatureSupport
     @Override
     public FeatureEditor createEditor(String aId, MarkupContainer aOwner,
             AnnotationActionHandler aHandler, final IModel<AnnotatorState> aStateModel,
-            final IModel<FeatureState> aFeatureStateModel)
+            final IModel<FeatureState> aFeatureStateModel, boolean enabled)
     {
         AnnotationFeature feature = aFeatureStateModel.getObject().feature;
         final FeatureEditor editor;
@@ -204,31 +204,33 @@ public class PrimitiveUimaFeatureSupport
         case NONE:
             switch (feature.getType()) {
             case CAS.TYPE_NAME_INTEGER: {
-                editor = new NumberFeatureEditor(aId, aOwner, aFeatureStateModel);
+                editor = new NumberFeatureEditor(aId, aOwner, aFeatureStateModel, enabled);
                 break;
             }
             case CAS.TYPE_NAME_FLOAT: {
-                editor = new NumberFeatureEditor(aId, aOwner, aFeatureStateModel);
+                editor = new NumberFeatureEditor(aId, aOwner, aFeatureStateModel, enabled);
                 break;
             }
             case CAS.TYPE_NAME_BOOLEAN: {
-                editor = new BooleanFeatureEditor(aId, aOwner, aFeatureStateModel);
+                editor = new BooleanFeatureEditor(aId, aOwner, aFeatureStateModel, enabled);
                 break;
             }
             case CAS.TYPE_NAME_STRING: {
                 if (feature.getTagset() == null) {
                     // If there is no tagset, use a simple input field
-                    editor = new InputFieldTextFeatureEditor(aId, aOwner, aFeatureStateModel);
+                    editor = new InputFieldTextFeatureEditor(aId, aOwner, aFeatureStateModel,
+                            enabled);
                 }
                 else if (aFeatureStateModel.getObject().tagset.size() < properties
                         .getAutoCompleteThreshold()) {
                     // For smaller tagsets, use a combobox
-                    editor = new KendoComboboxTextFeatureEditor(aId, aOwner, aFeatureStateModel);
+                    editor = new KendoComboboxTextFeatureEditor(aId, aOwner, aFeatureStateModel,
+                            enabled);
                 }
                 else {
                     // For larger ones, use an auto-complete field
                     editor = new KendoAutoCompleteTextFeatureEditor(aId, aOwner, aFeatureStateModel,
-                            properties.getAutoCompleteMaxResults());
+                            properties.getAutoCompleteMaxResults(), enabled);
                 }
                 break;
             }

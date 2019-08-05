@@ -41,11 +41,15 @@ public abstract class TextFeatureEditorBase
     private FormComponent field;
     private boolean hideUnconstrainedFeature;
     
-    public TextFeatureEditorBase(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
+    public TextFeatureEditorBase(String aId, MarkupContainer aItem, IModel<FeatureState> aModel,
+                                 boolean enabled)
     {
         super(aId, aItem, new CompoundPropertyModel<>(aModel));
         
         field = createInputField();
+        
+        field.setEnabled(enabled);
+        
         add(field);
         
         // Checks whether hide un-constraint feature is enabled or not

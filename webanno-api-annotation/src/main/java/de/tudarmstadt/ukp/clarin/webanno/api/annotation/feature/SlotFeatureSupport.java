@@ -144,7 +144,7 @@ public class SlotFeatureSupport
     @Override
     public FeatureEditor createEditor(String aId, MarkupContainer aOwner,
             AnnotationActionHandler aHandler, final IModel<AnnotatorState> aStateModel,
-            final IModel<FeatureState> aFeatureStateModel)
+            final IModel<FeatureState> aFeatureStateModel, boolean enabled)
     {
         AnnotationFeature feature = aFeatureStateModel.getObject().feature;
         final FeatureEditor editor;

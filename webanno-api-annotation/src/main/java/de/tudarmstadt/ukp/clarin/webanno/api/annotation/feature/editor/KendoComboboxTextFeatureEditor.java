@@ -66,9 +66,9 @@ public class KendoComboboxTextFeatureEditor
     private static final Logger LOG = LoggerFactory.getLogger(KendoComboboxTextFeatureEditor.class);
 
     public KendoComboboxTextFeatureEditor(String aId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+            IModel<FeatureState> aModel, boolean enabled)
     {
-        super(aId, aItem, aModel);
+        super(aId, aItem, aModel, enabled);
     }
 
     @Override

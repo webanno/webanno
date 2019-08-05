@@ -32,9 +32,9 @@ public class InputFieldTextFeatureEditor
     private static final long serialVersionUID = 8686646370500180943L;
 
     public InputFieldTextFeatureEditor(String aId, MarkupContainer aItem,
-            IModel<FeatureState> aModel)
+            IModel<FeatureState> aModel, boolean enabled)
     {
-        super(aId, aItem, aModel);
+        super(aId, aItem, aModel, enabled);
     }
 
     @Override

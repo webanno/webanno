@@ -191,7 +191,8 @@ public interface FeatureSupport<T>
      * @return an editor component.
      */
     FeatureEditor createEditor(String aId, MarkupContainer aOwner, AnnotationActionHandler aHandler,
-            IModel<AnnotatorState> aStateModel, IModel<FeatureState> aFeatureStateModel);
+            IModel<AnnotatorState> aStateModel, IModel<FeatureState> aFeatureStateModel,
+            boolean enabled);
 
     /**
      * Gets the label that should be displayed for the given feature value in the UI. {@code null}

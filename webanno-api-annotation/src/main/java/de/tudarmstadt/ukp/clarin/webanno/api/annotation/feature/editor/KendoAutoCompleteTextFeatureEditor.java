@@ -70,9 +70,9 @@ public class KendoAutoCompleteTextFeatureEditor
     private final int maxResults;
     
     public KendoAutoCompleteTextFeatureEditor(String aId, MarkupContainer aItem,
-            IModel<FeatureState> aModel, int aMaxResults)
+            IModel<FeatureState> aModel, int aMaxResults, boolean enabled)
     {
-        super(aId, aItem, aModel);
+        super(aId, aItem, aModel, enabled);
         
         maxResults = aMaxResults;
     }

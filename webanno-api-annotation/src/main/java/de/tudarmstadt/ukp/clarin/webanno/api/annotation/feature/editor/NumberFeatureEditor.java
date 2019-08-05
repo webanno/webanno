@@ -33,7 +33,8 @@ public class NumberFeatureEditor<T extends Number>
     @SuppressWarnings("rawtypes")
     private final NumberTextField field;
 
-    public NumberFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel)
+    public NumberFeatureEditor(String aId, MarkupContainer aItem, IModel<FeatureState> aModel,
+                               boolean enabled)
     {
         super(aId, aItem, new CompoundPropertyModel<>(aModel));
 
@@ -51,6 +52,8 @@ public class NumberFeatureEditor<T extends Number>
             throw new IllegalArgumentException("Type [" + getModelObject().feature.getType()
                     + "] cannot be rendered as a numeric input field");
         }
+        
+        field.setEnabled(enabled);
         
         add(field);
     }

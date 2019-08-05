@@ -772,7 +772,7 @@ public class AnnotationFeatureForm
             FeatureSupport featureSupport = featureSupportRegistry
                     .getFeatureSupport(featureState.feature);
             editor = featureSupport.createEditor("editor", AnnotationFeatureForm.this, editorPanel,
-                    AnnotationFeatureForm.this.getModel(), item.getModel());
+                    AnnotationFeatureForm.this.getModel(), item.getModel(), true);
 
             // We need to enable the markup ID here because we use it during the AJAX behavior
             // that automatically saves feature editors on change/blur. 
