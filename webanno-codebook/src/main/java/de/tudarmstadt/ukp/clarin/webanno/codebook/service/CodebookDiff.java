@@ -36,12 +36,12 @@ import org.apache.uima.fit.util.FSUtil;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffAdapter;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffAdapter_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.LinkCompareBehavior;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.Position;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.Position_ImplBase;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.LinkCompareBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.api.DiffAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.api.DiffAdapter_ImplBase;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.api.Position;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.api.Position_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class CodebookDiff

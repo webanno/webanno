@@ -145,7 +145,7 @@ public class CurationPanel
         List<UserAnnotationSegment> segments = new LinkedList<>();
         UserAnnotationSegment userAnnotationSegments = new UserAnnotationSegment();
 
-        state = getModelObject().getAnnotatorState();
+        state = getModelObject().getState();
         if (state != null) {
             userAnnotationSegments
                     .setSelectionByUsernameAndAddress(annotationSelectionByUsernameAndAddress);
@@ -536,7 +536,7 @@ public class CurationPanel
     }
 
     public void decideSideBarSetup(AjaxRequestTarget aTarget) {
-        if (getModelObject().getAnnotatorState().getPreferences().isShowCodebook()) {
+        if (getModelObject().getState().getPreferences().isShowCodebook()) {
             codebookCurationPanel.getParent().add(new AttributeModifier("style", getVStyle(0.05)));
             aTarget.add(codebookCurationPanel.getParent());
 
@@ -587,7 +587,7 @@ public class CurationPanel
     }
 
     private String getVStyle(double n) {
-        double siebarSide = getModelObject().getAnnotatorState().getPreferences().getSidebarSize()
+        double siebarSide = getModelObject().getState().getPreferences().getSidebarSize()
                 * n;
         String style = String.format("flex: %f;",
                 Math.min(siebarSide, n * AnnotationPreference.SIDEBAR_SIZE_MAX))
