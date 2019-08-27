@@ -29,16 +29,16 @@ If you use WebAnno in scientific work or want to learn more about it, please hav
 
 > Yimam, S.M., Gurevych, I., Eckart de Castilho, R., and Biemann C. (2013): WebAnno: A Flexible, Web-based and Visually Supported System for Distributed Annotations. In Proceedings of ACL-2013, demo session, Sofia, Bulgaria. ([pdf][ACL-2013-PDF]) ([bib][ACL-2013-BIB])
 
-[ACL-2013-PDF]: http://www.aclweb.org/anthology/P13-4001.pdf
-[ACL-2013-BIB]: http://www.aclweb.org/anthology/P13-4001.bib
-[ACL-2014-POSTER]: https://webanno.googlecode.com/svn/files/webanno-acl2014-poster.pdf
+[ACL-2013-PDF]: {{ site.url }}/publications/P13-4001.pdf
+[ACL-2013-BIB]: {{ site.url }}/publications/P13-4001.bib
+[ACL-2014-POSTER]: {{ site.url }}/publications/P13-4001-poster.pdf
 
-[ACL-2014-PDF]: http://www.aclweb.org/anthology/P/P14/P14-5016.pdf
-[ACL-2014-BIB]: http://www.aclweb.org/anthology/P/P14/P14-5016.bib
+[ACL-2014-PDF]: {{ site.url }}/publications/P14-5016.pdf
+[ACL-2014-BIB]: {{ site.url }}/publications/P14-5016.bib
 
-[CLARIN-2014-PDF]: http://www.clarin.eu/sites/default/files/cac2014_submission_6_0.pdf
-[CLARIN-2014-SLIDES]: https://www.clarin.eu/sites/default/files/06-CAC_WebAnno_Slides_redistributable.pdf
-[CLARIN-2014-BIB]: publications/CLARIN-2014.bib
+[CLARIN-2014-PDF]: {{ site.url }}/publications/CLARIN-2014.pdf
+[CLARIN-2014-SLIDES]: {{ site.url }}/publications/CLARIN-2014-slides.pdf
+[CLARIN-2014-BIB]: {{ site.url }}/publications/CLARIN-2014.bib
 
-[COLING-2016-PDF]: https://www.clarin-d.net/images/lt4dh/pdf/LT4DH11.pdf
-[COLING-2016-BIB]: https://www.ukp.tu-darmstadt.de/publications/details/?no_cache=1&tx_bibtex_pi1%5Bpub_id%5D=TUD-CS-2016-14655&type=99&tx_bibtex_pi1%5Bbibtex%5D=yes
+[COLING-2016-PDF]: {{ site.url }}/publications/W16-4011.pdf
+[COLING-2016-BIB]: {{ site.url }}/publications/W16-4011.bib

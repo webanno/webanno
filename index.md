@@ -24,8 +24,8 @@ If you use WebAnno in scientific work, please cite our latest publication.
 
 > Eckart de Castilho, R., Mújdricza-Maydt, É., Yimam, S.M., Hartmann, S., Gurevych, I., Frank, A. and Biemann, C. (2016): A Web-based Tool for the Integrated Annotation of Semantic and Syntactic Structures. In Proceedings of the LT4DH workshop at COLING 2016, Osaka, Japan ([pdf][COLING-2016-PDF]) ([bib][COLING-2016-BIB])
 
-[COLING-2016-PDF]: https://www.clarin-d.net/images/lt4dh/pdf/LT4DH11.pdf
-[COLING-2016-BIB]: https://www.ukp.tu-darmstadt.de/publications/details/?no_cache=1&tx_bibtex_pi1%5Bpub_id%5D=TUD-CS-2016-14655&type=99&tx_bibtex_pi1%5Bbibtex%5D=yes
+[COLING-2016-PDF]: {{ site.url }}/publications/W16-4011.pdf
+[COLING-2016-BIB]: {{ site.url }}/publications/W16-4011.bib
 
 For further publications about WebAnno, please refer to the [publications]({{ site.url }}/publications/) page.
 
