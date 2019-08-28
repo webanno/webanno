@@ -32,10 +32,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.collection.CollectionReader;
-import org.apache.uima.fit.component.JCasConsumer_ImplBase;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
@@ -50,27 +48,9 @@ import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
 
 public class WebAnnoCsvReaderWriterTest
 {
-    public static class StdOutConsumer
-        extends JCasConsumer_ImplBase
-    {
-        @Override
-        public void process(JCas aJCas) throws AnalysisEngineProcessException
-        {
-            System.out.println("#### Document Text ####");
-            System.out.println(aJCas.getDocumentText());
-            System.out.println("#### All Annotations ####");
-            for (Annotation a : JCasUtil.select(aJCas, Annotation.class)) {
-                System.out.println(a.getType().getName());
-                System.out.println("Features:");
-                for (Feature f : a.getType().getFeatures()) {
-                    if (f.getName().contains("code"))
-                        System.out.println(f.getName() + " -> " + a.getStringValue(f));
-                }
-                System.out.println("\n");
-            }
-        }
-    }
-
+    /**
+     * @return A JCas that has a TypeSystem with necessary types for testing (i.e. Codebooks).
+     */
     private static JCas makeJCas() throws UIMAException
     {
         TypeSystemDescription global = TypeSystemDescriptionFactory.createTypeSystemDescription();
@@ -83,7 +63,8 @@ public class WebAnnoCsvReaderWriterTest
         return JCasFactory.createJCas(merged);
     }
 
-    private void assertCodebooksExist(JCas jCas) {
+    private void assertCodebooksExist(JCas jCas)
+    {
         // TODO how to do this nice in UIMA style?!
         boolean codebook1 = false;
         boolean codebook2 = false;
@@ -104,7 +85,18 @@ public class WebAnnoCsvReaderWriterTest
         assertTrue(codebook2);
     }
 
-    private JCas executeReader(String sourceLocation, String filename) throws UIMAException, IOException {
+    /**
+     * Reads a given input CSV file to a JCas with the WebAnnoCsvReader
+     * 
+     * @param sourceLocation
+     *            parent directory of the file
+     * @param filename
+     *            filename
+     * @return the JCas containing the input CSV file
+     */
+    private JCas executeReader(String sourceLocation, String filename)
+        throws UIMAException, IOException
+    {
         CollectionReader reader = createReader(WebAnnoCsvReader.class,
                 WebAnnoCsvReader.PARAM_SOURCE_LOCATION, sourceLocation,
                 WebAnnoCsvReader.PARAM_PATTERNS, filename);
@@ -115,17 +107,23 @@ public class WebAnnoCsvReaderWriterTest
         return jCas;
     }
 
-
+    /**
+     * Simply reads the example.csv file and checks if all the Codebooks exist in the JCas
+     * afterwards since this implies a successful import.
+     */
     @Test
     public void readerTest() throws Exception
     {
         JCas jCas = executeReader("src/test/resources/", "example.csv");
-
         assertCodebooksExist(jCas);
     }
 
+    /**
+     * Reads an input CSV file containing a Codebook Project, writes it back to an output file and
+     * checks identity of input and output projects.
+     */
     @Test
-    public void writerTest() throws Exception
+    public void readerWriterTest() throws Exception
     {
         String targetFolder = "target/test-output/" + testContext.getTestOutputFolderName();
         String targetFileName = "writerOutput.csv";
@@ -133,33 +131,33 @@ public class WebAnnoCsvReaderWriterTest
         String inputFolder = "src/test/resources/";
         String inputFileName = "example.csv";
 
-
-        JCas exampleInputCas = executeReader(inputFolder, inputFileName);
-
+        // set the meta data for the output document
         // TODO use Codebook instances not Strings...
         List<String> codebooks = Arrays.asList("webanno.codebook.TestingCodebook1",
                 "webanno.codebook.TestingCodebook2");
         String docName = "sampleCsvDoc.txt";
         String annotator = "testUser";
+        // setup the CSVWriter
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 WebannoCsvWriter.PARAM_TARGET_LOCATION, targetFolder,
-                WebannoCsvWriter.PARAM_FILENAME, targetFileName,
-                WebannoCsvWriter.WITH_HEADERS, true,
-                WebannoCsvWriter.WITH_TEXT, true,
-                WebannoCsvWriter.PARAM_CODEBOOKS, codebooks,
-                WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
-                WebannoCsvWriter.DOCUMENT_NAME, docName
-        );
+                WebannoCsvWriter.PARAM_FILENAME, targetFileName, WebannoCsvWriter.WITH_HEADERS,
+                true, WebannoCsvWriter.WITH_TEXT, true, WebannoCsvWriter.PARAM_CODEBOOKS, codebooks,
+                WebannoCsvWriter.PARAM_ANNOTATOR, annotator, WebannoCsvWriter.DOCUMENT_NAME,
+                docName);
 
+        // read the example.csv and write it to writerOutput.csv
+        JCas exampleInputCas = executeReader(inputFolder, inputFileName);
         runPipeline(exampleInputCas, writer);
 
+        // read the writerOutput.csv
         JCas writerOutputCas = executeReader(targetFolder, targetFileName);
-        assertCodebooksExist(writerOutputCas);
 
-        assertEquals(
-                FileUtils.readFileToString(new File(inputFolder, inputFileName), "utf-8"),
-                FileUtils.readFileToString(new File(targetFolder, targetFileName), "utf-8")
-        );
+        // assert that the codebooks exist in both, the input and output file
+        assertCodebooksExist(exampleInputCas);
+        assertCodebooksExist(writerOutputCas);
+        // assert that the input and output files are identical
+        assertEquals(FileUtils.readFileToString(new File(inputFolder, inputFileName), "utf-8"),
+                FileUtils.readFileToString(new File(targetFolder, targetFileName), "utf-8"));
 
     }
 
