@@ -334,7 +334,7 @@ public class CodebookEditorPanel
             LOG.trace("writeFeatureEditorModelsToCas() " + featureState.feature.getUiName() + " = "
                     + featureState.value);
 
-            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas, featureState.feature);
+            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas/*, featureState.feature*/);
             int annoId;
 
             if (existingFs != null) {

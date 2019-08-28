@@ -341,7 +341,7 @@ public class CodebookCurationPanel extends Panel {
                 }
             }
 
-            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas, featureState.feature);
+            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas/*, featureState.feature*/);
             int annoId;
 
             if (existingFs != null) {

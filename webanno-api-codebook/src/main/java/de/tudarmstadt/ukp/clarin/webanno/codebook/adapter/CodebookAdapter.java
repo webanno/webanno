@@ -21,7 +21,6 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectByAddr;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.uima.cas.CAS;
@@ -75,7 +74,7 @@ public class CodebookAdapter
         return value;
     }
     
-    public AnnotationFS getExistingFs(CAS aJCas, CodebookFeature aFeature) {
+    public AnnotationFS getExistingFs(CAS aJCas) {
 
         Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
         List<AnnotationFS> fs = CasUtil.selectCovered(aJCas, type, 0, 0);
@@ -133,17 +132,17 @@ public class CodebookAdapter
     }
 
     
-    /**
+/*    *//**
      * The features defined for a given {@link Codebook}. Currently it has a single
      * feature
      * 
      * @return
-     */
+     *//*
     public Collection<CodebookFeature> listCodebookFeatures() {
 
         return null;
     }
-
+*/
 
     
     public void setFeatureValue(CAS aJcas, CodebookFeature aFeature, int aAddress,
