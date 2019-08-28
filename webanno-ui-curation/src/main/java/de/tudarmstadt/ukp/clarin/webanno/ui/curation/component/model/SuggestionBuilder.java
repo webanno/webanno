@@ -53,6 +53,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookCasMerge;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
@@ -561,7 +562,7 @@ public class SuggestionBuilder
                     codebookService.listCodebook(aState.getProject()));
             diff = CodebookDiff.doCodebookDiff(codebookService, aState.getProject(), entryTypes,
                     null, aCasses, 0, 0);
-            CasMerge casMerge = new CasMerge(annotationService);
+            CodebookCasMerge casMerge = new CodebookCasMerge(codebookService);
             casMerge.setMergeIncompleteAnnotations(aMergeIncompleteAnnotations);
             casMerge.reMergeCas(diff, aState.getDocument(), aState.getUser().getUsername(),
                     mergeCas, aCasses);
