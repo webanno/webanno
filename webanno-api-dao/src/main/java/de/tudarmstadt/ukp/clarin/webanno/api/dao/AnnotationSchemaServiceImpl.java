@@ -961,7 +961,8 @@ public class AnnotationSchemaServiceImpl
      * results to the target CAS. An in-place upgrade can be achieved by using the same CAS as
      * source and target.
      */
-    private void upgradeCas(CAS aSourceCas, CAS aTargetCas, TypeSystemDescription aTargetTypeSystem)
+    @Override
+    public void upgradeCas(CAS aSourceCas, CAS aTargetCas, TypeSystemDescription aTargetTypeSystem)
         throws UIMAException, IOException
     {
         // Save source CAS type system (do this early since we might do an in-place upgrade)
@@ -993,14 +994,14 @@ public class AnnotationSchemaServiceImpl
             
             // Type does not exist
             if (t == null) {
-                log.info("CAS update required: type {} does not exist", tdesc.getName());
+                log.debug("CAS update required: type {} does not exist", tdesc.getName());
                 upgradeRequired = true;
                 break nextType;
             }
             
             // Super-type does not match
             if (!Objects.equals(tdesc.getSupertypeName(), ts.getParent(t).getName())) {
-                log.info("CAS update required: supertypes of {} do not match: {} <-> {}",
+                log.debug("CAS update required: supertypes of {} do not match: {} <-> {}",
                         tdesc.getName(), tdesc.getSupertypeName(), ts.getParent(t).getName());
                 upgradeRequired = true;
                 break nextType;
@@ -1012,7 +1013,7 @@ public class AnnotationSchemaServiceImpl
                 
                 // Feature does not exist
                 if (f == null) {
-                    log.info("CAS update required: feature {} on type {} does not exist",
+                    log.debug("CAS update required: feature {} on type {} does not exist",
                             fdesc.getName(), tdesc.getName());
                     upgradeRequired = true;
                     break nextType;
@@ -1022,7 +1023,7 @@ public class AnnotationSchemaServiceImpl
                 if (CAS.TYPE_NAME_FS_ARRAY.equals(fdesc.getRangeTypeName())) {
                     if (!Objects.equals(fdesc.getElementType(),
                             f.getRange().getComponentType().getName())) {
-                        log.info(
+                        log.debug(
                                 "CAS update required: ranges of feature {} on type {} do not match: {} <-> {}",
                                 fdesc.getName(), tdesc.getName(), fdesc.getRangeTypeName(),
                                 f.getRange().getName());
@@ -1032,7 +1033,7 @@ public class AnnotationSchemaServiceImpl
                 }
                 else {
                     if (!Objects.equals(fdesc.getRangeTypeName(), f.getRange().getName())) {
-                        log.info(
+                        log.debug(
                                 "CAS update required: ranges of feature {} on type {} do not match: {} <-> {}",
                                 fdesc.getName(), tdesc.getName(), fdesc.getRangeTypeName(),
                                 f.getRange().getName());

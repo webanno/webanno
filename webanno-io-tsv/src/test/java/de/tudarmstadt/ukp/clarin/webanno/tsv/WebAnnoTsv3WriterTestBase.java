@@ -51,6 +51,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
+import org.dkpro.core.io.xmi.XmiWriter;
+import org.dkpro.core.testing.DkproTestContext;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,13 +60,12 @@ import org.junit.Test;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter;
-import de.tudarmstadt.ukp.dkpro.core.testing.DkproTestContext;
 import webanno.custom.Span;
 
 public abstract class WebAnnoTsv3WriterTestBase
@@ -1663,6 +1664,157 @@ public abstract class WebAnnoTsv3WriterTestBase
         new Sentence(jcas, 0, 3).addToIndexes();
         new Token(jcas, 3, 6).addToIndexes();
         new Sentence(jcas, 3, 6).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+    
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testAnnotationWithTrailingWhitespace() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("one  two");
+        new Token(jcas, 0, 3).addToIndexes();
+        new Token(jcas, 5, 8).addToIndexes();
+        new Sentence(jcas, 0, 8).addToIndexes();
+        
+        // NE has trailing whitespace - on export this should be silently dropped
+        new NamedEntity(jcas, 0, 4).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testAnnotationWithTrailingWhitespaceAtEnd() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("one two ");
+        new Token(jcas, 0, 3).addToIndexes();
+        new Token(jcas, 4, 7).addToIndexes();
+        new Sentence(jcas, 0, 7).addToIndexes();
+        
+        // NE has trailing whitespace - on export this should be silently dropped
+        new NamedEntity(jcas, 4, 8).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }    
+    
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testAnnotationWithLeadingWhitespaceAtStart() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText(" one two");
+        new Token(jcas, 1, 4).addToIndexes();
+        new Token(jcas, 5, 8).addToIndexes();
+        new Sentence(jcas, 1, 8).addToIndexes();
+        
+        // NE has leading whitespace - on export this should be silently dropped
+        new NamedEntity(jcas, 0, 4).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testAnnotationWithLeadingWhitespace() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("one  two");
+        new Token(jcas, 0, 3).addToIndexes();
+        new Token(jcas, 5, 8).addToIndexes();
+        new Sentence(jcas, 0, 8).addToIndexes();
+        
+        // NE has leading whitespace - on export this should be silently dropped
+        new NamedEntity(jcas, 4, 8).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+    
+    
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testZeroWidthAnnotationBetweenTokenIsMovedToEndOfPreviousToken() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("one  two");
+        new Token(jcas, 0, 3).addToIndexes();
+        new Token(jcas, 5, 8).addToIndexes();
+        new Sentence(jcas, 0, 8).addToIndexes();
+        
+        // NE is after the end of the last token and should be moved to the end of the last token
+        // otherwise it could not be represented in the TSV3 format.
+        new NamedEntity(jcas, 4, 4).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testZeroWidthAnnotationBeyondLastTokenIsMovedToEndOfLastToken() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("one two  ");
+        new Token(jcas, 0, 3).addToIndexes();
+        new Token(jcas, 4, 7).addToIndexes();
+        new Sentence(jcas, 0, 7).addToIndexes();
+        
+        // NE is after the end of the last token and should be moved to the end of the last token
+        // otherwise it could not be represented in the TSV3 format.
+        new NamedEntity(jcas, 8, 8).addToIndexes();
+        
+        writeAndAssertEquals(jcas);
+    }
+
+    /*
+     * This is something that cannot be done through the editor UI but can happen when working with
+     * externally created data.
+     */
+    @Test
+    public void testZeroWidthAnnotationBeforeFirstTokenIsMovedToBeginOfFirstToken() throws Exception
+    {
+        JCas jcas = JCasFactory.createJCas();
+        
+        DocumentMetaData.create(jcas).setDocumentId("doc");
+        jcas.setDocumentText("  one two");
+        new Token(jcas, 2, 5).addToIndexes();
+        new Token(jcas, 6, 9).addToIndexes();
+        new Sentence(jcas, 2, 9).addToIndexes();
+        
+        // NE is after the end of the last token and should be moved to the end of the last token
+        // otherwise it could not be represented in the TSV3 format.
+        new NamedEntity(jcas, 1, 1).addToIndexes();
         
         writeAndAssertEquals(jcas);
     }

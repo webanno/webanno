@@ -47,31 +47,31 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 
 /**
- * Extension point for new types of annotation features.
- *
+ * Extension point for new types of annotation features. 
+ * 
  * @param <T> the traits type. If no traits are supported, this should be {@link Void}.
  */
 public interface FeatureSupport<T>
     extends BeanNameAware
 {
     String getId();
-
+    
     /**
      * Checks whether the given feature is provided by the current feature support.
-     *
+     * 
      * @param aFeature
      *            a feature definition.
      * @return whether the given feature is provided by the current feature support.
      */
     boolean accepts(AnnotationFeature aFeature);
-
+    
     /**
      * Get the feature type for the given annotation feature. If the current feature support does
      * not provide any feature type for the given feature, an empty value is returned. As we
      * usually use {@link FeatureType} objects in feature type selection lists, this method is
      * helpful in obtaining the selected value of such a list from the {@link AnnotationFeature}
      * object being edited.
-     *
+     * 
      * @param aAnnotationFeature
      *            an annotation feature.
      * @return the corresponding feature type.
@@ -87,7 +87,7 @@ public interface FeatureSupport<T>
      * feature types a user can choose from when creating a new feature through the layer settings
      * user interface. The feature types returned here consist of a human-readable name as well as
      * an internal feature type name.
-     *
+     * 
      * @param aAnnotationLayer
      *            an annotation layer definition.
      * @return a list of the supported features.
@@ -96,7 +96,7 @@ public interface FeatureSupport<T>
 
     /**
      * Generate a UIMA feature definition for the given feature into the provided type definition.
-     *
+     * 
      * @param aTSD
      *            the target type system description.
      * @param aTD
@@ -111,7 +111,7 @@ public interface FeatureSupport<T>
      * Called when the user selects a feature in the feature detail form. It allows the feature
      * support to fill in settings which are not configurable through the UI, e.g. link feature
      * details.
-     *
+     * 
      * @param aFeature
      *            a feature definition.
      */
@@ -119,7 +119,7 @@ public interface FeatureSupport<T>
     {
         // Nothing to do
     }
-
+    
     /**
      * Returns a Wicket component to configure the specific traits of this feature type. Note that
      * every {@link FeatureSupport} has to return a <b>different class</b> here. So it is not
@@ -127,7 +127,7 @@ public interface FeatureSupport<T>
      * {@link Panel} used exclusively by the current {@link FeatureSupport}. If this is not done,
      * then the traits editor in the UI will not be correctly updated when switching between feature
      * types!
-     *
+     * 
      * @param aId
      *            a markup ID.
      * @param aFeatureModel
@@ -139,13 +139,13 @@ public interface FeatureSupport<T>
     {
         return new EmptyPanel(aId);
     }
-
+    
     /**
      * Read the traits for the given {@link AnnotationFeature}. If traits are supported, then this
      * method must be overwritten. A typical implementation would read the traits from a JSON string
      * stored in {@link AnnotationFeature#getTraits}, but it would also possible to load the
      * traits from a database table.
-     *
+     * 
      * @param aFeature
      *            the feature whose traits should be obtained.
      * @return the traits.
@@ -160,7 +160,7 @@ public interface FeatureSupport<T>
      * method must be overwritten. A typical implementation would write the traits from to JSON
      * string stored in {@link AnnotationFeature#setTraits}, but it would also possible to store
      * the traits from a database table.
-     *
+     * 
      * @param aFeature
      *            the feature whose traits should be written.
      * @param aTraits
@@ -170,11 +170,11 @@ public interface FeatureSupport<T>
     {
         aFeature.setTraits(null);
     }
-
+    
     /**
      * Create a feature value editor for use in the annotation detail editor pane and similar
      * locations.
-     *
+     * 
      * @param aId
      *            the component id.
      * @param aOwner
@@ -196,10 +196,10 @@ public interface FeatureSupport<T>
     /**
      * Gets the label that should be displayed for the given feature value in the UI. {@code null}
      * is an acceptable return value for this method.
-     *
+     * 
      * <b>NOTE:</b> If this method should never be overwritten! Overwrite
      * {@link #renderFeatureValue(AnnotationFeature, String) instead}.
-     *
+     * 
      * @param aFeature
      *            the feature to be rendered.
      * @param aFs
@@ -215,7 +215,14 @@ public interface FeatureSupport<T>
     default List<VLazyDetailQuery> getLazyDetails(AnnotationFeature aFeature, FeatureStructure aFs)
     {
         Feature labelFeature = aFs.getType().getFeatureByBaseName(aFeature.getName());
-        return getLazyDetails(aFeature, aFs.getFeatureValueAsString(labelFeature));
+        
+        if (labelFeature.getRange().isPrimitive()) {
+            return getLazyDetails(aFeature, aFs.getFeatureValueAsString(labelFeature));
+        }
+        else {
+            return Collections.emptyList();
+        }
+        
     }
 
     default List<VLazyDetailQuery> getLazyDetails(AnnotationFeature aFeature, String aLabel)
@@ -226,7 +233,7 @@ public interface FeatureSupport<T>
     /**
      * Gets the label that should be displayed for the given feature value in the UI. {@code null}
      * is an acceptable return value for this method.
-     *
+     * 
      * @param aFeature
      *            the feature to be rendered.
      * @param aLabel
@@ -267,7 +274,7 @@ public interface FeatureSupport<T>
             Object aValue)
     {
         FeatureStructure fs = selectFsByAddr(aCas, aAddress);
-
+        
         Object value = unwrapFeatureValue(aFeature, fs.getCAS(), aValue);
         setFeature(fs, aFeature, value);
     }
@@ -275,7 +282,7 @@ public interface FeatureSupport<T>
     default <V> V getFeatureValue(AnnotationFeature aFeature, FeatureStructure aFS)
     {
         Object value;
-
+        
         Feature f = aFS.getType().getFeatureByBaseName(aFeature.getName());
         if (f.getRange().isPrimitive()) {
             value = FSUtil.getFeature(aFS, aFeature.getName(), Object.class);
@@ -286,13 +293,13 @@ public interface FeatureSupport<T>
         else {
             value = FSUtil.getFeature(aFS, aFeature.getName(), FeatureStructure.class);
         }
-
+        
         return (V) wrapFeatureValue(aFeature, aFS.getCAS(), value);
     }
 
     /**
      * Convert the value returned by the feature editor to the value stored in the CAS.
-     *
+     * 
      * @param aFeature
      *            the feature.
      * @param aValue
@@ -304,7 +311,7 @@ public interface FeatureSupport<T>
     /**
      * Convert a CAS representation of the feature value to the type of value which the feature
      * editor expects.
-     *
+     * 
      * @param aFeature
      *            the feature.
      * @param aCAS
@@ -314,7 +321,7 @@ public interface FeatureSupport<T>
      * @return feature editor representation of the value.
      */
     Object wrapFeatureValue(AnnotationFeature aFeature, CAS aCAS, Object aValue);
-
+    
     default IllegalArgumentException unsupportedFeatureTypeException(AnnotationFeature aFeature)
     {
         return new IllegalArgumentException("Unsupported type [" + aFeature.getType()
@@ -333,7 +340,7 @@ public interface FeatureSupport<T>
         return new IllegalArgumentException("Unsupported multi-value mode ["
                 + aFeature.getMultiValueMode() + "] on feature [" + aFeature.getName() + "]");
     }
-
+    
     /**
      * @deprecated Use {@link #unsupportedFeatureTypeException(AnnotationFeature)} instead.
      */
@@ -351,7 +358,7 @@ public interface FeatureSupport<T>
     {
         return unsupportedLinkModeException(aFeatureState.feature);
     }
-
+    
     /**
      * @deprecated Use {@link #unsupportedMultiValueModeException(AnnotationFeature)} instead.
      */
@@ -360,6 +367,4 @@ public interface FeatureSupport<T>
     {
         return unsupportedMultiValueModeException(aFeatureState.feature);
     }
-
-    List<FeatureType> getPrimitiveFeatureTypes();
 }

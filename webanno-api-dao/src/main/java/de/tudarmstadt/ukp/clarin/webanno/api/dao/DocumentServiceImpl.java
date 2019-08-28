@@ -22,6 +22,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLD
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
+import static de.tudarmstadt.ukp.clarin.webanno.api.dao.CasMetadataUtils.addOrUpdateCasMetadata;
 import static de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState.IGNORE;
 import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.NEW_TO_ANNOTATION_IN_PROGRESS;
 import static java.util.Objects.isNull;
@@ -68,7 +69,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
-import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterAnnotationUpdateEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterCasWrittenEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterDocumentCreatedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterDocumentResetEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.event.AnnotationStateChangeEvent;
@@ -678,7 +679,7 @@ public class DocumentServiceImpl
         }
         
         applicationEventPublisher
-                .publishEvent(new AfterAnnotationUpdateEvent(this, aAnnotationDocument, aCas));
+                .publishEvent(new AfterCasWrittenEvent(this, aAnnotationDocument, aCas));
     }
     
     
@@ -705,6 +706,11 @@ public class DocumentServiceImpl
     {
         AnnotationDocument adoc = getAnnotationDocument(aDocument, aUser);
         CAS cas = createOrReadInitialCas(aDocument);
+        // Add/update the CAS metadata
+        File casFile = getCasFile(aDocument, aUser.getUsername());
+        if (casFile.exists()) {
+            addOrUpdateCasMetadata(cas, casFile, aDocument, aUser.getUsername());
+        }
         writeAnnotationCas(cas, aDocument, aUser, false);
         applicationEventPublisher.publishEvent(new AfterDocumentResetEvent(this, adoc, cas));
     }
@@ -946,26 +952,5 @@ public class DocumentServiceImpl
     public void onBeforeDocumentRemovedEvent(BeforeDocumentRemovedEvent aEvent)
     {
         projectService.recalculateProjectState(aEvent.getDocument().getProject());
-    }
-    
-    @Override
-    @Transactional
-    public void writeCodebookAnnotationCas(CAS aJCas, AnnotationDocument aAnnotationDocument,
-            boolean aUpdateTimestamp)
-        throws IOException
-    {
-        casStorageService.writeCas(aAnnotationDocument.getDocument(), aJCas,
-                aAnnotationDocument.getUser());
-    }
-    
-    
-    @Override
-    @Transactional
-    public void writeCodebookAnnotationCas(CAS aJcas, SourceDocument aDocument, User aUser,
-            boolean aUpdateTimestamp)
-        throws IOException
-    {
-        AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, aUser);
-        writeCodebookAnnotationCas(aJcas, annotationDocument, aUpdateTimestamp);
     }
 }

@@ -108,7 +108,7 @@ public class CasStorageServiceImpl
         }
 
         if (backupProperties.getInterval() > 0) {
-            log.info("CAS backups enabled - interval: {}  max-backups: {}  max-age: {}",
+            log.info("CAS backups enabled - interval: {}sec  max-backups: {}  max-age: {}sec",
                     backupProperties.getInterval(), backupProperties.getKeep().getNumber(),
                     backupProperties.getKeep().getTime());
         }
@@ -205,15 +205,18 @@ public class CasStorageServiceImpl
 
             // Now write the new version to "<username>.ser" or CURATION_USER.ser
             WebAnnoCasUtil.setDocumentId(aCas, aUserName);
+            
+            long start = System.currentTimeMillis();
             CasPersistenceUtils.writeSerializedCas(aCas,
                     new File(annotationFolder, aUserName + ".ser"));
+            long duration = System.currentTimeMillis() - start;
 
             try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                     String.valueOf(aDocument.getProject().getId()))) {
                 log.debug(
-                        "Updated annotations for user [{}] on document [{}]({}) in project [{}]({})",
+                        "Updated annotations for user [{}] on document [{}]({}) in project [{}]({}) in {}ms",
                         aUserName, aDocument.getName(), aDocument.getId(),
-                        aDocument.getProject().getName(), aDocument.getProject().getId());
+                        aDocument.getProject().getName(), aDocument.getProject().getId(), duration);
             }
 
             if (currentVersion.length() < oldVersion.length()) {
@@ -296,7 +299,7 @@ public class CasStorageServiceImpl
             else {
                 // Check if the newest history file is significantly older than the current one
                 File latestHistory = history[history.length - 1];
-                if (latestHistory.lastModified() + backupProperties.getInterval() < now) {
+                if (latestHistory.lastModified() + (backupProperties.getInterval() * 1000) < now) {
                     FileUtils.copyFile(currentVersion, historyFile);
                     historyFileCreated = true;
                 }
@@ -339,7 +342,8 @@ public class CasStorageServiceImpl
                 // Prune history based on time
                 if (backupProperties.getKeep().getTime() > 0) {
                     for (File file : history) {
-                        if ((file.lastModified() + backupProperties.getKeep().getTime()) < now) {
+                        if ((file.lastModified()
+                                + (backupProperties.getKeep().getTime() * 1000)) < now) {
                             FileUtils.forceDelete(file);
 
                             try (MDC.MDCCloseable closable = MDC.putCloseable(
@@ -386,6 +390,8 @@ public class CasStorageServiceImpl
         throws IOException
     {
         synchronized (lock) {
+            long start = System.currentTimeMillis();
+            
             // Check if we have the CAS in the cache
             if (isCacheEnabled()) {
                 CasCacheEntry entry = getCache().get(CasCacheKey.of(aDocument, aUsername));
@@ -434,17 +440,20 @@ public class CasStorageServiceImpl
             // Add/update the CAS metadata
             CasMetadataUtils.addOrUpdateCasMetadata(cas, casFile, aDocument, aUsername);
             
+            long duration = System.currentTimeMillis() - start;
+            
             // Update the cache
             if (isCacheEnabled()) {
                 CasCacheEntry entry = new CasCacheEntry();
                 entry.cas = cas;
                 entry.writes++;
                 getCache().put(CasCacheKey.of(aDocument, aUsername), entry);
-                log.debug("Loaded CAS [{},{}] from {} and stored in cache", aDocument.getId(),
-                        aUsername, source);
+                log.debug("Loaded CAS [{},{}] from {} in {}ms and stored in cache",
+                        aDocument.getId(), aUsername, source, duration);
             }
             else {
-                log.debug("Loaded CAS [{},{}] from {}", aDocument.getId(), aUsername, source);
+                log.debug("Loaded CAS [{},{}] from {} in {}ms", aDocument.getId(), aUsername,
+                        source, duration);
             }
             
             return cas;

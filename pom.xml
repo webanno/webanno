@@ -54,30 +54,30 @@
     </repository>
   </distributionManagement>
   <properties>
-    <jackson.version>2.9.8</jackson.version>
-    <uima.version>2.10.3</uima.version>
+    <jackson.version>2.9.9</jackson.version>
+    <uima.version>2.10.4</uima.version>
     <uimafit.version>2.4.0</uimafit.version>
-    <spring.version>5.1.7.RELEASE </spring.version>
-    <spring.boot.version>1.5.21.RELEASE</spring.boot.version>
-    <spring.security.version>4.2.12.RELEASE</spring.security.version>
+    <spring.version>5.1.9.RELEASE </spring.version>
+    <spring.boot.version>1.5.22.RELEASE</spring.boot.version>
+    <spring.security.version>4.2.13.RELEASE</spring.security.version>
     <slf4j.version>1.7.26</slf4j.version>
     <log4j.version>2.7</log4j.version>
     <jboss.logging.version>3.3.1.Final</jboss.logging.version>
-    <wicket.version>8.3.0</wicket.version>
+    <wicket.version>8.5.0</wicket.version>
     <wicketstuff.version>${wicket.version}</wicketstuff.version>
-    <wicket-jquery-ui.version>${wicket.version}</wicket-jquery-ui.version>
-    <wicket-bootstrap.version>2.0.9</wicket-bootstrap.version>
-    <wicket-jquery-selectors.version>2.0.5</wicket-jquery-selectors.version>
-    <wicket-webjars.version>2.0.14</wicket-webjars.version>
-    <wicket-spring-boot.version>2.1.5</wicket-spring-boot.version>
+    <wicket-jquery-ui.version>8.3.0</wicket-jquery-ui.version>
+    <wicket-bootstrap.version>2.0.10</wicket-bootstrap.version>
+    <wicket-jquery-selectors.version>2.0.6</wicket-jquery-selectors.version>
+    <wicket-webjars.version>2.0.15</wicket-webjars.version>
+    <wicket-spring-boot.version>2.1.7</wicket-spring-boot.version>
     <hibernate.version>5.3.10.Final</hibernate.version>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-    <dkpro.version>1.10.0</dkpro.version>
+    <dkpro.version>1.11.0</dkpro.version>
     <springfox.version>2.9.2</springfox.version>
     <batik.version>1.9.1</batik.version>
     <json.version>20180813</json.version>
     <mockito.version>2.27.0</mockito.version>
-    <assertj.version>3.12.2</assertj.version>
+    <assertj.version>3.13.2</assertj.version>
   </properties>
   <repositories>
     <repository>
@@ -242,6 +242,11 @@
       </dependency>
       <dependency>
         <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-telemetry</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
         <artifactId>webanno-io-csv</artifactId>
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
@@ -371,20 +376,20 @@
         <version>3.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-codebook</artifactId>
-	<version>3.6.0-SNAPSHOT</version>
-	</dependency>
-	      <dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-api-codebook</artifactId>
-		<version>3.6.0-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
-		<artifactId>webanno-ui-tagsets</artifactId>
-		<version>3.6.0-SNAPSHOT</version>
-	</dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-codebook</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-api-codebook</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-ui-tagsets</artifactId>
+        <version>3.6.0-SNAPSHOT</version>
+      </dependency>
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
@@ -485,6 +490,12 @@
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-less</artifactId>
         <version>${wicket-bootstrap.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket.webjars</groupId>
@@ -859,15 +870,15 @@
 
       <dependency>
         <!-- Import dependency management from DKPro Core -->
-        <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-        <artifactId>de.tudarmstadt.ukp.dkpro.core-asl</artifactId>
+        <groupId>org.dkpro.core</groupId>
+        <artifactId>dkpro-core-asl</artifactId>
         <version>${dkpro.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-        <artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
+        <groupId>org.dkpro.core</groupId>
+        <artifactId>dkpro-core-testing-asl</artifactId>
         <version>${dkpro.version}</version>
         <exclusions>
           <exclusion>
@@ -934,6 +945,10 @@
     <module>webanno-constraints</module>
     <module>webanno-export</module>
     <module>webanno-api-automation</module>
+    <module>webanno-telemetry</module>
+    <module>webanno-automation</module>
+    <module>webanno-codebook</module>
+    <module>webanno-api-codebook</module>
     <!-- UI -->
     <module>webanno-brat</module>
     <module>webanno-ui-core</module>
@@ -944,13 +959,10 @@
     <module>webanno-ui-monitoring</module>
     <module>webanno-ui-annotation</module>
     <module>webanno-ui-automation</module>
+    <module>webanno-ui-tagsets</module>
     <module>webanno-webapp</module>
     <!-- Documentation -->
     <module>webanno-doc</module>
-    <module>webanno-automation</module>
-    <module>webanno-codebook</module>
-    <module>webanno-ui-tagsets</module>
-    <module>webanno-api-codebook</module>
   </modules>
   <build>
     <plugins>
@@ -1158,6 +1170,7 @@
                 <configuration>
                   <consoleOutput>true</consoleOutput>
                   <excludes>
+                    <exclude>.factorypath</exclude>
                     <exclude>.gitignore</exclude>
                     <exclude>.checkstyle</exclude>
                     <exclude>suppressions.xml</exclude>

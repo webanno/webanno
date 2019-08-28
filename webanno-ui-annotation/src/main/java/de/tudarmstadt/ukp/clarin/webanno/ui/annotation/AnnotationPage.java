@@ -57,6 +57,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.wicketstuff.annotation.mount.MountPath;
 import org.wicketstuff.urlfragment.UrlFragment;
 
@@ -75,7 +76,9 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotationPreferen
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.AnnotationPageBase;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.PreferencesUtil;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.BratProperties;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.UserPreferencesService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorModel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorPanel;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
@@ -128,6 +131,7 @@ public class AnnotationPage
     private @SpringBean ConstraintsService constraintsService;
     private @SpringBean BratProperties defaultPreferences;
     private @SpringBean AnnotationSchemaService annotationService;
+    private @SpringBean UserPreferencesService userPreferenceService;
     private @SpringBean UserDao userRepository;
     private @SpringBean AnnotationEditorRegistry editorRegistry;
     private @SpringBean AnnotationEditorExtensionRegistry extensionRegistry;
@@ -148,8 +152,8 @@ public class AnnotationPage
     
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel detailEditor;    
-    
-    private CodebookEditorPanel codebookdetailEditor; 
+
+    private CodebookEditorPanel codebookdetailEditor;
 
     public AnnotationPage()
     {
@@ -200,7 +204,7 @@ public class AnnotationPage
         add(createLeftSidebar());
         
         add(createCodebookSidebar());
-                
+
         add(createDocumentInfoLabel());
 
         add(openDocumentsModal = new OpenDocumentDialog("openDocumentsModal", getModel(),
@@ -265,7 +269,8 @@ public class AnnotationPage
                 
                 AnnotatorState state = AnnotationPage.this.getModelObject();
                 setEnabled(state.getDocument() != null && !documentService
-                        .isAnnotationFinished(state.getDocument(), state.getUser()));
+                        .isAnnotationFinished(state.getDocument(), state.getUser()) 
+                        && !isUserViewingOthersWork());
             }
         });
         finishDocumentIcon = new FinishImage("finishImage", getModel());
@@ -319,19 +324,19 @@ public class AnnotationPage
         };
     }
     
-    private CodebookEditorPanel createCodebookDetailEditor() 
+    private CodebookEditorPanel createCodebookDetailEditor()
     {
         CodebookEditorModel model = null;
         //model.setp
         return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(model))
         {
             private static final long serialVersionUID = 2857345299480098279L;
-           
+
             @Override
             protected void onConfigure()
             {
                 super.onConfigure();
-                
+
                 AnnotatorState state = AnnotationPage.this.getModelObject();
                 setEnabled(state.getDocument() != null && !documentService
                         .isAnnotationFinished(state.getDocument(), state.getUser()));
@@ -341,14 +346,14 @@ public class AnnotationPage
             {
                 return getEditorCas();
             }
-            
+
             @Override
             protected void onJcasUpdate(Long aTimeStamp) {
                 AnnotationPage.this.getModelObject().setAnnotationDocumentTimestamp(aTimeStamp);
             }
         };
     }
-     
+
 
     private void createAnnotationEditor(IPartialPageRequestHandler aTarget)
     {
@@ -390,7 +395,7 @@ public class AnnotationPage
 
     private SidebarPanel createLeftSidebar()
     {
-        SidebarPanel leftSidebar = new SidebarPanel("leftSidebar", getModel(), detailEditor, () -> 
+        SidebarPanel leftSidebar = new SidebarPanel("leftSidebar", getModel(), detailEditor, () ->
                 getEditorCas(), AnnotationPage.this);
         // Override sidebar width from preferences
         leftSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
@@ -406,13 +411,13 @@ public class AnnotationPage
                 .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
         codebookdetailEditor = createCodebookDetailEditor();
         codebookdetailEditor.setOutputMarkupId(true);
-        
+
         codebookPanel.add(codebookdetailEditor);
         // Hide at the beginning
         codebookPanel.add(new AttributeModifier("style", "visibility:hidden;display:none"));
         return codebookPanel;
     }
-    
+
     private WebMarkupContainer createRightSidebar()
     {
         WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
@@ -527,11 +532,11 @@ public class AnnotationPage
             // The number of visible sentences may have changed - let the state recalculate 
             // the visible sentences 
             state.getPagingStrategy().recalculatePage(state, cas);
-            
+
             decideSideBarSetup(aTarget);
             // The selection of layers may have changed. Update the dropdown
             detailEditor.getAnnotationFeatureForm().updateLayersDropdown();
-
+            
             createAnnotationEditor(aTarget);
             
             // Reload all AJAX-enabled children of the page but not the page itself!
@@ -572,23 +577,23 @@ public class AnnotationPage
                                 AnnotationPreference.SIDEBAR_SIZE_MAX)) + "; visibility:visible";
         return style;
     }
-    
+
     private void actionFinishDocument(AjaxRequestTarget aTarget)
     {
         finishDocumentDialog.setConfirmAction((aCallbackTarget) -> {
             actionValidateDocument(aCallbackTarget, getEditorCas());
-            
+
             AnnotatorState state = getModelObject();
             AnnotationDocument annotationDocument = documentService.getAnnotationDocument(
                     state.getDocument(), state.getUser());
 
             documentService.transitionAnnotationDocumentState(annotationDocument,
                     ANNOTATION_IN_PROGRESS_TO_ANNOTATION_FINISHED);
-            
+
             // manually update state change!! No idea why it is not updated in the DB
             // without calling createAnnotationDocument(...)
             documentService.createAnnotationDocument(annotationDocument);
-            
+
             aCallbackTarget.add(finishDocumentIcon);
             aCallbackTarget.add(finishDocumentLink);
             aCallbackTarget.add(detailEditor);
@@ -610,7 +615,10 @@ public class AnnotationPage
         
         AnnotatorState state = getModelObject();
         
-        state.setUser(userRepository.getCurrentUser());
+        
+        if (state.getUser() == null) {
+            state.setUser(userRepository.getCurrentUser());
+        }
 
         try {
             // Check if there is an annotation document entry in the database. If there is none,
@@ -630,8 +638,10 @@ public class AnnotationPage
             state.reset();
             
             // Initialize timestamp in state
-            updateDocumentTimestampAfterWrite(state, documentService
-                    .getAnnotationCasTimestamp(state.getDocument(), state.getUser().getUsername()));
+            if (!isUserViewingOthersWork()) {
+                updateDocumentTimestampAfterWrite(state, documentService.getAnnotationCasTimestamp(
+                        state.getDocument(), state.getUser().getUsername()));
+            }
 
             // Load constraints
             state.setConstraints(constraintsService.loadConstraints(state.getProject()));
@@ -655,7 +665,8 @@ public class AnnotationPage
             state.moveToUnit(editorCas, aFocus + 1, TOP);
 
             // Update document state
-            if (SourceDocumentState.NEW.equals(state.getDocument().getState())) {
+            if (!isUserViewingOthersWork()
+                    && SourceDocumentState.NEW.equals(state.getDocument().getState())) {
                 documentService.transitionSourceDocumentState(state.getDocument(),
                         NEW_TO_ANNOTATION_IN_PROGRESS);
             }
@@ -665,11 +676,11 @@ public class AnnotationPage
             detailEditor.reset(null);
             // Populate the layer dropdown box
             detailEditor.loadFeatureEditorModels(editorCas, null);
-            
+
          // update codebook editor
             codebookdetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
             decideSideBarSetup(aTarget);
-            
+
             if (aTarget != null) {
                 // Update URL for current document
                 updateUrlFragment(aTarget);
@@ -678,7 +689,8 @@ public class AnnotationPage
             
             applicationEventPublisherHolder.get().publishEvent(
                     new DocumentOpenedEvent(this, editorCas, getModelObject().getDocument(),
-                            getModelObject().getUser().getUsername()));
+                            getModelObject().getUser().getUsername(),
+                            userRepository.getCurrentUser().getUsername()));
         }
         catch (Exception e) {
             handleException(aTarget, e);
@@ -817,9 +829,10 @@ public class AnnotationPage
             return;
         }
         
-        // Check access to project
+        // Check access to project for annotator or current user if admin is viewing
         if (project != null
-                && !projectService.isAnnotator(project, getModelObject().getUser())) {
+                && !projectService.isAnnotator(project, getModelObject().getUser())
+                && !projectService.isManager(project, userRepository.getCurrentUser())) {
             error("You have no permission to access project [" + project.getId() + "]");
             return;
         }
@@ -829,7 +842,8 @@ public class AnnotationPage
                 .existsAnnotationDocument(document, getModelObject().getUser())) {
             AnnotationDocument adoc = documentService.getAnnotationDocument(document,
                     getModelObject().getUser());
-            if (AnnotationDocumentState.IGNORE.equals(adoc.getState())) {
+            if (AnnotationDocumentState.IGNORE.equals(adoc.getState())
+                    && !isUserViewingOthersWork()) {
                 error("Document [" + document.getId() + "] in project [" + project.getId()
                         + "] is locked for user [" + getModelObject().getUser().getUsername()
                         + "]");
@@ -865,6 +879,24 @@ public class AnnotationPage
                     error("Error reading CAS " + e.getMessage());
                 }
             }
+        }
+    }
+
+    private boolean isUserViewingOthersWork()
+    {
+        return !getModelObject().getUser().equals(userRepository.getCurrentUser());
+    }
+
+    @Override
+    protected void loadPreferences() throws BeansException, IOException
+    {
+        if (isUserViewingOthersWork()) {
+            AnnotatorState state = getModelObject();
+            PreferencesUtil.loadPreferences(userPreferenceService, annotationService,
+                    state, userRepository.getCurrentUser().getUsername());
+        }
+        else {
+            super.loadPreferences();
         }
     }
     

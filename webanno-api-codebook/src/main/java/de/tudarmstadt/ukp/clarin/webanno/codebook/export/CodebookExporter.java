@@ -33,6 +33,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
+import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,6 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebannoCsvWriter;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebook;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedCodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
@@ -62,7 +61,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
-import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
 
 @Component
 public class CodebookExporter implements ProjectExporter, CodebookImportExportService {
@@ -75,7 +73,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String CODEBOOKS_FOLDER = "/codebooks/";
-
+    private static final String CODEBOOKS = "codebooks";
     @Override
     public void exportData(ProjectExportRequest aRequest, ExportedProject aExProject, File aStage)
             throws Exception {
@@ -173,7 +171,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
             exLayer.setFeatures(exFeatures);
             exportedCodebooks.add(exLayer);
         }
-        aExProject.setCodebooks(exportedCodebooks);
+        aExProject.setProperty(CODEBOOKS, exportedCodebooks);
     }
 
     @Override

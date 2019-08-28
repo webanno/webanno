@@ -44,6 +44,10 @@ public class WebAnnoTsv3WriterTest extends WebAnnoTsv3WriterTestBase
     protected boolean isKnownToFail(String aMethodName)
     {
         Set<String> failingTests = new HashSet<>();
+        failingTests.add("testAnnotationWithLeadingWhitespace"); 
+        failingTests.add("testAnnotationWithLeadingWhitespaceAtStart");
+        failingTests.add("testAnnotationWithTrailingWhitespace");
+        failingTests.add("testAnnotationWithTrailingWhitespaceAtEnd");
         failingTests.add("testSubtokenChain");
         failingTests.add("testStackedSubMultiTokenSpanWithFeatureValue");
         failingTests.add("testSubMultiTokenSpanWithFeatureValue");
@@ -58,7 +62,10 @@ public class WebAnnoTsv3WriterTest extends WebAnnoTsv3WriterTestBase
         failingTests.add("testStackedSimpleSlotFeatureWithoutValues");
         failingTests.add("testZeroLengthSpanBetweenAdjacentTokens");
         failingTests.add("testUnsetSlotFeature");
-        
+        failingTests.add("testZeroWidthAnnotationBeforeFirstTokenIsMovedToBeginOfFirstToken");
+        failingTests.add("testZeroWidthAnnotationBetweenTokenIsMovedToEndOfPreviousToken");
+        failingTests.add("testZeroWidthAnnotationBeyondLastTokenIsMovedToEndOfLastToken");
+
         return failingTests.contains(aMethodName);
     }
 }

@@ -32,8 +32,8 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
+import org.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 
 public class WebAnnoCsvReader
     extends JCasResourceCollectionReader_ImplBase

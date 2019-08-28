@@ -41,9 +41,9 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
+import org.dkpro.core.api.parameter.ComponentParameters;
 
-import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 
 public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
     public static final String PARAM_ENCODING = ComponentParameters.PARAM_TARGET_ENCODING;

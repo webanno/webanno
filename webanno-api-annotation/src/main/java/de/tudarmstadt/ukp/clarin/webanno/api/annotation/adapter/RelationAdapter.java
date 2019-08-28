@@ -36,8 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.event.RelationUpdateEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.event.RelationCreatedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.event.RelationDeletedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.IllegalPlacementException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
@@ -118,20 +120,16 @@ public class RelationAdapter
      *            the target FS.
      * @param aCas
      *            the CAS.
-     * @param aWindowBegin
-     *            begin offset of the first visible sentence
-     * @param aWindowEnd
-     *            end offset of the last visible sentence
      * @return the ID.
      * @throws AnnotationException
      *             if the annotation could not be created/updated.
      */
     public AnnotationFS add(SourceDocument aDocument, String aUsername, AnnotationFS aOriginFs,
-            AnnotationFS aTargetFs, CAS aCas, int aWindowBegin, int aWindowEnd)
+            AnnotationFS aTargetFs, CAS aCas)
         throws AnnotationException
     {
         return handle(new CreateRelationAnnotationRequest(aDocument, aUsername, aCas, aOriginFs,
-                aTargetFs, aWindowBegin, aWindowEnd));
+                aTargetFs));
     }
 
     public AnnotationFS handle(CreateRelationAnnotationRequest aRequest)
@@ -145,8 +143,8 @@ public class RelationAdapter
 
         AnnotationFS relationAnno = createRelationAnnotation(request.getCas(),
                 request.getOriginFs(), request.getTargetFs());
-        publishEvent(new RelationUpdateEvent(this, request.getDocument(), request.getUsername(),
-                relationAnno, getSourceAnnotation(relationAnno)));
+        publishEvent(new RelationCreatedEvent(this, request.getDocument(), request.getUsername(),
+                getLayer(), relationAnno, getSourceAnnotation(relationAnno)));
 
         return relationAnno;
     }
@@ -156,7 +154,7 @@ public class RelationAdapter
         throws AnnotationException
     {
         if (targetFS == null || originFS == null) {
-            throw new AnnotationException("Relation must have a source and a target!");
+            throw new IllegalPlacementException("Relation must have a source and a target!");
         }
 
         // Set the relation offsets in DKPro Core style - the relation recieves the offsets from
@@ -181,7 +179,7 @@ public class RelationAdapter
     {
         AnnotationFS fs = selectByAddr(aCas, AnnotationFS.class, aVid.getId());
         aCas.removeFsFromIndexes(fs);
-        publishEvent(new RelationUpdateEvent(this, aDocument, aUsername,
+        publishEvent(new RelationDeletedEvent(this, aDocument, aUsername, getLayer(),
                 fs, getSourceAnnotation(fs)));
     }
 

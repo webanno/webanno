@@ -54,13 +54,13 @@ public class PrimitiveUimaFeatureSupport
     implements FeatureSupport<Void>, InitializingBean
 {
     private final PrimitiveUimaFeatureSupportProperties properties;
-
+    
     private final AnnotationSchemaService schemaService;
-
+    
     private List<FeatureType> primitiveTypes;
 
     private String featureSupportId;
-
+    
     /*
      * Constructor for use in unit tests to avoid having to always instantiate the properties.
      */
@@ -83,23 +83,23 @@ public class PrimitiveUimaFeatureSupport
     {
         return featureSupportId;
     }
-
+    
     @Override
     public void setBeanName(String aBeanName)
     {
         featureSupportId = aBeanName;
     }
-
+    
     @Override
     public void afterPropertiesSet() throws Exception
     {
         primitiveTypes = asList(
                 new FeatureType(CAS.TYPE_NAME_STRING, "Primitive: String", featureSupportId),
-                new FeatureType(CAS.TYPE_NAME_INTEGER, "Primitive: Integer", featureSupportId),
-                new FeatureType(CAS.TYPE_NAME_FLOAT, "Primitive: Float", featureSupportId),
+                new FeatureType(CAS.TYPE_NAME_INTEGER, "Primitive: Integer", featureSupportId), 
+                new FeatureType(CAS.TYPE_NAME_FLOAT, "Primitive: Float", featureSupportId), 
                 new FeatureType(CAS.TYPE_NAME_BOOLEAN, "Primitive: Boolean", featureSupportId));
     }
-
+    
     @Override
     public List<FeatureType> getSupportedFeatureTypes(AnnotationLayer aAnnotationLayer)
     {
@@ -115,7 +115,7 @@ public class PrimitiveUimaFeatureSupport
             case CAS.TYPE_NAME_INTEGER: // fallthrough
             case CAS.TYPE_NAME_FLOAT: // fallthrough
             case CAS.TYPE_NAME_BOOLEAN: // fallthrough
-            case CAS.TYPE_NAME_STRING:
+            case CAS.TYPE_NAME_STRING: 
                 return true;
             default:
                 return false;
@@ -131,9 +131,9 @@ public class PrimitiveUimaFeatureSupport
     {
         if (
                 aValue != null &&
-                schemaService != null &&
-                aFeature.getTagset() != null &&
-                CAS.TYPE_NAME_STRING.equals(aFeature.getType()) &&
+                schemaService != null && 
+                aFeature.getTagset() != null && 
+                CAS.TYPE_NAME_STRING.equals(aFeature.getType()) && 
                 !schemaService.existsTag((String) aValue, aFeature.getTagset())
         ) {
             if (!aFeature.getTagset().isCreateTag()) {
@@ -147,27 +147,27 @@ public class PrimitiveUimaFeatureSupport
                 schemaService.createTag(selectedTag);
             }
         }
-
+        
         FeatureSupport.super.setFeatureValue(aCas, aFeature, aAddress, aValue);
     }
-
+    
     @Override
     public Object wrapFeatureValue(AnnotationFeature aFeature, CAS aCAS, Object aValue)
     {
         return aValue;
     }
-
+    
     @Override
     public <V> V  unwrapFeatureValue(AnnotationFeature aFeature, CAS aCAS, Object aValue)
     {
         return (V) aValue;
     }
-
+    
     @Override
     public Panel createTraitsEditor(String aId,  IModel<AnnotationFeature> aFeatureModel)
     {
         AnnotationFeature feature = aFeatureModel.getObject();
-
+        
         Panel editor;
         switch (feature.getMultiValueMode()) {
         case NONE:
@@ -191,7 +191,7 @@ public class PrimitiveUimaFeatureSupport
         }
         return editor;
     }
-
+    
     @Override
     public FeatureEditor createEditor(String aId, MarkupContainer aOwner,
             AnnotationActionHandler aHandler, final IModel<AnnotatorState> aStateModel,
@@ -199,7 +199,7 @@ public class PrimitiveUimaFeatureSupport
     {
         AnnotationFeature feature = aFeatureStateModel.getObject().feature;
         final FeatureEditor editor;
-
+        
         switch (feature.getMultiValueMode()) {
         case NONE:
             switch (feature.getType()) {
@@ -243,14 +243,14 @@ public class PrimitiveUimaFeatureSupport
         }
         return editor;
     }
-
+    
     @Override
     public void generateFeature(TypeSystemDescription aTSD, TypeDescription aTD,
             AnnotationFeature aFeature)
     {
         aTD.addFeature(aFeature.getName(), aFeature.getDescription(), aFeature.getType());
     }
-
+    
     @Override
     public void configureFeature(AnnotationFeature aFeature)
     {
@@ -274,10 +274,5 @@ public class PrimitiveUimaFeatureSupport
         else {
             return FeatureSupport.super.renderFeatureValue(aFeature, aLabel);
         }
-    }
-    @Override
-    public List<FeatureType> getPrimitiveFeatureTypes()
-    {
-        return Collections.unmodifiableList(primitiveTypes);
     }
 }

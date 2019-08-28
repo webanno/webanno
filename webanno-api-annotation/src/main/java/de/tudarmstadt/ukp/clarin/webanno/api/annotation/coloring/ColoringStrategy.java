@@ -257,7 +257,7 @@ public abstract class ColoringStrategy
         }
         return filtered.toArray(new String[filtered.size()]);
     }
-    
+
     public static boolean isTooLight(String aColor, int aThreshold)
     {
         // http://24ways.org/2010/calculating-color-contrast/
@@ -311,6 +311,5 @@ public abstract class ColoringStrategy
     public final static String[] PALETTE_NORMAL_FILTERED = filterLightColors(PALETTE_NORMAL,
             LIGHTNESS_FILTER_THRESHOLD);
 
-    
     public abstract String getColor(VID aVid, String aLabel);
 }

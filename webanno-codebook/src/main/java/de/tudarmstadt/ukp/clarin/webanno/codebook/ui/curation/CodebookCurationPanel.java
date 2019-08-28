@@ -56,13 +56,14 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensio
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
@@ -91,7 +92,7 @@ public class CodebookCurationPanel extends Panel {
         super(id, aModel);
 
         setOutputMarkupId(true);
-
+        add(CodebookLayoutCssResourceBehavior.get());
         cModel = aModel.getObject();
 
         curations = new PageableListView<CodebookCurations>("curations",
@@ -99,6 +100,7 @@ public class CodebookCurationPanel extends Panel {
 
             private static final long serialVersionUID = -8038013944939655952L;
 
+            @Override
             protected void populateItem(final ListItem<CodebookCurations> item) {
                 final CodebookCurations curationsModel = (CodebookCurations) item.getModelObject();
                 item.add(new Label("codebook", curationsModel.getCodebook().getUiName()));

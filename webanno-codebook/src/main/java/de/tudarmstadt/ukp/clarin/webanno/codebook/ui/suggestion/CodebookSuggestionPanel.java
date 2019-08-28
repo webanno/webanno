@@ -52,7 +52,7 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationModel;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff2.DiffResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
@@ -88,6 +88,7 @@ public class CodebookSuggestionPanel extends Panel {
 
             private static final long serialVersionUID = -3591948738133097041L;
 
+            @Override
             protected void populateItem(final ListItem<CodebookSuggestions> item) {
                 final CodebookSuggestions suggestion = (CodebookSuggestions) item.getModelObject();
                 item.add(new Label("codebook",suggestion.getCodebook().getUiName()));

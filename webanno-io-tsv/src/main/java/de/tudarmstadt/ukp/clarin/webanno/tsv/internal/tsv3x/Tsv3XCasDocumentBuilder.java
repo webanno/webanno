@@ -70,7 +70,7 @@ public class Tsv3XCasDocumentBuilder
     {
         TsvFormatHeader format = new TsvFormatHeader("WebAnno TSV", "3.2");
         TsvDocument doc = new TsvDocument(format, aSchema, aJCas);
-        
+
         // Fill document with all the sentences and tokens
         for (Sentence uimaSentence : select(aJCas, Sentence.class)) {
             TsvSentence sentence = doc.createSentence(uimaSentence);
@@ -78,7 +78,7 @@ public class Tsv3XCasDocumentBuilder
                 sentence.createToken(uimaToken);
             }
         }
-        
+
         // Scan for chains
         for (Type headType : aSchema.getChainHeadTypes()) {
             for (FeatureStructure chainHead : CasUtil.selectFS(aJCas.getCas(), headType)) {
@@ -94,8 +94,8 @@ public class Tsv3XCasDocumentBuilder
                 }
             }
         }
-        
-        
+
+
         // Build indexes over the token start and end positions such that we can quickly locate
         // tokens based on their offsets.
         NavigableMap<Integer, TsvToken> tokenBeginIndex = new TreeMap<>();
@@ -108,26 +108,30 @@ public class Tsv3XCasDocumentBuilder
                 tokens.add(token);
             }
         }
-        
+
         // Scan all annotations of the types defined in the schema and use them to set up sub-token
         // units.
         for (Type type : aSchema.getUimaTypes()) {
-            
-            // exclude codebook types 
+            if (aSchema.getIgnoredTypes().contains(type)) {
+                continue;
+            }
+            // TODO: check if getIgnoredTypes includes codebook types
+            //exclude codebook types
             if (type.getName().startsWith("webanno.codebook")) {
                 continue;
             }
+
             LayerType layerType = aSchema.getLayerType(type);
-            
+
             boolean addDisambiguationIdIfStacked = SPAN.equals(layerType);
-            
+
             for (AnnotationFS annotation : CasUtil.select(aJCas.getCas(), type)) {
                 doc.activateType(annotation.getType());
-                
+
                 // Get the relevant begin and end offsets for the current annotation
                 int begin = annotation.getBegin();
                 int end = annotation.getEnd();
-                
+
                 // According to DKPro Core conventions, the offsets of relations must match
                 // those of the target (i.e. the offsets of a Dependency relation must match
                 // those of the dependent). Thus, we obtain the offsets from the target, just
@@ -138,8 +142,22 @@ public class Tsv3XCasDocumentBuilder
                     begin = targetFS.getBegin();
                     end = targetFS.getEnd();
                 }
-                
+
                 Entry<Integer, TsvToken> beginTokenEntry = tokenBeginIndex.floorEntry(begin);
+                // If the current annotation has leading whitespace, we have wrongly fetched the
+                // token before the start token using floorEntry(end) - so let's try to correct this
+                if (
+                        // found begin token but found the wrong one
+                        (
+                                beginTokenEntry != null &&
+                                beginTokenEntry.getValue().getEnd() < begin &&
+                                tokenEndIndex.higherEntry(begin) != null
+                        ) ||
+                        // didn't find begin token because annotation starts before the first token
+                        beginTokenEntry == null
+                ) {
+                    beginTokenEntry = tokenEndIndex.higherEntry(begin);
+                }
                 if (beginTokenEntry == null) {
                     throw new IllegalStateException(
                             "Unable to find begin token starting at or before " + begin
@@ -149,15 +167,29 @@ public class Tsv3XCasDocumentBuilder
                 }
 
                 Entry<Integer, TsvToken> endTokenEntry = tokenEndIndex.ceilingEntry(end);
+                // If the current annotation has trailing whitespace, we have wrongly fetched the
+                // token after the end token using ceilingEntry(end) - so let's try to correct this
+                if (
+                        // found end token but found the wrong one
+                        (
+                                endTokenEntry != null &&
+                                endTokenEntry.getValue().getBegin() > end &&
+                                tokenEndIndex.lowerEntry(end) != null
+                        ) ||
+                        // didn't find end token because annotation ends beyond the last token
+                        endTokenEntry == null
+                ) {
+                    endTokenEntry = tokenEndIndex.lowerEntry(end);
+                }
                 if (endTokenEntry == null) {
                     throw new IllegalStateException("Unable to find end token ending at or after "
                             + end + " (last token ends at " + tokenEndIndex.pollLastEntry().getKey()
                             + ") for annotation: " + annotation);
                 }
-                
+
                 TsvToken beginToken = beginTokenEntry.getValue();
                 TsvToken endToken = endTokenEntry.getValue();
-                
+
                 // For zero-width annotations, the begin token must match the end token.
                 // Zero-width annotations between two directly adjacent tokens are always
                 // considered to be at the end of the first token rather than at the beginning
@@ -166,28 +198,38 @@ public class Tsv3XCasDocumentBuilder
                 if (begin == end) {
                     beginToken = endToken;
                 }
-                
+
                 boolean singleToken = beginToken == endToken;
                 boolean zeroWitdh = begin == end;
                 boolean multiTokenCapable = SPAN.equals(layerType) || CHAIN.equals(layerType);
-                
+
                 // Annotation exactly matches token boundaries - it doesn't really matter if the
                 // begin and end tokens are the same; we don't have to create sub-token units
                 // in either case.
                 if (beginToken.getBegin() == begin && endToken.getEnd() == end) {
                     doc.mapFS2Unit(annotation, beginToken);
                     beginToken.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
-                    
+
                     if (multiTokenCapable) {
                         endToken.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
                     }
                 }
                 else if (zeroWitdh) {
-                    TsvSubToken t = beginToken.createSubToken(begin, min(beginToken.getEnd(), end));
+                    // If the zero-width annotation happens in the space between tokens or after
+                    // the last token, we move it to the end of the closest preceding token in order
+                    // not to have to drop it entirely.
+                    int position = min(beginToken.getEnd(), end);
+                    // ... or if the annotation is before the first token, then we move it to the
+                    // begin of the first token
+                    if (position < beginToken.getBegin()) {
+                        position = beginToken.getBegin();
+                    }
+                    TsvSubToken t = beginToken.createSubToken(position, position);
                     doc.mapFS2Unit(annotation, t);
                     t.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
-                } else {
-                    // Annotation covers only suffix of the begin token - we need to create a 
+                }
+                else {
+                    // Annotation covers only suffix of the begin token - we need to create a
                     // suffix sub-token unit on the begin token. The new sub-token defines the ID of
                     // the annotation.
                     if (beginToken.getBegin() < begin) {
@@ -201,8 +243,8 @@ public class Tsv3XCasDocumentBuilder
                         beginToken.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
                         doc.mapFS2Unit(annotation, beginToken);
                     }
-                    
-                    // Annotation covers only a prefix of the end token - we need to create a 
+
+                    // Annotation covers only a prefix of the end token - we need to create a
                     // prefix sub-token unit on the end token. If the current annotation is limited
                     // only to the sub-token unit, then it defines the ID. This is determined by
                     // checking if if singleToke is true.
@@ -210,7 +252,7 @@ public class Tsv3XCasDocumentBuilder
                         TsvSubToken t = endToken.createSubToken(max(endToken.getBegin(), begin),
                                 end);
                         t.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
-                        
+
                         if (!singleToken) {
                             doc.mapFS2Unit(annotation, t);
                         }
@@ -219,9 +261,9 @@ public class Tsv3XCasDocumentBuilder
                         endToken.addUimaAnnotation(annotation, addDisambiguationIdIfStacked);
                     }
                 }
-                
+
                 // The annotation must also be added to all tokens between the begin token and
-                // the end token 
+                // the end token
                 if (multiTokenCapable && !singleToken) {
                     ListIterator<TsvToken> i = tokens.listIterator(tokens.indexOf(beginToken));
                     TsvToken t;
@@ -231,14 +273,14 @@ public class Tsv3XCasDocumentBuilder
                         }
                     }
                 }
-                
+
                 // Multi-token span annotations must get a disambiguation ID
                 if (SPAN.equals(layerType) && !singleToken) {
                     doc.addDisambiguationId(annotation);
                 }
             }
         }
-        
+
         // Scan all created units to see which columns actually contains values
         for (TsvSentence sentence : doc.getSentences()) {
             for (TsvToken token : sentence.getTokens()) {
@@ -250,7 +292,7 @@ public class Tsv3XCasDocumentBuilder
                 }
             }
         }
-    
+
         // Activate the placeholder columns for any active types for which no other columns are
         // active.
         Set<Type> activeTypesNeedingPlaceholders = new HashSet<>(doc.getActiveTypes());
@@ -263,7 +305,7 @@ public class Tsv3XCasDocumentBuilder
                 doc.activateColumn(col);
             }
         }
-        
+
         return doc;
     }
 
@@ -280,27 +322,27 @@ public class Tsv3XCasDocumentBuilder
 //                        }
 //                    }
 //                }
-                
-                
+
+
                 if (!PLACEHOLDER.equals(col.featureType)) {
                     aUnit.getDocument().activateColumn(col);
                 }
-                
+
                 // COMPATIBILITY NOTE:
                 // WebAnnoTsv3Writer obtains the type of a relation target column not from the
-                // type system definition but rather by looking at target used by the first 
+                // type system definition but rather by looking at target used by the first
                 // actual annotation.
                 if (RELATION.equals(col.layerType) && RELATION_REF.equals(col.featureType)) {
                     AnnotationFS annotation = annotationsForColumn.get(0);
                     FeatureStructure target = FSUtil.getFeature(annotation, FEAT_REL_SOURCE,
                             FeatureStructure.class);
-                    
+
                     if (target == null) {
                         throw new IllegalStateException(
                                 "Relation does not have its source feature (" + FEAT_REL_SOURCE
                                         + ") set: " + annotation);
                     }
-                    
+
                     if (col.uimaType.getName().equals(Dependency.class.getName())) {
                         // COMPATIBILITY NOTE:
                         // WebAnnoTsv3Writer hard-changes the target type for DKPro Core
@@ -317,7 +359,7 @@ public class Tsv3XCasDocumentBuilder
             }
         }
     }
-    
+
     /**
      * If a slot feature has the target type Annotation, then any kind of annotation can be
      * used as slot filler. In this case, the targets are ambiguous and require an disambiguaton
