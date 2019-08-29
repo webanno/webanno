@@ -70,6 +70,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import org.w3c.dom.Attr;
 
 /**
  * Modal Window to configure layers, window size, etc.
@@ -148,8 +149,19 @@ public class AnnotationPreferencesDialogContent
         form.add(new LambdaAjaxButton<>("save", this::actionSave));
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
         
-        // show codebook?
-        form. add(new CheckBox("showCodebook"));
+        // show codebook curation checkbox
+        CheckBox codebookCheckbox = new CheckBox("showCodebookCuration");
+        form. add(codebookCheckbox);
+        // Disable the checkbox and set the flag to false if we are in ANNOTATION mode!
+        if (stateModel.getObject().getMode().equals(ANNOTATION)) {
+            codebookCheckbox.setEnabled(false);
+            stateModel.getObject().getPreferences().setShowCodebookCuration(false);
+            form.getModelObject().showCodebookCuration = false;
+        } else if (stateModel.getObject().getMode().equals(ANNOTATION)) {
+            codebookCheckbox.setEnabled(true);
+        }
+
+
         WebMarkupContainer showEditorCont = new WebMarkupContainer("showEditorCont");
         showEditorCont.add(new AttributeModifier("style", 
                 stateModel.getObject().getMode().getName().equals(Mode.ANNOTATION.getName())
@@ -183,7 +195,7 @@ public class AnnotationPreferencesDialogContent
             prefs.setReadonlyLayerColoringBehaviour(model.readonlyLayerColoringBehaviour);
             prefs.setEditor(model.editor.getKey());
             
-            prefs.setShowCodebook(model.showCodebook);
+            prefs.setShowCodebookCuration(model.showCodebookCuration);
             prefs.setShowEditor(model.showEditor);
             prefs.setCodebooksPerPage(model.codebooksPerPage);
 
@@ -239,7 +251,7 @@ public class AnnotationPreferencesDialogContent
                 .collect(Collectors.toList());
 
         model.codebooksPerPage = prefs.getCodebooksPerPage();
-        model.showCodebook = prefs.isShowCodebook();
+        model.showCodebookCuration = prefs.isShowCodebookCuration();
         model.showEditor = prefs.isShowEditor();
         
         return model;
@@ -309,7 +321,7 @@ public class AnnotationPreferencesDialogContent
         private Map<Long, ColoringStrategyType> colorPerLayer;
         
         private int codebooksPerPage;
-        private boolean showCodebook;
+        private boolean showCodebookCuration;
         private boolean showEditor;
     }
 }
