@@ -69,15 +69,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-      <artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
+      <groupId>org.dkpro.core</groupId>
+      <artifactId>dkpro-core-testing-asl</artifactId>
       <scope>test</scope>
-      <!--
-      FIXME
-        manual adding of version necessary in this case since the managed version (1.11.0)
-        is not released yet
-      -->
-      <version>1.10.0</version>
     </dependency>
   </dependencies>
 
