@@ -149,7 +149,7 @@ public class AnnotationPreferencesDialogContent
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
         
         // show codebook?
-        form. add(new CheckBox("showCodebook"));
+        form. add(new CheckBox("showCodebookCuration"));
         WebMarkupContainer showEditorCont = new WebMarkupContainer("showEditorCont");
         showEditorCont.add(new AttributeModifier("style", 
                 stateModel.getObject().getMode().getName().equals(Mode.ANNOTATION.getName())
