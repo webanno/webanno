@@ -17,8 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.csv;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +32,6 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
 import org.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 
-
 public class WebAnnoCsvReader
     extends JCasResourceCollectionReader_ImplBase
 {
@@ -45,9 +42,7 @@ public class WebAnnoCsvReader
         Resource res = nextFile();
         initCas(aJCas, res);
 
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(res.getInputStream());
+        try (InputStream is = new BufferedInputStream(res.getInputStream())) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withIgnoreHeaderCase()
                     .parse(new InputStreamReader(is, "UTF-8"));
             List<String> headers = new ArrayList<>();
@@ -78,10 +73,6 @@ public class WebAnnoCsvReader
         }
         catch (Exception e) {
             throw new CollectionException(e);
-        }
-        finally {
-            closeQuietly(is);
-
         }
 
     }
