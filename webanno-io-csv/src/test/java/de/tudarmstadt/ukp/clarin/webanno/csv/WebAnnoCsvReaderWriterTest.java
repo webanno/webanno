@@ -137,12 +137,15 @@ public class WebAnnoCsvReaderWriterTest
         String docName = "sampleCsvDoc.txt";
         String annotator = "testUser";
         // setup the CSVWriter
-        AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
+        AnalysisEngineDescription writer = createEngineDescription(
+                WebannoCsvWriter.class,
                 WebannoCsvWriter.PARAM_TARGET_LOCATION, targetFolder,
-                WebannoCsvWriter.PARAM_FILENAME, targetFileName, WebannoCsvWriter.WITH_HEADERS,
-                true, WebannoCsvWriter.WITH_TEXT, true, WebannoCsvWriter.PARAM_CODEBOOKS, codebooks,
-                WebannoCsvWriter.PARAM_ANNOTATOR, annotator, WebannoCsvWriter.DOCUMENT_NAME,
-                docName);
+                WebannoCsvWriter.PARAM_FILENAME, targetFileName,
+                WebannoCsvWriter.WITH_HEADERS, true,
+                WebannoCsvWriter.WITH_TEXT, true,
+                WebannoCsvWriter.PARAM_CODEBOOKS, codebooks,
+                WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
+                WebannoCsvWriter.DOCUMENT_NAME, docName);
 
         // read the example.csv and write it to writerOutput.csv
         JCas exampleInputCas = executeReader(inputFolder, inputFileName);
