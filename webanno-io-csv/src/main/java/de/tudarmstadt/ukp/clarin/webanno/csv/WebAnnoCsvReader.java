@@ -78,13 +78,17 @@ public class WebAnnoCsvReader
     }
 
     private void createCodebookAnnotations(JCas aJCas, List<String> headers, CSVRecord record)
-        throws CollectionException
+        throws IOException
     {
         AnnotationFS codebookAnnotation;
+        // start with 2 since the first and second header entries are the document name and
+        // annotator name respectively. Also the last header entry (text of the document) is
+        // ignored.
         for (int i = 2; i < record.size() - 1; i++) {
             Type codebook = aJCas.getTypeSystem().getType(headers.get(i));
             if (codebook == null)
-                throw new CollectionException(); // TODO what to throw?!
+                throw new IOException("Codebook Type with name '" + headers.get(i)
+                        + "' is not registered in the typesystem!");
             codebookAnnotation = aJCas.getCas().createAnnotation(codebook, 0,
                     aJCas.getDocumentText().length() - 1);
             codebookAnnotation.setFeatureValueFromString(codebook.getFeatureByBaseName("code"),
