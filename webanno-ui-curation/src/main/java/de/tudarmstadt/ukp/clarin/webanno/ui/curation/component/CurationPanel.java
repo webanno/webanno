@@ -224,7 +224,7 @@ public class CurationPanel
                         .getSourceDocument(state.getDocument().getProject(),
                                 state.getDocument().getName())
                         .getState().equals(SourceDocumentState.CURATION_FINISHED)
-                        && !state.getPreferences().isShowCodebook());
+                        && !state.getPreferences().isShowCodebookCuration());
             }
             
             @Override
@@ -536,7 +536,7 @@ public class CurationPanel
     }
 
     public void decideSideBarSetup(AjaxRequestTarget aTarget) {
-        if (getModelObject().getState().getPreferences().isShowCodebook()) {
+        if (getModelObject().getState().getPreferences().isShowCodebookCuration()) {
             codebookCurationPanel.getParent().add(new AttributeModifier("style", getVStyle(0.05)));
             aTarget.add(codebookCurationPanel.getParent());
 

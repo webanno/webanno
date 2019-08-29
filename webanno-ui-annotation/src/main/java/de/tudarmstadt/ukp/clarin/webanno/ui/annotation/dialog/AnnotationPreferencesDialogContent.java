@@ -183,7 +183,7 @@ public class AnnotationPreferencesDialogContent
             prefs.setReadonlyLayerColoringBehaviour(model.readonlyLayerColoringBehaviour);
             prefs.setEditor(model.editor.getKey());
             
-            prefs.setShowCodebook(model.showCodebook);
+            prefs.setShowCodebookCuration(model.showCodebookCuration);
             prefs.setShowEditor(model.showEditor);
             prefs.setCodebooksPerPage(model.codebooksPerPage);
 
@@ -239,7 +239,7 @@ public class AnnotationPreferencesDialogContent
                 .collect(Collectors.toList());
 
         model.codebooksPerPage = prefs.getCodebooksPerPage();
-        model.showCodebook = prefs.isShowCodebook();
+        model.showCodebookCuration = prefs.isShowCodebookCuration();
         model.showEditor = prefs.isShowEditor();
         
         return model;
@@ -309,7 +309,7 @@ public class AnnotationPreferencesDialogContent
         private Map<Long, ColoringStrategyType> colorPerLayer;
         
         private int codebooksPerPage;
-        private boolean showCodebook;
+        private boolean showCodebookCuration;
         private boolean showEditor;
     }
 }

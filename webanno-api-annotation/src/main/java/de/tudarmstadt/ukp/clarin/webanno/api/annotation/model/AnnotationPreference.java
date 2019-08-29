@@ -48,7 +48,12 @@ public class AnnotationPreference
     
     public static final int CODEBOOKS_PER_PAGE = 12;
     private int codebooksPerPage ;
-    private boolean showCodebook = false;
+    // TODO
+    //  this actually makes no sense here and needs to be refactored into the curations module
+    //  where a own CurationPreference similar to AnnotationPreference needs to be implemented!
+    //  Since there would be only one boolean (showCodebookCuration) for the CurationPreference we
+    //  decided to postpone this to a later PR.
+    private boolean showCodebookCuration = false;
     private boolean showEditor = true;
     
     // Id of annotation layers, to be stored in the properties file comma separated: 12, 34,....
@@ -257,12 +262,12 @@ public class AnnotationPreference
     {
         return defaultLayer;
     }
-    public boolean isShowCodebook() {
-        return showCodebook;
+    public boolean isShowCodebookCuration() {
+        return showCodebookCuration;
     }
 
-    public void setShowCodebook(boolean aShowCodebook) {
-        this.showCodebook = aShowCodebook;
+    public void setShowCodebookCuration(boolean aShowCodebook) {
+        this.showCodebookCuration = aShowCodebook;
     }
     
     
