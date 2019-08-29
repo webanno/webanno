@@ -17,8 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.csv;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,50 +26,75 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.jcas.JCas;
 import org.dkpro.core.api.io.JCasResourceCollectionReader_ImplBase;
 
-
-public class WebAnnoCsvReader extends JCasResourceCollectionReader_ImplBase {
+public class WebAnnoCsvReader
+    extends JCasResourceCollectionReader_ImplBase
+{
 
     @Override
-    public void getNext(JCas aJCas) throws IOException, CollectionException {
+    public void getNext(JCas aJCas) throws IOException, CollectionException
+    {
         Resource res = nextFile();
         initCas(aJCas, res);
 
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(res.getInputStream());
+        try (InputStream is = new BufferedInputStream(res.getInputStream())) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withIgnoreHeaderCase()
                     .parse(new InputStreamReader(is, "UTF-8"));
             List<String> headers = new ArrayList<>();
             for (CSVRecord record : records) {
-                String documentName = record.get(0);
-                String annotator = record.get(1);
-
                 if (headers.isEmpty()) {
+                    String documentName = record.get(0);
+                    String annotator = record.get(1);
+
                     headers.add(documentName);
                     headers.add(annotator);
                     for (int c = 2; c < record.size(); c++) {
                         headers.add(record.get(c));
                     }
-                } else {
-                    String text = record.get((int) (record.size() - 1));
+                }
+                else {
+                    String text = record.get(record.size() - 1);
                     if (null != text && null == aJCas.getDocumentText()) {
                         aJCas.setDocumentText(text);
                     }
+                    // add the codebook annotations
+                    // TODO this needs to get generified for every type of (custom) annotation if we
+                    // TODO want CSV support not only for Codebook
+                    createCodebookAnnotations(aJCas, headers, record);
 
                 }
 
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new CollectionException(e);
-        } finally {
-            closeQuietly(is);
-
         }
 
+    }
+
+    private void createCodebookAnnotations(JCas aJCas, List<String> headers, CSVRecord record)
+        throws IOException
+    {
+        AnnotationFS codebookAnnotation;
+        // start with 2 since the first and second header entries are the document name and
+        // annotator name respectively. Also the last header entry (text of the document) is
+        // ignored.
+        for (int i = 2; i < record.size() - 1; i++) {
+            Type codebook = aJCas.getTypeSystem().getType(headers.get(i));
+            if (codebook == null)
+                throw new IOException("Codebook Type with name '" + headers.get(i)
+                        + "' is not registered in the typesystem!");
+            codebookAnnotation = aJCas.getCas().createAnnotation(codebook, 0,
+                    aJCas.getDocumentText().length() - 1);
+            codebookAnnotation.setFeatureValueFromString(codebook.getFeatureByBaseName("code"),
+                    record.get(i));
+            aJCas.addFsToIndexes(codebookAnnotation);
+        }
     }
 
 }

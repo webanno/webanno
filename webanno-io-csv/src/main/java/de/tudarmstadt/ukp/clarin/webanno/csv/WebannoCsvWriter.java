@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
+    //TODO I think this is not necessary since the codebooks should be in the CAS already!
     public static final String PARAM_CODEBOOKS = "codebooks";
     @ConfigurationParameter(name = PARAM_CODEBOOKS, mandatory = true, defaultValue = {})
     private List<String> codebooks;
@@ -75,8 +77,8 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
 
     private static final String NEW_LINE_SEPARATOR = "\n";
 
-    public static final String DOCUMENT_Name = "documentName";
-    @ConfigurationParameter(name = DOCUMENT_Name, mandatory = true, defaultValue = "testDocument.txt")
+    public static final String DOCUMENT_NAME = "documentName";
+    @ConfigurationParameter(name = DOCUMENT_NAME, mandatory = true, defaultValue = "testDocument.txt")
     private String documentName;
 
     @Override
@@ -85,7 +87,9 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
         CSVPrinter csvFileWriter = null;
         try {
             CSVFormat csvFileFormat = CSVFormat.RFC4180.withRecordSeparator(NEW_LINE_SEPARATOR);
-            File file = new File(filename);
+            File file = new File(this.getTargetLocation() + File.separator + filename);
+            Files.deleteIfExists(file.toPath()); // TODO delete the file if its already there?!
+            file.getParentFile().mkdirs();
             writer = new OutputStreamWriter(new FileOutputStream(file, true), encoding);
             csvFileWriter = new CSVPrinter(writer, csvFileFormat);
             writeCsv(aJCas, csvFileWriter);
@@ -128,18 +132,18 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
         List<String> codebookValue = new ArrayList<>();
         codebookValue.add(documentName);
         codebookValue.add(annotator);
-        
-        for (Type codebokType : codebookTypes) {
-            for (Feature feature : codebokType.getFeatures()) {
+
+        for (Type codebookType : codebookTypes) {
+            for (Feature feature : codebookType.getFeatures()) {
                 if (feature.toString().equals("uima.cas.AnnotationBase:sofa")
                         || feature.toString().equals("uima.tcas.Annotation:begin")
                         || feature.toString().equals("uima.tcas.Annotation:end")) {
                     continue;
                 }
-                if (CasUtil.select(aJCas.getCas(), codebokType).isEmpty()) {
+                if (CasUtil.select(aJCas.getCas(), codebookType).isEmpty()) {
                     codebookValue.add(new String());
                 } else {
-                    codebookValue.add(CasUtil.select(aJCas.getCas(), codebokType).iterator().next()
+                    codebookValue.add(CasUtil.select(aJCas.getCas(), codebookType).iterator().next()
                             .getFeatureValueAsString(feature));
                 }
             }
