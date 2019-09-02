@@ -1,5 +1,5 @@
 /*
- * Copyright 2017
+ * Copyright 2019
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.tagsets;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,50 +24,51 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.ListPanel_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 
-public class TagSetSelectionPanel
+public class CodebookTagSelectionPanel
     extends ListPanel_ImplBase
 {
     private static final long serialVersionUID = -1L;
 
-    private @SpringBean AnnotationSchemaService annotationSchemaService;
+    private @SpringBean CodebookSchemaService codebookSchemaService;
 
-    private OverviewListChoice<TagSet> overviewList;
-    
-    private IModel<Project> selectedProject;
+    private OverviewListChoice<CodebookTag> overviewList;
+    private IModel<CodebookCategory> selectedTagSet;
 
-    public TagSetSelectionPanel(String id, IModel<Project> aProject, IModel<TagSet> aTagset)
+    public CodebookTagSelectionPanel(String id, IModel<CodebookCategory> aTagset,
+            IModel<CodebookTag> aTag)
     {
-        super(id, aProject);
-        
+        super(id, aTagset);
+
         setOutputMarkupId(true);
         setOutputMarkupPlaceholderTag(true);
-        
-        selectedProject = aProject;
-        
-        overviewList = new OverviewListChoice<>("tagset");
+
+        selectedTagSet = aTagset;
+
+        overviewList = new OverviewListChoice<>("tag");
         overviewList.setChoiceRenderer(new ChoiceRenderer<>("name"));
-        overviewList.setModel(aTagset);
-        overviewList.setChoices(LambdaModel.of(this::listTagSets));
+        overviewList.setModel(aTag);
+        overviewList.setChoices(LambdaModel.of(this::listTags));
         overviewList.add(new LambdaAjaxFormComponentUpdatingBehavior("change", this::onChange));
         add(overviewList);
 
         add(new LambdaAjaxLink("create", this::actionCreate));
     }
 
-    private List<TagSet> listTagSets()
+    private List<CodebookTag> listTags()
     {
-        if (selectedProject.getObject() != null) {
-            return annotationSchemaService.listTagSets(selectedProject.getObject());
-        } else {
+        if (selectedTagSet.getObject() != null) {
+            return codebookSchemaService.listTags(selectedTagSet.getObject());
+        }
+        else {
             return Collections.emptyList();
         }
     }

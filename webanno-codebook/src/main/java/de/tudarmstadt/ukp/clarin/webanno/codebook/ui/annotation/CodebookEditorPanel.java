@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.AttributeModifier;
@@ -65,7 +66,6 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.StyledComboBox;
 
@@ -112,7 +112,7 @@ public class CodebookEditorPanel
                 final CodebookEditorModel model = item.getModelObject();
                 Codebook codebook = model.getCodebook();
                 item.add(new Label("codebook", codebook.getUiName()));
-                List<Tag> codes = getTags(codebook);
+                List<CodebookTag> codes = getTags(codebook);
 
                 CodebookAdapter adapter = new CodebookAdapter(codebook);
                 CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
@@ -128,8 +128,8 @@ public class CodebookEditorPanel
 
                 // this adds a ComboBox where each item has a DescriptionTooltipBehavior
                 // TODO I would encapsulate this in an own class for better reusability
-                ComboBox<Tag> code = new StyledComboBox<Tag>("code", new Model<>(existingCode),
-                        codes)
+                ComboBox<CodebookTag> code = new StyledComboBox<CodebookTag>("code",
+                        new Model<>(existingCode), codes)
                 {
                     private static final long serialVersionUID = -1735612345658462932L; // TODO
                                                                                         // generate
@@ -258,17 +258,17 @@ public class CodebookEditorPanel
         return codebooks;
     }
 
-    List<Tag> getTags(Codebook aCodebook)
+    List<CodebookTag> getTags(Codebook aCodebook)
     {
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
         }
         CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getTagset() == null) {
+        if (codebookFeature.getCategory() == null) {
             return new ArrayList<>();
         }
-        return new ArrayList<>(annotationService.listTags(codebookFeature.getTagset()));
+        return new ArrayList<>(codebookService.listTags(codebookFeature.getCategory()));
     }
 
     private List<Codebook> listCodebooks()
@@ -321,13 +321,13 @@ public class CodebookEditorPanel
             if (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) {
                 String value = (String) featureState.value;
 
-                if (value != null && featureState.feature.getTagset() != null
-                        && featureState.feature.getTagset().isCreateTag()
-                        && !annotationService.existsTag(value, featureState.feature.getTagset())) {
-                    Tag selectedTag = new Tag();
+                if (value != null && featureState.feature.getCategory() != null
+                        && featureState.feature.getCategory().isCreateTag()
+                        && !codebookService.existsCodebookTag(value, featureState.feature.getCategory())) {
+                    CodebookTag selectedTag = new CodebookTag();
                     selectedTag.setName(value);
-                    selectedTag.setTagSet(featureState.feature.getTagset());
-                    annotationService.createTag(selectedTag);
+                    selectedTag.setCategory(featureState.feature.getCategory());
+                    codebookService.createCodebookTag(selectedTag);
                 }
             }
 

@@ -45,7 +45,7 @@
 			</column>
 			<column name="project" type="BIGINT" />
 			<column name="codebook" type="BIGINT" />
-			<column name="tag_set" type="BIGINT" />
+			<column name="codebook_category" type="BIGINT" />
 		</createTable>
 	</changeSet>
 	
@@ -100,4 +100,148 @@
 		<addUniqueConstraint tableName="codebook"
 			constraintName="UK-codebook" columnNames="name, project" />
 	</changeSet>
+	<changeSet author="WebAnno Team" id="1512223050574-12">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="codebook_tag" />
+			</not>
+		</preConditions>
+		<createTable tableName="codebook_tag">
+			<column autoIncrement="true" name="id" type="BIGINT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="description" type="LONGTEXT" />
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="codebook_category" type="BIGINT" />
+		</createTable>
+	</changeSet>
+
+	<!--
+      Add index (codebook_category) on (codebook_tag)
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.2">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="codebook_tag" indexName="FKcodebook_1"/>
+			</not>
+		</preConditions>
+		<createIndex indexName="FKcodebook_1" tableName="codebook_tag">
+			<column name="codebook_category" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet author="WebAnno Team" id="1512223050574-30.3">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="codebook_category" />
+			</not>
+		</preConditions>
+		<createTable tableName="codebook_category">
+			<column autoIncrement="true" name="id" type="BIGINT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="createTag" type="BIT(1)">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="LONGTEXT" />
+			<column name="language" type="VARCHAR(255)" />
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="project" type="BIGINT" />
+		</createTable>
+	</changeSet>
+
+	<!--
+      Clean up legacy unique constraint (name, project) on (codebook_category)
+
+      NOTE: This change set ignores failures since there is no precondition to check if
+            unique constraints exist or not. So we simply have to try it.
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.30" failOnError="false">
+		<dropUniqueConstraint
+				tableName="codebook_category"
+				constraintName="UK_codebook_1"
+				uniqueColumns="name, project" />
+	</changeSet>
+
+	<!--
+      Add unique constraint (name, project) on (codebook_category)
+
+      NOTE: This change set ignores failures since there is no precondition to check if
+            unique constraints exist or not. So we simply have to try it.
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.4" failOnError="false">
+		<addUniqueConstraint
+				tableName="codebook_category"
+				constraintName="UK_codebook_2"
+				columnNames="name, project" />
+	</changeSet>
+
+	<!--
+      Add index (project) on (codebook_category)
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.5">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="codebook_category" indexName="FKcodebook_2"/>
+			</not>
+		</preConditions>
+		<createIndex indexName="FKcodebook_2" tableName="codebook_category">
+			<column name="project" />
+		</createIndex>
+	</changeSet>
+
+
+	<!--
+      Clean up legacy index (codebook_category) on (codebook_tag)
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.6">
+		<preConditions onFail="MARK_RAN">
+			<indexExists tableName="codebook_tag" indexName="FKcodebook_3"/>
+		</preConditions>
+		<dropIndex
+				tableName="codebook_tag"
+				indexName="FKcodebook_3" />
+	</changeSet>
+
+	<!--
+      Clean up legacy index (project) on (codebook_category)
+     -->
+	<changeSet author="WebAnno Team" id="1512223050574-30.7">
+		<preConditions onFail="MARK_RAN">
+			<indexExists tableName="codebook_category" indexName="FKcodebook_4"/>
+		</preConditions>
+		<dropIndex
+				tableName="codebook_category"
+				indexName="FKcodebook_4" />
+	</changeSet>
+
+	<changeSet author="WebAnno Team" id="1512223050574-30.8">
+		<preConditions onFail="MARK_RAN">
+			<foreignKeyConstraintExists foreignKeyTableName="codebook_tag" foreignKeyName="FKcodebook_5" />
+		</preConditions>
+		<dropForeignKeyConstraint baseTableName="codebook_tag" constraintName="FKcodebook_5" />
+	</changeSet>
+
+	<changeSet author="WebAnno Team" id="1512223050574-30.9">
+		<preConditions onFail="MARK_RAN">
+			<foreignKeyConstraintExists foreignKeyTableName="codebook_tag" foreignKeyName="FKcodebook_3" />
+		</preConditions>
+		<dropForeignKeyConstraint baseTableName="codebook_tag" constraintName="FKcodebook_3" />
+	</changeSet>
+
+	<changeSet author="WebAnno Team" id="1512223050574-30.10">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<foreignKeyConstraintExists foreignKeyTableName="codebook_tag" foreignKeyName="FKcodebook_1" />
+			</not>
+		</preConditions>
+		<addForeignKeyConstraint baseColumnNames="codebook_category" baseTableName="codebook_tag"
+								 constraintName="FKcodebook_1" deferrable="false" initiallyDeferred="false"
+								 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="codebook_category" />
+	</changeSet>
+
 </databaseChangeLog>

@@ -37,7 +37,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
 /**
  * A feature for Codebook annotation type
@@ -64,12 +63,11 @@ public class CodebookFeature implements Serializable {
     @JoinColumn(name = "project")
     private Project project;
 
-
     @ManyToOne
-    @JoinColumn(name = "tag_set", 
+    @JoinColumn(name = "codebook_category",
         foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
     @NotFound(action = NotFoundAction.IGNORE)
-    private TagSet tagset;
+    private CodebookCategory category;
 
     @Column(nullable = false)
     private String uiName;
@@ -103,14 +101,14 @@ public class CodebookFeature implements Serializable {
     }
 
     public CodebookFeature(Project aProject,  Codebook aCodebook, String aName, String aUiName,
-            String aType, String aDescription, TagSet aTagSet) {
+            String aType, String aDescription, CodebookCategory aCategory) {
         project = aProject;
         codebook = aCodebook;
         name = aName;
         uiName = aUiName;
         type = aType;
         description = aDescription;
-        tagset = aTagSet;
+        category = aCategory;
     }
 
     public Long getId() {
@@ -225,18 +223,18 @@ public class CodebookFeature implements Serializable {
     }
 
     /**
-     * @return the tagset.
+     * @return the category.
      */
-    public TagSet getTagset() {
-        return tagset;
+    public CodebookCategory getCategory() {
+        return category;
     }
 
     /**
-     * @param tagset
-     *            the tagset.
+     * @param category
+     *            the category.
      */
-    public void setTagset(TagSet tagset) {
-        this.tagset = tagset;
+    public void setCategory(CodebookCategory category) {
+        this.category = category;
     }
 
     @Override

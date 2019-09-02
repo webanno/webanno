@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -94,8 +96,6 @@ import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.dialog.ConfirmationDialog;
@@ -107,8 +107,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublishe
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.AjaxDownloadLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.InputStreamResourceStream;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelBase;
-import de.tudarmstadt.ukp.clarin.webanno.ui.tagsets.TagEditorPanel;
-import de.tudarmstadt.ukp.clarin.webanno.ui.tagsets.TagSelectionPanel;
 
 /**
  * A Panel Used to add Codebooks to a selected {@link Project} in the project
@@ -133,8 +131,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private CodebookDetailForm codebookDetailForm;
     private Select<Codebook> codebookSelection;
 
-    private TagSelectionPanel tagSelectionPanel;
-    private TagEditorPanel tagEditorPanel;
+    private CodebookTagSelectionPanel tagSelectionPanel;
+    private CodebookTagEditorPanel tagEditorPanel;
     private ImportCodebookForm importCodebookForm;
 
     private static final UrlResourceReference ICON_UP = new UrlResourceReference(
@@ -144,8 +142,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             Url.parse("images/hand-o-down.png")).setContextRelative(true);
 
     // private IModel<Codebook> selectedCodebook;
-    private IModel<Tag> selectedTag;
-    private IModel<TagSet> selectedTagSet;
+    private IModel<CodebookTag> selectedTag;
+    private IModel<CodebookCategory> selectedTagSet;
 
     public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel) {
         super(id, aProjectModel);
@@ -163,16 +161,16 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         selectedTagSet = Model.of(getTagset(codebook.getObject()));
         selectedTag = Model.of();
 
-        tagSelectionPanel = new TagSelectionPanel("tagSelector", selectedTagSet, selectedTag);
+        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedTagSet, selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
                 .setVisible(codebook.getObject() != null && codebook.getObject().getId() != null));
-        tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new Tag()));
+        tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
         tagSelectionPanel.setChangeAction(target -> {
             target.add(tagEditorPanel);
         });
         add(tagSelectionPanel);
 
-        tagEditorPanel = new TagEditorPanel("tagEditor", selectedTagSet, selectedTag);
+        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedTagSet, selectedTag);
         tagEditorPanel.onConfigure(
             _this -> _this.setVisible(selectedTag != null 
                 && selectedTag.getObject() != null));
@@ -183,7 +181,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     }
 
-    private TagSet getTagset(Codebook aCodebook) {
+    private CodebookCategory getTagset(Codebook aCodebook) {
         if (aCodebook == null) {
             return null;
         } else {
@@ -191,7 +189,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             if (features.isEmpty()) {
                 return null;
             }
-            return features.get(0).getTagset();
+            return features.get(0).getCategory();
 
         }
     }
@@ -334,14 +332,14 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                 CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
                 ExportedTagSet tagset = exCodebook.getFeatures().get(0).getTagSet();
                 for (ExportedTag exTag : tagset.getTags()) {
-                    if (annotationService.existsTag(exTag.getName(), feature.getTagset())) {
+                    if (codebookService.existsCodebookTag(exTag.getName(), feature.getCategory())) {
                         continue;
                     }
-                    Tag tag = new Tag();
+                    CodebookTag tag = new CodebookTag();
                     tag.setDescription(exTag.getDescription());
-                    tag.setTagSet(feature.getTagset());
+                    tag.setCategory(feature.getCategory());
                     tag.setName(exTag.getName());
-                    annotationService.createTag(tag);
+                    codebookService.createCodebookTag(tag);
                 }
 
             }
@@ -480,8 +478,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             confirmationDialog.setConfirmAction((_target) -> {
                 Codebook codebook = codebookDetailForm.getModelObject();
-                TagSet tagset = codebookService.listCodebookFeature(codebook).get(0).getTagset();
-                annotationService.removeTagSet(tagset);
+                CodebookCategory tagset = codebookService.listCodebookFeature(codebook).get(0).getCategory();
+                codebookService.removeCodebookCategory(tagset);
                 codebookService.removeCodebook(codebookDetailForm.getModelObject());
 
                 Project project = getModelObject().getProject();
@@ -558,7 +556,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
                 de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
                     exCodebook = ImportUtil
-                        .exportCodebook(codebook, annotationService, codebookService);
+                        .exportCodebook(codebook, codebookService);
 
                 return new InputStreamResourceStream(new ByteArrayInputStream(
                         JSONUtil.toPrettyJsonString(exCodebook).getBytes("UTF-8")));
@@ -580,7 +578,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                         .listCodebook(getModelObject().getProject())) {
                     de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
                         exCodebook = ImportUtil
-                            .exportCodebook(codebook, annotationService, codebookService);
+                            .exportCodebook(codebook, codebookService);
                     codebooks.add(exCodebook);
                 }
 
@@ -645,7 +643,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
         codebookService.createCodebook(codebook);
         if (!codebookService.existsFeature(CFN, codebook)) {
-            TagSet tagset = createOrGetTagset(codebook, project);
+            CodebookCategory category = createOrGetCategory(codebook, project);
             CodebookFeature codebookFeature = new CodebookFeature();
             codebookFeature.setCodebook(codebook);
             codebookFeature.setProject(ProjectCodebookPanel.this.getModelObject());
@@ -653,25 +651,25 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             codebookFeature.setUiName("Code");// not visible for current implementation
             codebookFeature.setDescription("Specific code values for this codebook");
             codebookFeature.setType(CAS.TYPE_NAME_STRING);
-            codebookFeature.setTagset(tagset);
+            codebookFeature.setCategory(category);
             codebookService.createCodebookFeature(codebookFeature);
-            tagSelectionPanel.setDefaultModelObject(tagset);
+            tagSelectionPanel.setDefaultModelObject(category);
         }
         applicationEventPublisherHolder.get()
                 .publishEvent(new CodebookConfigurationChangedEvent(this, project));
     }
     
-    private TagSet createOrGetTagset(Codebook codebook, final Project project) {
-        TagSet tagset = getTagset(codebook);
-        if (tagset == null) {
-            tagset = new TagSet();
-            tagset.setCreateTag(true);
-            tagset.setDescription("Tagset for " + codebook.getName());
-            tagset.setName(codebook.getName() + "." + codebook.getId() + ".Tagset");
-            tagset.setProject(project);
-            annotationService.createTagSet(tagset);
-            selectedTagSet = Model.of(tagset);
+    private CodebookCategory createOrGetCategory(Codebook codebook, final Project project) {
+        CodebookCategory category = getTagset(codebook);
+        if (category == null) {
+            category = new CodebookCategory();
+            category.setCreateTag(true);
+            category.setDescription("Tagset for " + codebook.getName());
+            category.setName(codebook.getName() + "." + codebook.getId() + ".Tagset");
+            category.setProject(project);
+            codebookService.createCodebookCategory(category);
+            selectedTagSet = Model.of(category);
         }
-        return tagset;
+        return category;
     }
 }
