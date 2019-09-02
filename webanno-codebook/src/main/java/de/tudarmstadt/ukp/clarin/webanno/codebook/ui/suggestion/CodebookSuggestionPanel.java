@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import org.apache.uima.cas.CAS;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -56,7 +57,6 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 
 public class CodebookSuggestionPanel extends Panel {
     private static final long serialVersionUID = -9151455840010092452L;
@@ -143,11 +143,11 @@ public class CodebookSuggestionPanel extends Panel {
             return new ArrayList<>();
         }
         CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getTagset() == null) {
+        if (codebookFeature.getCategory() == null) {
             return new ArrayList<>();
         }
         List<String> tags = new ArrayList<>();
-        for (Tag tag : annotationService.listTags(codebookFeature.getTagset())) {
+        for (CodebookTag tag : codebookService.listTags(codebookFeature.getCategory())) {
             tags.add(tag.getName());
         }
         return tags;

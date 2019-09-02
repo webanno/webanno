@@ -40,7 +40,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureType;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.config.PrimitiveUimaFeatureSupportProperties;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.service.UimaStringCodebookTraitsEditor;
 
 @Component
 public class PrimitiveUimaCodebookFeatureSupport
@@ -99,7 +98,7 @@ public class PrimitiveUimaCodebookFeatureSupport
     {
         // If the feature is not a string feature, force the tagset to null.
         if (!(CAS.TYPE_NAME_STRING.equals(aFeature.getType()))) {
-            aFeature.setTagset(null);
+            aFeature.setCategory(null);
         }
     }
     

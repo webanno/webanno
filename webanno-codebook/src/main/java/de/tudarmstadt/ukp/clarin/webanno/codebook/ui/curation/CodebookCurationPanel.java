@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.AttributeModifier;
@@ -67,7 +68,6 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 
 public class CodebookCurationPanel extends Panel {
     private static final long serialVersionUID = -9151455840010092452L;
@@ -244,11 +244,11 @@ public class CodebookCurationPanel extends Panel {
             return new ArrayList<>();
         }
         CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getTagset() == null) {
+        if (codebookFeature.getCategory() == null) {
             return new ArrayList<>();
         }
         List<String> tags = new ArrayList<>();
-        for (Tag tag : annotationService.listTags(codebookFeature.getTagset())) {
+        for (CodebookTag tag : codebookService.listTags(codebookFeature.getCategory())) {
             tags.add(tag.getName());
         }
         return tags;
@@ -331,13 +331,13 @@ public class CodebookCurationPanel extends Panel {
             if (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) {
                 String value = (String) featureState.value;
 
-                if (value != null && featureState.feature.getTagset() != null
-                        && featureState.feature.getTagset().isCreateTag()
-                        && !annotationService.existsTag(value, featureState.feature.getTagset())) {
-                    Tag selectedTag = new Tag();
+                if (value != null && featureState.feature.getCategory() != null
+                        && featureState.feature.getCategory().isCreateTag()
+                        && !codebookService.existsCodebookTag(value, featureState.feature.getCategory())) {
+                    CodebookTag selectedTag = new CodebookTag();
                     selectedTag.setName(value);
-                    selectedTag.setTagSet(featureState.feature.getTagset());
-                    annotationService.createTag(selectedTag);
+                    selectedTag.setCategory(featureState.feature.getCategory());
+                    codebookService.createCodebookTag(selectedTag);
                 }
             }
 

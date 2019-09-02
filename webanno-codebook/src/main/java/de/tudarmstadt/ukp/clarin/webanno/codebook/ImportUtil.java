@@ -20,19 +20,17 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 
 public class ImportUtil {
     public static de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exportCodebook(
-            Codebook aCodebook, AnnotationSchemaService aAnnotationService,
-            CodebookSchemaService aCodebookService) {
+            Codebook aCodebook, CodebookSchemaService aCodebookService) {
         de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exLayer = 
                 new de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook();
         exLayer.setDescription(aCodebook.getDescription());
@@ -51,18 +49,18 @@ public class ImportUtil {
             exFeature.setType(feature.getType());
             exFeature.setUiName(feature.getUiName());
             
-            if (feature.getTagset() != null) {
-                TagSet tagSet = feature.getTagset();
+            if (feature.getCategory() != null) {
+                CodebookCategory category = feature.getCategory();
                 ExportedTagSet exTagSet = 
                         new ExportedTagSet();
-                exTagSet.setDescription(tagSet.getDescription());
-                exTagSet.setLanguage(tagSet.getLanguage());
-                exTagSet.setName(tagSet.getName());
-                exTagSet.setCreateTag(tagSet.isCreateTag());
+                exTagSet.setDescription(category.getDescription());
+                exTagSet.setLanguage(category.getLanguage());
+                exTagSet.setName(category.getName());
+                exTagSet.setCreateTag(category.isCreateTag());
 
                 List<ExportedTag> exportedTags = 
                         new ArrayList<>();
-                for (Tag tag : aAnnotationService.listTags(tagSet)) {
+                for (CodebookTag tag : aCodebookService.listTags(category)) {
                     ExportedTag exTag = 
                             new ExportedTag();
                     exTag.setDescription(tag.getDescription());

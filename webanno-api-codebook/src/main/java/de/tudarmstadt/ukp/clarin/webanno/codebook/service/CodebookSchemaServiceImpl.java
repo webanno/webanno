@@ -26,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.slf4j.Logger;
@@ -96,8 +98,26 @@ public class CodebookSchemaServiceImpl
             entityManager.merge(aFeature);
         }
     }
-    
-    
+
+    @Override
+    @Transactional
+    public void createCodebookCategory(CodebookCategory aCategory)
+    {
+        if (isNull(aCategory.getId())) {
+            entityManager.persist(aCategory);
+        }
+        else {
+            entityManager.merge(aCategory);
+        }
+
+        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                String.valueOf(aCategory.getProject().getId()))) {
+            Project project = aCategory.getProject();
+            log.info("Created codebook_category [{}]({}) in project [{}]({})", aCategory.getName(),
+                    aCategory.getId(), project.getName(), project.getId());
+        }
+    }
+
     @Override
     @Transactional
     public boolean existsFeature(String aName, Codebook aCodebook)
@@ -115,8 +135,28 @@ public class CodebookSchemaServiceImpl
 
         }
     }
-    
-    
+
+
+    @Override
+    public boolean existsCodebookTag(String aTagName, CodebookCategory aCategory)
+    {
+        try {
+            getCodebookTag(aTagName, aCategory);
+            return true;
+        }
+        catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public CodebookTag getCodebookTag(String aTagName, CodebookCategory aCategory)
+    {
+        return entityManager
+                .createQuery("FROM CodebookTag WHERE name = :name AND" + " category =:category", CodebookTag.class)
+                .setParameter("name", aTagName).setParameter("category", aCategory).getSingleResult();
+    }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
@@ -136,6 +176,8 @@ public class CodebookSchemaServiceImpl
             return false;
         }
     }
+
+
     @Override
     @Transactional
     public Codebook getCodebook(long aId)
@@ -144,9 +186,8 @@ public class CodebookSchemaServiceImpl
                 .createQuery("FROM Codebook WHERE id = :id", Codebook.class)
                 .setParameter("id", aId).getSingleResult();
     }
-    
-    
-    
+
+
     @Override
     @Transactional
     public Codebook getCodebook(int aCodebookorder, Project aProject) {
@@ -157,7 +198,7 @@ public class CodebookSchemaServiceImpl
                 .setParameter("codebookorder", aCodebookorder).setParameter("project", aProject)
                 .getSingleResult();
     }
-    
+
     
     @Override
     @Transactional
@@ -175,11 +216,58 @@ public class CodebookSchemaServiceImpl
     public  CodebookFeature getCodebookFeature(String aName, Codebook aCodebook)
     {
         return entityManager
-                .createQuery("From CodebookFeature where name = :name AND codebook = :codebook",
+                .createQuery("FROM CodebookFeature WHERE name = :name AND codebook = :codebook",
                         CodebookFeature.class).setParameter("name", aName)
                 .setParameter("codebook", aCodebook).getSingleResult();
     }
-    
+
+    @Override
+    @Transactional
+    public void removeCodebookCategory(CodebookCategory aCategory)
+    {
+        for (CodebookTag tag : this.listTags(aCategory)) {
+            entityManager.remove(tag);
+        }
+        entityManager
+                .remove(entityManager.contains(aCategory) ? aCategory : entityManager.merge(aCategory));
+    }
+
+    @Override
+    @Transactional
+    public void createCodebookTag(CodebookTag aTag)
+    {
+        if (isNull(aTag.getId())) {
+            entityManager.persist(aTag);
+        }
+        else {
+            entityManager.merge(aTag);
+        }
+
+        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                String.valueOf(aTag.getCategory().getProject().getId()))) {
+            CodebookCategory category = aTag.getCategory();
+            Project project = category.getProject();
+            log.info("Created codebook_tag [{}]({}) in codebook_category [{}]({}) in project [{}]({})", aTag.getName(),
+                    aTag.getId(), category.getName(), category.getId(), project.getName(),
+                    project.getId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeCodebookTag(CodebookTag aTag)
+    {
+        entityManager.remove(entityManager.contains(aTag) ? aTag : entityManager.merge(aTag));
+    }
+
+    @Override
+    @Transactional
+    public List<CodebookTag> listTags(CodebookCategory aCategory)
+    {
+        return entityManager
+                .createQuery("FROM CodebookTag WHERE category = :category ORDER BY name ASC", CodebookTag.class)
+                .setParameter("category", aCategory).getResultList();
+    }
 
     @Override
     @Transactional

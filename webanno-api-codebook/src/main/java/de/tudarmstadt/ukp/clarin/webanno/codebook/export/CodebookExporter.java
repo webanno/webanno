@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipFile;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -58,8 +60,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
-import de.tudarmstadt.ukp.clarin.webanno.model.TagSet;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 
 @Component
@@ -148,8 +148,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
                 exF.setType(feature.getType());
                 exF.setUiName(feature.getUiName());
 
-                if (feature.getTagset() != null) {
-                    TagSet tagSet = feature.getTagset();
+                if (feature.getCategory() != null) {
+                    CodebookCategory tagSet = feature.getCategory();
                     ExportedTagSet exTagSet = new ExportedTagSet();
                     exTagSet.setDescription(tagSet.getDescription());
                     exTagSet.setLanguage(tagSet.getLanguage());
@@ -157,7 +157,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
                     exTagSet.setCreateTag(tagSet.isCreateTag());
 
                     List<ExportedTag> exportedTags = new ArrayList<>();
-                    for (Tag tag : annotationService.listTags(tagSet)) {
+                    for (CodebookTag tag : codebookService.listTags(tagSet)) {
                         ExportedTag exTag = new ExportedTag();
                         exTag.setDescription(tag.getDescription());
                         exTag.setName(tag.getName());
