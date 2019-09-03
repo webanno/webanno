@@ -81,16 +81,19 @@ public class CodebookEditorPanel
             + "? $(this).text() : 'no title')+'</div>"
             + "<div class=\"tooltip-content tooltip-pre\">'+($(this).attr('title') "
             + "? $(this).attr('title') : 'no description' )+'</div>' }";
+
     private static final long serialVersionUID = -9151455840010092452L;
     private static final Logger LOG = LoggerFactory.getLogger(CodebookEditorPanel.class);
+
     private @SpringBean ProjectService projectRepository;
     private @SpringBean DocumentService documentService;
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean AnnotationEditorExtensionRegistry extensionRegistry;
-    private CodebookEditorModel as;
-    private WebMarkupContainer codebooksGroup;
-    private PageableListView<CodebookEditorModel> codebooks;
+
+    private CodebookEditorModel codebookEditorModel;
+    private WebMarkupContainer codebooksTable;
+    private PageableListView<CodebookEditorModel> pageableCodebooks;
     private PagingNavigator navigator;
 
     public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
@@ -99,9 +102,10 @@ public class CodebookEditorPanel
 
         setOutputMarkupId(true);
         add(CodebookLayoutCssResourceBehavior.get());
-        as = aModel.getObject();
-        int codebooksPerPage = as == null ? 10 : as.getCodebooksPerPage();
-        codebooks = new PageableListView<CodebookEditorModel>("codebooks", getCodebooksModel(),
+        codebookEditorModel = aModel.getObject();
+
+        int codebooksPerPage = codebookEditorModel == null ? 10 : codebookEditorModel.getCodebooksPerPage();
+        pageableCodebooks = new PageableListView<CodebookEditorModel>("pageableCodebooks", getCodebooksModel(),
                 codebooksPerPage)
         {
             private static final long serialVersionUID = 1L;
@@ -226,20 +230,21 @@ public class CodebookEditorPanel
                 item.add(code);
             }
         };
-        codebooks.setOutputMarkupId(true);
-        codebooksGroup = new WebMarkupContainer("codebooksGroup");
-        codebooksGroup.setOutputMarkupId(true);
+        pageableCodebooks.setOutputMarkupId(true);
 
-        navigator = new PagingNavigator("navigator", codebooks);
+        codebooksTable = new WebMarkupContainer("codebooksTable");
+        codebooksTable.setOutputMarkupId(true);
+
+        navigator = new PagingNavigator("navigator", pageableCodebooks);
         navigator.setOutputMarkupId(true);
-        codebooksGroup.add(navigator);
 
-        codebooksGroup.add(codebooks);
+        codebooksTable.add(navigator);
+        codebooksTable.add(pageableCodebooks);
 
         IModel<Collection<Codebook>> codebooksToAdeModel = new CollectionModel<>(new ArrayList<>());
         Form<Collection<Codebook>> form = new Form<>("form", codebooksToAdeModel);
         add(form);
-        form.add(codebooksGroup);
+        form.add(codebooksTable);
     }
 
     public CodebookEditorModel getModelObject()
@@ -258,7 +263,7 @@ public class CodebookEditorPanel
         return codebooks;
     }
 
-    List<CodebookTag> getTags(Codebook aCodebook)
+    private List<CodebookTag> getTags(Codebook aCodebook)
     {
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
@@ -273,24 +278,24 @@ public class CodebookEditorPanel
 
     private List<Codebook> listCodebooks()
     {
-        if (as == null) {
+        if (codebookEditorModel == null) {
             return new ArrayList<>();
         }
-        return codebookService.listCodebook(as.getProject());
+        return codebookService.listCodebook(codebookEditorModel.getProject());
     }
 
     public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState)
     {
-        as = aState;
-        setDefaultModelObject(as);
-        codebooks.setModelObject(getCodebooksModel());
-        codebooks.setItemsPerPage(as.getCodebooksPerPage());
+        codebookEditorModel = aState;
+        setDefaultModelObject(codebookEditorModel);
+        pageableCodebooks.setModelObject(getCodebooksModel());
+        pageableCodebooks.setItemsPerPage(codebookEditorModel.getCodebooksPerPage());
         navigator.add(new AttributeModifier("style",
-                getCodebooksModel().size() <= as.getCodebooksPerPage()
+                getCodebooksModel().size() <= codebookEditorModel.getCodebooksPerPage()
                         ? "visibility:hidden;display:none"
                         : "visibility:visible"));
         aTarget.add(navigator);
-        aTarget.add(codebooksGroup);
+        aTarget.add(codebooksTable);
         List<Codebook> codebooks = new ArrayList<>();
         getCodebooksModel().stream().forEach(c -> {
             codebooks.add(c.getCodebook());

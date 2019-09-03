@@ -20,15 +20,19 @@
   <wicket:panel>
    <form wicket:id="form" class="panel-default">
         <div class="flex-h-container flex-centered flex-gutter panel-heading">
-			<table wicket:id="codebooksGroup" style="width:100%;">
+			<table wicket:id="codebooksTable" style="width:100%;">
 					<th colspan="3" class="codebook-panel"><h3 class="panel-title">Codebook Annotation</h3></th>
 					<tr>
 						<td class="cbheader1">name</td>
 						<td class="cbheader2" align="center">annotation</td>
 					</tr>
-					<tr wicket:id="codebooks">
-						<td class="cbtr1"><span wicket:id="codebook">[name]</span></td>
-						<td align="right"><input type="text" wicket:id="code" /></td>
+					<tr wicket:id="pageableCodebooks">
+						<td class="cbtr1">
+							<span wicket:id="codebook">[name]</span>
+						</td>
+						<td align="right">
+							<input type="text" wicket:id="code" />
+						</td>
 					</tr>
 					<tr>
 						<td wicket:id="navigator"></td>
