@@ -143,7 +143,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     // private IModel<Codebook> selectedCodebook;
     private IModel<CodebookTag> selectedTag;
-    private IModel<CodebookCategory> selectedTagSet;
+    private IModel<CodebookCategory> selectedCategory;
 
     public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel) {
         super(id, aProjectModel);
@@ -158,10 +158,10 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         add(codebookSelectionForm);
         add(codebookDetailForm);
 
-        selectedTagSet = Model.of(getTagset(codebook.getObject()));
+        selectedCategory = Model.of(getCategory(codebook.getObject()));
         selectedTag = Model.of();
 
-        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedTagSet, selectedTag);
+        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedCategory, selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
                 .setVisible(codebook.getObject() != null && codebook.getObject().getId() != null));
         tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
@@ -170,7 +170,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         });
         add(tagSelectionPanel);
 
-        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedTagSet, selectedTag);
+        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedCategory, selectedTag);
         tagEditorPanel.onConfigure(
             _this -> _this.setVisible(selectedTag != null 
                 && selectedTag.getObject() != null));
@@ -181,7 +181,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     }
 
-    private CodebookCategory getTagset(Codebook aCodebook) {
+    private CodebookCategory getCategory(Codebook aCodebook) {
         if (aCodebook == null) {
             return null;
         } else {
@@ -269,7 +269,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             codebookSelection.add(OnChangeAjaxBehavior.onChange(_target -> {
                 codebookDetailForm.setModelObject(getModelObject());
                 CodebookSelectionForm.this.setVisible(true);
-                tagSelectionPanel.setDefaultModelObject(getTagset(getModelObject()));
+                tagSelectionPanel.setDefaultModelObject(getCategory(getModelObject()));
                 tagSelectionPanel.setVisible(true);
                 tagEditorPanel.setVisible(true);
                 _target.add(codebookDetailForm);
@@ -478,8 +478,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             confirmationDialog.setConfirmAction((_target) -> {
                 Codebook codebook = codebookDetailForm.getModelObject();
-                CodebookCategory tagset = codebookService.listCodebookFeature(codebook).get(0).getCategory();
-                codebookService.removeCodebookCategory(tagset);
+                CodebookCategory category = codebookService.listCodebookFeature(codebook).get(0).getCategory();
+                codebookService.removeCodebookCategory(category);
                 codebookService.removeCodebook(codebookDetailForm.getModelObject());
 
                 Project project = getModelObject().getProject();
@@ -660,15 +660,15 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     }
     
     private CodebookCategory createOrGetCategory(Codebook codebook, final Project project) {
-        CodebookCategory category = getTagset(codebook);
+        CodebookCategory category = getCategory(codebook);
         if (category == null) {
             category = new CodebookCategory();
             category.setCreateTag(true);
-            category.setDescription("Tagset for " + codebook.getName());
-            category.setName(codebook.getName() + "." + codebook.getId() + ".Tagset");
+            category.setDescription("Category for " + codebook.getName());
+            category.setName(codebook.getName() + "." + codebook.getId() + ".category");
             category.setProject(project);
             codebookService.createCodebookCategory(category);
-            selectedTagSet = Model.of(category);
+            selectedCategory = Model.of(category);
         }
         return category;
     }
