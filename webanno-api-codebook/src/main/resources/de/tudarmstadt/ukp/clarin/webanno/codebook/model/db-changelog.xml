@@ -92,6 +92,7 @@
 			<constraints nullable="false" />
 			</column>
 			<column name="project" type="BIGINT" />
+			<column name="parent" type="BIGINT" />
 		</createTable>
 	</changeSet>	
 
