@@ -30,10 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
@@ -51,12 +48,7 @@ import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.image.Image;
@@ -130,6 +122,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private CodebookSelectionForm codebookSelectionForm;
     private CodebookDetailForm codebookDetailForm;
     private Select<Codebook> codebookSelection;
+
+    private DropDownChoice<Codebook> parentSelection;
 
     private CodebookTagSelectionPanel tagSelectionPanel;
     private CodebookTagEditorPanel tagEditorPanel;
@@ -360,8 +354,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         private static final long serialVersionUID = 4032381828920667771L;
         private CodebookExportMode exportMode = CodebookExportMode.SELECTED;
 
-        public CodebookDetailForm(String id, IModel<Codebook> aSelecteCodebook) {
-            super(id, CompoundPropertyModel.of(aSelecteCodebook));
+        public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook) {
+            super(id, CompoundPropertyModel.of(aSelectedCodebook));
 
             setOutputMarkupPlaceholderTag(true);
 
@@ -379,6 +373,13 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                 }
             });
 
+            // add Parent Selection
+            Project project = ProjectCodebookPanel.this.getModelObject();
+            List<Codebook> codebooks = codebookService.listCodebook(project);
+            parentSelection = new DropDownChoice<>("parent", codebooks, new ChoiceRenderer<>("uiName"));
+            add(parentSelection);
+            add(new Label("parentLabel", "Parent Codebook"));
+
             LambdaAjaxLink moveUpLink = new LambdaAjaxLink("moveUpLink", this::actionUp);
             moveUpLink.add(new Image("moveUpIcon", ICON_UP));
             add(moveUpLink);
@@ -390,7 +391,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             add(new DropDownChoice<CodebookExportMode>("exportMode",
                     new PropertyModel<CodebookExportMode>(this, "exportMode"),
                     asList(CodebookExportMode.values()), new EnumChoiceRenderer<>(this))
-                            .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
+                    .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
 
             add(new AjaxDownloadLink("export",
                     new LambdaModel<>(this::getExportCodebookFileName).autoDetaching(),
@@ -398,14 +399,14 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             add(new LambdaAjaxButton<>("save", this::actionSave));
             add(new LambdaAjaxButton<>("delete", this::actionDelete)
-                    .add(visibleWhen(() -> !isNull(aSelecteCodebook.getObject().getId()))));
+                    .add(visibleWhen(() -> !isNull(aSelectedCodebook.getObject().getId()))));
             add(new LambdaAjaxLink("close", this::actionCancel));
 
             confirmationDialog = new ConfirmationDialog("confirmationDialog");
             confirmationDialog
                     .setTitleModel(new StringResourceModel("DeleteCodebookDialog.title", this));
             add(confirmationDialog);
-           
+
         }
         
         private void actionUp(AjaxRequestTarget aTarget) {

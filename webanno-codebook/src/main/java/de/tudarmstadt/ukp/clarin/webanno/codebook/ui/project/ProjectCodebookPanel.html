@@ -66,7 +66,7 @@
       </div>
       
       <form wicket:id="codebookDetailForm" class="flex-content flex-v-container flex-gutter">
-         <div wicket:id="confirmationDialog"></div>
+        <div wicket:id="confirmationDialog"></div>
         <div class="flex-content panel panel-default panel-flex">
           <div class="panel-heading">
             <h3 class="panel-title">
@@ -103,10 +103,16 @@
                       <textarea wicket:id="description" rows="4" class="form-control"></textarea>
                     </div>
                   </div>
+                  <div class="form-group">
+                    <label wicket:id="parentLabel" class="col-sm-4 control-label" />
+                    <div class="col-sm-8">
+                      <select wicket:id="parent" class="form-control"></select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            
+
             <div class="panel panel-default panel-small panel-flex min-content-height">
               <div class="panel-heading">
                 <h3 class="panel-title">Re-order codebooks
@@ -123,7 +129,6 @@
                 </div>
               </div>              
             </div>
-            
             
             <div class="panel panel-default panel-small panel-flex min-content-height">
               <div class="panel-heading">
