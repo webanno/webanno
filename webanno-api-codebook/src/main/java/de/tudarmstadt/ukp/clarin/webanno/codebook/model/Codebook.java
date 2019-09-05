@@ -55,6 +55,7 @@ public class Codebook implements Serializable {
     @ManyToOne
     @JoinColumn(name = "parent",
             foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @OnDelete(action = OnDeleteAction.CASCADE) //TODO do we really want cascading delete?!
     private Codebook parent;
     
     

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookTreePanel;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.AttributeModifier;
@@ -95,6 +96,8 @@ public class CodebookEditorPanel
     private WebMarkupContainer codebooksTable;
     private PageableListView<CodebookEditorModel> pageableCodebooks;
     private PagingNavigator navigator;
+
+    private CodebookTreePanel codebookTreePanel;
 
     public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
     {
@@ -245,6 +248,11 @@ public class CodebookEditorPanel
         Form<Collection<Codebook>> form = new Form<>("form", codebooksToAdeModel);
         add(form);
         form.add(codebooksTable);
+
+        // add but don't init the tree
+        codebookTreePanel = new CodebookTreePanel("codebookTreePanel", aModel);
+        codebookTreePanel.setOutputMarkupId(true);
+        add(codebookTreePanel);
     }
 
     public CodebookEditorModel getModelObject()
@@ -300,6 +308,11 @@ public class CodebookEditorPanel
         getCodebooksModel().stream().forEach(c -> {
             codebooks.add(c.getCodebook());
         });
+
+        // initialize the tree with the project's codebooks
+        codebookTreePanel.setDefaultModelObject(codebookEditorModel);
+        codebookTreePanel.initTree();
+        aTarget.add(codebookTreePanel);
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)

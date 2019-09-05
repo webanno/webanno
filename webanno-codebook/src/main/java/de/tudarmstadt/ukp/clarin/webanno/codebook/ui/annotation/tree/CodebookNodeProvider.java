@@ -1,0 +1,122 @@
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
+import org.apache.wicket.model.IModel;
+
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+
+public class CodebookNodeProvider
+    implements ITreeProvider<CodebookNode>
+{
+    private static final long serialVersionUID = -2678498652265164741L;
+
+    private Map<String, CodebookNode> nameToNodes;
+    private Map<String, Codebook> nameToCodebooks;
+    private Set<CodebookNode> roots;
+
+    /**
+     * Construct.
+     */
+    public CodebookNodeProvider(List<Codebook> allCodebooks)
+    {
+        this.nameToCodebooks = allCodebooks.parallelStream()
+                .collect(Collectors.toMap(Codebook::getName, o -> o));
+
+        this.nameToNodes = allCodebooks.parallelStream().map(CodebookNode::new)
+                .collect(Collectors.toMap(CodebookNode::getName, o -> o));
+
+        buildTreeStructures();
+
+        this.roots = this.nameToNodes.values().parallelStream().filter(CodebookNode::isRoot)
+                .collect(Collectors.toSet());
+    }
+
+    private void setParent(CodebookNode node)
+    {
+        Codebook book = this.nameToCodebooks.get(node.getName());
+        if (book.getParent() == null)
+            return;
+        node.setParent(this.nameToNodes.get(book.getParent().getName()));
+    }
+
+    private void buildTreeStructures()
+    {
+        for (CodebookNode node : this.nameToNodes.values()) {
+            this.setParent(node);
+            if (node.getParent() != null)
+                this.addChildrenRecursively(node.getParent(), node);
+        }
+    }
+
+    private void addChildrenRecursively(CodebookNode parent, CodebookNode child)
+    {
+        parent.addChild(child);
+        if (!parent.isRoot())
+            this.addChildrenRecursively(parent.getParent(), parent);
+    }
+
+    /**
+     * Nothing to do.
+     */
+    @Override
+    public void detach()
+    {
+    }
+
+    @Override
+    public Iterator<CodebookNode> getRoots()
+    {
+        return this.roots.iterator();
+    }
+
+    @Override
+    public boolean hasChildren(CodebookNode node)
+    {
+        return !node.isLeaf();
+    }
+
+    @Override
+    public Iterator<CodebookNode> getChildren(final CodebookNode node)
+    {
+        return node.getChildren().iterator();
+    }
+
+    /**
+     * Creates a {@link CodebookNodeModel}.
+     */
+    @Override
+    public IModel<CodebookNode> model(CodebookNode foo)
+    {
+        return new CodebookNodeModel(foo);
+    }
+
+    /**
+     * Get a {@link CodebookNodeModel} by its id.
+     */
+    public CodebookNode getCodebookNode(String id)
+    {
+        return findCodebookNode(roots, id);
+    }
+
+    private static CodebookNode findCodebookNode(Iterable<CodebookNode> nodes, String id)
+    {
+        for (CodebookNode node : nodes) {
+            if (node.getId().equals(id)) {
+                return node;
+            }
+
+            CodebookNode temp = findCodebookNode(node.getChildren(), id);
+            if (temp != null) {
+                return temp;
+            }
+        }
+
+        return null;
+    }
+}
