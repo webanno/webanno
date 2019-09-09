@@ -9,16 +9,6 @@ import java.util.Set;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Session;
 
-/**
- * Example of a custom expansion state:
- * <ul>
- * <li>expanded {@link CodebookNode}s are identified by their id</li>
- * <li>efficient expansion of all {@link CodebookNode}</li>
- * <li>state is stored in the session</li>
- * </ul>
- *
- * @author svenmeier
- */
 public class CodebookNodeExpansion
     implements Set<CodebookNode>, Serializable
 {

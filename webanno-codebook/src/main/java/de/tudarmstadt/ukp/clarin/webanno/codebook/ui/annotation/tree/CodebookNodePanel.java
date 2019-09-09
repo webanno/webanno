@@ -1,10 +1,10 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.block.LabelBehavior;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -13,36 +13,57 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-
-import java.util.ArrayList;
-import java.util.List;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookTagSelectionComboBox;
+import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 
 public class CodebookNodePanel
     extends Panel
 {
     private static final long serialVersionUID = 5875644822389693657L;
 
-    private DropDownChoice<CodebookTag> parentSelection;
+    private DropDownChoice<CodebookTag> tagSelection;
+    private CodebookTagSelectionComboBox tagSelectionComboBox;
     private @SpringBean CodebookSchemaService codebookService;
 
-    public CodebookNodePanel(String id, IModel<CodebookNode> node)
+    public CodebookNodePanel(String id, IModel<CodebookNode> node, CodebookEditorPanel parentEditor)
     {
         super(id, new CompoundPropertyModel<>(node));
 
-        add(new Label("codebookNameLabel", node.getObject().getUiName()));
+        // heading
+        this.add(new Label("codebookNameLabel", node.getObject().getUiName()));
 
+        // form
         IModel<CodebookTag> selectedTag = Model.of();
-        Form<CodebookTag> tagSelectionForm = new Form<>("codebookTagSelectionForm", CompoundPropertyModel.of(selectedTag));
+        Form<CodebookTag> tagSelectionForm = new Form<>("codebookTagSelectionForm",
+                CompoundPropertyModel.of(selectedTag));
         tagSelectionForm.setOutputMarkupId(true);
 
+        // combobox
         Codebook book = node.getObject().getCodebook();
         List<CodebookTag> tags = this.getTags(book);
-        parentSelection = new DropDownChoice<>("codebookTag", tags, new ChoiceRenderer<>("name"));
+        String existingCode = parentEditor.getExistingCode(book);
+        tagSelectionComboBox = new CodebookTagSelectionComboBox("codebookTagBox",
+                new Model<>(existingCode), tags);
 
-        tagSelectionForm.add(parentSelection);
+        // update (persist) and tooltip behaviour for the combobox
+        Codebook codebook = node.getObject().getCodebook();
+        CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
+        AjaxFormComponentUpdatingBehavior updatingBehavior = parentEditor
+                .createOnChangeSaveUpdatingBehavior(tagSelectionComboBox, codebook, feature);
+        tagSelectionComboBox.add(updatingBehavior);
+        tagSelectionForm.add(tagSelectionComboBox);
+
+        // label for the combobox
         tagSelectionForm.add(new Label("codebookTagLabel", "Annotation"));
+
+        // tooltip for the codebooks
+        this.add(new DescriptionTooltipBehavior(codebook.getUiName(), codebook.getDescription()));
+
         this.add(tagSelectionForm);
     }
 
