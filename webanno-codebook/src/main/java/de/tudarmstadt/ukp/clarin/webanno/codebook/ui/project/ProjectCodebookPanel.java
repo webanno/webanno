@@ -25,15 +25,9 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.wicket.util.string.Strings.escapeMarkup;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,12 +48,7 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.*;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.UrlResourceReference;
@@ -80,7 +69,9 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResour
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
@@ -357,9 +348,10 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         private CodebookExportMode exportMode = CodebookExportMode.SELECTED;
 
         private DropDownChoice<Codebook> parentSelection;
-        private List<Codebook> allParents;
+        private Set<Codebook> allParents;
 
-        public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook) {
+        public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook)
+        {
             super(id, CompoundPropertyModel.of(aSelectedCodebook));
 
             setOutputMarkupPlaceholderTag(true);
@@ -367,11 +359,13 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             add(new TextField<String>("uiName").setRequired(true));
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
 
-            add(new Label("name") {
+            add(new Label("name")
+            {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected void onConfigure() {
+                protected void onConfigure()
+                {
                     super.onConfigure();
                     setVisible(StringUtils
                             .isNotBlank(CodebookDetailForm.this.getModelObject().getName()));
@@ -380,8 +374,14 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             // add Parent Selection
             Project project = ProjectCodebookPanel.this.getModelObject();
-            this.allParents = codebookService.listCodebook(project);
-            this.parentSelection = new DropDownChoice<>("parent", allParents, new ChoiceRenderer<>("uiName"));
+            List<Codebook> codebooks = codebookService.listCodebook(project);
+            if (codebooks != null)
+                this.allParents = new HashSet<>(codebooks);
+            else
+                this.allParents = new HashSet<>();
+
+            this.parentSelection = new DropDownChoice<>("parent", new ArrayList<>(allParents),
+                    new ChoiceRenderer<>("uiName"));
             add(this.parentSelection);
             add(new Label("parentLabel", "Parent Codebook"));
 
@@ -396,7 +396,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             add(new DropDownChoice<CodebookExportMode>("exportMode",
                     new PropertyModel<CodebookExportMode>(this, "exportMode"),
                     asList(CodebookExportMode.values()), new EnumChoiceRenderer<>(this))
-                    .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
+                            .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
 
             add(new AjaxDownloadLink("export",
                     new LambdaModel<>(this::getExportCodebookFileName).autoDetaching(),
@@ -465,11 +465,15 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             aTarget.add(codebookSelectionForm);
         }
 
-        private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm) {
+        private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm)
+        {
             aTarget.add(ProjectCodebookPanel.this);
             aTarget.addChildren(getPage(), IFeedback.class);
 
             Codebook codebook = CodebookDetailForm.this.getModelObject();
+            // make the codebook directly available for parent selection
+            this.allParents.add(codebook);
+            this.updateParentChoicesForCodebook(codebook);
 
             saveCodebook(codebook);
         }
@@ -484,6 +488,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             confirmationDialog.setConfirmAction((_target) -> {
                 Codebook codebook = codebookDetailForm.getModelObject();
+                // also remove the codebook from the parent selection
+                this.allParents.remove(codebook);
                 CodebookCategory category = codebookService.listCodebookFeature(codebook).get(0).getCategory();
                 codebookService.removeCodebookCategory(category);
                 codebookService.removeCodebook(codebookDetailForm.getModelObject());
