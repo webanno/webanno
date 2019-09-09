@@ -26,13 +26,18 @@ public class CodebookParentSelectionWrapper
     public void addParent(Codebook codebook)
     {
         this.allParents.add(codebook);
-        this.updateParentChoicesForCodebook(codebook);
+        this.updateParents();
     }
 
     public void removeParent(Codebook codebook)
     {
         this.allParents.remove(codebook);
-        this.updateParentChoicesForCodebook(codebook);
+        this.updateParents();
+    }
+
+    private void updateParents()
+    {
+        this.parentSelection.setChoices(new ArrayList<>(this.allParents));
     }
 
     /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)

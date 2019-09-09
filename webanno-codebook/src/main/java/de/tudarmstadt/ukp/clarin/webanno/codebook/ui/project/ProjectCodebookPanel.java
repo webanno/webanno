@@ -201,6 +201,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                     selectedTag.setObject(null);
                     CodebookSelectionForm.this.setModelObject(null);
                     codebookDetailForm.setModelObject(new Codebook());
+                    codebookDetailForm.codebookParentSelection.get().render();
                     tagSelectionPanel.setDefaultModelObject(null);
                     tagEditorPanel.setDefaultModel(null);
                 }
@@ -467,7 +468,6 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             Codebook codebook = CodebookDetailForm.this.getModelObject();
             // make the codebook directly available for parent selection
             this.codebookParentSelection.addParent(codebook);
-            this.updateParentChoicesForCodebook(codebook);
 
             saveCodebook(codebook);
         }
