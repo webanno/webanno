@@ -123,8 +123,6 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private CodebookDetailForm codebookDetailForm;
     private Select<Codebook> codebookSelection;
 
-    private DropDownChoice<Codebook> parentSelection;
-
     private CodebookTagSelectionPanel tagSelectionPanel;
     private CodebookTagEditorPanel tagEditorPanel;
     private ImportCodebookForm importCodebookForm;
@@ -262,7 +260,11 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             codebookSelection.add(OnChangeAjaxBehavior.onChange(_target -> {
                 codebookDetailForm.setModelObject(getModelObject());
+                // remove current codebook from parent selection
+                // (not working in codebookDetailForm.onModelChanged()..?!)
+                codebookDetailForm.updateParentChoicesForCodebook(getModelObject());
                 CodebookSelectionForm.this.setVisible(true);
+
                 tagSelectionPanel.setDefaultModelObject(getCategory(getModelObject()));
                 tagSelectionPanel.setVisible(true);
                 tagEditorPanel.setVisible(true);
@@ -354,6 +356,9 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         private static final long serialVersionUID = 4032381828920667771L;
         private CodebookExportMode exportMode = CodebookExportMode.SELECTED;
 
+        private DropDownChoice<Codebook> parentSelection;
+        private List<Codebook> allParents;
+
         public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook) {
             super(id, CompoundPropertyModel.of(aSelectedCodebook));
 
@@ -375,9 +380,9 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             // add Parent Selection
             Project project = ProjectCodebookPanel.this.getModelObject();
-            List<Codebook> codebooks = codebookService.listCodebook(project);
-            parentSelection = new DropDownChoice<>("parent", codebooks, new ChoiceRenderer<>("uiName"));
-            add(parentSelection);
+            this.allParents = codebookService.listCodebook(project);
+            this.parentSelection = new DropDownChoice<>("parent", allParents, new ChoiceRenderer<>("uiName"));
+            add(this.parentSelection);
             add(new Label("parentLabel", "Parent Codebook"));
 
             LambdaAjaxLink moveUpLink = new LambdaAjaxLink("moveUpLink", this::actionUp);
@@ -600,6 +605,12 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             super.onConfigure();
 
             setVisible(getModelObject() != null);
+        }
+
+        /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook) {
+            List<Codebook> parentChoices = new ArrayList<>(this.allParents);
+            parentChoices.remove(currentCodebook);
+            this.parentSelection.setChoices(parentChoices);
         }
     }
     
