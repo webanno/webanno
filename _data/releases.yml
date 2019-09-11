@@ -12,8 +12,8 @@
 ### LATEST BETA (deprecated betas are later in the file)
 ###
 
-- version: 3.6.0-beta-134
-  date: 2019-09-09
+- version: 3.6.0-beta-15
+  date: 2019-09-11
   status: beta
   user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
   admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
@@ -22,6 +22,10 @@
 ###
 ### RELEASE VERSIONS
 ###
+- version: 3.5.9
+  date: 2019-09-11
+  status: stable
+  
 - version: 3.5.8
   date: 2019-08-20
   status: stable
