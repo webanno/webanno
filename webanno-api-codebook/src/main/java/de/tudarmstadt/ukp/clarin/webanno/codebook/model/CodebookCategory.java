@@ -17,8 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -31,6 +29,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 /**
  * A persistence object for a CodebookCategory

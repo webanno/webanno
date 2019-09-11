@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.AttributeModifier;
@@ -60,6 +59,7 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
@@ -201,7 +201,7 @@ public class CodebookCurationPanel extends Panel {
 
             CodebookAdapter adapter = new CodebookAdapter(codebook);
             CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
-            
+
             String annotation = (String) adapter
                     .getExistingCodeValue(jCases.get(WebAnnoConst.CURATION_USER), feature);
             codebooksModel.add(new CodebookCurations(annotation,
@@ -209,13 +209,11 @@ public class CodebookCurationPanel extends Panel {
         }
         return codebooksModel;
     }
-    
+
     private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases) {
-        DiffResult diff = CodebookDiff
-                .doCodebookDiff(codebookService, codebook.getProject(),
-                        CurationUtil.getCodebookTypes(
-                                jCases.get(CurationUtil.CURATION_USER), types),
-                        null, jCases, 0, 0);
+        DiffResult diff = CodebookDiff.doCodebookDiff(codebookService, codebook.getProject(),
+                CurationUtil.getCodebookTypes(jCases.get(CurationUtil.CURATION_USER), types), null,
+                jCases, 0, 0);
         if (diff.getIncompleteConfigurationSets().size() > 0) {
             return true;
         }
@@ -224,7 +222,6 @@ public class CodebookCurationPanel extends Panel {
         }
         return false;
     }
-
 
     private List<Codebook> listCodebooks() {
         if (cModel == null) {
@@ -253,7 +250,6 @@ public class CodebookCurationPanel extends Panel {
         }
         return tags;
     }
-
 
     private Map<String, CAS> setSuggestionCases() {
         Map<String, CAS> jCases = new HashMap<>();
@@ -332,8 +328,8 @@ public class CodebookCurationPanel extends Panel {
                 String value = (String) featureState.value;
 
                 if (value != null && featureState.feature.getCategory() != null
-                        && featureState.feature.getCategory().isCreateTag()
-                        && !codebookService.existsCodebookTag(value, featureState.feature.getCategory())) {
+                        && featureState.feature.getCategory().isCreateTag() && !codebookService
+                                .existsCodebookTag(value, featureState.feature.getCategory())) {
                     CodebookTag selectedTag = new CodebookTag();
                     selectedTag.setName(value);
                     selectedTag.setCategory(featureState.feature.getCategory());
@@ -341,7 +337,7 @@ public class CodebookCurationPanel extends Panel {
                 }
             }
 
-            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas/*, featureState.feature*/);
+            AnnotationFS existingFs = aAdapter.getExistingFs(aJCas/* , featureState.feature */);
             int annoId;
 
             if (existingFs != null) {
@@ -356,7 +352,7 @@ public class CodebookCurationPanel extends Panel {
     private void writerCas(CAS aJCas) throws IOException {
         CodebookCurationModel model = getModelObject();
         curationDocumentService.writeCurationCas(aJCas, model.getDocument(), true);
-        
+
         // Update timestamp in state
         Optional<Long> diskTimestamp = curationDocumentService
                 .getCurationCasTimestamp(model.getDocument());
@@ -364,12 +360,13 @@ public class CodebookCurationPanel extends Panel {
             onJcasUpdate(diskTimestamp.get());
         }
     }
+
     protected void onShowSuggestions(AjaxRequestTarget aTarget, CodebookFeature aFeature) {
         // Overriden in CurationPanel
     }
-    
+
     protected void onJcasUpdate(Long aTimeStamp) {
         // Overriden in CurationPanel
     }
-    
+
 }

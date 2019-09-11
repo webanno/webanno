@@ -18,7 +18,10 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.CasUpgradeMode.FORCE_CAS_UPGRADE;
-import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.*;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_DOCUMENT_ID;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_FOCUS;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_PROJECT_ID;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PROJECT_TYPE_ANNOTATION;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateUtils.updateDocumentTimestampAfterWrite;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateUtils.verifyAndUpdateDocumentTimestamp;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.paging.FocusPosition.TOP;
@@ -27,7 +30,11 @@ import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransit
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
@@ -55,7 +62,11 @@ import org.springframework.beans.BeansException;
 import org.wicketstuff.annotation.mount.MountPath;
 import org.wicketstuff.urlfragment.UrlFragment;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.*;
+import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
+import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
+import de.tudarmstadt.ukp.clarin.webanno.api.ProjectType;
+import de.tudarmstadt.ukp.clarin.webanno.api.SessionMetaData;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorBase;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensionRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorFactory;
@@ -71,7 +82,12 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.UserPreferen
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorModel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorPanel;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
-import de.tudarmstadt.ukp.clarin.webanno.model.*;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
+import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.dialog.ConfirmationDialog;
@@ -95,15 +111,13 @@ import wicket.contrib.input.events.InputBehavior;
 import wicket.contrib.input.events.key.KeyType;
 
 /**
- * A wicket page for the Brat Annotation/Visualization page. Included components for pagination,
- * annotation layer configuration, and Exporting document
+ * A wicket page for the Brat Annotation/Visualization page. Included components
+ * for pagination, annotation layer configuration, and Exporting document
  */
 @MountPath(value = "/annotation.html", alt = { "/annotate/${" + PAGE_PARAM_PROJECT_ID + "}",
         "/annotate/${" + PAGE_PARAM_PROJECT_ID + "}/${" + PAGE_PARAM_DOCUMENT_ID + "}" })
-@ProjectType(id = WebAnnoConst.PROJECT_TYPE_ANNOTATION, prio = 100)
-public class AnnotationPage
-    extends AnnotationPageBase
-{
+@ProjectType(id = PROJECT_TYPE_ANNOTATION, prio = 100)
+public class AnnotationPage extends AnnotationPageBase {
     private static final String MID_NUMBER_OF_PAGES = "numberOfPages";
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPage.class);
@@ -140,8 +154,7 @@ public class AnnotationPage
     private WebMarkupContainer codebookPanel;
     private CodebookEditorPanel codebookdetailEditor;
 
-    public AnnotationPage()
-    {
+    public AnnotationPage() {
         super();
         LOG.debug("Setting up annotation page without parameters");
         commonInit();
@@ -160,8 +173,7 @@ public class AnnotationPage
         }
     }
 
-    public AnnotationPage(final PageParameters aPageParameters)
-    {
+    public AnnotationPage(final PageParameters aPageParameters) {
         super(aPageParameters);
         LOG.debug("Setting up annotation page with parameters: {}", aPageParameters);
 
@@ -174,8 +186,7 @@ public class AnnotationPage
         handleParameters(null, project, document, focus, true);
     }
 
-    private void commonInit()
-    {
+    private void commonInit() {
         setModel(Model.of(new AnnotatorStateImpl(Mode.ANNOTATION)));
         // Ensure that a user is set
         getModelObject().setUser(userRepository.getCurrentUser());
@@ -191,13 +202,11 @@ public class AnnotationPage
         add(createDocumentInfoLabel());
 
         add(openDocumentsModal = new OpenDocumentDialog("openDocumentsModal", getModel(),
-                getAllowedProjects())
-        {
+                getAllowedProjects()) {
             private static final long serialVersionUID = 5474030848589262638L;
 
             @Override
-            public void onDocumentSelected(AjaxRequestTarget aTarget)
-            {
+            public void onDocumentSelected(AjaxRequestTarget aTarget) {
                 actionLoadDocument(aTarget);
             }
         });
@@ -241,13 +250,11 @@ public class AnnotationPage
                 new StringResourceModel("FinishDocumentDialog.title", this, null),
                 new StringResourceModel("FinishDocumentDialog.text", this, null)));
         add(finishDocumentLink = new LambdaAjaxLink("showFinishDocumentDialog",
-                this::actionFinishDocument)
-        {
+                this::actionFinishDocument) {
             private static final long serialVersionUID = 874573384012299998L;
 
             @Override
-            protected void onConfigure()
-            {
+            protected void onConfigure() {
                 super.onConfigure();
 
                 AnnotatorState state = AnnotationPage.this.getModelObject();
@@ -261,14 +268,13 @@ public class AnnotationPage
         finishDocumentLink.add(finishDocumentIcon);
     }
 
-    private IModel<List<DecoratedObject<Project>>> getAllowedProjects()
-    {
+    private IModel<List<DecoratedObject<Project>>> getAllowedProjects() {
         return LambdaModel.of(() -> {
             User user = userRepository.getCurrentUser();
             List<DecoratedObject<Project>> allowedProject = new ArrayList<>();
             for (Project project : projectService.listProjects()) {
                 if (projectService.isAnnotator(project, user)
-                        && WebAnnoConst.PROJECT_TYPE_ANNOTATION.equals(project.getMode())) {
+                        && PROJECT_TYPE_ANNOTATION.equals(project.getMode())) {
                     allowedProject.add(DecoratedObject.of(project));
                 }
             }
@@ -276,50 +282,41 @@ public class AnnotationPage
         });
     }
 
-    private DocumentNamePanel createDocumentInfoLabel()
-    {
+    private DocumentNamePanel createDocumentInfoLabel() {
         return new DocumentNamePanel("documentNamePanel", getModel());
     }
 
-    private AnnotationDetailEditorPanel createDetailEditor()
-    {
-        return new AnnotationDetailEditorPanel("annotationDetailEditorPanel", this, getModel())
-        {
+    private AnnotationDetailEditorPanel createDetailEditor() {
+        return new AnnotationDetailEditorPanel("annotationDetailEditorPanel", this, getModel()) {
             private static final long serialVersionUID = 2857345299480098279L;
 
             @Override
-            protected void onChange(AjaxRequestTarget aTarget)
-            {
+            protected void onChange(AjaxRequestTarget aTarget) {
                 actionRefreshDocument(aTarget);
             }
 
             @Override
-            protected void onAutoForward(AjaxRequestTarget aTarget)
-            {
+            protected void onAutoForward(AjaxRequestTarget aTarget) {
                 actionRefreshDocument(aTarget);
             }
 
             @Override
-            public CAS getEditorCas() throws IOException
-            {
+            public CAS getEditorCas() throws IOException {
                 return AnnotationPage.this.getEditorCas();
             }
         };
     }
 
-    private CodebookEditorPanel createCodebookDetailEditor()
-    {
+    private CodebookEditorPanel createCodebookDetailEditor() {
         // initialize with empty model since model depends on project.
         // later on the correct model gets loaded with getCodebookEditorModel()
         CodebookEditorModel model = null;
         // model.setp
-        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(model))
-        {
+        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(model)) {
             private static final long serialVersionUID = 2857345299480098279L;
 
             @Override
-            protected void onConfigure()
-            {
+            protected void onConfigure() {
                 super.onConfigure();
 
                 AnnotatorState state = AnnotationPage.this.getModelObject();
@@ -328,21 +325,18 @@ public class AnnotationPage
             }
 
             @Override
-            protected CAS onGetJCas() throws IOException
-            {
+            protected CAS onGetJCas() throws IOException {
                 return getEditorCas();
             }
 
             @Override
-            protected void onJcasUpdate(Long aTimeStamp)
-            {
+            protected void onJcasUpdate(Long aTimeStamp) {
                 AnnotationPage.this.getModelObject().setAnnotationDocumentTimestamp(aTimeStamp);
             }
         };
     }
 
-    private void createAnnotationEditor(IPartialPageRequestHandler aTarget)
-    {
+    private void createAnnotationEditor(IPartialPageRequestHandler aTarget) {
         AnnotatorState state = getModelObject();
 
         String editorId = getModelObject().getPreferences().getEditor();
@@ -363,8 +357,7 @@ public class AnnotationPage
         if (state.getDocument() != null) {
             try {
                 state.getPagingStrategy().recalculatePage(state, getEditorCas());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOG.info("Error reading CAS: {}", e.getMessage());
                 error("Error reading CAS " + e.getMessage());
                 if (aTarget != null) {
@@ -373,14 +366,14 @@ public class AnnotationPage
             }
         }
 
-        // Use the proper page navigator and position labels for the current paging strategy
+        // Use the proper page navigator and position labels for the current paging
+        // strategy
         addOrReplace(state.getPagingStrategy().createPageNavigator("pageNavigator", this));
         addOrReplace(state.getPagingStrategy().createPositionLabel(MID_NUMBER_OF_PAGES, getModel())
                 .add(visibleWhen(() -> getModelObject().getDocument() != null)));
     }
 
-    private SidebarPanel createLeftSidebar()
-    {
+    private SidebarPanel createLeftSidebar() {
         // instantiate the codebook panel here since it's needed in the left sidebar
         this.codebookPanel = createCodebookPanel();
 
@@ -392,8 +385,7 @@ public class AnnotationPage
         return leftSidebar;
     }
 
-    private WebMarkupContainer createCodebookPanel()
-    {
+    private WebMarkupContainer createCodebookPanel() {
         WebMarkupContainer codebookPanel = new WebMarkupContainer("codebookPanel");
         codebookPanel.setOutputMarkupId(true);
 
@@ -404,8 +396,7 @@ public class AnnotationPage
         return codebookPanel;
     }
 
-    private WebMarkupContainer createRightSidebar()
-    {
+    private WebMarkupContainer createRightSidebar() {
         WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
         rightSidebar.setOutputMarkupId(true);
         // Override sidebar width from preferences
@@ -417,8 +408,7 @@ public class AnnotationPage
     }
 
     @Override
-    protected List<SourceDocument> getListOfDocs()
-    {
+    protected List<SourceDocument> getListOfDocs() {
         AnnotatorState state = getModelObject();
         return new ArrayList<>(documentService
                 .listAnnotatableDocuments(state.getProject(), state.getUser()).keySet());
@@ -428,8 +418,7 @@ public class AnnotationPage
      * for the first time, open the <b>open document dialog</b>
      */
     @Override
-    public void renderHead(IHeaderResponse aResponse)
-    {
+    public void renderHead(IHeaderResponse aResponse) {
         super.renderHead(aResponse);
 
         if (!initialLoadCompleted) {
@@ -446,15 +435,15 @@ public class AnnotationPage
     }
 
     @Override
-    public CAS getEditorCas() throws IOException
-    {
+    public CAS getEditorCas() throws IOException {
         AnnotatorState state = getModelObject();
 
         if (state.getDocument() == null) {
             throw new IllegalStateException("Please open a document first!");
         }
 
-        // If we have a timestamp, then use it to detect if there was a concurrent access
+        // If we have a timestamp, then use it to detect if there was a concurrent
+        // access
         verifyAndUpdateDocumentTimestamp(state, documentService
                 .getAnnotationCasTimestamp(state.getDocument(), state.getUser().getUsername()));
 
@@ -463,8 +452,7 @@ public class AnnotationPage
     }
 
     @Override
-    public void writeEditorCas(CAS aCas) throws IOException
-    {
+    public void writeEditorCas(CAS aCas) throws IOException {
         AnnotatorState state = getModelObject();
         documentService.writeAnnotationCas(aCas, state.getDocument(), state.getUser(), true);
 
@@ -474,39 +462,34 @@ public class AnnotationPage
         diskTimestamp.ifPresent(state::setAnnotationDocumentTimestamp);
     }
 
-    private void actionInitialLoadComplete(AjaxRequestTarget aTarget)
-    {
-        // If the page has loaded and there is no document open yet, show the open-document
+    private void actionInitialLoadComplete(AjaxRequestTarget aTarget) {
+        // If the page has loaded and there is no document open yet, show the
+        // open-document
         // dialog.
         if (getModelObject().getDocument() == null) {
             actionShowOpenDocumentDialog(aTarget);
-        }
-        else {
+        } else {
             // Make sure the URL fragment parameters are up-to-date
             updateUrlFragment(aTarget);
         }
     }
 
-    private void actionShowOpenDocumentDialog(AjaxRequestTarget aTarget)
-    {
+    private void actionShowOpenDocumentDialog(AjaxRequestTarget aTarget) {
         getModelObject().getSelection().clear();
         openDocumentsModal.show(aTarget);
     }
 
-    private void actionShowPreferencesDialog(AjaxRequestTarget aTarget)
-    {
+    private void actionShowPreferencesDialog(AjaxRequestTarget aTarget) {
         getModelObject().getSelection().clear();
         preferencesModal.show(aTarget);
     }
 
-    private void actionToggleScriptDirection(AjaxRequestTarget aTarget) throws Exception
-    {
+    private void actionToggleScriptDirection(AjaxRequestTarget aTarget) throws Exception {
         getModelObject().toggleScriptDirection();
         actionRefreshDocument(aTarget);
     }
 
-    private void actionCompletePreferencesChange(AjaxRequestTarget aTarget)
-    {
+    private void actionCompletePreferencesChange(AjaxRequestTarget aTarget) {
         try {
             AnnotatorState state = getModelObject();
 
@@ -524,8 +507,7 @@ public class AnnotationPage
 
             // Reload all AJAX-enabled children of the page but not the page itself!
             WicketUtil.refreshPage(aTarget, getPage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOG.info("Error reading CAS: {}", e.getMessage());
             error("Error reading CAS " + e.getMessage());
             aTarget.addChildren(getPage(), IFeedback.class);
@@ -534,21 +516,18 @@ public class AnnotationPage
 
     // Decide which one of the sidebars to show (codebook editor or annotation
     // editor, not both of them)
-    private void decideSideBarSetup(AjaxRequestTarget aTarget)
-    {
+    private void decideSideBarSetup(AjaxRequestTarget aTarget) {
         if (getModelObject().getPreferences().isShowEditor()) {
             detailEditor.getParent().add(new AttributeModifier("style", getVStyle(1.5)));
             aTarget.add(detailEditor.getParent());
-        }
-        else {
+        } else {
             detailEditor.getParent()
                     .add(new AttributeModifier("style", "visibility:hidden;display:none"));
             aTarget.add(detailEditor.getParent());
         }
     }
 
-    private String getVStyle(double n)
-    {
+    private String getVStyle(double n) {
         String style = String.format("flex-basis: %f%%;",
                 Math.min(getModelObject().getPreferences().getSidebarSize() * n,
                         AnnotationPreference.SIDEBAR_SIZE_MAX))
@@ -556,8 +535,7 @@ public class AnnotationPage
         return style;
     }
 
-    private void actionFinishDocument(AjaxRequestTarget aTarget)
-    {
+    private void actionFinishDocument(AjaxRequestTarget aTarget) {
         finishDocumentDialog.setConfirmAction((aCallbackTarget) -> {
             actionValidateDocument(aCallbackTarget, getEditorCas());
 
@@ -582,13 +560,11 @@ public class AnnotationPage
     }
 
     @Override
-    protected void actionLoadDocument(AjaxRequestTarget aTarget)
-    {
+    protected void actionLoadDocument(AjaxRequestTarget aTarget) {
         actionLoadDocument(aTarget, 0);
     }
 
-    protected void actionLoadDocument(AjaxRequestTarget aTarget, int aFocus)
-    {
+    protected void actionLoadDocument(AjaxRequestTarget aTarget, int aFocus) {
         LOG.trace("BEGIN LOAD_DOCUMENT_ACTION at focus " + aFocus);
 
         AnnotatorState state = getModelObject();
@@ -598,7 +574,8 @@ public class AnnotationPage
         }
 
         try {
-            // Check if there is an annotation document entry in the database. If there is none,
+            // Check if there is an annotation document entry in the database. If there is
+            // none,
             // create one.
             AnnotationDocument annotationDocument = documentService
                     .createOrGetAnnotationDocument(state.getDocument(), state.getUser());
@@ -632,12 +609,15 @@ public class AnnotationPage
                 currentprojectId = state.getProject().getId();
             }
 
-            // Set the actual editor component. This has to happen *before* any AJAX refreshs are
-            // scheduled and *after* the preferences have been loaded (because the current editor
+            // Set the actual editor component. This has to happen *before* any AJAX
+            // refreshs are
+            // scheduled and *after* the preferences have been loaded (because the current
+            // editor
             // type is set in the preferences.
             createAnnotationEditor(aTarget);
 
-            // Initialize the visible content - this has to happen after the annotation editor
+            // Initialize the visible content - this has to happen after the annotation
+            // editor
             // component has been created because only then the paging strategy is known
             state.moveToUnit(editorCas, aFocus + 1, TOP);
 
@@ -648,7 +628,8 @@ public class AnnotationPage
                         NEW_TO_ANNOTATION_IN_PROGRESS);
             }
 
-            // Reset the editor (we reload the page content below, so in order not to schedule
+            // Reset the editor (we reload the page content below, so in order not to
+            // schedule
             // a double-update, we pass null here)
             detailEditor.reset(null);
             // Populate the layer dropdown box
@@ -669,8 +650,7 @@ public class AnnotationPage
                     new DocumentOpenedEvent(this, editorCas, getModelObject().getDocument(),
                             getModelObject().getUser().getUsername(),
                             userRepository.getCurrentUser().getUsername()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             handleException(aTarget, e);
         }
 
@@ -678,12 +658,10 @@ public class AnnotationPage
     }
 
     @Override
-    public void actionRefreshDocument(AjaxRequestTarget aTarget)
-    {
+    public void actionRefreshDocument(AjaxRequestTarget aTarget) {
         try {
             annotationEditor.requestRender(aTarget);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOG.warn("Editor refresh requested at illegal time, forcing page refresh",
                     new RuntimeException());
             throw new RestartResponseException(getPage());
@@ -696,8 +674,7 @@ public class AnnotationPage
         updateUrlFragment(aTarget);
     }
 
-    private Project getProjectFromParameters(StringValue projectParam)
-    {
+    private Project getProjectFromParameters(StringValue projectParam) {
         Project project = null;
         if (projectParam != null && !projectParam.isEmpty()) {
             long projectId = projectParam.toLong();
@@ -706,8 +683,7 @@ public class AnnotationPage
         return project;
     }
 
-    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam)
-    {
+    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam) {
         SourceDocument document = null;
         if (documentParam != null && !documentParam.isEmpty()) {
             long documentId = documentParam.toLong();
@@ -716,16 +692,13 @@ public class AnnotationPage
         return document;
     }
 
-    private UrlParametersReceivingBehavior createUrlFragmentBehavior()
-    {
-        return new UrlParametersReceivingBehavior()
-        {
+    private UrlParametersReceivingBehavior createUrlFragmentBehavior() {
+        return new UrlParametersReceivingBehavior() {
             private static final long serialVersionUID = -3860933016636718816L;
 
             @Override
             protected void onParameterArrival(IRequestParameters aRequestParameters,
-                    AjaxRequestTarget aTarget)
-            {
+                    AjaxRequestTarget aTarget) {
                 aTarget.addChildren(getPage(), IFeedback.class);
 
                 StringValue project = aRequestParameters.getParameterValue(PAGE_PARAM_PROJECT_ID);
@@ -737,8 +710,7 @@ public class AnnotationPage
         };
     }
 
-    private void updateUrlFragment(AjaxRequestTarget aTarget)
-    {
+    private void updateUrlFragment(AjaxRequestTarget aTarget) {
         if (aTarget != null) {
             AnnotatorState state = getModelObject();
             UrlFragment fragment = new UrlFragment(aTarget);
@@ -752,8 +724,7 @@ public class AnnotationPage
             // Current focus unit
             if (state.getFocusUnitIndex() > 0) {
                 fragment.putParameter(PAGE_PARAM_FOCUS, state.getFocusUnitIndex());
-            }
-            else {
+            } else {
                 fragment.removeParameter(PAGE_PARAM_FOCUS);
             }
 
@@ -766,14 +737,12 @@ public class AnnotationPage
     }
 
     private void handleParameters(AjaxRequestTarget aTarget, StringValue aProjectParameter,
-            StringValue aDocumentParameter, StringValue aFocusParameter, boolean aLockIfPreset)
-    {
+            StringValue aDocumentParameter, StringValue aFocusParameter, boolean aLockIfPreset) {
         // Get current project from parameters
         Project project = null;
         try {
             project = getProjectFromParameters(aProjectParameter);
-        }
-        catch (NoResultException e) {
+        } catch (NoResultException e) {
             error("Project [" + aProjectParameter + "] does not exist");
             return;
         }
@@ -783,8 +752,7 @@ public class AnnotationPage
         if (project != null) {
             try {
                 document = getDocumentFromParameters(project, aDocumentParameter);
-            }
-            catch (NoResultException e) {
+            } catch (NoResultException e) {
                 error("Document [" + aDocumentParameter + "] does not exist in project ["
                         + project.getId() + "]");
             }
@@ -796,8 +764,10 @@ public class AnnotationPage
             focus = aFocusParameter.toInt(0);
         }
 
-        // If there is no change in the current document, then there is nothing to do. Mind
-        // that document IDs are globally unique and a change in project does not happen unless
+        // If there is no change in the current document, then there is nothing to do.
+        // Mind
+        // that document IDs are globally unique and a change in project does not happen
+        // unless
         // there is also a document change.
         if (document != null && document.equals(getModelObject().getDocument())
                 && focus == getModelObject().getFocusUnitIndex()) {
@@ -836,18 +806,17 @@ public class AnnotationPage
         }
 
         if (document != null) {
-            // If we arrive here and the document is not null, then we have a change of document
+            // If we arrive here and the document is not null, then we have a change of
+            // document
             // or a change of focus (or both)
             if (!document.equals(getModelObject().getDocument())) {
                 getModelObject().setDocument(document, getListOfDocs());
                 actionLoadDocument(aTarget, focus);
-            }
-            else {
+            } else {
                 try {
                     getModelObject().moveToUnit(getEditorCas(), focus, TOP);
                     actionRefreshDocument(aTarget);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     aTarget.addChildren(getPage(), IFeedback.class);
                     LOG.info("Error reading CAS " + e.getMessage());
                     error("Error reading CAS " + e.getMessage());
@@ -856,26 +825,22 @@ public class AnnotationPage
         }
     }
 
-    private boolean isUserViewingOthersWork()
-    {
+    private boolean isUserViewingOthersWork() {
         return !getModelObject().getUser().equals(userRepository.getCurrentUser());
     }
 
     @Override
-    protected void loadPreferences() throws BeansException, IOException
-    {
+    protected void loadPreferences() throws BeansException, IOException {
         if (isUserViewingOthersWork()) {
             AnnotatorState state = getModelObject();
             PreferencesUtil.loadPreferences(userPreferenceService, annotationService, state,
                     userRepository.getCurrentUser().getUsername());
-        }
-        else {
+        } else {
             super.loadPreferences();
         }
     }
 
-    private CodebookEditorModel getCodebookEditorModel()
-    {
+    private CodebookEditorModel getCodebookEditorModel() {
         CodebookEditorModel model = new CodebookEditorModel();
         model.setDocument(getModelObject().getDocument());
         model.setCodebooksPerPage(getModelObject().getPreferences().getCodebooksPerPage());
@@ -884,13 +849,11 @@ public class AnnotationPage
         return model;
     }
 
-    public DocumentService getDocumentService()
-    {
+    public DocumentService getDocumentService() {
         return documentService;
     }
 
-    public WebMarkupContainer getCodebookPanel()
-    {
+    public WebMarkupContainer getCodebookPanel() {
         return codebookPanel;
     }
 }

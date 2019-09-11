@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,13 +43,13 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.dkpro.core.api.parameter.ComponentParameters;
 
-
 public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
     public static final String PARAM_ENCODING = ComponentParameters.PARAM_TARGET_ENCODING;
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
-    //TODO I think this is not necessary since the codebooks should be in the CAS already!
+    // TODO I think this is not necessary since the codebooks should be in the CAS
+    // already!
     public static final String PARAM_CODEBOOKS = "codebooks";
     @ConfigurationParameter(name = PARAM_CODEBOOKS, mandatory = true, defaultValue = {})
     private List<String> codebooks;
@@ -87,8 +86,12 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
         CSVPrinter csvFileWriter = null;
         try {
             CSVFormat csvFileFormat = CSVFormat.RFC4180.withRecordSeparator(NEW_LINE_SEPARATOR);
-            File file = new File(this.getTargetLocation() + File.separator + filename);
-            Files.deleteIfExists(file.toPath()); // TODO delete the file if its already there?!
+            File file = new File(
+                    this.getTargetLocation() + File.separator + new File(filename).getName());
+            // smy: No We do not delete it here, the caller should take care of cleaning tmp
+            // files,or we do not need at all.
+            // Files.deleteIfExists(file.toPath()); // TODO delete the file if its already
+            // there?!
             file.getParentFile().mkdirs();
             writer = new OutputStreamWriter(new FileOutputStream(file, true), encoding);
             csvFileWriter = new CSVPrinter(writer, csvFileFormat);

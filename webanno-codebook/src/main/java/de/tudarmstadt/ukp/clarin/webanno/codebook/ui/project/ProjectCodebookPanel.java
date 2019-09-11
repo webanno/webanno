@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -88,7 +86,9 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResour
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
@@ -116,9 +116,9 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelBa
 public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectCodebookPanel.class);
     private static final long serialVersionUID = -7870526462864489252L;
- 
+
     private String CFN = "code";
-    
+
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean ProjectService repository;
@@ -161,7 +161,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         selectedTagSet = Model.of(getTagset(codebook.getObject()));
         selectedTag = Model.of();
 
-        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedTagSet, selectedTag);
+        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedTagSet,
+                selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
                 .setVisible(codebook.getObject() != null && codebook.getObject().getId() != null));
         tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
@@ -170,12 +171,12 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         });
         add(tagSelectionPanel);
 
-        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedTagSet, selectedTag);
-        tagEditorPanel.onConfigure(
-            _this -> _this.setVisible(selectedTag != null 
-                && selectedTag.getObject() != null));
+        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedTagSet,
+                selectedTag);
+        tagEditorPanel.onConfigure(_this -> _this.setVisible(selectedTag 
+                != null && selectedTag.getObject() != null));
         add(tagEditorPanel);
-        
+
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
         add(importCodebookForm);
 
@@ -206,7 +207,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private class CodebookSelectionForm extends Form<Codebook> {
         private static final long serialVersionUID = -1L;
 
-        @SuppressWarnings({ })
+        @SuppressWarnings({})
         public CodebookSelectionForm(String id, IModel<Codebook> aModel) {
             super(id, aModel);
 
@@ -237,7 +238,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                             if (project.getId() != null) {
                                 List<Codebook> codes = codebookService.listCodebook(project);
                                 for (Codebook code : codes) {
-                                    colors.put(code, 
+                                    colors.put(code,
                                             ColoringStrategy.getCodebookFgStyle(code.getOrder()));
                                 }
                                 return codes;
@@ -277,9 +278,9 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                 _target.add(tagEditorPanel);
             }));
         }
-        
+
     }
-    
+
     private class ImportCodebookForm extends Form<String> {
         private static final long serialVersionUID = -7777616763931128598L;
 
@@ -291,6 +292,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             add(fileUpload = new FileUploadField("content", new Model()));
             add(new LambdaAjaxButton("import", this::actionImport));
         }
+
         private void actionImport(AjaxRequestTarget aTarget, Form<String> aForm) {
             List<FileUpload> uploadedFiles = fileUpload.getFileUploads();
             Project project = ProjectCodebookPanel.this.getModelObject();
@@ -317,7 +319,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             codebookDetailForm.setVisible(false);
             aTarget.add(ProjectCodebookPanel.this);
         }
-        
+
         private void importCodebook(InputStream aIS) throws IOException {
             String text = IOUtils.toString(aIS, "UTF-8");
             ExportedCodebook[] exCodebooks = JSONUtil.getObjectMapper().readValue(text,
@@ -405,9 +407,9 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             confirmationDialog
                     .setTitleModel(new StringResourceModel("DeleteCodebookDialog.title", this));
             add(confirmationDialog);
-           
+
         }
-        
+
         private void actionUp(AjaxRequestTarget aTarget) {
 
             Codebook codebook = getModelObject();
@@ -468,7 +470,6 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             saveCodebook(codebook);
         }
 
-        
         private void actionDelete(AjaxRequestTarget aTarget, Form aForm) {
             StringResourceModel model = new StringResourceModel("DeleteCodebookDialog.text",
                     this.getParent());
@@ -478,7 +479,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             confirmationDialog.setConfirmAction((_target) -> {
                 Codebook codebook = codebookDetailForm.getModelObject();
-                CodebookCategory tagset = codebookService.listCodebookFeature(codebook).get(0).getCategory();
+                CodebookCategory tagset = codebookService.listCodebookFeature(codebook).get(0)
+                        .getCategory();
                 codebookService.removeCodebookCategory(tagset);
                 codebookService.removeCodebook(codebookDetailForm.getModelObject());
 
@@ -515,7 +517,6 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                 _target.add(getPage());
             });
         }
-
 
         private void actionCancel(AjaxRequestTarget aTarget) {
             aTarget.add(ProjectCodebookPanel.this);
@@ -554,9 +555,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             try {
                 Codebook codebook = codebookDetailForm.getModelObject();
 
-                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
-                    exCodebook = ImportUtil
-                        .exportCodebook(codebook, codebookService);
+                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook = 
+                        ImportUtil.exportCodebook(codebook, codebookService);
 
                 return new InputStreamResourceStream(new ByteArrayInputStream(
                         JSONUtil.toPrettyJsonString(exCodebook).getBytes("UTF-8")));
@@ -573,12 +573,11 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         private IResourceStream exportAllCodebook() {
             try {
                 List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook> 
-                        codebooks = new ArrayList<>();
+                    codebooks = new ArrayList<>();
                 for (Codebook codebook : codebookService
                         .listCodebook(getModelObject().getProject())) {
-                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook 
-                        exCodebook = ImportUtil
-                            .exportCodebook(codebook, codebookService);
+                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook = 
+                            ImportUtil.exportCodebook(codebook, codebookService);
                     codebooks.add(exCodebook);
                 }
 
@@ -601,11 +600,11 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             setVisible(getModelObject() != null);
         }
     }
-    
+
     private void saveCodebook(Codebook codebook) {
         final Project project = ProjectCodebookPanel.this.getModelObject();
         boolean isNewCodebook = isNull(codebook.getId());
-       
+
         if (isNewCodebook) {
             String codebookName = StringUtils.capitalize(codebook.getUiName());
 
@@ -658,7 +657,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         applicationEventPublisherHolder.get()
                 .publishEvent(new CodebookConfigurationChangedEvent(this, project));
     }
-    
+
     private CodebookCategory createOrGetCategory(Codebook codebook, final Project project) {
         CodebookCategory category = getTagset(codebook);
         if (category == null) {

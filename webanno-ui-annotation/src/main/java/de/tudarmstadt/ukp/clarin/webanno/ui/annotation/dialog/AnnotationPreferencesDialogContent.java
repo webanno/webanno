@@ -70,7 +70,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import org.w3c.dom.Attr;
 
 /**
  * Modal Window to configure layers, window size, etc.
