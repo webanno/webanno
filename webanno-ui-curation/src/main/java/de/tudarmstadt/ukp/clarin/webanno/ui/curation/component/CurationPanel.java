@@ -95,13 +95,14 @@ public class CurationPanel
 
     private SuggestionViewPanel suggestionViewPanel;
 
+    private final WebMarkupContainer sentenceListContainer;
     private final WebMarkupContainer sentencesListView;
     private final WebMarkupContainer crossSentAnnoView;
 
     private AnnotationPageBase annotationPageBase;
     private final WebMarkupContainer sentencesListViewCon;
     private final WebMarkupContainer crossSentAnnoViewCon;
-    
+
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel editor;
     private AnnotatorState state;
@@ -111,13 +112,13 @@ public class CurationPanel
     private CodebookCurationModel cModel = new CodebookCurationModel();
 
     private ListView<String> crossSentAnnoList;
-    
+
     public SourceListView curationView;
     private List<SourceListView> sourceListModel;
 
     private int fSn = 0;
     private int lSn = 0;
-    
+
     /**
      * Map for tracking curated spans. Key contains the address of the span, the value contains the
      * username from which the span has been selected
@@ -128,20 +129,20 @@ public class CurationPanel
     public CurationPanel(String id, AnnotationPageBase aPage, IModel<CurationContainer> cCModel)
     {
         super(id, cCModel);
-        
+
         annotationPageBase = aPage;
-        
+
         setOutputMarkupId(true);
-        
-        WebMarkupContainer sidebarCell = new WebMarkupContainer("rightSidebar");    
+
+        WebMarkupContainer sidebarCell = new WebMarkupContainer("rightSidebar");
         sidebarCell.setOutputMarkupId(true);
         // Override sidebar width from preferences
         sidebarCell.add(new AttributeModifier("style", () -> String
                 .format("flex-basis: %d%%;", state.getPreferences().getSidebarSize())));
         add(sidebarCell);
-        
+
         curationView = new SourceListView();
-        
+
         List<UserAnnotationSegment> segments = new LinkedList<>();
         UserAnnotationSegment userAnnotationSegments = new UserAnnotationSegment();
 
@@ -153,18 +154,18 @@ public class CurationPanel
             segments.add(userAnnotationSegments);
         }
         add(createCodebookSuggestionView());
-        
+
         add(createCodebookCurationView());
         // update source list model only first time.
         sourceListModel = sourceListModel == null ? getModelObject().getCurationViews()
                 : sourceListModel;
-    
+
         suggestionViewPanel = new SuggestionViewPanel("suggestionViewPanel",
                 new ListModel<>(segments))
         {
             private static final long serialVersionUID = 2583509126979792202L;
             CurationContainer curationContainer = cCModel.getObject();
-    
+
             @Override
             public void onChange(AjaxRequestTarget aTarget)
             {
@@ -185,17 +186,17 @@ public class CurationPanel
         suggestionViewPanel.setOutputMarkupPlaceholderTag(true);
         suggestionViewPanel.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
         add(suggestionViewPanel);
-    
+
         editor = new AnnotationDetailEditorPanel("annotationDetailEditorPanel", annotationPageBase,
                 PropertyModel.of(CurationPanel.this, "state"))
         {
             private static final long serialVersionUID = 2857345299480098279L;
-    
+
             @Override
             protected void onChange(AjaxRequestTarget aTarget)
             {
                 aTarget.addChildren(getPage(), IFeedback.class);
-    
+
                 try {
                     updatePanel(aTarget, cCModel.getObject());
                 }
@@ -208,25 +209,25 @@ public class CurationPanel
                     error("Error: " + e.getMessage());
                 }
             }
-    
+
             @Override
             protected void onAutoForward(AjaxRequestTarget aTarget)
             {
                 annotationEditor.requestRender(aTarget);
             }
-    
+
             @Override
             protected void onConfigure()
             {
                 super.onConfigure();
-                
+
                 setEnabled(state.getDocument() != null && !documentService
                         .getSourceDocument(state.getDocument().getProject(),
                                 state.getDocument().getName())
                         .getState().equals(SourceDocumentState.CURATION_FINISHED)
                         && !state.getPreferences().isShowCodebookCuration());
             }
-            
+
             @Override
             public CAS getEditorCas() throws IOException
             {
@@ -234,7 +235,7 @@ public class CurationPanel
             }
         };
         sidebarCell.add(editor);
-    
+
         annotationEditor = new BratAnnotationEditor("mergeView", new Model<>(state), editor,
             this::getEditorCas);
         annotationEditor.setHighlightEnabled(false);
@@ -242,53 +243,57 @@ public class CurationPanel
         annotationEditor.setOutputMarkupPlaceholderTag(true);
         // reset sentenceAddress and lastSentenceAddress to the orginal once
         add(annotationEditor);
-    
+
         // add container for the list of sentences where annotations exists crossing multiple
         // sentences outside of the current page
         crossSentAnnoView = new WebMarkupContainer("crossSentAnnoView");
         crossSentAnnoView.setOutputMarkupPlaceholderTag(true);
         crossSentAnnoView.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
      //   add(crossSentAnnoView);
-        
+
         crossSentAnnoViewCon = new WebMarkupContainer("crossSentAnnoViewCon");
         crossSentAnnoViewCon.setOutputMarkupId(true);
         add(crossSentAnnoViewCon.add(crossSentAnnoView));
-        
+
         crossSentAnnoList = new ListView<String>("crossSentAnnoList",
                 this::invisibleCrossSentenceAnnotations)
         {
             private static final long serialVersionUID = 8539162089561432091L;
-    
+
             @Override
             protected void populateItem(ListItem<String> item)
             {
                 String crossSentAnno = item.getModelObject();
-    
+
                 // ajax call when clicking on a sentence on the left side
                 final AbstractDefaultAjaxBehavior click = new AbstractDefaultAjaxBehavior()
                 {
                     private static final long serialVersionUID = 5803814168152098822L;
-    
+
                     @Override
                     protected void respond(AjaxRequestTarget aTarget)
                     {
                         // Expand curation view
                     }
                 };
-    
+
                 // add subcomponents to the component
                 item.add(click);
                 item.add(new AjaxLabel("crossAnnoSent", crossSentAnno, click));
             }
-    
+
         };
         crossSentAnnoView.add(crossSentAnnoList);
-    
+
+        // add container for sentences panel
+        sentenceListContainer = new WebMarkupContainer("sentenceListContainer");
+        sentenceListContainer.setOutputMarkupPlaceholderTag(true);
+        sentenceListContainer.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
+        add(sentenceListContainer);
+
         // add container for list of sentences panel
         sentencesListView = new WebMarkupContainer("sentencesListView");
         sentencesListView.setOutputMarkupPlaceholderTag(true);
-        sentencesListView.add(LambdaBehavior.visibleWhen(() -> state.getDocument() != null));
-        //add(sentencesListView);
         sentencesListView.add(new ListView<SourceListView>("sentencesList",
                 LoadableDetachableModel.of(() -> getModelObject().getCurationViews()))
         {
@@ -300,14 +305,10 @@ public class CurationPanel
                 item.add(new SentenceLink("sentenceNumber", item.getModel()));
             }
         });
-        
-        // add container for list of sentences panel
-        sentencesListViewCon = new WebMarkupContainer("sentencesListViewCon");
-        sentencesListViewCon.setOutputMarkupId(true);
-        sentencesListViewCon.add(sentencesListView);
-        add(sentencesListViewCon);
+
+        sentenceListContainer.add(sentencesListView);
     }
-    
+
     private List<String> invisibleCrossSentenceAnnotations()
     {
         int fSN = state.getFirstVisibleUnitIndex();
@@ -332,7 +333,7 @@ public class CurationPanel
 
         return crossSentAnnos;
     }
-    
+
     public class SentenceLink extends AjaxLink<SourceListView>
     {
         private static final long serialVersionUID = 4558300090461815010L;
@@ -342,19 +343,19 @@ public class CurationPanel
             super(aId, aModel);
             setBody(Model.of(aModel.getObject().getSentenceNumber().toString()));
         }
-        
+
         @Override
         protected void onComponentTag(ComponentTag aTag)
         {
             super.onComponentTag(aTag);
-            
+
             final SourceListView curationViewItem = getModelObject();
-            
+
             // Is in focus?
             if (curationViewItem.getSentenceNumber() == state.getFocusUnitIndex()) {
                 aTag.append("class", "current", " ");
             }
-            
+
             // Agree or disagree?
             String cC = curationViewItem.getSentenceState().getValue();
             if (cC != null) {
@@ -363,7 +364,7 @@ public class CurationPanel
             else {
                 aTag.append("class", "agree", " ");
             }
-            
+
             // In range or not?
             if (curationViewItem.getSentenceNumber() >= fSn
                     && curationViewItem.getSentenceNumber() <= lSn) {
@@ -373,12 +374,12 @@ public class CurationPanel
                 aTag.append("class", "out-range", " ");
             }
         }
-        
+
         @Override
         protected void onAfterRender()
         {
             super.onAfterRender();
-            
+
             // The sentence list is refreshed using AJAX. Unfortunately, the renderHead() method
             // of the AjaxEventBehavior created by AjaxLink does not seem to be called by Wicket
             // during an AJAX rendering, causing the sentence links to loose their functionality.
@@ -392,7 +393,7 @@ public class CurationPanel
                 });
             }
         }
-        
+
         @Override
         public void onClick(AjaxRequestTarget aTarget)
         {
@@ -462,18 +463,18 @@ public class CurationPanel
 
         return curationDocumentService.readCurationCas(state.getDocument());
     }
-    
+
     public void init(AjaxRequestTarget aTarget, CurationContainer aCC)
         throws UIMAException, ClassNotFoundException, IOException
     {
         commonUpdate();
-        
+
         suggestionViewPanel.init(aTarget, aCC, annotationSelectionByUsernameAndAddress,
                 curationView);
         cModel = new CodebookCurationModel();
         cModel.setProject(state.getProject());
         cModel.setDocument(state.getDocument());
-       
+
         codebookCurationPanel.setProjectModel(aTarget, cModel);
         codebooksuggestionPanel.setModel(aTarget, cModel);
     }
@@ -482,20 +483,20 @@ public class CurationPanel
         throws UIMAException, ClassNotFoundException, IOException, AnnotationException
     {
         commonUpdate();
-        
+
         // Render the main annotation editor (upper part)
         annotationEditor.requestRender(aTarget);
-        
+
         // Render the user annotation segments (lower part)
         suggestionViewPanel.updatePanel(aTarget, aCC, annotationSelectionByUsernameAndAddress,
                 curationView);
-        
+
         // Render the sentence list sidebar
         aTarget.add(sentencesListView);
-        
+
         decideSideBarSetup(aTarget);
     }
-    
+
     private void commonUpdate() throws IOException
     {
         curationView.setCurationBegin(state.getWindowBeginOffset());
@@ -512,13 +513,13 @@ public class CurationPanel
     {
         private static final long serialVersionUID = -4528869530409522295L;
         private AbstractAjaxBehavior click;
-    
+
         public AjaxLabel(String id, String label, AbstractAjaxBehavior aClick)
         {
             super(id, label);
             click = aClick;
         }
-    
+
         @Override
         public void onComponentTag(ComponentTag tag)
         {
@@ -529,7 +530,7 @@ public class CurationPanel
             tag.put("onclick", "Wicket.Ajax.get({'u':'" + click.getCallbackUrl() + "'})");
         }
     }
-    
+
     public AnnotationDetailEditorPanel getEditor()
     {
         return editor;
@@ -673,12 +674,12 @@ public class CurationPanel
                                 state.getDocument().getName())
                         .getState().equals(SourceDocumentState.CURATION_FINISHED));
             }
-            
+
             @Override
             protected void onJcasUpdate(Long aTimeStamp) {
                 state.setAnnotationDocumentTimestamp(aTimeStamp);
             }
-            
+
         };
     }
 }
