@@ -19,7 +19,6 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import static java.util.Objects.isNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,8 +51,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Value(value = "${repository.path}")
-    private File dir;
+    
 
     private @PersistenceContext EntityManager entityManager;
     // private @Lazy @Autowired(required = false) List<ProjectInitializer>
@@ -62,7 +59,7 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
 
     public CodebookSchemaServiceImpl() {
-        // Nothing to do
+       
     }
 
     @Override

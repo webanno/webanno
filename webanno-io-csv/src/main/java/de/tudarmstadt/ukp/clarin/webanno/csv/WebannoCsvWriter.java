@@ -138,9 +138,9 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
 
         for (Type codebookType : codebookTypes) {
             for (Feature feature : codebookType.getFeatures()) {
-                if (feature.toString().equals("uima.cas.AnnotationBase:sofa")
-                        || feature.toString().equals("uima.tcas.Annotation:begin")
-                        || feature.toString().equals("uima.tcas.Annotation:end")) {
+                if (feature.getName().equals("uima.cas.AnnotationBase:sofa")
+                        || feature.getName().equals("uima.tcas.Annotation:begin")
+                        || feature.getName().equals("uima.tcas.Annotation:end")) {
                     continue;
                 }
                 if (CasUtil.select(aJCas.getCas(), codebookType).isEmpty()) {
