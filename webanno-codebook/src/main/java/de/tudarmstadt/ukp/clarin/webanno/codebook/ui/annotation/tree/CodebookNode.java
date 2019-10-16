@@ -104,7 +104,8 @@ public class CodebookNode
         this.name = name;
     }
 
-    public String getUiName() {
+    public String getUiName()
+    {
         return uiName;
     }
 

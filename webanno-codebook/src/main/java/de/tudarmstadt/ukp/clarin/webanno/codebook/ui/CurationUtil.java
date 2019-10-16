@@ -26,11 +26,13 @@ import org.apache.uima.cas.Type;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 
-public class CurationUtil {
+public class CurationUtil
+{
 
     public final static String CURATION_USER = "CURATION_USER";
- 
-    public static List<Type> getCodebookTypes(CAS mergeJCas, List<Codebook> aCodebooks) {
+
+    public static List<Type> getCodebookTypes(CAS mergeJCas, List<Codebook> aCodebooks)
+    {
         List<Type> entryTypes = new LinkedList<>();
 
         for (Codebook codebook : aCodebooks) {

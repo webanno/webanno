@@ -22,12 +22,11 @@ import static java.util.Objects.isNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.slf4j.Logger;
@@ -35,14 +34,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
-//import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
@@ -59,13 +58,13 @@ public class CodebookSchemaServiceImpl
     private File dir;
 
     private @PersistenceContext EntityManager entityManager;
-  //  private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
+    // private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
     private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
+
     public CodebookSchemaServiceImpl()
     {
         // Nothing to do
     }
-
 
     @Override
     @Transactional
@@ -77,7 +76,7 @@ public class CodebookSchemaServiceImpl
         else {
             entityManager.merge(codebook);
         }
-        
+
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(codebook.getProject().getId()))) {
             Project project = codebook.getProject();
@@ -85,8 +84,7 @@ public class CodebookSchemaServiceImpl
                     codebook.getId(), project.getName(), project.getId());
         }
     }
-    
-    
+
     @Override
     @Transactional
     public void createCodebookFeature(CodebookFeature aFeature)
@@ -126,8 +124,9 @@ public class CodebookSchemaServiceImpl
         try {
             entityManager
                     .createQuery("FROM CodebookFeature WHERE name = :name AND codebook = :codebook",
-                            CodebookFeature.class).setParameter("name", aName)
-                    .setParameter("codebook", aCodebook).getSingleResult();
+                            CodebookFeature.class)
+                    .setParameter("name", aName).setParameter("codebook", aCodebook)
+                    .getSingleResult();
             return true;
         }
         catch (NoResultException e) {
@@ -135,7 +134,6 @@ public class CodebookSchemaServiceImpl
 
         }
     }
-
 
     @Override
     public boolean existsCodebookTag(String aTagName, CodebookCategory aCategory)
@@ -154,8 +152,10 @@ public class CodebookSchemaServiceImpl
     public CodebookTag getCodebookTag(String aTagName, CodebookCategory aCategory)
     {
         return entityManager
-                .createQuery("FROM CodebookTag WHERE name = :name AND" + " category =:category", CodebookTag.class)
-                .setParameter("name", aTagName).setParameter("category", aCategory).getSingleResult();
+                .createQuery("FROM CodebookTag WHERE name = :name AND" + " category =:category",
+                        CodebookTag.class)
+                .setParameter("name", aTagName).setParameter("category", aCategory)
+                .getSingleResult();
     }
 
     @Override
@@ -164,11 +164,9 @@ public class CodebookSchemaServiceImpl
     {
         try {
             entityManager
-                    .createQuery(
-                            "FROM Codebook WHERE name = :name AND project = :project",
+                    .createQuery("FROM Codebook WHERE name = :name AND project = :project",
                             Codebook.class)
-                    .setParameter("name", aName)
-                    .setParameter("project", aProject)
+                    .setParameter("name", aName).setParameter("project", aProject)
                     .getSingleResult();
             return true;
         }
@@ -177,20 +175,18 @@ public class CodebookSchemaServiceImpl
         }
     }
 
-
     @Override
     @Transactional
     public Codebook getCodebook(long aId)
     {
-        return entityManager
-                .createQuery("FROM Codebook WHERE id = :id", Codebook.class)
+        return entityManager.createQuery("FROM Codebook WHERE id = :id", Codebook.class)
                 .setParameter("id", aId).getSingleResult();
     }
 
-
     @Override
     @Transactional
-    public Codebook getCodebook(int aCodebookorder, Project aProject) {
+    public Codebook getCodebook(int aCodebookorder, Project aProject)
+    {
         return entityManager
                 .createQuery(
                         "FROM Codebook WHERE codebookorder = :codebookorder AND project =:project ",
@@ -199,26 +195,24 @@ public class CodebookSchemaServiceImpl
                 .getSingleResult();
     }
 
-    
     @Override
     @Transactional
     public Codebook getCodeBook(String aName, Project aProject)
     {
         return entityManager
                 .createQuery("From Codebook where name = :name AND project =:project",
-                        Codebook.class).setParameter("name", aName)
-                .setParameter("project", aProject).getSingleResult();
+                        Codebook.class)
+                .setParameter("name", aName).setParameter("project", aProject).getSingleResult();
     }
-   
 
     @Override
     @Transactional
-    public  CodebookFeature getCodebookFeature(String aName, Codebook aCodebook)
+    public CodebookFeature getCodebookFeature(String aName, Codebook aCodebook)
     {
         return entityManager
                 .createQuery("FROM CodebookFeature WHERE name = :name AND codebook = :codebook",
-                        CodebookFeature.class).setParameter("name", aName)
-                .setParameter("codebook", aCodebook).getSingleResult();
+                        CodebookFeature.class)
+                .setParameter("name", aName).setParameter("codebook", aCodebook).getSingleResult();
     }
 
     @Override
@@ -228,8 +222,8 @@ public class CodebookSchemaServiceImpl
         for (CodebookTag tag : this.listTags(aCategory)) {
             entityManager.remove(tag);
         }
-        entityManager
-                .remove(entityManager.contains(aCategory) ? aCategory : entityManager.merge(aCategory));
+        entityManager.remove(
+                entityManager.contains(aCategory) ? aCategory : entityManager.merge(aCategory));
     }
 
     @Override
@@ -247,9 +241,10 @@ public class CodebookSchemaServiceImpl
                 String.valueOf(aTag.getCategory().getProject().getId()))) {
             CodebookCategory category = aTag.getCategory();
             Project project = category.getProject();
-            log.info("Created codebook_tag [{}]({}) in codebook_category [{}]({}) in project [{}]({})", aTag.getName(),
-                    aTag.getId(), category.getName(), category.getId(), project.getName(),
-                    project.getId());
+            log.info(
+                    "Created codebook_tag [{}]({}) in codebook_category [{}]({}) in project [{}]({})",
+                    aTag.getName(), aTag.getId(), category.getName(), category.getId(),
+                    project.getName(), project.getId());
         }
     }
 
@@ -265,7 +260,8 @@ public class CodebookSchemaServiceImpl
     public List<CodebookTag> listTags(CodebookCategory aCategory)
     {
         return entityManager
-                .createQuery("FROM CodebookTag WHERE category = :category ORDER BY name ASC", CodebookTag.class)
+                .createQuery("FROM CodebookTag WHERE category = :category ORDER BY name ASC",
+                        CodebookTag.class)
                 .setParameter("category", aCategory).getResultList();
     }
 
@@ -275,9 +271,9 @@ public class CodebookSchemaServiceImpl
     {
         return entityManager
                 .createQuery("FROM Codebook WHERE project =:project ORDER BY codebookorder asc",
-                        Codebook.class).setParameter("project", aProject).getResultList();       
+                        Codebook.class)
+                .setParameter("project", aProject).getResultList();
     }
-
 
     @Override
     @Transactional
@@ -289,35 +285,32 @@ public class CodebookSchemaServiceImpl
 
         return entityManager
                 .createQuery("FROM CodebookFeature  WHERE codebook =:codebook ORDER BY uiName",
-                        CodebookFeature.class).setParameter("codebook", code).getResultList();
+                        CodebookFeature.class)
+                .setParameter("codebook", code).getResultList();
     }
 
-    
     @Override
     @Transactional
     public List<CodebookFeature> listCodebookFeature(Project aProject)
     {
-        return entityManager
-                .createQuery(
-                        "FROM CodebookFeature f WHERE project =:project ORDER BY f.codebook.uiName, f.uiName",
-                        CodebookFeature.class).setParameter("project", aProject).getResultList();
+        return entityManager.createQuery(
+                "FROM CodebookFeature f WHERE project =:project ORDER BY f.codebook.uiName, f.uiName",
+                CodebookFeature.class).setParameter("project", aProject).getResultList();
     }
-   
 
     @Override
     @Transactional
     public void removeCodebook(Codebook aCodebook)
     {
         for (CodebookFeature feature : listCodebookFeature(aCodebook)) {
-            
+
             removeCodebookFeature(feature);
         }
-        
+
         entityManager.remove(
                 entityManager.contains(aCodebook) ? aCodebook : entityManager.merge(aCodebook));
     }
-    
-    
+
     public void generateFeatures(TypeSystemDescription aTSD, TypeDescription aTD,
             Codebook aCodebook)
     {
@@ -328,14 +321,12 @@ public class CodebookSchemaServiceImpl
         }
     }
 
-
     @Override
-    public void removeCodebookFeature(CodebookFeature aFeature) {
+    public void removeCodebookFeature(CodebookFeature aFeature)
+    {
         entityManager.remove(
                 entityManager.contains(aFeature) ? aFeature : entityManager.merge(aFeature));
-        
-    }
-    
-    
-}
 
+    }
+
+}

@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import com.googlecode.wicket.kendo.ui.markup.html.link.Link;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.markup.html.repeater.tree.AbstractTree;
@@ -32,6 +31,8 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
+import com.googlecode.wicket.kendo.ui.markup.html.link.Link;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
@@ -67,17 +68,21 @@ public class CodebookTreePanel
         provider = new CodebookNodeProvider(codebooks);
 
         // create and add expand and collapse links
-        this.add(new Link<Void>("expandAll") {
+        this.add(new Link<Void>("expandAll")
+        {
             private static final long serialVersionUID = -2081711094768955973L;
 
-            public void onClick() {
+            public void onClick()
+            {
                 CodebookNodeExpansion.get().expandAll();
             }
         });
-        this.add(new Link<Void>("collapseAll") {
+        this.add(new Link<Void>("collapseAll")
+        {
             private static final long serialVersionUID = -4576757597732733009L;
 
-            public void onClick() {
+            public void onClick()
+            {
                 CodebookNodeExpansion.get().collapseAll();
             }
         });

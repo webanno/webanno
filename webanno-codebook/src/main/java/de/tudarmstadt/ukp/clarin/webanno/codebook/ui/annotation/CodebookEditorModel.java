@@ -27,7 +27,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 
-public class CodebookEditorModel implements Serializable {
+public class CodebookEditorModel
+    implements Serializable
+{
 
     private static final long serialVersionUID = -628789175872734603L;
     private Codebook codebook;
@@ -36,71 +38,87 @@ public class CodebookEditorModel implements Serializable {
     private User user;
     private SourceDocument document;
     private Project project;
-    
+
     private List<CodebookFeatureState> codebookFeatureStates = new ArrayList<>();
-    
-    public CodebookEditorModel() {
+
+    public CodebookEditorModel()
+    {
 
     }
 
-    public CodebookEditorModel(Codebook aCodebook) {
+    public CodebookEditorModel(Codebook aCodebook)
+    {
         this.codebook = aCodebook;
     }
 
-    public Codebook getCodebook() {
+    public Codebook getCodebook()
+    {
         return codebook;
     }
 
-    public void setCodebook(Codebook codebook) {
+    public void setCodebook(Codebook codebook)
+    {
         this.codebook = codebook;
     }
 
-    public String getCode() {
+    public String getCode()
+    {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(String code)
+    {
         this.code = code;
     }
 
-    public int getCodebooksPerPage() {
+    public int getCodebooksPerPage()
+    {
         return codebooksPerPage;
     }
 
-    public void setCodebooksPerPage(int codebooksPerPage) {
+    public void setCodebooksPerPage(int codebooksPerPage)
+    {
         this.codebooksPerPage = codebooksPerPage;
     }
 
-    public SourceDocument getDocument() {
+    public SourceDocument getDocument()
+    {
         return document;
     }
 
-    public void setDocument(SourceDocument document) {
+    public void setDocument(SourceDocument document)
+    {
         this.document = document;
     }
 
-    public List<CodebookFeatureState> getCodebookFeatureStates() {
+    public List<CodebookFeatureState> getCodebookFeatureStates()
+    {
         return codebookFeatureStates;
     }
 
-    public void setCodebookFeatureStates(List<CodebookFeatureState> codebookFeatureStates) {
+    public void setCodebookFeatureStates(List<CodebookFeatureState> codebookFeatureStates)
+    {
         this.codebookFeatureStates = codebookFeatureStates;
     }
 
-    public User getUser() {
+    public User getUser()
+    {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(User user)
+    {
         this.user = user;
     }
 
-    public Project getProject() {
+    public Project getProject()
+    {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(Project project)
+    {
         this.project = project;
     }
-    
+
 }

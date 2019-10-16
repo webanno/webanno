@@ -23,64 +23,76 @@ import java.util.List;
 
 /**
  * 
- * Represent each line of the CSV codebook annotation from a file system to
- * import the codebook annotations during file import
+ * Represent each line of the CSV codebook annotation from a file system to import the codebook
+ * annotations during file import
  *
  */
-public class CodebookAnnotationDocument {
+public class CodebookAnnotationDocument
+{
 
     String text;
-    
+
     String documentName;
-    
+
     List<String> annotators = new ArrayList<>();
 
     List<List<String>> codebooks = new ArrayList<>();
 
     List<String> headers = new ArrayList<>();
-    
-    public String getText() {
+
+    public String getText()
+    {
         return text;
     }
 
-    public void setText(String text) {
+    public void setText(String text)
+    {
         this.text = text;
     }
 
-    public List<String> getAnnotators() {
+    public List<String> getAnnotators()
+    {
         return annotators;
     }
 
-    public void setAnnotators(List<String> annotators) {
+    public void setAnnotators(List<String> annotators)
+    {
         this.annotators = annotators;
     }
 
-    public List<List<String>> getCodebooks() {
+    public List<List<String>> getCodebooks()
+    {
         return codebooks;
     }
 
-    public void setCodebooks(List<List<String>> codebooks) {
+    public void setCodebooks(List<List<String>> codebooks)
+    {
         this.codebooks = codebooks;
     }
 
-    public String getDocumentName() {
+    public String getDocumentName()
+    {
         return documentName;
     }
 
-    public void setDocumentName(String documentName) {
+    public void setDocumentName(String documentName)
+    {
         this.documentName = documentName;
     }
 
-    public List<String> getHeaders() {
+    public List<String> getHeaders()
+    {
         return headers;
     }
 
-    public void setHeaders(List<String> headers) {
+    public void setHeaders(List<String> headers)
+    {
         this.headers = headers;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
@@ -88,7 +100,8 @@ public class CodebookAnnotationDocument {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (this == obj)
             return true;
         if (obj == null)
@@ -97,12 +110,10 @@ public class CodebookAnnotationDocument {
             return false;
         CodebookAnnotationDocument other = (CodebookAnnotationDocument) obj;
         if (documentName == null) {
-            if (other.documentName != null)
-                return false;
-        } else if (!documentName.equals(other.documentName))
-            return false;
-        return true;
+            return other.documentName == null;
+        }
+        else
+            return documentName.equals(other.documentName);
     }
 
-    
 }

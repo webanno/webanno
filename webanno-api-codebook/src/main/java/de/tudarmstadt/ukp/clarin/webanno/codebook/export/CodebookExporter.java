@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipFile;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -50,12 +48,15 @@ import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExporter;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebannoCsvWriter;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -63,7 +64,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 
 @Component
-public class CodebookExporter implements ProjectExporter, CodebookImportExportService {
+public class CodebookExporter
+    implements ProjectExporter, CodebookImportExportService
+{
     private @Autowired AnnotationSchemaService annotationService;
     private @Autowired CodebookSchemaService codebookService;
     private @Autowired DocumentService documentService;
@@ -74,16 +77,20 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     private static final String CODEBOOKS_FOLDER = "/codebooks/";
     private static final String CODEBOOKS = "codebooks";
+
     @Override
     public void exportData(ProjectExportRequest aRequest, ExportedProject aExProject, File aStage)
-            throws Exception {
+        throws Exception
+    {
 
         exportCodebooks(aRequest, aExProject);
         exportCodebookAnnotations(aRequest, aExProject, aStage);
     }
 
     public void exportCodebookAnnotations(ProjectExportRequest aRequest, ExportedProject aExProject,
-            File aStage) throws IOException, UIMAException, ClassNotFoundException {
+            File aStage)
+        throws IOException, UIMAException, ClassNotFoundException
+    {
         Project project = aRequest.getProject();
 
         File codebookDir = new File(aStage.getAbsolutePath() + CODEBOOKS_FOLDER);
@@ -93,8 +100,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     public File appendCodebooks(Project project, File codebookDir)
-            throws IOException, UIMAException, ClassNotFoundException {
-        List<de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument> documents = documentService
+        throws IOException, UIMAException, ClassNotFoundException
+    {
+        List<SourceDocument> documents = documentService
                 .listSourceDocuments(project);
         List<String> codebooks = new ArrayList<>();
         for (Codebook codebok : codebookService.listCodebook(project)) {
@@ -102,10 +110,10 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         }
         boolean withHeader = true;
         File codebookFile = new File(codebookDir, project.getName() + CodebookConst.CODEBOOK_EXT);
-        for (de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument sourceDocument : documents) {
+        for (SourceDocument sourceDocument : documents) {
             boolean withText = true;// do not write the text for each annotation document
-            for (de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument annotationDocument : 
-                documentService.listAnnotationDocuments(sourceDocument)) {
+            for (AnnotationDocument annotationDocument : documentService
+                    .listAnnotationDocuments(sourceDocument)) {
                 if (userRepository.get(annotationDocument.getUser()) != null
                         && !annotationDocument.getState().equals(AnnotationDocumentState.NEW)
                         && !annotationDocument.getState().equals(AnnotationDocumentState.IGNORE)) {
@@ -131,7 +139,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         return codebookFile;
     }
 
-    private void exportCodebooks(ProjectExportRequest aRequest, ExportedProject aExProject) {
+    private void exportCodebooks(ProjectExportRequest aRequest, ExportedProject aExProject)
+    {
         List<ExportedCodebook> exportedCodebooks = new ArrayList<>();
         for (Codebook codebook : codebookService.listCodebook(aRequest.getProject())) {
             ExportedCodebook exLayer = new ExportedCodebook();
@@ -176,15 +185,19 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     @Override
     public void importData(ProjectImportRequest aRequest, Project aProject,
-            ExportedProject aExProject, ZipFile aZip) throws Exception {
+            ExportedProject aExProject, ZipFile aZip)
+        throws Exception
+    {
         // TODO COMING SOON
 
     }
-    
+
     @Override
     public File exportCodebookDocument(SourceDocument aDocument, String aUser, String aFileName,
             Mode aMode, File aExportDir, boolean aWithHeaders, boolean aWithText,
-            List<String> aCodebooks) throws UIMAException, IOException, ClassNotFoundException {
+            List<String> aCodebooks)
+        throws UIMAException, IOException, ClassNotFoundException
+    {
         File annotationFolder = casStorageService.getAnnotationFolder(aDocument);
         String serializedCasFileName;
         // for Correction, it will export the corrected document (of the logged in user)
@@ -218,11 +231,13 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
         return exportFile;
     }
-    
+
     @Override
     public File exportCodebooks(CAS cas, SourceDocument aDocument, String aFileName,
             File aExportDir, boolean aWithHeaders, boolean aWithText, List<String> aCodebooks,
-            String aAnnotator, String documentName) throws IOException, UIMAException {
+            String aAnnotator, String documentName)
+        throws IOException, UIMAException
+    {
 
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,
@@ -232,7 +247,7 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         runPipeline(cas, writer);
 
         File exportFile = new File(aFileName);
-        //FileUtils.copyFile(aExportDir.listFiles()[0], exportFile);
+        // FileUtils.copyFile(aExportDir.listFiles()[0], exportFile);
         return exportFile;
 
     }

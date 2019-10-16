@@ -56,13 +56,13 @@ public class CodebookAgreementTable
     extends Panel
 {
     private final static Logger LOG = LoggerFactory.getLogger(CodebookAgreementTable.class);
-    
+
     private static final long serialVersionUID = 571396822546125376L;
-    
+
     private RefreshingView<String> rows;
 
     private IModel<CodebookAgreementFormModel> settings;
-    
+
     public CodebookAgreementTable(String aId)
     {
         super(aId);
@@ -74,9 +74,9 @@ public class CodebookAgreementTable
         super(aId, aModel);
 
         settings = iModel;
-        
+
         setOutputMarkupId(true);
-        
+
         // This model makes sure we add a "null" dummy rater which accounts for the header columns
         // of the table.
         final IModel<List<String>> ratersAdapter = new AbstractReadOnlyModel<List<String>>()
@@ -98,7 +98,7 @@ public class CodebookAgreementTable
         rows = new DefaultRefreshingView<String>("rows", ratersAdapter)
         {
             private static final long serialVersionUID = 1L;
-            
+
             @Override
             protected void populateItem(final Item<String> aRowItem)
             {
@@ -106,13 +106,13 @@ public class CodebookAgreementTable
                 aRowItem.add(new DefaultRefreshingView<String>("cells", ratersAdapter)
                 {
                     private static final long serialVersionUID = 1L;
-                    
+
                     @Override
                     protected void populateItem(Item<String> aCellItem)
                     {
                         aCellItem.setRenderBodyOnly(true);
-                        
-                        Fragment cell; 
+
+                        Fragment cell;
                         // Content cell
                         if (aRowItem.getIndex() == 0 || aCellItem.getIndex() == 0) {
                             cell = new Fragment("cell", "th", CodebookAgreementTable.this);
@@ -121,7 +121,7 @@ public class CodebookAgreementTable
                         else {
                             cell = new Fragment("cell", "td", CodebookAgreementTable.this);
                         }
-                        
+
                         // Top-left cell
                         if (aRowItem.getIndex() == 0 && aCellItem.getIndex() == 0) {
                             cell.add(new Label("label", Model.of("")));
@@ -137,14 +137,14 @@ public class CodebookAgreementTable
                         // Upper diagonal
                         else if (aCellItem.getIndex() > aRowItem.getIndex()) {
                             AgreementResult result = CodebookAgreementTable.this.getModelObject()
-                                    .getStudy(
-                                    aRowItem.getModelObject(), aCellItem.getModelObject());
+                                    .getStudy(aRowItem.getModelObject(),
+                                            aCellItem.getModelObject());
 
                             boolean noDataRater0 = result.isAllNull(result.getCasGroupIds().get(0));
                             boolean noDataRater1 = result.isAllNull(result.getCasGroupIds().get(1));
                             int incPos = result.getIncompleteSetsByPosition().size();
                             int incLabel = result.getIncompleteSetsByLabel().size();
-                            
+
                             String label;
                             if (result.getStudy().getItemCount() == 0) {
                                 label = "no documents";
@@ -171,28 +171,25 @@ public class CodebookAgreementTable
                                 label = String.format("%.2f", result.getAgreement());
                             }
 
-                            String tooltipTitle = result.getCasGroupIds().get(0) +
-                                '/' +
-                                result.getCasGroupIds().get(1);
+                            String tooltipTitle = result.getCasGroupIds().get(0) + '/'
+                                    + result.getCasGroupIds().get(1);
 
-                            String tooltipContent = "Documents annotated:\n" +
-                                String.format("- %s: %d/%d%n",
-                                    result.getCasGroupIds().get(0),
-                                    result.getNonNullCount(result.getCasGroupIds().get(0)),
-                                    result.getStudy().getItemCount()) +
-                                String.format("- %s: %d/%d%n",
-                                    result.getCasGroupIds().get(1),
-                                    result.getNonNullCount(result.getCasGroupIds().get(1)),
-                                    result.getStudy().getItemCount()) +
-                                String.format("Distinct labels used: %d%n",
-                                    result.getStudy().getCategoryCount());
+                            String tooltipContent = "Documents annotated:\n"
+                                    + String.format("- %s: %d/%d%n", result.getCasGroupIds().get(0),
+                                            result.getNonNullCount(result.getCasGroupIds().get(0)),
+                                            result.getStudy().getItemCount())
+                                    + String.format("- %s: %d/%d%n", result.getCasGroupIds().get(1),
+                                            result.getNonNullCount(result.getCasGroupIds().get(1)),
+                                            result.getStudy().getItemCount())
+                                    + String.format("Distinct labels used: %d%n",
+                                            result.getStudy().getCategoryCount());
 
-                            Label l = new Label("label", Model.of(label)); 
+                            Label l = new Label("label", Model.of(label));
                             cell.add(l);
                             l.add(makeDownloadBehavior(aRowItem.getModelObject(),
                                     aCellItem.getModelObject()));
                             DescriptionTooltipBehavior tooltip = new DescriptionTooltipBehavior(
-                                tooltipTitle, tooltipContent);
+                                    tooltipTitle, tooltipContent);
                             tooltip.setOption("documents", (Object) null);
                             l.add(tooltip);
                             l.add(new AttributeAppender("style", "cursor: pointer", ";"));
@@ -204,25 +201,25 @@ public class CodebookAgreementTable
                                             aCellItem.getModelObject());
 
                             String label = String.format("%d/%d", result.getCompleteSetCount(),
-                                    result.getRelevantSetCount());                            
+                                    result.getRelevantSetCount());
 
                             String tooltipTitle = "Details about annotations excluded from "
                                     + "agreement calculation";
-                            
+
                             StringBuilder tooltipContent = new StringBuilder();
                             if (result.isExcludeIncomplete()) {
                                 tooltipContent.append(String.format("- Incomplete (missing): %d%n",
                                         result.getIncompleteSetsByPosition().size()));
-                                tooltipContent.append(String.format(
-                                        "- Incomplete (not labeled): %d%n", result
-                                                .getIncompleteSetsByLabel().size()));
+                                tooltipContent
+                                        .append(String.format("- Incomplete (not labeled): %d%n",
+                                                result.getIncompleteSetsByLabel().size()));
                             }
-                            tooltipContent.append(String.format("- Plurality: %d", result
-                                    .getPluralitySets().size()));
-                            
-                            Label l = new Label("label", Model.of(label)); 
+                            tooltipContent.append(String.format("- Plurality: %d",
+                                    result.getPluralitySets().size()));
+
+                            Label l = new Label("label", Model.of(label));
                             DescriptionTooltipBehavior tooltip = new DescriptionTooltipBehavior(
-                                tooltipTitle, tooltipContent.toString());
+                                    tooltipTitle, tooltipContent.toString());
                             tooltip.setOption("position", (Object) null);
                             l.add(tooltip);
                             l.add(new AttributeAppender("style", "cursor: help", ";"));
@@ -232,13 +229,13 @@ public class CodebookAgreementTable
                         else {
                             cell.add(new Label("label", Model.of("-")));
                         }
-                        
+
                         aCellItem.add(cell);
                     }
                 });
                 // Odd/even coloring is reversed here to account for the header row at index 0
-                aRowItem.add(new AttributeAppender("class", (aRowItem.getIndex() % 2 == 0) ? "odd"
-                        : "even"));
+                aRowItem.add(new AttributeAppender("class",
+                        (aRowItem.getIndex() % 2 == 0) ? "odd" : "even"));
             }
         };
         add(rows);
@@ -253,13 +250,15 @@ public class CodebookAgreementTable
             @Override
             protected void onEvent(AjaxRequestTarget aTarget)
             {
-                AJAXDownload download = new AJAXDownload() {
+                AJAXDownload download = new AJAXDownload()
+                {
                     private static final long serialVersionUID = 1L;
-                    
+
                     @Override
                     protected IResourceStream getResourceStream()
                     {
-                        return new AbstractResourceStream() {
+                        return new AbstractResourceStream()
+                        {
                             private static final long serialVersionUID = 1L;
 
                             @Override
@@ -288,8 +287,7 @@ public class CodebookAgreementTable
                             }
 
                             @Override
-                            public void close()
-                                throws IOException
+                            public void close() throws IOException
                             {
                                 // Nothing to do
                             }
@@ -300,7 +298,7 @@ public class CodebookAgreementTable
                 download.initiate(aTarget,
                         "agreement" + settings.getObject().exportFormat.getExtension());
             }
-        };      
+        };
     }
 
     private InputStream generateDebugReport(AgreementResult aResult)
@@ -309,7 +307,7 @@ public class CodebookAgreementTable
         AgreementUtils.dumpAgreementStudy(new PrintStream(buf), aResult);
         return new ByteArrayInputStream(buf.toByteArray());
     }
-    
+
     @Override
     protected void onComponentTag(ComponentTag tag)
     {

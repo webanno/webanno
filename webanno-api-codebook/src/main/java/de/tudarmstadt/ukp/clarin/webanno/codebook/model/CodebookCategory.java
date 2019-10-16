@@ -17,8 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
-
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -32,6 +30,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+
 /**
  * A persistence object for a CodebookCategory
  */
@@ -39,7 +39,7 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "codebook_category", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "name", "project" }) })
 public class CodebookCategory
-        implements Serializable
+    implements Serializable
 {
     private static final long serialVersionUID = -8410575559756091465L;
 
@@ -101,7 +101,6 @@ public class CodebookCategory
     {
         description = aDescription;
     }
-
 
     public Project getProject()
     {

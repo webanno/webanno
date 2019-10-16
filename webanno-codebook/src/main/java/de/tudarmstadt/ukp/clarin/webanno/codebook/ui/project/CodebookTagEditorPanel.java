@@ -19,9 +19,6 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
@@ -34,12 +31,15 @@ import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaPanel;
 
 public class CodebookTagEditorPanel
-        extends LambdaPanel
+    extends LambdaPanel
 {
     private static final long serialVersionUID = -3356173821217898824L;
 
@@ -48,7 +48,8 @@ public class CodebookTagEditorPanel
     private IModel<CodebookCategory> selectedCategory;
     private IModel<CodebookTag> selectedTag;
 
-    public CodebookTagEditorPanel(String aId, IModel<CodebookCategory> aCategory, IModel<CodebookTag> aTag)
+    public CodebookTagEditorPanel(String aId, IModel<CodebookCategory> aCategory,
+            IModel<CodebookTag> aTag)
     {
         super(aId, aTag);
 
@@ -61,9 +62,7 @@ public class CodebookTagEditorPanel
         Form<CodebookTag> form = new Form<>("form", CompoundPropertyModel.of(aTag));
         add(form);
 
-        form.add(new TextField<String>("name")
-                .add(new TagExistsValidator())
-                .setRequired(true));
+        form.add(new TextField<String>("name").add(new TagExistsValidator()).setRequired(true));
         form.add(new TextArea<String>("description"));
 
         form.add(new LambdaAjaxButton<>("save", this::actionSave));
@@ -72,7 +71,8 @@ public class CodebookTagEditorPanel
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
     }
 
-    private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm) {
+    private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm)
+    {
         selectedTag.getObject().setCategory(selectedCategory.getObject());
         codebookSchemaService.createCodebookTag(selectedTag.getObject());
 
@@ -80,12 +80,14 @@ public class CodebookTagEditorPanel
         aTarget.add(getPage());
     }
 
-    private void actionDelete(AjaxRequestTarget aTarget) {
+    private void actionDelete(AjaxRequestTarget aTarget)
+    {
         codebookSchemaService.removeCodebookTag(selectedTag.getObject());
         actionCancel(aTarget);
     }
 
-    private void actionCancel(AjaxRequestTarget aTarget) {
+    private void actionCancel(AjaxRequestTarget aTarget)
+    {
         selectedTag.setObject(null);
 
         // Reload whole page because master panel also needs to be reloaded.
@@ -93,7 +95,7 @@ public class CodebookTagEditorPanel
     }
 
     private class TagExistsValidator
-            implements IValidator<String>
+        implements IValidator<String>
     {
         private static final long serialVersionUID = 6697292531559511021L;
 
@@ -103,7 +105,8 @@ public class CodebookTagEditorPanel
             String newName = aValidatable.getValue();
             String oldName = aValidatable.getModel().getObject();
             if (!StringUtils.equals(newName, oldName) && isNotBlank(newName)
-                    && codebookSchemaService.existsCodebookTag(newName, selectedCategory.getObject())) {
+                    && codebookSchemaService.existsCodebookTag(newName,
+                            selectedCategory.getObject())) {
                 aValidatable.error(new ValidationError(
                         "Another tag with the same name exists. Please try a different name"));
             }

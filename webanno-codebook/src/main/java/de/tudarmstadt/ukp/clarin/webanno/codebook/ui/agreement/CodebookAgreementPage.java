@@ -96,7 +96,9 @@ import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.page.ApplicationPageBase;
 
 @MountPath("/codebookagreement.html")
-public class CodebookAgreementPage extends ApplicationPageBase {
+public class CodebookAgreementPage
+    extends ApplicationPageBase
+{
     private static final long serialVersionUID = 5333662917247971912L;
 
     private static final Logger LOG = LoggerFactory.getLogger(CodebookAgreementPage.class);
@@ -110,13 +112,15 @@ public class CodebookAgreementPage extends ApplicationPageBase {
     private ProjectSelectionForm projectSelectionForm;
     private CodebookAgreementForm agreementForm;
 
-    public CodebookAgreementPage() {
+    public CodebookAgreementPage()
+    {
         super();
 
         commonInit();
     }
 
-    public CodebookAgreementPage(final PageParameters aPageParameters) {
+    public CodebookAgreementPage(final PageParameters aPageParameters)
+    {
         super(aPageParameters);
 
         commonInit();
@@ -138,18 +142,21 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             }
 
             projectSelectionForm.selectProject(project.get());
-        } else {
+        }
+        else {
             error("Project [" + projectParameter + "] does not exist");
             setResponsePage(getApplication().getHomePage());
         }
     }
 
-    private void commonInit() {
+    private void commonInit()
+    {
         add(projectSelectionForm = new ProjectSelectionForm("projectSelectionForm"));
         add(agreementForm = new CodebookAgreementForm("agreementForm"));
     }
 
-    private void updateAgreementTable(AjaxRequestTarget aTarget, boolean aClearCache) {
+    private void updateAgreementTable(AjaxRequestTarget aTarget, boolean aClearCache)
+    {
         try {
             if (aClearCache) {
                 cachedCASes = null;
@@ -158,7 +165,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             if (aTarget != null && agreementForm.agreementTable2.isVisibleInHierarchy()) {
                 aTarget.add(agreementForm.agreementTable2);
             }
-        } catch (Throwable e) {
+        }
+        catch (Throwable e) {
             LOG.error("Error updating agreement table", e);
             error("Error updating agreement table: " + ExceptionUtils.getRootCauseMessage(e));
             if (aTarget != null) {
@@ -179,7 +187,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
     /**
      * Get the finished CASes used to compute agreement.
      */
-    private Map<String, List<CAS>> getCases() {
+    private Map<String, List<CAS>> getCases()
+    {
         // Avoid reloading the CASes when switching features.
         if (cachedCASes != null) {
             return cachedCASes;
@@ -217,7 +226,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                                     annotationDocument.getDocument().getName());
                             FSUtil.setFeature(dmd, "collectionId",
                                     annotationDocument.getProject().getName());
-                        } catch (Exception e) {
+                        }
+                        catch (Exception e) {
                             LOG.error("Unable to load data", e);
                             error("Unable to load data: " + ExceptionUtils.getRootCauseMessage(e));
                         }
@@ -236,7 +246,9 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         return cachedCASes;
     }
 
-    private class CodebookAgreementForm extends Form<CodebookAgreementFormModel> {
+    private class CodebookAgreementForm
+        extends Form<CodebookAgreementFormModel>
+    {
         private static final long serialVersionUID = -1L;
 
         private ListChoice<CodebookFeature> featureList;
@@ -249,7 +261,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
 
         private CheckBox excludeIncomplete;
 
-        public CodebookAgreementForm(String id) {
+        public CodebookAgreementForm(String id)
+        {
             super(id, new CompoundPropertyModel<>(new CodebookAgreementFormModel()));
 
             setOutputMarkupId(true);
@@ -258,11 +271,13 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             add(new Label("name",
                     PropertyModel.of(projectSelectionForm.getModel(), "project.name")));
 
-            WebMarkupContainer agreementResults = new WebMarkupContainer("agreementResults") {
+            WebMarkupContainer agreementResults = new WebMarkupContainer("agreementResults")
+            {
                 private static final long serialVersionUID = -2465552557800612807L;
 
                 @Override
-                protected void onConfigure() {
+                protected void onConfigure()
+                {
                     super.onConfigure();
 
                     setVisible(featureList.getModelObject() != null);
@@ -281,17 +296,18 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                     new EnumChoiceRenderer<>(CodebookAgreementPage.this)));
             addUpdateAgreementTableBehavior(measureDropDown);
 
-
             agreementResults.add(new DropDownChoice<AgreementReportExportFormat>("exportFormat",
                     asList(AgreementReportExportFormat.values()),
                     new EnumChoiceRenderer<>(CodebookAgreementPage.this))
                             .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
 
-            add(excludeIncomplete = new CheckBox("excludeIncomplete") {
+            add(excludeIncomplete = new CheckBox("excludeIncomplete")
+            {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected void onConfigure() {
+                protected void onConfigure()
+                {
                     super.onConfigure();
 
                     setEnabled(CodebookAgreementForm.this.getModelObject().measure
@@ -300,28 +316,32 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             });
             addUpdateAgreementTableBehavior(excludeIncomplete);
 
-            add(featureList = new ListChoice<CodebookFeature>("feature") {
+            add(featureList = new ListChoice<CodebookFeature>("feature")
+            {
                 private static final long serialVersionUID = 1L;
 
                 {
                     setOutputMarkupId(true);
 
-                    setChoices(new LoadableDetachableModel<List<CodebookFeature>>() {
+                    setChoices(new LoadableDetachableModel<List<CodebookFeature>>()
+                    {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected List<CodebookFeature> load() {
-                            List<CodebookFeature> features = codebookService
-                                    .listCodebookFeature(
-                                            (projectSelectionForm.getModelObject().project));
+                        protected List<CodebookFeature> load()
+                        {
+                            List<CodebookFeature> features = codebookService.listCodebookFeature(
+                                    (projectSelectionForm.getModelObject().project));
                             return features;
                         }
                     });
-                    setChoiceRenderer(new ChoiceRenderer<CodebookFeature>() {
+                    setChoiceRenderer(new ChoiceRenderer<CodebookFeature>()
+                    {
                         private static final long serialVersionUID = -3370671999669664776L;
 
                         @Override
-                        public Object getDisplayValue(CodebookFeature aObject) {
+                        public Object getDisplayValue(CodebookFeature aObject)
+                        {
                             return aObject.getCodebook().getUiName() + " : " + aObject.getUiName();
                         }
                     });
@@ -329,17 +349,20 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                 }
 
                 @Override
-                protected CharSequence getDefaultChoice(String aSelectedValue) {
+                protected CharSequence getDefaultChoice(String aSelectedValue)
+                {
                     return "";
                 }
             });
             addUpdateAgreementTableBehavior(featureList);
             agreementResults.add(agreementTable2 = new CodebookAgreementTable("agreementTable",
-                    getModel(), new LoadableDetachableModel<PairwiseAnnotationResult>() {
+                    getModel(), new LoadableDetachableModel<PairwiseAnnotationResult>()
+                    {
                         private static final long serialVersionUID = -5400505010677053446L;
 
                         @Override
-                        protected PairwiseAnnotationResult load() {
+                        protected PairwiseAnnotationResult load()
+                        {
                             CodebookFeature feature = featureList.getModelObject();
 
                             // Do not do any agreement if no feature has been selected yet.
@@ -366,23 +389,28 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                         }
                     }));
 
-            exportAll = new AjaxButton("exportAll") {
+            exportAll = new AjaxButton("exportAll")
+            {
                 private static final long serialVersionUID = 3908727116180563330L;
 
                 private AJAXDownload download;
 
                 {
-                    download = new AJAXDownload() {
+                    download = new AJAXDownload()
+                    {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected IResourceStream getResourceStream() {
-                            return new AbstractResourceStream() {
+                        protected IResourceStream getResourceStream()
+                        {
+                            return new AbstractResourceStream()
+                            {
                                 private static final long serialVersionUID = 1L;
 
                                 @Override
                                 public InputStream getInputStream()
-                                        throws ResourceStreamNotFoundException {
+                                    throws ResourceStreamNotFoundException
+                                {
                                     CodebookFeature feature = featureList.getModelObject();
 
                                     // Do not do any agreement if no feature has been selected yet.
@@ -400,15 +428,16 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                                             .getModelObject();
 
                                     DiffResult diff = CasDiff.doDiff(
-                                            asList(feature.getCodebook().getName()), adapters,
-                                            null, casMap);
+                                            asList(feature.getCodebook().getName()), adapters, null,
+                                            casMap);
 
                                     AgreementResult agreementResult = AgreementUtils.makeStudy(diff,
                                             feature.getCodebook().getName(), feature.getName(),
                                             pref.excludeIncomplete, casMap);
                                     try {
                                         return AgreementUtils.generateCsvReport(agreementResult);
-                                    } catch (Exception e) {
+                                    }
+                                    catch (Exception e) {
                                         // FIXME Is there some better error handling here?
                                         LOG.error("Unable to generate report", e);
                                         throw new ResourceStreamNotFoundException(e);
@@ -416,7 +445,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                                 }
 
                                 @Override
-                                public void close() throws IOException {
+                                public void close() throws IOException
+                                {
                                     // Nothing to do
                                 }
                             };
@@ -428,14 +458,16 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                 }
 
                 @Override
-                protected void onConfigure() {
+                protected void onConfigure()
+                {
                     super.onConfigure();
 
                     setVisible(featureList.getModelObject() != null);
                 }
 
                 @Override
-                protected void onSubmit(AjaxRequestTarget aTarget) {
+                protected void onSubmit(AjaxRequestTarget aTarget)
+                {
                     download.initiate(aTarget,
                             "agreement" + CodebookAgreementForm.this.getModelObject().exportFormat
                                     .getExtension());
@@ -445,19 +477,23 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         }
 
         @Override
-        protected void onConfigure() {
+        protected void onConfigure()
+        {
             super.onConfigure();
 
             ProjectSelectionModel model = projectSelectionForm.getModelObject();
             setVisible(model != null && model.project != null);
         }
 
-        private void addUpdateAgreementTableBehavior(Component aComponent) {
-            aComponent.add(new OnChangeAjaxBehavior() {
+        private void addUpdateAgreementTableBehavior(Component aComponent)
+        {
+            aComponent.add(new OnChangeAjaxBehavior()
+            {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget aTarget) {
+                protected void onUpdate(AjaxRequestTarget aTarget)
+                {
                     // We may get errors when loading the JCases but at that time we can no longer
                     // add the feedback panel to the cycle, so let's do it here.
                     aTarget.add(getFeedbackPanel());
@@ -479,7 +515,9 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         }
     }
 
-    static public class CodebookAgreementFormModel implements Serializable {
+    static public class CodebookAgreementFormModel
+        implements Serializable
+    {
         private static final long serialVersionUID = -1L;
 
         public CodebookFeature feature;
@@ -494,7 +532,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
 
         public AgreementReportExportFormat exportFormat = AgreementReportExportFormat.CSV;
 
-        public void setMeasure(ConcreteAgreementMeasure aMeasure) {
+        public void setMeasure(ConcreteAgreementMeasure aMeasure)
+        {
             measure = aMeasure;
 
             // Did the null-support status change?
@@ -506,7 +545,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
                     // Is locked, so save what we had before and lock it
                     savedExcludeIncomplete = excludeIncomplete;
                     excludeIncomplete = true;
-                } else {
+                }
+                else {
                     // Is not locked, so restore what we had before
                     excludeIncomplete = savedExcludeIncomplete;
                 }
@@ -516,15 +556,19 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         // This method must be here so Wicket sets the "measure" value through the
         // setter instead
         // of using field injection
-        public ConcreteAgreementMeasure getMeasure() {
+        public ConcreteAgreementMeasure getMeasure()
+        {
             return measure;
         }
     }
 
-    private class ProjectSelectionForm extends Form<ProjectSelectionModel> {
+    private class ProjectSelectionForm
+        extends Form<ProjectSelectionModel>
+    {
         private static final long serialVersionUID = -1L;
 
-        public ProjectSelectionForm(String id) {
+        public ProjectSelectionForm(String id)
+        {
             super(id, new CompoundPropertyModel<>(new ProjectSelectionModel()));
 
             ListChoice<Project> projectList = new OverviewListChoice<>("project");
@@ -535,12 +579,14 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             add(projectList);
         }
 
-        private void onSelectionChanged(AjaxRequestTarget aTarget) {
+        private void onSelectionChanged(AjaxRequestTarget aTarget)
+        {
             selectProject(getModelObject().project);
             aTarget.add(agreementForm);
         }
 
-        private List<Project> listAllowedProjects() {
+        private List<Project> listAllowedProjects()
+        {
             List<Project> allowedProject = new ArrayList<>();
 
             User user = userRepository.getCurrentUser();
@@ -555,7 +601,8 @@ public class CodebookAgreementPage extends ApplicationPageBase {
             return allowedProject;
         }
 
-        private void selectProject(Project aProject) {
+        private void selectProject(Project aProject)
+        {
             getModelObject().project = aProject;
             agreementForm.setModelObject(new CodebookAgreementFormModel());
 
@@ -566,16 +613,20 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         }
     }
 
-    Model<Project> projectModel = new Model<Project>() {
+    Model<Project> projectModel = new Model<Project>()
+    {
         private static final long serialVersionUID = -6394439155356911110L;
 
         @Override
-        public Project getObject() {
+        public Project getObject()
+        {
             return projectSelectionForm.getModelObject().project;
         }
     };
 
-    static public class ProjectSelectionModel implements Serializable {
+    static public class ProjectSelectionModel
+        implements Serializable
+    {
         protected int totalDocuments;
 
         private static final long serialVersionUID = -1L;
@@ -585,14 +636,16 @@ public class CodebookAgreementPage extends ApplicationPageBase {
         public Map<String, Integer> annotatorsProgressInPercent = new TreeMap<>();
     }
 
-    private Optional<Project> getProjectFromParameters(StringValue projectParam) {
+    private Optional<Project> getProjectFromParameters(StringValue projectParam)
+    {
         if (projectParam == null || projectParam.isEmpty()) {
             return Optional.empty();
         }
 
         try {
             return Optional.of(projectService.getProject(projectParam.toLong()));
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return Optional.empty();
         }
     }
