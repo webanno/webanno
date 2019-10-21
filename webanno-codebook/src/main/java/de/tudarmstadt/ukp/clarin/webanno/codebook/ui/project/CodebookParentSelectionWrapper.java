@@ -17,6 +17,7 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +28,10 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 
-public class CodebookParentSelectionWrapper
+public class CodebookParentSelectionWrapper implements Serializable
 {
 
+    private static final long serialVersionUID = 7597507351396638287L;
     private DropDownChoice<Codebook> parentSelection;
     private Set<Codebook> allParents;
 
