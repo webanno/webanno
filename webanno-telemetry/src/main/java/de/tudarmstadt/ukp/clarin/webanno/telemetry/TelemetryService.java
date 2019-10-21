@@ -39,4 +39,6 @@ public interface TelemetryService
     List<TelemetrySettings> listSettings();
 
     Optional<TelemetrySupport> getTelemetrySuppport(String aSupport);
+
+    DeploymentMode getDeploymentMode();
 }

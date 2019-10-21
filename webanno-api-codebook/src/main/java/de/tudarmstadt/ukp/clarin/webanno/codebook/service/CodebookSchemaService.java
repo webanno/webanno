@@ -30,11 +30,10 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 /**
- * This interface contains methods which are related to CodebookCategory, CodebookTag and Type for
- * the annotation project.
+ * This interface contains methods which are related to CodebookCategory,
+ * CodebookTag and Type for the annotation project.
  */
-public interface CodebookSchemaService
-{
+public interface CodebookSchemaService {
     String SERVICE_NAME = "codebookService";
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
@@ -43,8 +42,8 @@ public interface CodebookSchemaService
     void createCodebookFeature(CodebookFeature aFeature);
 
     /**
-     * creates a {@link CodebookTag} for a given {@link CodebookCategory}. Combination of
-     * {@code tag name} and {@code category name} should be unique
+     * creates a {@link CodebookTag} for a given {@link CodebookCategory}.
+     * Combination of {@code tag name} and {@code category name} should be unique
      *
      * @param aTag
      *            the tag.

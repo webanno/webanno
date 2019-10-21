@@ -21,6 +21,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +29,10 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +57,8 @@ public abstract class CodebookEditorPanel
     extends Panel
 {
     /**
-     * Function to return tooltip using jquery Docs for the JQuery tooltip widget that we configure
-     * below: https://api.jqueryui.com/tooltip/
+     * Function to return tooltip using jquery Docs for the JQuery tooltip widget
+     * that we configure below: https://api.jqueryui.com/tooltip/
      */
     protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
             + "'<div class=\"tooltip-title\">'+($(this).text() "
@@ -82,7 +85,12 @@ public abstract class CodebookEditorPanel
 
         setOutputMarkupId(true);
         add(CodebookLayoutCssResourceBehavior.get());
+
         codebookEditorModel = aModel.getObject();
+        // create the form
+        IModel<Collection<Codebook>> codebooksToAdeModel = new CollectionModel<>(new ArrayList<>());
+        Form<Collection<Codebook>> form = new Form<>("form", codebooksToAdeModel);
+        add(form);
 
         // add but don't init the tree
         codebookTreePanel = new CodebookTreePanel("codebookTreePanel", aModel);
@@ -95,8 +103,7 @@ public abstract class CodebookEditorPanel
         return (CodebookEditorModel) getDefaultModelObject();
     }
 
-    public String getExistingCode(Codebook codebook)
-    {
+    public String getExistingCode(Codebook codebook) {
         CodebookAdapter adapter = new CodebookAdapter(codebook);
         CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
         CAS cas = null;
@@ -256,7 +263,7 @@ public abstract class CodebookEditorPanel
         }
     }
 
-    // Overriden in CurationPanel
+    // Overridden in CurationPanel
     protected abstract void onJCasUpdate(Long aTimeStamp);
 
     protected abstract CAS onGetJCas() throws IOException;

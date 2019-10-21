@@ -120,7 +120,6 @@ public class CodebookCurationPanel
                     @Override
                     public void onClick(AjaxRequestTarget aTarget)
                     {
-
                         onShowSuggestions(aTarget, curationsModel.getFeature());
                     }
                 };
@@ -390,12 +389,12 @@ public class CodebookCurationPanel
 
     protected void onShowSuggestions(AjaxRequestTarget aTarget, CodebookFeature aFeature)
     {
-        // Overriden in CurationPanel
+        // Overridden in CurationPanel
     }
 
     protected void onJcasUpdate(Long aTimeStamp)
     {
-        // Overriden in CurationPanel
+        // Overridden in CurationPanel
     }
 
 }

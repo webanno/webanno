@@ -42,6 +42,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.util.CasCreationUtils;
 import org.dkpro.core.testing.DkproTestContext;
+
 import org.junit.Rule;
 import org.junit.Test;
 

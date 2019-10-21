@@ -33,9 +33,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.ListPanel_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 
-public class CodebookTagSelectionPanel
-    extends ListPanel_ImplBase
-{
+public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
     private static final long serialVersionUID = -1L;
 
     private @SpringBean CodebookSchemaService codebookSchemaService;
@@ -44,8 +42,7 @@ public class CodebookTagSelectionPanel
     private IModel<CodebookCategory> selectedTagSet;
 
     public CodebookTagSelectionPanel(String id, IModel<CodebookCategory> aTagset,
-            IModel<CodebookTag> aTag)
-    {
+            IModel<CodebookTag> aTag) {
         super(id, aTagset);
 
         setOutputMarkupId(true);
@@ -63,12 +60,10 @@ public class CodebookTagSelectionPanel
         add(new LambdaAjaxLink("create", this::actionCreate));
     }
 
-    private List<CodebookTag> listTags()
-    {
+    private List<CodebookTag> listTags() {
         if (selectedTagSet.getObject() != null) {
             return codebookSchemaService.listTags(selectedTagSet.getObject());
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }

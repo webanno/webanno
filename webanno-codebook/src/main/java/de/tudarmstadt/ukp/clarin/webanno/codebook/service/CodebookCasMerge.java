@@ -23,12 +23,12 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.createToken;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.exists;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.getAddr;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectAt;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectSentences;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectTokens;
 import static org.apache.uima.cas.impl.Serialization.deserializeCASComplete;
 import static org.apache.uima.cas.impl.Serialization.serializeCASComplete;
 import static org.apache.uima.fit.util.CasUtil.getType;
+import static org.apache.uima.fit.util.CasUtil.selectAt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +68,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 /**
  * Do a merge CAS out of multiple user annotations
  */
-public class CodebookCasMerge
-{
+public class CodebookCasMerge {
     private static final Logger LOG = LoggerFactory.getLogger(CodebookCasMerge.class);
 
     private final CodebookSchemaService schemaService;
@@ -83,8 +82,7 @@ public class CodebookCasMerge
     }
 
     public CodebookCasMerge(CodebookSchemaService aSchemaService,
-            ApplicationEventPublisher aEventPublisher)
-    {
+            ApplicationEventPublisher aEventPublisher) {
         schemaService = aSchemaService;
         eventPublisher = aEventPublisher;
     }
@@ -122,10 +120,12 @@ public class CodebookCasMerge
     }
 
     /**
-     * Using {@code DiffResult}, determine the annotations to be deleted from the randomly generated
-     * MergeCase. The initial Merge CAs is stored under a name {@code CurationPanel#CURATION_USER}.
+     * Using {@code DiffResult}, determine the annotations to be deleted from the
+     * randomly generated MergeCase. The initial Merge CAs is stored under a name
+     * {@code CurationPanel#CURATION_USER}.
      * <p>
-     * Any similar annotations stacked in a {@code CasDiff2.Position} will be assumed a difference
+     * Any similar annotations stacked in a {@code CasDiff2.Position} will be
+     * assumed a difference
      * <p>
      * Any two annotation with different value will be assumed a difference
      * 
@@ -149,9 +149,8 @@ public class CodebookCasMerge
             return;
         }
 
-        // Set up a cache for resolving type to layer to avoid hammering the DB as we process each
-        // position
-
+        // Set up a cache for resolving type to layer to avoid hammering the DB as we
+        // process each position
         Map<String, Codebook> type2code = aDiff.getPositions().stream().map(Position::getType)
                 .distinct()
                 .map(type -> schemaService.getCodeBook(type, aTargetDocument.getProject()))
@@ -185,8 +184,7 @@ public class CodebookCasMerge
                     mergeCodebookAnnotation(aTargetDocument, aTargetUsername,
                             type2code.get(position.getType()), aTargetCas, sourceFS, false);
                     LOG.trace(" `-> merged annotation with agreement");
-                }
-                catch (AnnotationException e) {
+                } catch (AnnotationException e) {
                     LOG.trace(" `-> not merged annotation: {}", e.getMessage());
                     messages.add(LogMessage.error(this, "%s", e.getMessage()));
                 }
@@ -203,8 +201,8 @@ public class CodebookCasMerge
     private static void clearAnnotations(CAS aCas) throws UIMAException
     {
         CAS backup = createCas();
-
-        // Copy the CAS - basically we do this just to keep the full type system information
+        // Copy the CAS - basically we do this just to keep the full type system
+        // information
         CASCompleteSerializer serializer = serializeCASComplete((CASImpl) aCas);
         deserializeCASComplete(serializer, (CASImpl) backup);
 
@@ -214,8 +212,7 @@ public class CodebookCasMerge
         // Copy over essential information
         if (exists(backup, getType(backup, DocumentMetaData.class))) {
             copyDocumentMetadata(backup, aCas);
-        }
-        else {
+        } else {
             WebAnnoCasUtil.createDocumentMetadata(aCas);
         }
         aCas.setDocumentLanguage(backup.getDocumentLanguage()); // DKPro Core Issue 435
@@ -235,8 +232,7 @@ public class CodebookCasMerge
     /**
      * Do not check on agreement on Position and SOfa feature - already checked
      */
-    private static boolean isBasicFeature(Feature aFeature)
-    {
+    private static boolean isBasicFeature(Feature aFeature) {
         // FIXME The two parts of this OR statement seem to be redundant. Also the order
         // of the check should be changes such that equals is called on the constant.
         return aFeature.getName().equals(CAS.FEATURE_FULL_NAME_SOFA)
@@ -246,8 +242,7 @@ public class CodebookCasMerge
     /**
      * Return true if these two annotations agree on every non slot features
      */
-    private static boolean isSameAnno(AnnotationFS aFs1, AnnotationFS aFs2)
-    {
+    private static boolean isSameAnno(AnnotationFS aFs1, AnnotationFS aFs2) {
         // Check offsets (because they are excluded by shouldIgnoreFeatureOnMerge())
         if (aFs1.getBegin() != aFs2.getBegin() || aFs1.getEnd() != aFs2.getEnd()) {
             return false;
@@ -272,8 +267,7 @@ public class CodebookCasMerge
     /**
      * Get the feature value of this {@code Feature} on this annotation
      */
-    private static Object getFeatureValue(FeatureStructure aFS, Feature aFeature)
-    {
+    private static Object getFeatureValue(FeatureStructure aFS, Feature aFeature) {
         switch (aFeature.getRange().getName()) {
         case CAS.TYPE_NAME_STRING:
             return aFS.getFeatureValueAsString(aFeature);
@@ -304,8 +298,7 @@ public class CodebookCasMerge
     }
 
     private void copyFeatures(SourceDocument aDocument, String aUsername, CodebookAdapter aAdapter,
-            Codebook aCodebook, FeatureStructure aTargetFS, FeatureStructure aSourceFs)
-    {
+            Codebook aCodebook, FeatureStructure aTargetFS, FeatureStructure aSourceFs) {
 
         CodebookFeature feature = schemaService.listCodebookFeature(aCodebook).get(0);
 
@@ -344,6 +337,10 @@ public class CodebookCasMerge
         }
 
         CodebookAdapter adapter = new CodebookAdapter(aCodebook);
+        // AnnotationFS existingAnnos = CasUtil.selectSingleAt(aTargetCas,
+        // aSourceFs.getType(),
+        // aSourceFs.getBegin(), aSourceFs.getEnd());
+
         List<AnnotationFS> existingAnnos = selectAt(aTargetCas, aSourceFs.getType(),
                 aSourceFs.getBegin(), aSourceFs.getEnd());
         if (existingAnnos.isEmpty()) {

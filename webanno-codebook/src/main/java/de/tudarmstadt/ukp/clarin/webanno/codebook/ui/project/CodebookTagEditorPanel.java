@@ -100,8 +100,7 @@ public class CodebookTagEditorPanel
         private static final long serialVersionUID = 6697292531559511021L;
 
         @Override
-        public void validate(IValidatable<String> aValidatable)
-        {
+        public void validate(IValidatable<String> aValidatable) {
             String newName = aValidatable.getValue();
             String oldName = aValidatable.getModel().getObject();
             if (!StringUtils.equals(newName, oldName) && isNotBlank(newName)

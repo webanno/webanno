@@ -38,31 +38,28 @@ public class ImportUtil {
         exLayer.setProjectName(aCodebook.getProject().getName());
         exLayer.setUiName(aCodebook.getUiName());
 
-        List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature> exFeatures
-                = new ArrayList<>();
+        List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature> exFeatures =
+                new ArrayList<>();
         for (CodebookFeature feature : aCodebookService.listCodebookFeature(aCodebook)) {
-            de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature exFeature = 
+            de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature exFeature =
                     new de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebookFeature();
             exFeature.setDescription(feature.getDescription());
             exFeature.setName(feature.getName());
             exFeature.setProjectName(feature.getProject().getName());
             exFeature.setType(feature.getType());
             exFeature.setUiName(feature.getUiName());
-            
+
             if (feature.getCategory() != null) {
                 CodebookCategory category = feature.getCategory();
-                ExportedTagSet exTagSet = 
-                        new ExportedTagSet();
+                ExportedTagSet exTagSet = new ExportedTagSet();
                 exTagSet.setDescription(category.getDescription());
                 exTagSet.setLanguage(category.getLanguage());
                 exTagSet.setName(category.getName());
                 exTagSet.setCreateTag(category.isCreateTag());
 
-                List<ExportedTag> exportedTags = 
-                        new ArrayList<>();
+                List<ExportedTag> exportedTags = new ArrayList<>();
                 for (CodebookTag tag : aCodebookService.listTags(category)) {
-                    ExportedTag exTag = 
-                            new ExportedTag();
+                    ExportedTag exTag = new ExportedTag();
                     exTag.setDescription(tag.getDescription());
                     exTag.setName(tag.getName());
                     exportedTags.add(exTag);
