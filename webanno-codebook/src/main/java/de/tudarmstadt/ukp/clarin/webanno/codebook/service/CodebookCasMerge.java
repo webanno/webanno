@@ -45,7 +45,6 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.cas.impl.CASCompleteSerializer;
 import org.apache.uima.cas.impl.CASImpl;
 import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.fit.util.CasUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -77,7 +76,8 @@ public class CodebookCasMerge {
 
     private boolean mergeIncompleteAnnotations = false;
 
-    public CodebookCasMerge(CodebookSchemaService aSchemaService) {
+    public CodebookCasMerge(CodebookSchemaService aSchemaService)
+    {
         this(aSchemaService, null);
     }
 
@@ -87,15 +87,18 @@ public class CodebookCasMerge {
         eventPublisher = aEventPublisher;
     }
 
-    public void setMergeIncompleteAnnotations(boolean aMergeIncompleteAnnotations) {
+    public void setMergeIncompleteAnnotations(boolean aMergeIncompleteAnnotations)
+    {
         mergeIncompleteAnnotations = aMergeIncompleteAnnotations;
     }
 
-    public boolean isMergeIncompleteAnnotations() {
+    public boolean isMergeIncompleteAnnotations()
+    {
         return mergeIncompleteAnnotations;
     }
 
-    private boolean shouldMerge(DiffResult aDiff, ConfigurationSet cfgs) {
+    private boolean shouldMerge(DiffResult aDiff, ConfigurationSet cfgs)
+    {
         boolean stacked = cfgs.getConfigurations().stream().filter(Configuration::isStacked)
                 .findAny().isPresent();
         if (stacked) {
@@ -132,12 +135,13 @@ public class CodebookCasMerge {
      *            a map of {@code CAS}s for each users and the random merge
      */
     public void reMergeCas(DiffResult aDiff, SourceDocument aTargetDocument, String aTargetUsername,
-            CAS aTargetCas, Map<String, CAS> aCases) throws AnnotationException, UIMAException {
+            CAS aTargetCas, Map<String, CAS> aCases)
+        throws AnnotationException, UIMAException
+    {
 
         List<LogMessage> messages = new ArrayList<>();
 
-        // Remove any annotations from the target CAS - keep type system, sentences and
-        // tokens
+        // Remove any annotations from the target CAS - keep type system, sentences and tokens
         clearAnnotations(aTargetCas);
 
         // If there is nothing to merge, bail out
@@ -146,9 +150,7 @@ public class CodebookCasMerge {
         }
 
         // Set up a cache for resolving type to layer to avoid hammering the DB as we
-        // process each
-        // position
-
+        // process each position
         Map<String, Codebook> type2code = aDiff.getPositions().stream().map(Position::getType)
                 .distinct()
                 .map(type -> schemaService.getCodeBook(type, aTargetDocument.getProject()))
@@ -196,9 +198,9 @@ public class CodebookCasMerge {
 
     }
 
-    private static void clearAnnotations(CAS aCas) throws UIMAException {
+    private static void clearAnnotations(CAS aCas) throws UIMAException
+    {
         CAS backup = createCas();
-
         // Copy the CAS - basically we do this just to keep the full type system
         // information
         CASCompleteSerializer serializer = serializeCASComplete((CASImpl) aCas);
@@ -289,8 +291,9 @@ public class CodebookCasMerge {
         }
     }
 
-    private static boolean existsSameAt(CAS aCas, AnnotationFS aFs) {
-        return CasUtil.selectAt(aCas, aFs.getType(), aFs.getBegin(), aFs.getEnd()).stream()
+    private static boolean existsSameAt(CAS aCas, AnnotationFS aFs)
+    {
+        return selectAt(aCas, aFs.getType(), aFs.getBegin(), aFs.getEnd()).stream()
                 .filter(cand -> isSameAnno(aFs, cand)).findAny().isPresent();
     }
 
@@ -316,7 +319,8 @@ public class CodebookCasMerge {
 
     }
 
-    private static boolean shouldIgnoreFeatureOnMerge(FeatureStructure aFS, Feature aFeature) {
+    private static boolean shouldIgnoreFeatureOnMerge(FeatureStructure aFS, Feature aFeature)
+    {
         return !WebAnnoCasUtil.isPrimitiveType(aFeature.getRange()) || isBasicFeature(aFeature)
                 || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN)
                 || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END);
@@ -324,7 +328,9 @@ public class CodebookCasMerge {
 
     public CasMergeOpertationResult mergeCodebookAnnotation(SourceDocument aDocument,
             String aUsername, Codebook aCodebook, CAS aTargetCas, AnnotationFS aSourceFs,
-            boolean aAllowStacking) throws AnnotationException {
+            boolean aAllowStacking)
+        throws AnnotationException
+    {
         if (existsSameAt(aTargetCas, aSourceFs)) {
             throw new AlreadyMergedException(
                     "The annotation already exists in the target document.");
@@ -337,7 +343,6 @@ public class CodebookCasMerge {
 
         List<AnnotationFS> existingAnnos = selectAt(aTargetCas, aSourceFs.getType(),
                 aSourceFs.getBegin(), aSourceFs.getEnd());
-
         if (existingAnnos.isEmpty()) {
             adapter.add(aTargetCas);
 

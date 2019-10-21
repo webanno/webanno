@@ -39,7 +39,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 @Table(name = "codebook_category", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "name", "project" }) })
 public class CodebookCategory
-        implements Serializable
+    implements Serializable
 {
     private static final long serialVersionUID = -8410575559756091465L;
 
@@ -101,7 +101,6 @@ public class CodebookCategory
     {
         description = aDescription;
     }
-
 
     public Project getProject()
     {

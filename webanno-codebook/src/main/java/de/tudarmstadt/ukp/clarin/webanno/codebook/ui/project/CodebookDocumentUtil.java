@@ -27,8 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,14 +42,16 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 
-public class CodebookDocumentUtil {
+public class CodebookDocumentUtil
+{
     private static final String NEW_LINE_SEPARATOR = "\n";
 
     public static List<CodebookAnnotationDocument> getCodebookAnnotations(FileUpload aUploadFile)
-            throws UnsupportedEncodingException, IOException {
+        throws IOException
+    {
 
         Iterable<CSVRecord> records = CSVFormat.DEFAULT.withIgnoreHeaderCase()
-                .parse(new InputStreamReader(aUploadFile.getInputStream(), "UTF-8"));
+                .parse(new InputStreamReader(aUploadFile.getInputStream(), StandardCharsets.UTF_8));
 
         List<CodebookAnnotationDocument> documents = new ArrayList<>();
 
@@ -67,13 +68,15 @@ public class CodebookDocumentUtil {
                     headers.add(record.get(c));
                     size++;
                 }
-            } else {
+            }
+            else {
 
                 CodebookAnnotationDocument document = new CodebookAnnotationDocument();
                 document.setDocumentName(documentName);
                 if (documents.contains(document)) {
                     document = documents.get(documents.indexOf(document));
-                } else {
+                }
+                else {
                     document.setHeaders(headers);
                     documents.add(document);
                 }
@@ -87,13 +90,14 @@ public class CodebookDocumentUtil {
                 document.getCodebooks().add(codebookAnnotations);
                 String text;
                 try {
-                    text = record.get((int) (size - 1));
-                } catch (Exception e) {
+                    text = record.get(size - 1);
+                }
+                catch (Exception e) {
                     text = null;
                 }
 
                 if (null == document.getText() && null != text) {
-                    document.setText(record.get((int) (record.size() - 1)));
+                    document.setText(record.get(record.size() - 1));
                 }
             }
 
@@ -101,10 +105,11 @@ public class CodebookDocumentUtil {
         return documents;
     }
 
-    public static InputStream getStream(CodebookAnnotationDocument aDocument) throws IOException {
+    public static InputStream getStream(CodebookAnnotationDocument aDocument) throws IOException
+    {
         File file = File.createTempFile(aDocument.getDocumentName(), "csv");
         OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, true),
-                "UTF-8");
+                StandardCharsets.UTF_8);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         CSVPrinter csvFileWriter = createCsvPrinter(stream);
@@ -120,7 +125,8 @@ public class CodebookDocumentUtil {
                 record.addAll(aDocument.getCodebooks().get(i));
                 record.add(aDocument.getText());
                 i++;
-            } else {
+            }
+            else {
                 record.add(annotator);
                 record.add(aDocument.getDocumentName());
                 record.addAll(aDocument.getCodebooks().get(i));
@@ -138,10 +144,11 @@ public class CodebookDocumentUtil {
     }
 
     public static InputStream getExcelStream(CodebookAnnotationDocument aDocument)
-            throws IOException {
+        throws IOException
+    {
         File file = File.createTempFile(aDocument.getDocumentName(), "csv");
         OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, true),
-                "UTF-8");
+                StandardCharsets.UTF_8);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         CSVPrinter csvFileWriter = createCsvPrinter(stream);
@@ -158,15 +165,17 @@ public class CodebookDocumentUtil {
         return new ByteArrayInputStream(stream.toByteArray());
     }
 
-    private static CSVPrinter createCsvPrinter(OutputStream outputStream) throws IOException {
+    private static CSVPrinter createCsvPrinter(OutputStream outputStream) throws IOException
+    {
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-        return new CSVPrinter(new OutputStreamWriter(outputStream, Charset.forName("UTF-8")),
+        return new CSVPrinter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),
                 csvFormat);
     }
 
     public static List<CodebookAnnotationDocument> readExcelData(FileUpload aUploadFile)
-            throws Exception {
+        throws Exception
+    {
         List<CodebookAnnotationDocument> documents = new ArrayList<CodebookAnnotationDocument>();
 
         Workbook workbook = WorkbookFactory.create(aUploadFile.getInputStream());
@@ -184,7 +193,8 @@ public class CodebookDocumentUtil {
                     String value = dataFormatter.formatCellValue(cell);
                     if (getCellName(cell).startsWith("A")) {
                         cD.setDocumentName(value);
-                    } else {
+                    }
+                    else {
                         cD.setText(value);
                     }
                 }
@@ -196,7 +206,8 @@ public class CodebookDocumentUtil {
         return documents;
     }
 
-    private static String getCellName(Cell cell) {
+    private static String getCellName(Cell cell)
+    {
         return CellReference.convertNumToColString(cell.getColumnIndex())
                 + (cell.getRowIndex() + 1);
     }

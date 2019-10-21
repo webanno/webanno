@@ -29,7 +29,9 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion.CodebookSuggesti
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
-public class CodebookCurationModel implements Serializable {
+public class CodebookCurationModel
+    implements Serializable
+{
     private static final long serialVersionUID = -7826210722492638188L;
     private List<Codebook> codebooks;
     private SourceDocument document;
@@ -38,7 +40,8 @@ public class CodebookCurationModel implements Serializable {
     private List<CodebookSuggestions> codebooksuggestions = new ArrayList<>();
     private final List<CodebookFeatureState> codebookModels = new ArrayList<>();
 
-    public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature) {
+    public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature)
+    {
         for (CodebookFeatureState f : codebookModels) {
             if (Objects.equals(f.feature.getId(), aFeature.getId())) {
                 return f;
@@ -47,61 +50,72 @@ public class CodebookCurationModel implements Serializable {
         return null;
     }
 
-    public CodebookCurationModel() {
+    public CodebookCurationModel()
+    {
 
     }
 
     public CodebookCurationModel(List<Codebook> aCodebooks, SourceDocument aDocument,
-            Project aProject) {
+            Project aProject)
+    {
         this.codebooks = aCodebooks;
-        ;
         this.document = aDocument;
         this.project = aProject;
     }
 
-    public List<Codebook> getCodebooks() {
+    public List<Codebook> getCodebooks()
+    {
         return codebooks;
     }
 
-    public void setCodebooks(List<Codebook> codebooks) {
+    public void setCodebooks(List<Codebook> codebooks)
+    {
         this.codebooks = codebooks;
     }
 
-    public SourceDocument getDocument() {
+    public SourceDocument getDocument()
+    {
         return document;
     }
 
-    public void setDocument(SourceDocument document) {
+    public void setDocument(SourceDocument document)
+    {
         this.document = document;
     }
 
-    public Project getProject() {
+    public Project getProject()
+    {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(Project project)
+    {
         this.project = project;
     }
 
-    public List<CodebookFeatureState> getCodebookFeatureStates() {
+    public List<CodebookFeatureState> getCodebookFeatureStates()
+    {
         return codebookModels;
     }
 
-    public List<CodebookCurations> getCodebookCurations() {
+    public List<CodebookCurations> getCodebookCurations()
+    {
         return codebookCurations;
     }
 
-    public void setCodebookCurations(List<CodebookCurations> codebookCurations) {
+    public void setCodebookCurations(List<CodebookCurations> codebookCurations)
+    {
         this.codebookCurations = codebookCurations;
     }
 
-    public List<CodebookSuggestions> getCodebooksuggestions() {
+    public List<CodebookSuggestions> getCodebooksuggestions()
+    {
         return codebooksuggestions;
     }
 
-    public void setCodebooksuggestions(List<CodebookSuggestions> codebooksuggestions) {
+    public void setCodebooksuggestions(List<CodebookSuggestions> codebooksuggestions)
+    {
         this.codebooksuggestions = codebooksuggestions;
     }
-
 
 }

@@ -331,7 +331,8 @@ public class AnnotationPage extends AnnotationPageBase {
             }
 
             @Override
-            protected void onJcasUpdate(Long aTimeStamp) {
+            protected void onJCasUpdate(Long aTimeStamp)
+            {
                 AnnotationPage.this.getModelObject().setAnnotationDocumentTimestamp(aTimeStamp);
             }
         };

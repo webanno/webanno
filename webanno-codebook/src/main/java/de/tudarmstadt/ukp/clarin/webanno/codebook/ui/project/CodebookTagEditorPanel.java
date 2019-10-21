@@ -38,7 +38,9 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaPanel;
 
-public class CodebookTagEditorPanel extends LambdaPanel {
+public class CodebookTagEditorPanel
+    extends LambdaPanel
+{
     private static final long serialVersionUID = -3356173821217898824L;
 
     private @SpringBean CodebookSchemaService codebookSchemaService;
@@ -47,7 +49,8 @@ public class CodebookTagEditorPanel extends LambdaPanel {
     private IModel<CodebookTag> selectedTag;
 
     public CodebookTagEditorPanel(String aId, IModel<CodebookCategory> aCategory,
-            IModel<CodebookTag> aTag) {
+            IModel<CodebookTag> aTag)
+    {
         super(aId, aTag);
 
         setOutputMarkupId(true);
@@ -68,7 +71,8 @@ public class CodebookTagEditorPanel extends LambdaPanel {
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
     }
 
-    private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm) {
+    private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm)
+    {
         selectedTag.getObject().setCategory(selectedCategory.getObject());
         codebookSchemaService.createCodebookTag(selectedTag.getObject());
 
@@ -76,19 +80,23 @@ public class CodebookTagEditorPanel extends LambdaPanel {
         aTarget.add(getPage());
     }
 
-    private void actionDelete(AjaxRequestTarget aTarget) {
+    private void actionDelete(AjaxRequestTarget aTarget)
+    {
         codebookSchemaService.removeCodebookTag(selectedTag.getObject());
         actionCancel(aTarget);
     }
 
-    private void actionCancel(AjaxRequestTarget aTarget) {
+    private void actionCancel(AjaxRequestTarget aTarget)
+    {
         selectedTag.setObject(null);
 
         // Reload whole page because master panel also needs to be reloaded.
         aTarget.add(getPage());
     }
 
-    private class TagExistsValidator implements IValidator<String> {
+    private class TagExistsValidator
+        implements IValidator<String>
+    {
         private static final long serialVersionUID = 6697292531559511021L;
 
         @Override

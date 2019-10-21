@@ -30,7 +30,8 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.core.menu.MenuItem;
 
 @Component
 @Order(300)
-public class CodebookAgreementPageMenuItem implements MenuItem
+public class CodebookAgreementPageMenuItem
+    implements MenuItem
 {
     private @Autowired UserDao userRepo;
     private @Autowired ProjectService projectService;
@@ -41,24 +42,25 @@ public class CodebookAgreementPageMenuItem implements MenuItem
     {
         return "/codebookagreement";
     }
-    
+
     @Override
     public String getIcon()
     {
         return "images/chart-icon.png";
     }
-    
+
     @Override
     public String getLabel()
     {
         return "Codebook Agreement";
     }
-    
+
     /**
      * Only admins and project managers can see this page
      */
     @Override
-    public boolean applies() {
+    public boolean applies()
+    {
         for (Project project : projectService.listProjects()) {
             if (!codebookService.listCodebook(project).isEmpty()) {
                 if (projectService.isCurator(project, userRepo.getCurrentUser())
@@ -70,7 +72,7 @@ public class CodebookAgreementPageMenuItem implements MenuItem
         return false;
 
     }
-    
+
     @Override
     public Class<? extends Page> getPageClass()
     {

@@ -69,7 +69,9 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentServic
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 
-public class CodebookCurationPanel extends Panel {
+public class CodebookCurationPanel
+    extends Panel
+{
     private static final long serialVersionUID = -9151455840010092452L;
 
     private @SpringBean ProjectService projectRepository;
@@ -84,11 +86,13 @@ public class CodebookCurationPanel extends Panel {
     private WebMarkupContainer codebooksGroup;
     private PageableListView<CodebookCurations> curations;
 
-    public CodebookCurationModel getModelObject() {
+    public CodebookCurationModel getModelObject()
+    {
         return (CodebookCurationModel) getDefaultModelObject();
     }
 
-    public CodebookCurationPanel(String id, IModel<CodebookCurationModel> aModel) {
+    public CodebookCurationPanel(String id, IModel<CodebookCurationModel> aModel)
+    {
         super(id, aModel);
 
         setOutputMarkupId(true);
@@ -96,23 +100,26 @@ public class CodebookCurationPanel extends Panel {
         cModel = aModel.getObject();
 
         curations = new PageableListView<CodebookCurations>("curations",
-                cModel.getCodebookCurations(), cModel.getCodebookCurations().size()) {
+                cModel.getCodebookCurations(), cModel.getCodebookCurations().size())
+        {
 
             private static final long serialVersionUID = -8038013944939655952L;
 
             @Override
-            protected void populateItem(final ListItem<CodebookCurations> item) {
-                final CodebookCurations curationsModel = (CodebookCurations) item.getModelObject();
+            protected void populateItem(final ListItem<CodebookCurations> item)
+            {
+                final CodebookCurations curationsModel = item.getModelObject();
                 item.add(new Label("codebook", curationsModel.getCodebook().getUiName()));
 
                 AjaxLink<String> alink = new AjaxLink<String>("showSuggestors",
-                        Model.of(curationsModel.getAnnotation())) {
+                        Model.of(curationsModel.getAnnotation()))
+                {
 
                     private static final long serialVersionUID = -5714648706174235978L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget aTarget) {
-
+                    public void onClick(AjaxRequestTarget aTarget)
+                    {
                         onShowSuggestions(aTarget, curationsModel.getFeature());
                     }
                 };
@@ -122,27 +129,32 @@ public class CodebookCurationPanel extends Panel {
                 List<String> codes = getTags(curationsModel.getCodebook());
                 ComboBox<String> code = new ComboBox<String>("annottaion",
                         Model.of(curationsModel.getAnnotation()), codes);
-                code.add(new AjaxFormComponentUpdatingBehavior("change") {
+                code.add(new AjaxFormComponentUpdatingBehavior("change")
+                {
                     private static final long serialVersionUID = 5179816588460867471L;
 
                     @Override
-                    public void onUpdate(AjaxRequestTarget aTarget) {
+                    public void onUpdate(AjaxRequestTarget aTarget)
+                    {
                         System.out.println("BLUR");
                         try {
                             saveCodebookAnnotation(curationsModel.getFeature(),
                                     code.getModelObject());
                             onShowSuggestions(aTarget, curationsModel.getFeature());
                             System.out.println("Saved");
-                        } catch (IOException | AnnotationException e) {
+                        }
+                        catch (IOException | AnnotationException e) {
                             error("Unable to save the annotation " + e.getMessage());
                         }
                     }
                 });
-                code.add(new Behavior() {
+                code.add(new Behavior()
+                {
                     private static final long serialVersionUID = -8375331706930026335L;
 
                     @Override
-                    public void onConfigure(final Component component) {
+                    public void onConfigure(final Component component)
+                    {
                         super.onConfigure(component);
                         // component.setEnabled(!codes.isEmpty());
                     }
@@ -165,7 +177,8 @@ public class CodebookCurationPanel extends Panel {
         form.add(codebooksGroup);
     }
 
-    public void setProjectModel(AjaxRequestTarget aTarget, CodebookCurationModel aState) {
+    public void setProjectModel(AjaxRequestTarget aTarget, CodebookCurationModel aState)
+    {
         cModel = aState;
         setDefaultModelObject(cModel);
         cModel.setCodebookCurations(getCurations());
@@ -180,13 +193,15 @@ public class CodebookCurationPanel extends Panel {
 
     }
 
-    public void setSuggestionModel(AjaxRequestTarget aTarget, CodebookFeature aFeature) {
+    public void setSuggestionModel(AjaxRequestTarget aTarget, CodebookFeature aFeature)
+    {
         List<CodebookCurations> suggestionsModel = getCurations();
         curations.setModelObject(suggestionsModel);
         curations.setItemsPerPage(suggestionsModel.size());
     }
 
-    private List<CodebookCurations> getCurations() {
+    private List<CodebookCurations> getCurations()
+    {
         List<CodebookCurations> codebooksModel = new ArrayList<>();
 
         if (cModel == null || cModel.getDocument() == null) {
@@ -210,32 +225,33 @@ public class CodebookCurationPanel extends Panel {
         return codebooksModel;
     }
 
-    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases) {
+    private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases)
+    {
         DiffResult diff = CodebookDiff.doCodebookDiff(codebookService, codebook.getProject(),
                 CurationUtil.getCodebookTypes(jCases.get(CurationUtil.CURATION_USER), types), null,
                 jCases, 0, 0);
         if (diff.getIncompleteConfigurationSets().size() > 0) {
             return true;
         }
-        if (diff.getDifferingConfigurationSets().size() > 0) {
-            return true;
-        }
-        return false;
+        return diff.getDifferingConfigurationSets().size() > 0;
     }
 
-    private List<Codebook> listCodebooks() {
+    private List<Codebook> listCodebooks()
+    {
         if (cModel == null) {
             return new ArrayList<>();
         }
         return codebookService.listCodebook(cModel.getProject());
     }
 
-    public void setModel(AjaxRequestTarget aTarget, CodebookCurationModel aModel) {
+    public void setModel(AjaxRequestTarget aTarget, CodebookCurationModel aModel)
+    {
         cModel = aModel;
         setDefaultModelObject(cModel);
     }
 
-    List<String> getTags(Codebook aCodebook) {
+    List<String> getTags(Codebook aCodebook)
+    {
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
@@ -251,7 +267,8 @@ public class CodebookCurationPanel extends Panel {
         return tags;
     }
 
-    private Map<String, CAS> setSuggestionCases() {
+    private Map<String, CAS> setSuggestionCases()
+    {
         Map<String, CAS> jCases = new HashMap<>();
         List<AnnotationDocument> annotationDocuments = documentService
                 .listAnnotationDocuments(cModel.getDocument());
@@ -263,7 +280,8 @@ public class CodebookCurationPanel extends Panel {
                 try {
                     jCas = documentService.readAnnotationCas(annotationDocument);
                     jCases.put(username, jCas);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     error("Unable to load the curation CASes" + e.getMessage());
                 }
 
@@ -271,33 +289,38 @@ public class CodebookCurationPanel extends Panel {
         }
         try {
             jCases.put(WebAnnoConst.CURATION_USER, getCas());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             error("Unable to load the curation CASes" + e.getMessage());
         }
 
         return jCases;
     }
 
-    public CAS getCas() throws IOException {
+    public CAS getCas() throws IOException
+    {
         CodebookCurationModel state = getModelObject();
         return curationDocumentService.readCurationCas(state.getDocument());
 
     }
 
-    public void update(AjaxRequestTarget aTarget, CodebookFeature aFeature, String aAnnotation) {
+    public void update(AjaxRequestTarget aTarget, CodebookFeature aFeature, String aAnnotation)
+    {
         try {
             saveCodebookAnnotation(aFeature, aAnnotation);
             List<CodebookCurations> curationsModel = getCurations();
             curations.setModelObject(curationsModel);
             curations.setItemsPerPage(curationsModel.size() + 1);
 
-        } catch (AnnotationException | IOException e) {
+        }
+        catch (AnnotationException | IOException e) {
             error("Unable to save the annotation " + e.getMessage());
         }
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, String aAnnotation)
-            throws AnnotationException, IOException {
+        throws AnnotationException, IOException
+    {
 
         CodebookAdapter adapter = new CodebookAdapter(aCodebookFeature.getCodebook());
         CAS jcas = getCas();
@@ -317,7 +340,8 @@ public class CodebookCurationPanel extends Panel {
     }
 
     private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, CAS aJCas)
-            throws IOException, AnnotationException {
+        throws IOException, AnnotationException
+    {
         CodebookCurationModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
 
@@ -342,14 +366,16 @@ public class CodebookCurationPanel extends Panel {
 
             if (existingFs != null) {
                 annoId = getAddr(existingFs);
-            } else {
+            }
+            else {
                 annoId = aAdapter.add(aJCas);
             }
             aAdapter.setFeatureValue(aJCas, featureState.feature, annoId, featureState.value);
         }
     }
 
-    private void writerCas(CAS aJCas) throws IOException {
+    private void writerCas(CAS aJCas) throws IOException
+    {
         CodebookCurationModel model = getModelObject();
         curationDocumentService.writeCurationCas(aJCas, model.getDocument(), true);
 
@@ -361,12 +387,14 @@ public class CodebookCurationPanel extends Panel {
         }
     }
 
-    protected void onShowSuggestions(AjaxRequestTarget aTarget, CodebookFeature aFeature) {
-        // Overriden in CurationPanel
+    protected void onShowSuggestions(AjaxRequestTarget aTarget, CodebookFeature aFeature)
+    {
+        // Overridden in CurationPanel
     }
 
-    protected void onJcasUpdate(Long aTimeStamp) {
-        // Overriden in CurationPanel
+    protected void onJcasUpdate(Long aTimeStamp)
+    {
+        // Overridden in CurationPanel
     }
 
 }

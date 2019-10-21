@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,11 +110,12 @@ import de.tudarmstadt.ukp.clarin.webanno.support.wicket.InputStreamResourceStrea
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.settings.ProjectSettingsPanelBase;
 
 /**
- * A Panel Used to add Codebooks to a selected {@link Project} in the project
- * settings page
+ * A Panel Used to add Codebooks to a selected {@link Project} in the project settings page
  */
 
-public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
+public class ProjectCodebookPanel
+    extends ProjectSettingsPanelBase
+{
     private static final Logger LOG = LoggerFactory.getLogger(ProjectCodebookPanel.class);
     private static final long serialVersionUID = -7870526462864489252L;
 
@@ -143,9 +145,10 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     // private IModel<Codebook> selectedCodebook;
     private IModel<CodebookTag> selectedTag;
-    private IModel<CodebookCategory> selectedTagSet;
+    private IModel<CodebookCategory> selectedCategory;
 
-    public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel) {
+    public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel)
+    {
         super(id, aProjectModel);
         setOutputMarkupId(true);
         add(CodebookLayoutCssResourceBehavior.get());
@@ -158,10 +161,10 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         add(codebookSelectionForm);
         add(codebookDetailForm);
 
-        selectedTagSet = Model.of(getTagset(codebook.getObject()));
+        selectedCategory = Model.of(getCategory(codebook.getObject()));
         selectedTag = Model.of();
 
-        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedTagSet,
+        tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedCategory,
                 selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
                 .setVisible(codebook.getObject() != null && codebook.getObject().getId() != null));
@@ -171,10 +174,10 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         });
         add(tagSelectionPanel);
 
-        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedTagSet,
+        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedCategory,
                 selectedTag);
-        tagEditorPanel.onConfigure(_this -> _this.setVisible(selectedTag 
-                != null && selectedTag.getObject() != null));
+        tagEditorPanel.onConfigure(
+            _this -> _this.setVisible(selectedTag != null && selectedTag.getObject() != null));
         add(tagEditorPanel);
 
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
@@ -182,10 +185,12 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     }
 
-    private CodebookCategory getTagset(Codebook aCodebook) {
+    private CodebookCategory getCategory(Codebook aCodebook)
+    {
         if (aCodebook == null) {
             return null;
-        } else {
+        }
+        else {
             List<CodebookFeature> features = codebookService.listCodebookFeature(aCodebook);
             if (features.isEmpty()) {
                 return null;
@@ -196,7 +201,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     }
 
     @Override
-    protected void onModelChanged() {
+    protected void onModelChanged()
+    {
         super.onModelChanged();
 
         codebookDetailForm.setModelObject(null);
@@ -204,21 +210,27 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         tagEditorPanel.setDefaultModelObject(null);
     }
 
-    private class CodebookSelectionForm extends Form<Codebook> {
+    private class CodebookSelectionForm
+        extends Form<Codebook>
+    {
         private static final long serialVersionUID = -1L;
 
         @SuppressWarnings({})
-        public CodebookSelectionForm(String id, IModel<Codebook> aModel) {
+        public CodebookSelectionForm(String id, IModel<Codebook> aModel)
+        {
             super(id, aModel);
 
-            add(new Button("create", new StringResourceModel("label")) {
+            add(new Button("create", new StringResourceModel("label"))
+            {
                 private static final long serialVersionUID = -4482428496358679571L;
 
                 @Override
-                public void onSubmit() {
+                public void onSubmit()
+                {
                     selectedTag.setObject(null);
                     CodebookSelectionForm.this.setModelObject(null);
                     codebookDetailForm.setModelObject(new Codebook());
+                    codebookDetailForm.codebookParentSelection.get().render();
                     tagSelectionPanel.setDefaultModelObject(null);
                     tagEditorPanel.setDefaultModel(null);
                 }
@@ -228,11 +240,13 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             codebookSelection = new Select<>("codebookSelection", aModel);
             ListView<Codebook> codebooks = new ListView<Codebook>("codebooks",
-                    new LoadableDetachableModel<List<Codebook>>() {
+                    new LoadableDetachableModel<List<Codebook>>()
+                    {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected List<Codebook> load() {
+                        protected List<Codebook> load()
+                        {
                             Project project = ProjectCodebookPanel.this.getModelObject();
 
                             if (project.getId() != null) {
@@ -245,18 +259,22 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                             }
                             return new ArrayList<>();
                         }
-                    }) {
+                    })
+            {
                 private static final long serialVersionUID = 8901519963052692214L;
 
                 @Override
-                protected void populateItem(final ListItem<Codebook> item) {
+                protected void populateItem(final ListItem<Codebook> item)
+                {
                     item.add(new SelectOption<Codebook>("codebook",
-                            new Model<>(item.getModelObject())) {
+                            new Model<>(item.getModelObject()))
+                    {
                         private static final long serialVersionUID = 3095089418860168215L;
 
                         @Override
                         public void onComponentTagBody(MarkupStream markupStream,
-                                ComponentTag openTag) {
+                                ComponentTag openTag)
+                        {
                             Codebook codebook = item.getModelObject();
                             replaceComponentTagBody(markupStream, openTag, codebook.getUiName());
                         }
@@ -269,8 +287,12 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             codebookSelection.add(OnChangeAjaxBehavior.onChange(_target -> {
                 codebookDetailForm.setModelObject(getModelObject());
+                // remove current codebook from parent selection
+                // (not working in codebookDetailForm.onModelChanged()..?!)
+                codebookDetailForm.updateParentChoicesForCodebook(getModelObject());
                 CodebookSelectionForm.this.setVisible(true);
-                tagSelectionPanel.setDefaultModelObject(getTagset(getModelObject()));
+
+                tagSelectionPanel.setDefaultModelObject(getCategory(getModelObject()));
                 tagSelectionPanel.setVisible(true);
                 tagEditorPanel.setVisible(true);
                 _target.add(codebookDetailForm);
@@ -281,26 +303,31 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
     }
 
-    private class ImportCodebookForm extends Form<String> {
+    private class ImportCodebookForm
+        extends Form<String>
+    {
         private static final long serialVersionUID = -7777616763931128598L;
 
         private FileUploadField fileUpload;
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public ImportCodebookForm(String id) {
+        public ImportCodebookForm(String id)
+        {
             super(id);
             add(fileUpload = new FileUploadField("content", new Model()));
             add(new LambdaAjaxButton("import", this::actionImport));
         }
 
-        private void actionImport(AjaxRequestTarget aTarget, Form<String> aForm) {
+        private void actionImport(AjaxRequestTarget aTarget, Form<String> aForm)
+        {
             List<FileUpload> uploadedFiles = fileUpload.getFileUploads();
             Project project = ProjectCodebookPanel.this.getModelObject();
 
             if (isEmpty(uploadedFiles)) {
                 error("Please choose file with codebook category details before uploading");
                 return;
-            } else if (isNull(project.getId())) {
+            }
+            else if (isNull(project.getId())) {
                 error("Project not yet created, please save project details!");
                 return;
             }
@@ -311,7 +338,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                     bis.read(buf, 0, buf.length);
                     bis.reset();
                     importCodebook(bis);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     error("Error importing codebooks: " + ExceptionUtils.getRootCauseMessage(e));
                     aTarget.addChildren(getPage(), IFeedback.class);
                 }
@@ -320,8 +348,9 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             aTarget.add(ProjectCodebookPanel.this);
         }
 
-        private void importCodebook(InputStream aIS) throws IOException {
-            String text = IOUtils.toString(aIS, "UTF-8");
+        private void importCodebook(InputStream aIS) throws IOException
+        {
+            String text = IOUtils.toString(aIS, StandardCharsets.UTF_8);
             ExportedCodebook[] exCodebooks = JSONUtil.getObjectMapper().readValue(text,
                     ExportedCodebook[].class);
 
@@ -349,7 +378,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
         }
     }
 
-    private static enum CodebookExportMode {
+    private enum CodebookExportMode
+    {
         SELECTED, ALL
     }
 
@@ -357,29 +387,44 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
     private @SpringBean CasStorageService casStorageService;
     private @SpringBean DocumentService documentService;
 
-    private class CodebookDetailForm extends Form<Codebook> {
+    private class CodebookDetailForm
+        extends Form<Codebook>
+    {
 
         private static final long serialVersionUID = 4032381828920667771L;
         private CodebookExportMode exportMode = CodebookExportMode.SELECTED;
 
-        public CodebookDetailForm(String id, IModel<Codebook> aSelecteCodebook) {
-            super(id, CompoundPropertyModel.of(aSelecteCodebook));
+        private CodebookParentSelectionWrapper codebookParentSelection;
+
+        public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook)
+        {
+            super(id, CompoundPropertyModel.of(aSelectedCodebook));
 
             setOutputMarkupPlaceholderTag(true);
 
             add(new TextField<String>("uiName").setRequired(true));
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
 
-            add(new Label("name") {
+            add(new Label("name")
+            {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected void onConfigure() {
+                protected void onConfigure()
+                {
                     super.onConfigure();
                     setVisible(StringUtils
                             .isNotBlank(CodebookDetailForm.this.getModelObject().getName()));
                 }
             });
+
+            // add Parent Selection
+            Project project = ProjectCodebookPanel.this.getModelObject();
+            List<Codebook> codebooks = codebookService.listCodebook(project);
+            this.codebookParentSelection = new CodebookParentSelectionWrapper("parent", codebooks);
+            add(this.codebookParentSelection.get());
+
+            add(new Label("parentLabel", "Parent Codebook"));
 
             LambdaAjaxLink moveUpLink = new LambdaAjaxLink("moveUpLink", this::actionUp);
             moveUpLink.add(new Image("moveUpIcon", ICON_UP));
@@ -400,7 +445,7 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             add(new LambdaAjaxButton<>("save", this::actionSave));
             add(new LambdaAjaxButton<>("delete", this::actionDelete)
-                    .add(visibleWhen(() -> !isNull(aSelecteCodebook.getObject().getId()))));
+                    .add(visibleWhen(() -> !isNull(aSelectedCodebook.getObject().getId()))));
             add(new LambdaAjaxLink("close", this::actionCancel));
 
             confirmationDialog = new ConfirmationDialog("confirmationDialog");
@@ -410,7 +455,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
         }
 
-        private void actionUp(AjaxRequestTarget aTarget) {
+        private void actionUp(AjaxRequestTarget aTarget)
+        {
 
             Codebook codebook = getModelObject();
             int index = codebook.getOrder();
@@ -436,7 +482,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             }
         }
 
-        private void actionDown(AjaxRequestTarget aTarget) {
+        private void actionDown(AjaxRequestTarget aTarget)
+        {
             Codebook codebook = getModelObject();
             int index = codebook.getOrder();
             if (index == codebookService.listCodebook(codebook.getProject()).size()) {
@@ -461,16 +508,20 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             aTarget.add(codebookSelectionForm);
         }
 
-        private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm) {
+        private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm)
+        {
             aTarget.add(ProjectCodebookPanel.this);
             aTarget.addChildren(getPage(), IFeedback.class);
 
             Codebook codebook = CodebookDetailForm.this.getModelObject();
+            // make the codebook directly available for parent selection
+            this.codebookParentSelection.addParent(codebook);
 
             saveCodebook(codebook);
         }
 
-        private void actionDelete(AjaxRequestTarget aTarget, Form aForm) {
+        private void actionDelete(AjaxRequestTarget aTarget, Form aForm)
+        {
             StringResourceModel model = new StringResourceModel("DeleteCodebookDialog.text",
                     this.getParent());
             CharSequence params = escapeMarkup(getModelObject().getName());
@@ -479,9 +530,11 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
 
             confirmationDialog.setConfirmAction((_target) -> {
                 Codebook codebook = codebookDetailForm.getModelObject();
-                CodebookCategory tagset = codebookService.listCodebookFeature(codebook).get(0)
+                // also remove the codebook from the parent selection
+                this.codebookParentSelection.removeParent(codebook);
+                CodebookCategory category = codebookService.listCodebookFeature(codebook).get(0)
                         .getCategory();
-                codebookService.removeCodebookCategory(tagset);
+                codebookService.removeCodebookCategory(category);
                 codebookService.removeCodebook(codebookDetailForm.getModelObject());
 
                 Project project = getModelObject().getProject();
@@ -496,7 +549,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                                 CAS cas = casStorageService.readCas(doc, ann.getUser());
                                 annotationService.upgradeCas(cas, doc, ann.getUser());
                                 casStorageService.writeCas(doc, cas, ann.getUser());
-                            } catch (FileNotFoundException e) {
+                            }
+                            catch (FileNotFoundException e) {
                                 // If there is no CAS file, we do not have to upgrade it. Ignoring.
                             }
                         }
@@ -506,7 +560,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                             CAS cas = casStorageService.readCas(doc, CURATION_USER);
                             annotationService.upgradeCas(cas, doc, CURATION_USER);
                             casStorageService.writeCas(doc, cas, CURATION_USER);
-                        } catch (FileNotFoundException e) {
+                        }
+                        catch (FileNotFoundException e) {
                             // If there is no CAS file, we do not have to upgrade it. Ignoring.
                         }
                     }
@@ -518,7 +573,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             });
         }
 
-        private void actionCancel(AjaxRequestTarget aTarget) {
+        private void actionCancel(AjaxRequestTarget aTarget)
+        {
             aTarget.add(ProjectCodebookPanel.this);
             aTarget.addChildren(getPage(), IFeedback.class);
 
@@ -529,7 +585,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             tagEditorPanel.setDefaultModelObject(null);
         }
 
-        private String getExportCodebookFileName() {
+        private String getExportCodebookFileName()
+        {
             switch (exportMode) {
             case SELECTED:
                 return "codebook.json";
@@ -540,7 +597,8 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             }
         }
 
-        private IResourceStream exportCodebook() {
+        private IResourceStream exportCodebook()
+        {
             switch (exportMode) {
             case SELECTED:
                 return exportSelectedCodebook();
@@ -551,17 +609,19 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             }
         }
 
-        private IResourceStream exportSelectedCodebook() {
+        private IResourceStream exportSelectedCodebook()
+        {
             try {
                 Codebook codebook = codebookDetailForm.getModelObject();
 
-                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook = 
+                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook =
                         ImportUtil.exportCodebook(codebook, codebookService);
 
                 return new InputStreamResourceStream(new ByteArrayInputStream(
-                        JSONUtil.toPrettyJsonString(exCodebook).getBytes("UTF-8")));
+                        JSONUtil.toPrettyJsonString(exCodebook).getBytes(StandardCharsets.UTF_8)));
 
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Unable to generate the JSON file", e);
                 RequestCycle.get().find(IPartialPageRequestHandler.class)
@@ -570,21 +630,23 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             }
         }
 
-        private IResourceStream exportAllCodebook() {
+        private IResourceStream exportAllCodebook()
+        {
             try {
-                List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook> 
-                    codebooks = new ArrayList<>();
+                List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook> codebooks
+                        = new ArrayList<>();
                 for (Codebook codebook : codebookService
                         .listCodebook(getModelObject().getProject())) {
-                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook = 
-                            ImportUtil.exportCodebook(codebook, codebookService);
+                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook
+                            = ImportUtil.exportCodebook(codebook, codebookService);
                     codebooks.add(exCodebook);
                 }
 
                 return new InputStreamResourceStream(new ByteArrayInputStream(
-                        JSONUtil.toPrettyJsonString(codebooks).getBytes("UTF-8")));
+                        JSONUtil.toPrettyJsonString(codebooks).getBytes(StandardCharsets.UTF_8)));
 
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Unable to generate the JSON file", e);
                 RequestCycle.get().find(IPartialPageRequestHandler.class)
@@ -593,15 +655,22 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
             }
         }
 
+        /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
+        {
+            this.codebookParentSelection.updateParentChoicesForCodebook(currentCodebook);
+        }
+
         @Override
-        protected void onConfigure() {
+        protected void onConfigure()
+        {
             super.onConfigure();
 
             setVisible(getModelObject() != null);
         }
     }
 
-    private void saveCodebook(Codebook codebook) {
+    private void saveCodebook(Codebook codebook)
+    {
         final Project project = ProjectCodebookPanel.this.getModelObject();
         boolean isNewCodebook = isNull(codebook.getId());
 
@@ -658,16 +727,17 @@ public class ProjectCodebookPanel extends ProjectSettingsPanelBase {
                 .publishEvent(new CodebookConfigurationChangedEvent(this, project));
     }
 
-    private CodebookCategory createOrGetCategory(Codebook codebook, final Project project) {
-        CodebookCategory category = getTagset(codebook);
+    private CodebookCategory createOrGetCategory(Codebook codebook, final Project project)
+    {
+        CodebookCategory category = getCategory(codebook);
         if (category == null) {
             category = new CodebookCategory();
             category.setCreateTag(true);
-            category.setDescription("Tagset for " + codebook.getName());
-            category.setName(codebook.getName() + "." + codebook.getId() + ".Tagset");
+            category.setDescription("Category for " + codebook.getName());
+            category.setName(codebook.getName() + "." + codebook.getId() + ".category");
             category.setProject(project);
             codebookService.createCodebookCategory(category);
-            selectedTagSet = Model.of(category);
+            selectedCategory = Model.of(category);
         }
         return category;
     }

@@ -59,7 +59,7 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
 
     public CodebookSchemaServiceImpl() {
-       
+       // Nothing to do
     }
 
     @Override
@@ -160,14 +160,16 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public Codebook getCodebook(long aId) {
+    public Codebook getCodebook(long aId)
+    {
         return entityManager.createQuery("FROM Codebook WHERE id = :id", Codebook.class)
                 .setParameter("id", aId).getSingleResult();
     }
 
     @Override
     @Transactional
-    public Codebook getCodebook(int aCodebookorder, Project aProject) {
+    public Codebook getCodebook(int aCodebookorder, Project aProject)
+    {
         return entityManager
                 .createQuery(
                         "FROM Codebook WHERE codebookorder = :codebookorder AND project =:project ",
@@ -187,7 +189,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public CodebookFeature getCodebookFeature(String aName, Codebook aCodebook) {
+    public CodebookFeature getCodebookFeature(String aName, Codebook aCodebook)
+    {
         return entityManager
                 .createQuery("FROM CodebookFeature WHERE name = :name AND codebook = :codebook",
                         CodebookFeature.class)
@@ -196,7 +199,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void removeCodebookCategory(CodebookCategory aCategory) {
+    public void removeCodebookCategory(CodebookCategory aCategory) 
+    {
         for (CodebookTag tag : this.listTags(aCategory)) {
             entityManager.remove(tag);
         }
@@ -263,7 +267,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public List<CodebookFeature> listCodebookFeature(Project aProject) {
+    public List<CodebookFeature> listCodebookFeature(Project aProject)
+    {
         return entityManager.createQuery(
                 "FROM CodebookFeature f WHERE project =:project ORDER BY f.codebook.uiName, f.uiName",
                 CodebookFeature.class).setParameter("project", aProject).getResultList();
@@ -291,7 +296,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     }
 
     @Override
-    public void removeCodebookFeature(CodebookFeature aFeature) {
+    public void removeCodebookFeature(CodebookFeature aFeature)
+    {
         entityManager.remove(
                 entityManager.contains(aFeature) ? aFeature : entityManager.merge(aFeature));
 

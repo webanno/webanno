@@ -20,7 +20,9 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,7 +40,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 @Entity
 @Table(name = "codebook", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "name", "project" }) })
-public class Codebook implements Serializable {
+public class Codebook
+    implements Serializable
+{
     private static final long serialVersionUID = 8496087166198616020L;
 
     @Id
@@ -61,54 +65,59 @@ public class Codebook implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Project project;
 
-/*    @ManyToOne
-    @JoinColumn(name = "codebook", 
-        foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-    private Codebook parent;*/
-    
-    
+    @ManyToOne
+    @JoinColumn(name = "parent", foreignKey =
+        @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @OnDelete(action = OnDeleteAction.CASCADE) // TODO do we really want cascading delete?!
+    private Codebook parent;
+
     @Column(name = "codebookorder")
-    int codebookOrder  = 0;
-    
-    public Codebook() {
+    int codebookOrder = 0;
+
+    public Codebook()
+    {
         // Required
     }
 
-    public Codebook(String aName, String aUiName, String aType, Project aProject,
-            boolean aBuiltIn) {
+    public Codebook(String aName, String aUiName, String aType, Project aProject, boolean aBuiltIn)
+    {
         setName(aName);
         setUiName(aUiName);
         setProject(aProject);
     }
 
     /**
-     * A short unique numeric identifier for the type (primary key in the DB). This
-     * identifier is only transiently used when communicating with the UI. It is not
-     * persisted long term other than in the type registry (e.g. in the database).
+     * A short unique numeric identifier for the type (primary key in the DB). This identifier is
+     * only transiently used when communicating with the UI. It is not persisted long term other
+     * than in the type registry (e.g. in the database).
      * 
      * @return the id.
      */
-    public Long getId() {
+    public Long getId()
+    {
         return id;
     }
 
     /**
-     * A short unique numeric identifier for the type (primary key in the DB). This
-     * identifier is only transiently used when communicating with the UI. It is not
-     * persisted long term other than in the type registry (e.g. in the database).
+     * A short unique numeric identifier for the type (primary key in the DB). This identifier is
+     * only transiently used when communicating with the UI. It is not persisted long term other
+     * than in the type registry (e.g. in the database).
      * 
      * @param typeId
      *            the id.
      */
-    public void setId(Long typeId) {
+    public void setId(Long typeId)
+    {
         this.id = typeId;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
 
-    public void setDescription(String aDescription) {
+    public void setDescription(String aDescription)
+    {
         description = aDescription;
     }
 
@@ -117,7 +126,8 @@ public class Codebook implements Serializable {
      * 
      * @return the displayed name.
      */
-    public String getUiName() {
+    public String getUiName()
+    {
         return uiName;
     }
 
@@ -127,28 +137,31 @@ public class Codebook implements Serializable {
      * @param uiName
      *            the displayed name.
      */
-    public void setUiName(String uiName) {
+    public void setUiName(String uiName)
+    {
         this.uiName = uiName;
     }
 
     /**
-     * The name of the UIMA annotation type handled by the adapter. This name must
-     * be unique for each type in a project
+     * The name of the UIMA annotation type handled by the adapter. This name must be unique for
+     * each type in a project
      * 
      * @return the name.
      */
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
     /**
-     * The name of the UIMA annotation type handled by the adapter. This name must
-     * be unique for each type in a project
+     * The name of the UIMA annotation type handled by the adapter. This name must be unique for
+     * each type in a project
      * 
      * @param annotationTypeName
      *            the type name.
      */
-    public void setName(String annotationTypeName) {
+    public void setName(String annotationTypeName)
+    {
         this.name = annotationTypeName;
     }
 
@@ -157,7 +170,8 @@ public class Codebook implements Serializable {
      * 
      * @return the project.
      */
-    public Project getProject() {
+    public Project getProject()
+    {
         return project;
     }
 
@@ -167,25 +181,32 @@ public class Codebook implements Serializable {
      * @param project
      *            the project.
      */
-    public void setProject(Project project) {
+    public void setProject(Project project)
+    {
         this.project = project;
     }
 
-/*    *//**
-     * The parent (if exist) of this codebook
-     * 
-     * @return
-     *//*
-    public Codebook getParent() {
+    /**
+     * @return The parent (if exist) of this codebook
+     */
+    public Codebook getParent()
+    {
         return parent;
     }
 
-    public void setParent(Codebook parent) {
+    /**
+     * Set the parent codebook of this codebook
+     * 
+     * @param parent
+     */
+    public void setParent(Codebook parent)
+    {
         this.parent = parent;
-    }*/
+    }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -194,7 +215,8 @@ public class Codebook implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (this == obj) {
             return true;
         }
@@ -209,31 +231,34 @@ public class Codebook implements Serializable {
             if (other.name != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        }
+        else if (!name.equals(other.name)) {
             return false;
         }
         if (project == null) {
             if (other.project != null) {
                 return false;
             }
-        } else if (!project.equals(other.project)) {
+        }
+        else if (!project.equals(other.project)) {
             return false;
         }
         return true;
     }
-    
-    
 
-    public int getOrder() {
+    public int getOrder()
+    {
         return codebookOrder;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(int order)
+    {
         this.codebookOrder = order;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder builder = new StringBuilder();
         builder.append("Codebook [name=");
         builder.append(name);
