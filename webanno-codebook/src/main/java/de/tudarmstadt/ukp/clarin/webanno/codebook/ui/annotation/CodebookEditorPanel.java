@@ -51,7 +51,7 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookTreePanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookEditorTreePanel;
 
 public abstract class CodebookEditorPanel
     extends Panel
@@ -77,7 +77,7 @@ public abstract class CodebookEditorPanel
 
     private CodebookEditorModel codebookEditorModel;
 
-    private CodebookTreePanel codebookTreePanel;
+    private CodebookEditorTreePanel codebookEditorTreePanel;
 
     public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
     {
@@ -93,9 +93,9 @@ public abstract class CodebookEditorPanel
         add(form);
 
         // add but don't init the tree
-        codebookTreePanel = new CodebookTreePanel("codebookTreePanel", aModel);
-        codebookTreePanel.setOutputMarkupId(true);
-        add(codebookTreePanel);
+        codebookEditorTreePanel = new CodebookEditorTreePanel("codebookTreePanel", aModel, this);
+        codebookEditorTreePanel.setOutputMarkupId(true);
+        add(codebookEditorTreePanel);
     }
 
     public CodebookEditorModel getModelObject()
@@ -185,9 +185,9 @@ public abstract class CodebookEditorPanel
         setDefaultModelObject(codebookEditorModel);
 
         // initialize the tree with the project's codebooks
-        codebookTreePanel.setDefaultModelObject(codebookEditorModel);
-        codebookTreePanel.initTree(CodebookEditorPanel.this);
-        aTarget.add(codebookTreePanel);
+        codebookEditorTreePanel.setDefaultModelObject(codebookEditorModel);
+        codebookEditorTreePanel.initTree();
+        aTarget.add(codebookEditorTreePanel);
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)

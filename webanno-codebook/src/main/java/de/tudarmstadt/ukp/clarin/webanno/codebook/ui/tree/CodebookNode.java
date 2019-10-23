@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -39,7 +39,7 @@ public class CodebookNode
 
     private Set<CodebookNode> children;
 
-    CodebookNode(Codebook codebook)
+    public CodebookNode(Codebook codebook)
     {
         this.codebook = codebook;
         this.name = this.codebook.getName();
@@ -69,22 +69,22 @@ public class CodebookNode
         this.parent = parent;
     }
 
-    Set<CodebookNode> getChildren()
+    public Set<CodebookNode> getChildren()
     {
         return children;
     }
 
-    boolean isRoot()
+    public boolean isRoot()
     {
         return parent == null;
     }
 
-    boolean isLeaf()
+    public boolean isLeaf()
     {
         return this.children == null || this.children.isEmpty();
     }
 
-    void addChild(CodebookNode child)
+    public void addChild(CodebookNode child)
     {
         this.children.add(child);
     }

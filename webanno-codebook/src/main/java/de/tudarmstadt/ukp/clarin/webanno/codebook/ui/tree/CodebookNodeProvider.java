@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeModel;
 import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
 import org.apache.wicket.model.IModel;
 

@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookEditorTreePanel;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,22 +153,24 @@ public class ProjectCodebookPanel
         super(id, aProjectModel);
         setOutputMarkupId(true);
         add(CodebookLayoutCssResourceBehavior.get());
-        Model<Codebook> codebook = Model.of();
+        Model<Codebook> codebookModel = Model.of();
+
+        codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebookModel);
 
         codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebook);
 
-        codebookDetailForm = new CodebookDetailForm("codebookDetailForm", codebook);
+        codebookDetailForm = new CodebookDetailForm("codebookDetailForm", codebookModel);
 
         add(codebookSelectionForm);
         add(codebookDetailForm);
 
-        selectedCategory = Model.of(getCategory(codebook.getObject()));
+        selectedCategory = Model.of(getCategory(codebookModel.getObject()));
         selectedTag = Model.of();
 
         tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedCategory,
                 selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
-                .setVisible(codebook.getObject() != null && codebook.getObject().getId() != null));
+                .setVisible(codebookModel.getObject() != null && codebookModel.getObject().getId() != null));
         tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
         tagSelectionPanel.setChangeAction(target -> {
             target.add(tagEditorPanel);
