@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookEditorTreePanel;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -157,8 +156,6 @@ public class ProjectCodebookPanel
 
         codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebookModel);
 
-        codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebook);
-
         codebookDetailForm = new CodebookDetailForm("codebookDetailForm", codebookModel);
 
         add(codebookSelectionForm);
@@ -170,7 +167,8 @@ public class ProjectCodebookPanel
         tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedCategory,
                 selectedTag);
         tagSelectionPanel.onConfigure(_this -> _this
-                .setVisible(codebookModel.getObject() != null && codebookModel.getObject().getId() != null));
+                .setVisible(codebookModel.getObject() != null
+                        && codebookModel.getObject().getId() != null));
         tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
         tagSelectionPanel.setChangeAction(target -> {
             target.add(tagEditorPanel);

@@ -48,7 +48,8 @@ public class CodebookEditorNodePanel
     private CodebookTagSelectionComboBox tagSelectionComboBox;
     private @SpringBean CodebookSchemaService codebookService;
 
-    public CodebookEditorNodePanel(String id, IModel<CodebookNode> node, CodebookEditorPanel parentEditor)
+    public CodebookEditorNodePanel(String id, IModel<CodebookNode> node,
+                                   CodebookEditorPanel parentEditor)
     {
         super(id, new CompoundPropertyModel<>(node));
 

@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeModel;
 import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
 import org.apache.wicket.model.IModel;
 
