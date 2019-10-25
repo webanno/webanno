@@ -108,9 +108,9 @@ public class CodebookNodeProvider
      * Creates a {@link CodebookNodeModel}.
      */
     @Override
-    public IModel<CodebookNode> model(CodebookNode foo)
+    public IModel<CodebookNode> model(CodebookNode node)
     {
-        return new CodebookNodeModel(foo);
+        return new CodebookNodeModel(node);
     }
 
     /**

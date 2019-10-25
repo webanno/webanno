@@ -32,23 +32,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.CAS;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
-import org.apache.wicket.extensions.markup.html.form.select.Select;
-import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.feedback.IFeedback;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -58,9 +50,6 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -82,7 +71,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ImportUtil;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
@@ -131,7 +119,6 @@ public class ProjectCodebookPanel
 
     private CodebookSelectionForm codebookSelectionForm;
     private CodebookDetailForm codebookDetailForm;
-    private Select<Codebook> codebookSelection;
 
     private CodebookTagSelectionPanel tagSelectionPanel;
     private CodebookTagEditorPanel tagEditorPanel;
@@ -143,9 +130,10 @@ public class ProjectCodebookPanel
     private static final UrlResourceReference ICON_DOWN = new UrlResourceReference(
             Url.parse("images/hand-o-down.png")).setContextRelative(true);
 
-    // private IModel<Codebook> selectedCodebook;
     private IModel<CodebookTag> selectedTag;
     private IModel<CodebookCategory> selectedCategory;
+
+    private ProjectCodebookTreePanel projectCodebookTreePanel;
 
     public ProjectCodebookPanel(String id, final IModel<Project> aProjectModel)
     {
@@ -155,7 +143,6 @@ public class ProjectCodebookPanel
         Model<Codebook> codebookModel = Model.of();
 
         codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm", codebookModel);
-
         codebookDetailForm = new CodebookDetailForm("codebookDetailForm", codebookModel);
 
         add(codebookSelectionForm);
@@ -184,9 +171,20 @@ public class ProjectCodebookPanel
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
         add(importCodebookForm);
 
+        // add and init tree
+        projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",
+                aProjectModel,
+                this,
+                codebookDetailForm,
+                tagSelectionPanel,
+                tagEditorPanel);
+        projectCodebookTreePanel.initTree();
+        projectCodebookTreePanel.setOutputMarkupId(true);
+        add(projectCodebookTreePanel);
     }
 
-    private CodebookCategory getCategory(Codebook aCodebook)
+    // package private by intention
+    CodebookCategory getCategory(Codebook aCodebook)
     {
         if (aCodebook == null) {
             return null;
@@ -214,15 +212,16 @@ public class ProjectCodebookPanel
     private class CodebookSelectionForm
         extends Form<Codebook>
     {
-        private static final long serialVersionUID = -1L;
+
+        private static final long serialVersionUID = 9114612780349722472L;
 
         @SuppressWarnings({})
         public CodebookSelectionForm(String id, IModel<Codebook> aModel)
         {
             super(id, aModel);
 
-            add(new Button("create", new StringResourceModel("label"))
-            {
+            // add create button
+            add(new Button("create", new StringResourceModel("label")) {
                 private static final long serialVersionUID = -4482428496358679571L;
 
                 @Override
@@ -236,70 +235,6 @@ public class ProjectCodebookPanel
                     tagEditorPanel.setDefaultModel(null);
                 }
             });
-
-            final Map<Codebook, String> colors = new HashMap<>();
-
-            codebookSelection = new Select<>("codebookSelection", aModel);
-            ListView<Codebook> codebooks = new ListView<Codebook>("codebooks",
-                    new LoadableDetachableModel<List<Codebook>>()
-                    {
-                        private static final long serialVersionUID = 1L;
-
-                        @Override
-                        protected List<Codebook> load()
-                        {
-                            Project project = ProjectCodebookPanel.this.getModelObject();
-
-                            if (project.getId() != null) {
-                                List<Codebook> codes = codebookService.listCodebook(project);
-                                for (Codebook code : codes) {
-                                    colors.put(code,
-                                            ColoringStrategy.getCodebookFgStyle(code.getOrder()));
-                                }
-                                return codes;
-                            }
-                            return new ArrayList<>();
-                        }
-                    })
-            {
-                private static final long serialVersionUID = 8901519963052692214L;
-
-                @Override
-                protected void populateItem(final ListItem<Codebook> item)
-                {
-                    item.add(new SelectOption<Codebook>("codebook",
-                            new Model<>(item.getModelObject()))
-                    {
-                        private static final long serialVersionUID = 3095089418860168215L;
-
-                        @Override
-                        public void onComponentTagBody(MarkupStream markupStream,
-                                ComponentTag openTag)
-                        {
-                            Codebook codebook = item.getModelObject();
-                            replaceComponentTagBody(markupStream, openTag, codebook.getUiName());
-                        }
-
-                    }.add(new AttributeModifier("style", colors.get(item.getModelObject()))));
-                }
-            };
-            add(codebookSelection.add(codebooks));
-            codebookSelection.setOutputMarkupId(true);
-
-            codebookSelection.add(OnChangeAjaxBehavior.onChange(_target -> {
-                codebookDetailForm.setModelObject(getModelObject());
-                // remove current codebook from parent selection
-                // (not working in codebookDetailForm.onModelChanged()..?!)
-                codebookDetailForm.updateParentChoicesForCodebook(getModelObject());
-                CodebookSelectionForm.this.setVisible(true);
-
-                tagSelectionPanel.setDefaultModelObject(getCategory(getModelObject()));
-                tagSelectionPanel.setVisible(true);
-                tagEditorPanel.setVisible(true);
-                _target.add(codebookDetailForm);
-                _target.add(tagSelectionPanel);
-                _target.add(tagEditorPanel);
-            }));
         }
 
     }
@@ -388,7 +323,8 @@ public class ProjectCodebookPanel
     private @SpringBean CasStorageService casStorageService;
     private @SpringBean DocumentService documentService;
 
-    private class CodebookDetailForm
+    // package private by intention
+    class CodebookDetailForm
         extends Form<Codebook>
     {
 
@@ -427,14 +363,6 @@ public class ProjectCodebookPanel
 
             add(new Label("parentLabel", "Parent Codebook"));
 
-            LambdaAjaxLink moveUpLink = new LambdaAjaxLink("moveUpLink", this::actionUp);
-            moveUpLink.add(new Image("moveUpIcon", ICON_UP));
-            add(moveUpLink);
-
-            LambdaAjaxLink movedownLink = new LambdaAjaxLink("movedownLink", this::actionDown);
-            movedownLink.add(new Image("movedownIcon", ICON_DOWN));
-            add(movedownLink);
-
             add(new DropDownChoice<CodebookExportMode>("exportMode",
                     new PropertyModel<CodebookExportMode>(this, "exportMode"),
                     asList(CodebookExportMode.values()), new EnumChoiceRenderer<>(this))
@@ -456,59 +384,6 @@ public class ProjectCodebookPanel
 
         }
 
-        private void actionUp(AjaxRequestTarget aTarget)
-        {
-
-            Codebook codebook = getModelObject();
-            int index = codebook.getOrder();
-            if (index == 1) {
-                return;
-            }
-            // we need to update orders in a synchronized way
-            String lock = ProjectCodebookPanel.this.getClass().getName();
-            synchronized (lock) {
-
-                Codebook prevCodebook = codebookService.getCodebook(index - 1,
-                        codebook.getProject());
-                codebook.setOrder(index - 1);
-                prevCodebook.setOrder(index);
-
-                codebookService.createCodebook(codebook);
-                codebookService.createCodebook(prevCodebook);
-
-                aTarget.add(ProjectCodebookPanel.this);
-                aTarget.addChildren(getPage(), IFeedback.class);
-                codebookDetailForm.setModelObject(codebook);
-                aTarget.add(codebookSelectionForm);
-            }
-        }
-
-        private void actionDown(AjaxRequestTarget aTarget)
-        {
-            Codebook codebook = getModelObject();
-            int index = codebook.getOrder();
-            if (index == codebookService.listCodebook(codebook.getProject()).size()) {
-                return;
-            }
-            // we need to update orders in a synchronized way
-            String lock = ProjectCodebookPanel.this.getClass().getName();
-            synchronized (lock) {
-
-                Codebook prevCodebook = codebookService.getCodebook(index + 1,
-                        codebook.getProject());
-                codebook.setOrder(index + 1);
-                prevCodebook.setOrder(index);
-
-                codebookService.createCodebook(codebook);
-                codebookService.createCodebook(prevCodebook);
-            }
-
-            aTarget.add(ProjectCodebookPanel.this);
-            aTarget.addChildren(getPage(), IFeedback.class);
-            codebookDetailForm.setModelObject(codebook);
-            aTarget.add(codebookSelectionForm);
-        }
-
         private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm)
         {
             aTarget.add(ProjectCodebookPanel.this);
@@ -519,6 +394,9 @@ public class ProjectCodebookPanel
             this.codebookParentSelection.addParent(codebook);
 
             saveCodebook(codebook);
+            // update the tree (if the parent changed)
+            projectCodebookTreePanel.initTree();
+            projectCodebookTreePanel.collapseAll();
         }
 
         private void actionDelete(AjaxRequestTarget aTarget, Form aForm)

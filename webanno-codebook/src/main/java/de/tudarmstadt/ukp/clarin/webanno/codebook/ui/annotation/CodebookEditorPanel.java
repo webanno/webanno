@@ -51,14 +51,13 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookEditorTreePanel;
 
 public abstract class CodebookEditorPanel
     extends Panel
 {
     /**
-     * Function to return tooltip using jquery Docs for the JQuery tooltip widget
-     * that we configure below: https://api.jqueryui.com/tooltip/
+     * Function to return tooltip using jquery Docs for the JQuery tooltip widget that we configure
+     * below: https://api.jqueryui.com/tooltip/
      */
     protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
             + "'<div class=\"tooltip-title\">'+($(this).text() "
@@ -93,7 +92,8 @@ public abstract class CodebookEditorPanel
         add(form);
 
         // add but don't init the tree
-        codebookEditorTreePanel = new CodebookEditorTreePanel("codebookTreePanel", aModel, this);
+        codebookEditorTreePanel = new CodebookEditorTreePanel("codebookEditorTreePanel", aModel,
+                this);
         codebookEditorTreePanel.setOutputMarkupId(true);
         add(codebookEditorTreePanel);
     }
@@ -103,7 +103,8 @@ public abstract class CodebookEditorPanel
         return (CodebookEditorModel) getDefaultModelObject();
     }
 
-    public String getExistingCode(Codebook codebook) {
+    public String getExistingCode(Codebook codebook)
+    {
         CodebookAdapter adapter = new CodebookAdapter(codebook);
         CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
         CAS cas = null;
