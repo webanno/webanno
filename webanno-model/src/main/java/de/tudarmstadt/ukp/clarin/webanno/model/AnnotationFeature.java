@@ -82,6 +82,10 @@ public class AnnotationFeature
     @Column(length = 64000)
     private String description;
 
+    @Lob
+    @Column(length = 64000)
+    private String regex;
+    
     private boolean enabled = true;
 
     @Column(nullable = false)
@@ -156,7 +160,7 @@ public class AnnotationFeature
     }
 
     public AnnotationFeature(Project aProject, AnnotationLayer aLayer, String aName, String aUiName,
-            String aType, String aDescription, TagSet aTagSet)
+            String aType, String aDescription, String aRegex, TagSet aTagSet)
     {
         project = aProject;
         layer = aLayer;
@@ -164,6 +168,7 @@ public class AnnotationFeature
         uiName = aUiName;
         type = aType;
         description = aDescription;
+        regex = aRegex;
         tagset = aTagSet;
     }
 
@@ -271,6 +276,15 @@ public class AnnotationFeature
         this.description = description;
     }
 
+    public String getRegex()
+    {
+        return regex;
+    }
+
+    public void setRegex(String regex)
+    {
+        this.regex = regex;
+    }
     /**
      * Whether the type is available in the UI (outside of the project settings)
      * 

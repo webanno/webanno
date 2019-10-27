@@ -142,6 +142,8 @@ public class PrimitiveUimaFeatureSupport
     @Override
     public void setFeatureValue(CAS aCas, AnnotationFeature aFeature, int aAddress, Object aValue)
     {
+    	String regExpression=aFeature.getRegex();
+    	
         if (
                 aValue != null &&
                 schemaService != null && 
@@ -159,6 +161,14 @@ public class PrimitiveUimaFeatureSupport
                 selectedTag.setTagSet(aFeature.getTagset());
                 schemaService.createTag(selectedTag);
             }
+            
+            if(!aValue.toString().matches(regExpression))
+            {
+            	throw new IllegalArgumentException("[" + aValue
+                        + "] does not match regex validation. The regex format must be" + regExpression);
+            }
+            
+            
         }
         
         FeatureSupport.super.setFeatureValue(aCas, aFeature, aAddress, aValue);

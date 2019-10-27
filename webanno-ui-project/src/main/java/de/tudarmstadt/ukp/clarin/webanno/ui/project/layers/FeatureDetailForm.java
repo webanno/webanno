@@ -99,6 +99,9 @@ public class FeatureDetailForm
         add(new Label("name").add(visibleWhen(() -> isNotBlank(getModelObject().getName()))));
         add(new TextField<String>("uiName").setRequired(true));
         add(new TextArea<String>("description"));
+        
+        add(new TextField<String>("regex"));
+        
         add(new CheckBox("enabled"));
         add(new CheckBox("visible"));
         add(new CheckBox("hideUnconstraintFeature"));
@@ -182,7 +185,10 @@ public class FeatureDetailForm
                 aTarget.add(traitsContainer);
             }
         });
-
+        
+        
+        
+        
         add(new LambdaButton("save", this::actionSave).triggerAfterSubmit());
         add(new LambdaAjaxButton<>("delete", this::actionDelete).add(
                 visibleWhen(() -> !isNull(getModelObject().getId()))));
