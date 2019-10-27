@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -158,6 +159,16 @@ public class PrimitiveUimaFeatureSupport
                 selectedTag.setName((String) aValue);
                 selectedTag.setTagSet(aFeature.getTagset());
                 schemaService.createTag(selectedTag);
+            }
+        }
+        
+        String values = aValue.toString();
+        String regex = aFeature.getRegularExpression();
+        if(regex!=null) {
+        	Pattern pattern = Pattern.compile(regex);
+        	if (!pattern.matcher(values).matches()) {
+            	throw new IllegalArgumentException("[" + aValue
+                        + "] is illegal. Please check it");
             }
         }
         

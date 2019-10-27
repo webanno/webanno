@@ -81,7 +81,11 @@ public class AnnotationFeature
     @Lob
     @Column(length = 64000)
     private String description;
-
+    
+    @Lob
+    @Column(length = 64000)
+    private String regularExpression;
+    
     private boolean enabled = true;
 
     @Column(nullable = false)
@@ -156,7 +160,7 @@ public class AnnotationFeature
     }
 
     public AnnotationFeature(Project aProject, AnnotationLayer aLayer, String aName, String aUiName,
-            String aType, String aDescription, TagSet aTagSet)
+    		String aType, String aDescription, String aRegularExpression, TagSet aTagSet)
     {
         project = aProject;
         layer = aLayer;
@@ -164,6 +168,7 @@ public class AnnotationFeature
         uiName = aUiName;
         type = aType;
         description = aDescription;
+        regularExpression = aRegularExpression;
         tagset = aTagSet;
     }
 
@@ -269,6 +274,16 @@ public class AnnotationFeature
     public void setDescription(String description)
     {
         this.description = description;
+    }
+    
+    public String getRegularExpression()
+    {
+        return regularExpression;
+    }
+
+     public void setRegularExpression(String regularExpression)
+    {
+        this.regularExpression = regularExpression;
     }
 
     /**

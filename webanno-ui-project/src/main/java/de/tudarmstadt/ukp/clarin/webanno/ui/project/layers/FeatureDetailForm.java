@@ -86,7 +86,8 @@ public class FeatureDetailForm
     private CheckBox required;
     private WebMarkupContainer traitsContainer;
     private ConfirmationDialog confirmationDialog;
-
+    
+    
     public FeatureDetailForm(String id, IModel<AnnotationFeature> aFeature)
     {
         super(id, CompoundPropertyModel.of(aFeature));
@@ -99,6 +100,7 @@ public class FeatureDetailForm
         add(new Label("name").add(visibleWhen(() -> isNotBlank(getModelObject().getName()))));
         add(new TextField<String>("uiName").setRequired(true));
         add(new TextArea<String>("description"));
+        add(new TextField<String>("regularExpression"));
         add(new CheckBox("enabled"));
         add(new CheckBox("visible"));
         add(new CheckBox("hideUnconstraintFeature"));
