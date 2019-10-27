@@ -100,7 +100,7 @@ public abstract class TextFeatureEditorBase
     }
 
     @Override
-    public FormComponent getFocusComponent()
+    public Component getFocusComponent()
     {
         return field;
     }

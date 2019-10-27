@@ -219,7 +219,25 @@ public class ProjectExportServiceImpl
         Project project = new Project();
         
         try {
-            ExportedProject exProject = loadExportedProject(aZip);
+            // Locate the project model in the ZIP file
+            ZipEntry projectSettingsEntry = null;
+            for (Enumeration<? extends ZipEntry> zipEnumerate = aZip.entries(); zipEnumerate
+                    .hasMoreElements();) {
+                ZipEntry entry = (ZipEntry) zipEnumerate.nextElement();
+                if (entry.toString().replace("/", "").startsWith(EXPORTED_PROJECT)
+                        && entry.toString().replace("/", "").endsWith(".json")) {
+                    projectSettingsEntry = entry;
+                    break;
+                }
+            }
+
+            // Load the project model from the JSON file
+            String text;
+            try (InputStream is = aZip.getInputStream(projectSettingsEntry)) {
+                text = IOUtils.toString(is, "UTF-8");
+            }
+            ExportedProject exProject = JSONUtil.getObjectMapper().readValue(text,
+                    ExportedProject.class);
             
             // If the name of the project is already taken, generate a new name
             String projectName = exProject.getName();
@@ -284,30 +302,5 @@ public class ProjectExportServiceImpl
                 return projectName;
             }
         }
-    }
-    
-    public static ExportedProject loadExportedProject(ZipFile aZip) throws IOException
-    {
-        // Locate the project model in the ZIP file
-        ZipEntry projectSettingsEntry = null;
-        for (Enumeration<? extends ZipEntry> zipEnumerate = aZip.entries(); zipEnumerate
-                .hasMoreElements();) {
-            ZipEntry entry = (ZipEntry) zipEnumerate.nextElement();
-            if (entry.toString().replace("/", "").startsWith(EXPORTED_PROJECT)
-                    && entry.toString().replace("/", "").endsWith(".json")) {
-                projectSettingsEntry = entry;
-                break;
-            }
-        }
-
-        // Load the project model from the JSON file
-        String text;
-        try (InputStream is = aZip.getInputStream(projectSettingsEntry)) {
-            text = IOUtils.toString(is, "UTF-8");
-        }
-        ExportedProject exProject = JSONUtil.getObjectMapper().readValue(text,
-                ExportedProject.class);
-    
-        return exProject;
     }
 }

@@ -35,6 +35,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.danekja.java.util.function.serializable.SerializableBiFunction;
 
+import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.export.ExportDocumentDialog;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.open.OpenDocumentDialog;
@@ -47,6 +48,11 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.DecoratedObject;
 import wicket.contrib.input.events.InputBehavior;
 import wicket.contrib.input.events.key.KeyType;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
+import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+
+
 
 public class DocumentNavigator
     extends Panel
@@ -54,21 +60,35 @@ public class DocumentNavigator
     private static final long serialVersionUID = 7061696472939390003L;
 
     private @SpringBean ProjectService projectService;
+    private @SpringBean DocumentService documentService;
     
     private AnnotationPageBase page;
     private IModel<List<DecoratedObject<Project>>> projectListModel;
     private SerializableBiFunction<Project, User, List<DecoratedObject<SourceDocument>>> 
             docListProvider;
+    private SourceDocument d;
+    private AnnotationDocument annotationDocument;
+    
+ 
     
     private final OpenDocumentDialog openDocumentsModal;
     private final ExportDocumentDialog exportDialog;
 
+    
+    
+    
+    
     public DocumentNavigator(String aId, AnnotationPageBase aPage,
             IModel<List<DecoratedObject<Project>>> aProjectListModel)
     {
         this(aId, aPage, aProjectListModel, null);
     }
-
+//added
+    public SourceDocument getDocument()
+    {
+    	return annotationDocument.getDocument();
+    }
+    //
     public DocumentNavigator(String aId, AnnotationPageBase aPage,
             IModel<List<DecoratedObject<Project>>> aProjectListModel,
             SerializableBiFunction<Project, User, List<DecoratedObject<SourceDocument>>> 
@@ -79,12 +99,19 @@ public class DocumentNavigator
         page = aPage;
         projectListModel = aProjectListModel;
         docListProvider = aDocListProvider;
+//        d = this.aDocument;
+
+//        d= getDocument();
+     
 
         add(new LambdaAjaxLink("showPreviousDocument", t -> actionShowPreviousDocument(t))
                 .add(new InputBehavior(new KeyType[] { Shift, Page_up }, click)));
 
         add(new LambdaAjaxLink("showNextDocument", t -> actionShowNextDocument(t))
                 .add(new InputBehavior(new KeyType[] { Shift, Page_down }, click)));
+        //added
+        add(new LambdaAjaxLink("showTurnToSlot", t -> aPage.actionShowSelectedDocument(t,d,1,3)));
+//                .add(new InputBehavior(new KeyType[] { Shift, 1 }, click)));
 
         add(new LambdaAjaxLink("showOpenDocumentDialog", this::actionShowOpenDocumentDialog));
 
@@ -162,6 +189,8 @@ public class DocumentNavigator
         page.getModelObject().moveToNextDocument(page.getListOfDocs());
         page.actionLoadDocument(aTarget);
     }
+    
+
 
     public void actionShowOpenDocumentDialog(AjaxRequestTarget aTarget)
     {

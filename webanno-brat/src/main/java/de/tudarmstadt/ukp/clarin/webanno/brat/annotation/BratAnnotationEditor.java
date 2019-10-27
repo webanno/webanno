@@ -74,7 +74,6 @@ import de.tudarmstadt.ukp.clarin.webanno.brat.message.GetDocumentResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.LoadConfResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.NormDataResponse;
 import de.tudarmstadt.ukp.clarin.webanno.brat.message.SpanAnnotationResponse;
-import de.tudarmstadt.ukp.clarin.webanno.brat.message.VisualOptions;
 import de.tudarmstadt.ukp.clarin.webanno.brat.metrics.BratMetrics;
 import de.tudarmstadt.ukp.clarin.webanno.brat.metrics.BratMetrics.RenderType;
 import de.tudarmstadt.ukp.clarin.webanno.brat.render.BratRenderer;
@@ -411,10 +410,6 @@ public class BratAnnotationEditor
         if (getModelObject().getProject() != null) {
             info.setEntityTypes(BratRenderer
                     .buildEntityTypes(getModelObject().getAnnotationLayers(), annotationService));
-            info.getVisualOptions()
-                    .setArcBundle(getModelObject().getPreferences().isCollapseArcs()
-                            ? VisualOptions.ARC_BUNDLE_ALL
-                            : VisualOptions.ARC_BUNDLE_NONE);
         }
         return info;
     }
@@ -651,7 +646,7 @@ public class BratAnnotationEditor
     
     private String bratLoadCollectionCommand()
     {
-        GetCollectionInformationResponse response = actionGetCollectionInformation();
+        GetCollectionInformationResponse response = new GetCollectionInformationResponse();
         response.setEntityTypes(BratRenderer
                 .buildEntityTypes(getModelObject().getAnnotationLayers(), annotationService));
         String json = toJson(response);

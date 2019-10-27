@@ -109,6 +109,14 @@ public abstract class AnnotationPageBase
         getModelObject().moveToNextDocument(getListOfDocs());
         actionLoadDocument(aTarget);
     }
+    
+    //added
+    protected void actionShowTurnToSlot(AjaxRequestTarget aTarget)
+    {
+        getModelObject().moveToNextDocument(getListOfDocs());
+        actionLoadDocument(aTarget);
+    }
+
 
     /**
      * Show the specified document.

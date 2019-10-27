@@ -20,7 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.editor;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
@@ -80,5 +79,5 @@ public abstract class FeatureEditor
         return new Label(MID_FEATURE, getModelObject().feature.getUiName());
     }
     
-    abstract public FormComponent getFocusComponent();
+    abstract public Component getFocusComponent();
 }

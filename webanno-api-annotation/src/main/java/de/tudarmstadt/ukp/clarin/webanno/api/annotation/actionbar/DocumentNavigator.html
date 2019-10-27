@@ -20,7 +20,7 @@
 <body>
   <wicket:panel>
     <div class="action-bar-group">
-<!--       <div class="action-bar-group-title">Document</div> -->
+      <div class="action-bar-group-title">Document</div>
       <button wicket:id="showOpenDocumentDialog" class="btn btn-default" type="button" wicket:message="title:openDocument">
         <i class="far fa-folder-open"></i>
       </button>
@@ -36,6 +36,10 @@
         </button>
         <button wicket:id="showNextDocument" class="btn btn-default" type="button"  wicket:message="title:nextDocument">
           <i class="far fa-caret-square-right"></i>
+        </button>
+<!--         //added -->
+                <button wicket:id="showTurnToSlot" class="btn btn-default" type="button"  wicket:message="title:turnToSlot">
+          <i class="fa fa-link" aria-hidden="true"></i>
         </button>
       </div>
       </div>

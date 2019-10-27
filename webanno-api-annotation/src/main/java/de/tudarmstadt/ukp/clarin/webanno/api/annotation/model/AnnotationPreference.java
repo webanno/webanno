@@ -77,8 +77,6 @@ public class AnnotationPreference
     private int fontZoom;
     
     private String editor;
-    
-    private boolean collapseArcs = false;
 
     /**
      * working with preferred layers is deprecated, use hidden layers instead
@@ -244,15 +242,5 @@ public class AnnotationPreference
     public long getDefaultLayer()
     {
         return defaultLayer;
-    }
-
-    public boolean isCollapseArcs()
-    {
-        return collapseArcs;
-    }
-
-    public void setCollapseArcs(boolean aCollapseArcs)
-    {
-        collapseArcs = aCollapseArcs;
     }
 }
