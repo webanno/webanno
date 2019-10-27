@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 2018
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt

@@ -74,6 +74,9 @@ public class PrimitiveUimaFeatureSupport
 
     private String featureSupportId;
     
+    
+    public String regexValidation=null;
+    
     /*
      * Constructor for use in unit tests to avoid having to always instantiate the properties.
      */
@@ -142,6 +145,8 @@ public class PrimitiveUimaFeatureSupport
     @Override
     public void setFeatureValue(CAS aCas, AnnotationFeature aFeature, int aAddress, Object aValue)
     {
+    	regexValidation=aFeature.getTraits().toString();
+    	
         if (
                 aValue != null &&
                 schemaService != null && 
@@ -159,6 +164,20 @@ public class PrimitiveUimaFeatureSupport
                 selectedTag.setTagSet(aFeature.getTagset());
                 schemaService.createTag(selectedTag);
             }
+            
+            
+            java.util.regex.Pattern pattern=  
+            		java.util.regex.Pattern.compile(regexValidation);
+
+            		java.util.regex.Matcher matcher = pattern.matcher(aValue.toString());
+
+            
+            if(!matcher.matches())
+            {
+            	throw new IllegalArgumentException("[" + aValue
+                        + "] mismatch regular expression");	
+            }
+            
         }
         
         FeatureSupport.super.setFeatureValue(aCas, aFeature, aAddress, aValue);
