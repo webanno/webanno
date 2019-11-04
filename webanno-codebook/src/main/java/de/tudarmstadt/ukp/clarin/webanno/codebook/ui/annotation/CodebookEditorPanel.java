@@ -148,30 +148,6 @@ public abstract class CodebookEditorPanel
         };
     }
 
-    private List<CodebookEditorModel> getCodebooksModel()
-    {
-        List<CodebookEditorModel> codebooks = new ArrayList<CodebookEditorModel>();
-
-        for (Codebook codebook : listCodebooks()) {
-            codebooks.add(new CodebookEditorModel(codebook));
-        }
-
-        return codebooks;
-    }
-
-    private List<CodebookTag> getTags(Codebook aCodebook)
-    {
-        if (codebookService.listCodebookFeature(aCodebook) == null
-                || codebookService.listCodebookFeature(aCodebook).size() == 0) {
-            return new ArrayList<>();
-        }
-        CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getCategory() == null) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(codebookService.listTags(codebookFeature.getCategory()));
-    }
-
     private List<Codebook> listCodebooks()
     {
         if (codebookEditorModel == null) {

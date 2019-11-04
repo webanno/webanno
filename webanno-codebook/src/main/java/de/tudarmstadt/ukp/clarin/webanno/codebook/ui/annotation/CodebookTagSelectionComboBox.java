@@ -71,6 +71,7 @@ public class CodebookTagSelectionComboBox
             }
         });
 
+        // TODO we don't need this anymore I think?!
         this.add(new AttributeModifier("style", ColoringStrategy.getCodebookBgStyle()));
     }
 
@@ -106,7 +107,11 @@ public class CodebookTagSelectionComboBox
     protected void onConfigure()
     {
         super.onConfigure();
+        reloadTags();
 
+    }
+
+    private void reloadTags() {
         // Trigger a re-loading of the tagset from the server as constraints may
         // have
         // changed the ordering
