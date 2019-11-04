@@ -53,9 +53,6 @@ public class CodebookEditorNodePanel
     {
         super(id, new CompoundPropertyModel<>(node));
 
-        // heading
-        this.add(new Label("codebookNameLabel", node.getObject().getUiName()));
-
         // form
         IModel<CodebookTag> selectedTag = Model.of();
         Form<CodebookTag> tagSelectionForm = new Form<>("codebookTagSelectionForm",
@@ -78,7 +75,7 @@ public class CodebookEditorNodePanel
         tagSelectionForm.add(tagSelectionComboBox);
 
         // label for the combobox
-        tagSelectionForm.add(new Label("codebookTagLabel", "Annotation"));
+        tagSelectionForm.add(new Label("codebookNameLabel", node.getObject().getUiName()));
 
         // tooltip for the codebooks
         this.add(new DescriptionTooltipBehavior(codebook.getUiName(), codebook.getDescription()));
