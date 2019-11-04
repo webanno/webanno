@@ -56,9 +56,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.slf4j.Logger;
@@ -123,12 +121,6 @@ public class ProjectCodebookPanel
     private CodebookTagSelectionPanel tagSelectionPanel;
     private CodebookTagEditorPanel tagEditorPanel;
     private ImportCodebookForm importCodebookForm;
-
-    private static final UrlResourceReference ICON_UP = new UrlResourceReference(
-            Url.parse("images/hand-o-up.png")).setContextRelative(true);
-
-    private static final UrlResourceReference ICON_DOWN = new UrlResourceReference(
-            Url.parse("images/hand-o-down.png")).setContextRelative(true);
 
     private IModel<CodebookTag> selectedTag;
     private IModel<CodebookCategory> selectedCategory;

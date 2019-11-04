@@ -67,7 +67,6 @@ public class ProjectCodebookTreePanel
         // get all codebooks and init the provider
         List<Codebook> codebooks = this.codebookService.listCodebook(project);
         this.provider = new CodebookNodeProvider(codebooks);
-        this.provider.detach();
     }
 
     private Folder<CodebookNode> buildFolderComponent(String id, IModel<CodebookNode> model)
@@ -141,7 +140,7 @@ public class ProjectCodebookTreePanel
     public void initTree()
     {
         this.initCodebookNodeProvider();
-        tree = new NestedTree<CodebookNode>("codebookTree", this.provider,
+        tree = new NestedTree<CodebookNode>("projectCodebookTree", this.provider,
                 new CodebookNodeExpansionModel())
         {
             private static final long serialVersionUID = 2285250157811357702L;

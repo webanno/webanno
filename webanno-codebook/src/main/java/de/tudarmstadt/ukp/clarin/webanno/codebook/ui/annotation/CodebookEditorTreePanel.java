@@ -82,7 +82,7 @@ public class CodebookEditorTreePanel
     public void initTree()
     {
         this.initCodebookNodeProvider();
-        tree = new NestedTree<CodebookNode>("codebookTree", this.provider,
+        tree = new NestedTree<CodebookNode>("editorCodebookTree", this.provider,
                 new CodebookNodeExpansionModel())
         {
             private static final long serialVersionUID = 2285250157811357702L;
