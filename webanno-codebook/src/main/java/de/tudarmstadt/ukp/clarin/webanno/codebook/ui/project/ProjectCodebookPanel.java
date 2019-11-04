@@ -172,7 +172,7 @@ public class ProjectCodebookPanel
                 tagEditorPanel);
         projectCodebookTreePanel.initTree();
         projectCodebookTreePanel.setOutputMarkupId(true);
-        add(projectCodebookTreePanel);
+        codebookSelectionForm.add(projectCodebookTreePanel);
     }
 
     // package private by intention
