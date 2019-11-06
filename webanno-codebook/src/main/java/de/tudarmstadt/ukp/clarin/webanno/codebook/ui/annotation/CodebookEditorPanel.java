@@ -51,14 +51,13 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree.CodebookTreePanel;
 
 public abstract class CodebookEditorPanel
     extends Panel
 {
     /**
-     * Function to return tooltip using jquery Docs for the JQuery tooltip widget
-     * that we configure below: https://api.jqueryui.com/tooltip/
+     * Function to return tooltip using jquery Docs for the JQuery tooltip widget that we configure
+     * below: https://api.jqueryui.com/tooltip/
      */
     protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
             + "'<div class=\"tooltip-title\">'+($(this).text() "
@@ -77,7 +76,7 @@ public abstract class CodebookEditorPanel
 
     private CodebookEditorModel codebookEditorModel;
 
-    private CodebookTreePanel codebookTreePanel;
+    private CodebookEditorTreePanel codebookEditorTreePanel;
 
     public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
     {
@@ -93,9 +92,10 @@ public abstract class CodebookEditorPanel
         add(form);
 
         // add but don't init the tree
-        codebookTreePanel = new CodebookTreePanel("codebookTreePanel", aModel);
-        codebookTreePanel.setOutputMarkupId(true);
-        add(codebookTreePanel);
+        codebookEditorTreePanel = new CodebookEditorTreePanel("codebookEditorTreePanel", aModel,
+                this);
+        codebookEditorTreePanel.setOutputMarkupId(true);
+        add(codebookEditorTreePanel);
     }
 
     public CodebookEditorModel getModelObject()
@@ -103,7 +103,8 @@ public abstract class CodebookEditorPanel
         return (CodebookEditorModel) getDefaultModelObject();
     }
 
-    public String getExistingCode(Codebook codebook) {
+    public String getExistingCode(Codebook codebook)
+    {
         CodebookAdapter adapter = new CodebookAdapter(codebook);
         CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
         CAS cas = null;
@@ -147,30 +148,6 @@ public abstract class CodebookEditorPanel
         };
     }
 
-    private List<CodebookEditorModel> getCodebooksModel()
-    {
-        List<CodebookEditorModel> codebooks = new ArrayList<CodebookEditorModel>();
-
-        for (Codebook codebook : listCodebooks()) {
-            codebooks.add(new CodebookEditorModel(codebook));
-        }
-
-        return codebooks;
-    }
-
-    private List<CodebookTag> getTags(Codebook aCodebook)
-    {
-        if (codebookService.listCodebookFeature(aCodebook) == null
-                || codebookService.listCodebookFeature(aCodebook).size() == 0) {
-            return new ArrayList<>();
-        }
-        CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getCategory() == null) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(codebookService.listTags(codebookFeature.getCategory()));
-    }
-
     private List<Codebook> listCodebooks()
     {
         if (codebookEditorModel == null) {
@@ -185,9 +162,9 @@ public abstract class CodebookEditorPanel
         setDefaultModelObject(codebookEditorModel);
 
         // initialize the tree with the project's codebooks
-        codebookTreePanel.setDefaultModelObject(codebookEditorModel);
-        codebookTreePanel.initTree(CodebookEditorPanel.this);
-        aTarget.add(codebookTreePanel);
+        codebookEditorTreePanel.setDefaultModelObject(codebookEditorModel);
+        codebookEditorTreePanel.initTree();
+        aTarget.add(codebookEditorTreePanel);
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)

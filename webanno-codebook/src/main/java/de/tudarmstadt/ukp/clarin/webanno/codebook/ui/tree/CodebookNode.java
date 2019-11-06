@@ -15,18 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.ProjectCodebookPanel;
 
 public class CodebookNode
     implements Serializable
 {
     private static final long serialVersionUID = 7317710381928186621L;
+    private static final Logger LOG = LoggerFactory.getLogger(ProjectCodebookPanel.class);
 
     private Codebook codebook;
 
@@ -39,7 +44,7 @@ public class CodebookNode
 
     private Set<CodebookNode> children;
 
-    CodebookNode(Codebook codebook)
+    public CodebookNode(Codebook codebook)
     {
         this.codebook = codebook;
         this.name = this.codebook.getName();
@@ -66,25 +71,30 @@ public class CodebookNode
 
     public void setParent(CodebookNode parent)
     {
+        if (this.children.contains(parent)) {
+            LOG.error("Cannot set Codebook '" + parent.getName() + "' as parent for Codebook '"
+                    + this.getName() + "' because '" + parent.getName() + "' is a child of '"
+                    + this.getName() + "!");
+        }
         this.parent = parent;
     }
 
-    Set<CodebookNode> getChildren()
+    public Set<CodebookNode> getChildren()
     {
         return children;
     }
 
-    boolean isRoot()
+    public boolean isRoot()
     {
         return parent == null;
     }
 
-    boolean isLeaf()
+    public boolean isLeaf()
     {
         return this.children == null || this.children.isEmpty();
     }
 
-    void addChild(CodebookNode child)
+    public void addChild(CodebookNode child)
     {
         this.children.add(child);
     }
@@ -122,7 +132,7 @@ public class CodebookNode
     @Override
     public String toString()
     {
-        return "CodebookNode{" + "uiName='" + uiName + '\'' + '}';
+        return uiName;
     }
 
 }

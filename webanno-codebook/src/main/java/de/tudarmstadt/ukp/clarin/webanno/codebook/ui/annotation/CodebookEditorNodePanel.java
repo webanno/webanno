@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +34,10 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookEditorPanel;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.CodebookTagSelectionComboBox;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 
-public class CodebookNodePanel
+public class CodebookEditorNodePanel
     extends Panel
 {
     private static final long serialVersionUID = 5875644822389693657L;
@@ -47,12 +46,10 @@ public class CodebookNodePanel
     private CodebookTagSelectionComboBox tagSelectionComboBox;
     private @SpringBean CodebookSchemaService codebookService;
 
-    public CodebookNodePanel(String id, IModel<CodebookNode> node, CodebookEditorPanel parentEditor)
+    public CodebookEditorNodePanel(String id, IModel<CodebookNode> node,
+                                   CodebookEditorPanel parentEditor)
     {
         super(id, new CompoundPropertyModel<>(node));
-
-        // heading
-        this.add(new Label("codebookNameLabel", node.getObject().getUiName()));
 
         // form
         IModel<CodebookTag> selectedTag = Model.of();
@@ -76,7 +73,7 @@ public class CodebookNodePanel
         tagSelectionForm.add(tagSelectionComboBox);
 
         // label for the combobox
-        tagSelectionForm.add(new Label("codebookTagLabel", "Annotation"));
+        tagSelectionForm.add(new Label("codebookNameLabel", node.getObject().getUiName()));
 
         // tooltip for the codebooks
         this.add(new DescriptionTooltipBehavior(codebook.getUiName(), codebook.getDescription()));

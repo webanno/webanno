@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import java.util.Iterator;
 import java.util.List;
@@ -108,9 +108,9 @@ public class CodebookNodeProvider
      * Creates a {@link CodebookNodeModel}.
      */
     @Override
-    public IModel<CodebookNode> model(CodebookNode foo)
+    public IModel<CodebookNode> model(CodebookNode node)
     {
-        return new CodebookNodeModel(foo);
+        return new CodebookNodeModel(node);
     }
 
     /**

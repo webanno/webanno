@@ -17,14 +17,16 @@
 #limitations under the License.
 -->
 <html xmlns:wicket="http://wicket.apache.org">
+<body>
 <wicket:panel>
     <div class="col-md-12">
-        <a wicket:id="expandAll" class="btn btn-default pull-right">Expand all</a>
-        <a wicket:id="collapseAll" class="btn btn-default pull-left">Collapse all</a>
+        <a wicket:id="expandAll" class="btn btn-default pull-left">Expand all</a>
+        <a wicket:id="collapseAll" class="btn btn-default pull-right">Collapse all</a>
     </div>
     <hr />
-    <div class="col-sm-12">
-        <div wicket:id="codebookTree"></div>
+    <div class="col-md-12">
+        <div wicket:id="editorCodebookTree"></div>
     </div>
 </wicket:panel>
+</body>
 </html>

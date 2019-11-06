@@ -21,6 +21,7 @@
     <div class="scrolling flex-content flex-h-container flex-gutter">
       <div class="flex-content flex-v-container">
         <form wicket:id="codebookSelectionForm" class="flex-content panel panel-default panel-flex">
+
           <div class="panel-heading">
             <h3 class="panel-title">
               <wicket:message key="codebooks"/>
@@ -31,18 +32,16 @@
               </span>
             </h3>
           </div>
-          <div class="panel-body fit-child-snug_2">
-            <select wicket:id="codebookSelection" size="2" class="form-control">
-            <wicket:container wicket:id="codebooks">   
-                <option wicket:id="codebook"></option>
-              </wicket:container>
-            </select>
+
+          <div class="panel-body">
+            <div wicket:id="projectCodebookTreePanel">[projectCodebookTreePanel]</div>
           </div>
 				
           <div class="panel-footer text-right">
-            <input wicket:id="create" type="submit" class="btn btn-primary" wicket:message="value:new.codebook.create"/>
+            <input wicket:id="create"  type="submit" class="btn btn-primary"
+                   wicket:message="value:new.codebook.create"/>
           </div>  
-          </form>
+        </form>
 
 
         <form wicket:id="importCodebookForm" class="panel panel-default">
@@ -111,23 +110,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div class="panel panel-default panel-small panel-flex min-content-height">
-              <div class="panel-heading">
-                <h3 class="panel-title">Re-order codebooks
-                </h3>
-              </div>
-              <div class="panel-body form-horizontal">
-                <div class="col-sm-12">
-                <div>
-              	<a href="#" wicket:id="moveUpLink"><img wicket:id="moveUpIcon"></img></a>
-                </div>
-                <div>
-                <a href="#" wicket:id="movedownLink"><img wicket:id="movedownIcon"></img></a>
-                </div>
-                </div>
-              </div>              
             </div>
             
             <div class="panel panel-default panel-small panel-flex min-content-height">

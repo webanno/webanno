@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import org.apache.wicket.model.Model;
 
@@ -34,7 +34,7 @@ public class CodebookNodeModel
     }
 
     /**
-     * Important! Models must be identifyable by their contained object.
+     * Important! Models must be identifiable by their contained object.
      */
     @Override
     public boolean equals(Object obj)
@@ -46,7 +46,7 @@ public class CodebookNodeModel
     }
 
     /**
-     * Important! Models must be identifyable by their contained object.
+     * Important! Models must be identifiable by their contained object.
      */
     @Override
     public int hashCode()

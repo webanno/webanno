@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -40,18 +40,18 @@ public class CodebookNodeExpansion
 
     private boolean inverse;
 
-    public void expandAll()
-    {
-        ids.clear();
-
-        inverse = true;
-    }
-
     public void collapseAll()
     {
         ids.clear();
 
         inverse = false;
+    }
+
+    public void expandAll()
+    {
+        ids.clear();
+
+        inverse = true;
     }
 
     @Override
