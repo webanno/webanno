@@ -1,18 +1,44 @@
 <aside>
 
 <div class="radius b20 center">
+<table style="width: 100%;">
+<col width="30%"/>
+<col width="70%"/>
+<tr style="background: white;">
+<td><a href="{{ site.url }}/downloads"><span class="icon-archive" style="font-size: 400%;"></span></a></td>
+<td>
 {% assign stable = (site.data.releases | where:"status", "stable" | first) %}
-Latest release: {{ stable.version }} ({{ stable.date }})
-</div>
+<a href="{{ site.url }}/downloads"><span style="font-size: 100%;">Download</span><br/> 
+<b style="font-size: 120%">WebAnno {{ stable.version }}</b></a><br/>
+<span style="font-size: 70%;">(Released on {{ stable.date }})</span>
+</td>
+</tr>
+</table>
 
 <div class="radius b20">
 <iframe id="ytplayer" type="text/html" height="227" src="https://www.youtube-nocookie.com/embed/?listType=playlist&list=PLvYKmi8P7TYdC-7A_VT4td95629aZIwDb&color=white&showinfo=1" frameborder="0" allowfullscreen></iframe>
 </div>
 
-<div class="radius b20 pseudo-p">
-<div class="center" style="float:left; width: 20%; margin-right: 1em;"><img src="{{ site.url }}/images/logos/clarin-d.png"/></div>
-<b><a href="https://webanno.sfs.uni-tuebingen.de/">CLARIN WebAnno</a>:</b> The CLARIN-D Center at the University of Tübingen is hosting a WebAnno instance as part of the CLARIN-D infrastructure.
+<div class="center radius b20">
+<a href="https://twitter.com/search?q=%23webanno" target="_blank" class="icon-twitter" title="Twitter: #webanno">Find us on Twitter</a>
 </div>
+
+<div class="radius b20 pseudo-p">
+<table style="width: 100%;">
+<col width="30%"/>
+<col width="70%"/>
+<tr style="background: white;">
+<td colspan="2" style="text-align: center;">WebAnno is also offered as a service to members of research institutions.</td>
+</tr>
+<tr style="background: white;">
+<td><img src="{{ site.url }}/images/logos/clarin-d.png"/></td>
+<td><a href="https://webanno.sfs.uni-tuebingen.de/">CLARIN-D WebAnno</a>:</b><br/> The CLARIN-D Center at the University of Tübingen hosts a WebAnno instance as part of CLARIN-D.</td>
+</tr>
+<tr style="background: white;">
+<td><img src="{{ site.url }}/images/logos/FIN-CLARIN_logo.png"/></td>
+<td><a href="https://www.kielipankki.fi/webanno/">FIN-CLARIN WebAnno</a>:</b><br/> The Language Bank of Finland hosts a WebAnno instance as part of CLARIN-FIN.</td>
+</tr>
+</table>
 
 {% comment %}
 <div class="radius b20">
