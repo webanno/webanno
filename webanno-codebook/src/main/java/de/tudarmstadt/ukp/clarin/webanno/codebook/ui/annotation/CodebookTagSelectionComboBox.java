@@ -117,7 +117,7 @@ public class CodebookTagSelectionComboBox
         // changed the ordering
         Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (target.isPresent()) {
-            LOG.trace("onInitialize() requesting datasource re-reading");
+            LOG.trace("onInitialize() or onConfigure() requesting datasource re-reading");
             target.get().appendJavaScript(
                     String.format("var $w = %s; if ($w) { $w.dataSource.read(); }",
                             KendoUIBehavior.widget(this, ComboBoxBehavior.METHOD)));

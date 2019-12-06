@@ -94,4 +94,9 @@ public class CodebookEditorNodePanel
         }
         return new ArrayList<>(codebookService.listTags(codebookFeature.getCategory()));
     }
+
+    // package private by intention
+    CodebookTagSelectionComboBox getTagSelectionComboBox() {
+        return tagSelectionComboBox;
+    }
 }
