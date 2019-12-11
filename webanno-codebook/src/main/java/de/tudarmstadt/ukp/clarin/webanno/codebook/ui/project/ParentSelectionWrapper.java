@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,47 +27,62 @@ import java.util.Set;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-
-public class CodebookParentSelectionWrapper implements Serializable
+public class ParentSelectionWrapper<T>
+    implements Serializable
 {
 
     private static final long serialVersionUID = 7597507351396638287L;
-    private DropDownChoice<Codebook> parentSelection;
-    private Set<Codebook> allParents;
+    private DropDownChoice<T> parentSelection;
+    private Set<T> allParentTags;
 
-    public CodebookParentSelectionWrapper(String aId, List<Codebook> aParentChoices)
+    /**
+     * @param aId
+     *            wicked markup Id for the dropdown
+     * @param displayExpression
+     *            name of field that's displayed in the dropdown (e.g. name or uiName)
+     * @param aParentChoices
+     *            the list of possible parents
+     */
+    public ParentSelectionWrapper(String aId, String displayExpression,
+            Collection<T> aParentChoices)
     {
-        this.allParents = new HashSet<>(aParentChoices);
+        this.allParentTags = new HashSet<>(aParentChoices);
         this.parentSelection = new DropDownChoice<>(aId, new ArrayList<>(aParentChoices),
-                new ChoiceRenderer<>("uiName"));
+                new ChoiceRenderer<>(displayExpression));
+        this.parentSelection.setNullValid(true);
     }
 
-    public void addParent(Codebook codebook)
+    public void addParent(T parent)
     {
-        this.allParents.add(codebook);
+        this.allParentTags.add(parent);
         this.updateParents();
     }
 
-    public void removeParent(Codebook codebook)
+    public void removeParent(T parent)
     {
-        this.allParents.remove(codebook);
+        this.allParentTags.remove(parent);
         this.updateParents();
     }
 
     private void updateParents()
     {
-        this.parentSelection.setChoices(new ArrayList<>(this.allParents));
+        this.parentSelection.setChoices(new ArrayList<>(this.allParentTags));
     }
 
-    /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
+    public void updateParents(Collection<T> parentChoices)
     {
-        List<Codebook> parentChoices = new ArrayList<>(this.allParents);
-        parentChoices.remove(currentCodebook);
+        this.allParentTags = new HashSet<>(parentChoices);
+        this.updateParents();
+    }
+
+    /* package private */ void removeFromParentChoices(T parentToRemove)
+    {
+        List<T> parentChoices = new ArrayList<>(this.allParentTags);
+        parentChoices.remove(parentToRemove);
         this.parentSelection.setChoices(parentChoices);
     }
 
-    public DropDownChoice get()
+    public DropDownChoice getDropdown()
     {
         return this.parentSelection;
     }

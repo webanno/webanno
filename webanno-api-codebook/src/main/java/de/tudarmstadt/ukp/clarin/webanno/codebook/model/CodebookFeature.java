@@ -33,8 +33,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
@@ -55,19 +53,13 @@ public class CodebookFeature implements Serializable {
     private String type;
 
     @ManyToOne
-    @JoinColumn(name = "codebook", 
-        foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "codebook", foreignKey =
+        @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
     private Codebook codebook;
 
     @ManyToOne
     @JoinColumn(name = "project")
     private Project project;
-
-    @ManyToOne
-    @JoinColumn(name = "codebook_category",
-        foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-    @NotFound(action = NotFoundAction.IGNORE)
-    private CodebookCategory category;
 
     @Column(nullable = false)
     private String uiName;
@@ -101,14 +93,13 @@ public class CodebookFeature implements Serializable {
     }
 
     public CodebookFeature(Project aProject,  Codebook aCodebook, String aName, String aUiName,
-            String aType, String aDescription, CodebookCategory aCategory) {
+            String aType, String aDescription) {
         project = aProject;
         codebook = aCodebook;
         name = aName;
         uiName = aUiName;
         type = aType;
         description = aDescription;
-        category = aCategory;
     }
 
     public Long getId() {
@@ -220,21 +211,6 @@ public class CodebookFeature implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * @return the category.
-     */
-    public CodebookCategory getCategory() {
-        return category;
-    }
-
-    /**
-     * @param category
-     *            the category.
-     */
-    public void setCategory(CodebookCategory category) {
-        this.category = category;
     }
 
     @Override

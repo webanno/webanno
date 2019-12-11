@@ -87,4 +87,9 @@ public abstract class CodebookTreePanel
             return CodebookNodeExpansion.get();
         }
     }
+
+    public final CodebookNodeProvider getProvider()
+    {
+        return this.provider;
+    }
 }

@@ -109,8 +109,7 @@ public class ProjectCodebookTreePanel
                         .updateParentChoicesForCodebook(this.getModelObject().getCodebook());
                 // ProjectCodebookPanel.CodebookSelectionForm.this.setVisible(true);
 
-                tagSelectionPanel.setDefaultModelObject(
-                        projectCodebookPanel.getCategory(getModelObject().getCodebook()));
+                tagSelectionPanel.setDefaultModelObject(getModelObject().getCodebook());
                 tagSelectionPanel.setVisible(true);
                 tagEditorPanel.setVisible(true);
                 // TODO check if available

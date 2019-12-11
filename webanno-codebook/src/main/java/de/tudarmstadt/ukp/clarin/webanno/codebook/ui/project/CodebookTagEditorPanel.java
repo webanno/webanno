@@ -19,8 +19,12 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
@@ -31,7 +35,7 @@ import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
@@ -45,35 +49,69 @@ public class CodebookTagEditorPanel
 
     private @SpringBean CodebookSchemaService codebookSchemaService;
 
-    private IModel<CodebookCategory> selectedCategory;
+    private IModel<Codebook> selectedCodebook;
     private IModel<CodebookTag> selectedTag;
 
-    public CodebookTagEditorPanel(String aId, IModel<CodebookCategory> aCategory,
-            IModel<CodebookTag> aTag)
+    private ParentSelectionWrapper<CodebookTag> codebookTagParentSelection;
+
+    public CodebookTagEditorPanel(String aId, IModel<Codebook> aCodebook, IModel<CodebookTag> aTag)
     {
         super(aId, aTag);
 
         setOutputMarkupId(true);
         setOutputMarkupPlaceholderTag(true);
 
-        selectedCategory = aCategory;
+        selectedCodebook = aCodebook;
         selectedTag = aTag;
 
         Form<CodebookTag> form = new Form<>("form", CompoundPropertyModel.of(aTag));
-        add(form);
 
+        // TODO maybe we have to change TagExistsValidator
+        // since there could be tag that only differ by parent?!
         form.add(new TextField<String>("name").add(new TagExistsValidator()).setRequired(true));
         form.add(new TextArea<String>("description"));
+
+        // add parent tag selection
+        // TODO
+        // 1) get parent codebook!
+        // 2) get tags from parent codebook as possible parent tags
+        // 3) display them in the selection
+        // 4) safe the chosen tag as parent tag!#
+        List<CodebookTag> parentTags = new ArrayList<>();
+        if (selectedCodebook.getObject() != null) {
+            // TODO is this correct now?
+            parentTags = codebookSchemaService
+                    .listTags(selectedCodebook.getObject().getParent());
+        }
+        this.codebookTagParentSelection = new ParentSelectionWrapper<>("parent", "name",
+                parentTags);
+        form.add(this.codebookTagParentSelection.getDropdown()
+                .setOutputMarkupPlaceholderTag(true));
+        form.add(new Label("parentTagLabel", "Parent Tag")
+                .setOutputMarkupPlaceholderTag(true));
 
         form.add(new LambdaAjaxButton<>("save", this::actionSave));
         form.add(new LambdaAjaxLink("delete", this::actionDelete)
                 .onConfigure(_this -> _this.setVisible(form.getModelObject().getId() != null)));
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
+        add(form);
+    }
+
+    @Override
+    protected void onConfigure() {
+        super.onConfigure();
+        this.setVisible(selectedTag != null && selectedTag.getObject() != null);
+        List<CodebookTag> parentTags = new ArrayList<>();
+        if (selectedCodebook.getObject() != null) {
+            parentTags = codebookSchemaService
+                    .listTags(selectedCodebook.getObject().getParent());
+        }
+        this.codebookTagParentSelection.updateParents(parentTags);
     }
 
     private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm)
     {
-        selectedTag.getObject().setCategory(selectedCategory.getObject());
+        selectedTag.getObject().setCodebook(selectedCodebook.getObject());
         codebookSchemaService.createCodebookTag(selectedTag.getObject());
 
         // Reload whole page because master panel also needs to be reloaded.
@@ -100,12 +138,13 @@ public class CodebookTagEditorPanel
         private static final long serialVersionUID = 6697292531559511021L;
 
         @Override
-        public void validate(IValidatable<String> aValidatable) {
+        public void validate(IValidatable<String> aValidatable)
+        {
             String newName = aValidatable.getValue();
             String oldName = aValidatable.getModel().getObject();
             if (!StringUtils.equals(newName, oldName) && isNotBlank(newName)
                     && codebookSchemaService.existsCodebookTag(newName,
-                            selectedCategory.getObject())) {
+                            selectedCodebook.getObject())) {
                 aValidatable.error(new ValidationError(
                         "Another tag with the same name exists. Please try a different name"));
             }

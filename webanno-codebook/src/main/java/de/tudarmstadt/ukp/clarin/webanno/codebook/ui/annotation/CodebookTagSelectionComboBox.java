@@ -56,9 +56,12 @@ public class CodebookTagSelectionComboBox
 
     private static final long serialVersionUID = -6038478625103441332L;
 
+    // TODO add identifier wrt to codebook
+
     public CodebookTagSelectionComboBox(String id, IModel<String> model, List<CodebookTag> choices)
     {
         super(id, model, choices);
+
 
         this.add(new Behavior()
         {
@@ -108,7 +111,6 @@ public class CodebookTagSelectionComboBox
     {
         super.onConfigure();
         reloadTags();
-
     }
 
     private void reloadTags() {
@@ -117,7 +119,7 @@ public class CodebookTagSelectionComboBox
         // changed the ordering
         Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (target.isPresent()) {
-            LOG.trace("onInitialize() requesting datasource re-reading");
+            LOG.trace("onInitialize() or onConfigure() requesting datasource re-reading");
             target.get().appendJavaScript(
                     String.format("var $w = %s; if ($w) { $w.dataSource.read(); }",
                             KendoUIBehavior.widget(this, ComboBoxBehavior.METHOD)));

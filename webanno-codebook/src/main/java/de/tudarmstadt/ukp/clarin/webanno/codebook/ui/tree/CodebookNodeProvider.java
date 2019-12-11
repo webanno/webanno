@@ -17,6 +17,7 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -135,5 +136,61 @@ public class CodebookNodeProvider
         }
 
         return null;
+    }
+
+    /*
+     * Mapping functions between CodebookNodes and Codebooks and vice versa
+     */
+    private Codebook getCodebook(final CodebookNode node)
+    {
+        return nameToCodebooks.get(node.getName());
+    }
+
+    private CodebookNode getCodebookNode(final Codebook book)
+    {
+        return nameToNodes.get(book.getName());
+    }
+
+    private Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
+    {
+        Set<Codebook> books = new HashSet<>();
+        for (CodebookNode node : nodes)
+            books.add(this.getCodebook(node));
+        return books;
+    }
+
+    private Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
+    {
+        Set<CodebookNode> nodes = new HashSet<>();
+        for (Codebook book : books)
+            nodes.add(this.getCodebookNode(book));
+        return nodes;
+    }
+
+    private Set<Codebook> getChildren(final Codebook book)
+    {
+        return this.getCodebooks(this.getCodebookNode(book).getChildren());
+    }
+
+    private Set<CodebookNode> getParentsRecursively(final CodebookNode node)
+    {
+        Set<CodebookNode> parents = new HashSet<>();
+        CodebookNode parent = node.getParent();
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        return parents;
+    }
+
+    public Set<Codebook> getPossibleParents(final Codebook book)
+    {
+        if (book == null || book.getId() == null)
+            return new HashSet<>(this.nameToCodebooks.values());
+
+        // all but own children
+        Set<Codebook> possibleParents = new HashSet<>(this.nameToCodebooks.values());
+        possibleParents.removeAll(this.getChildren(book));
+        return possibleParents;
     }
 }

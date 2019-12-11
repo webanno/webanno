@@ -21,7 +21,6 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,10 +28,8 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,10 +83,6 @@ public abstract class CodebookEditorPanel
         add(CodebookLayoutCssResourceBehavior.get());
 
         codebookEditorModel = aModel.getObject();
-        // create the form
-        IModel<Collection<Codebook>> codebooksToAdeModel = new CollectionModel<>(new ArrayList<>());
-        Form<Collection<Codebook>> form = new Form<>("form", codebooksToAdeModel);
-        add(form);
 
         // add but don't init the tree
         codebookEditorTreePanel = new CodebookEditorTreePanel("codebookEditorTreePanel", aModel,
@@ -128,9 +121,13 @@ public abstract class CodebookEditorPanel
             @Override
             public void onUpdate(AjaxRequestTarget aTarget)
             {
+                // TODO clear children comboBoxes if parent is not of same category..
+                // how to get the boxes?!
+
                 try {
                     CAS jcas = getCodebookCas();
                     if (comboBox.getModelObject() == null) {
+                        // most probably we'll never reach this code..
                         CodebookAdapter adapter = new CodebookAdapter(codebook);
                         adapter.delete(jcas, feature);
                         writeCodebookCas(jcas);
@@ -186,6 +183,7 @@ public abstract class CodebookEditorPanel
 
         for (CodebookFeatureState featureState : featureStates) {
 
+            /* TODO how to translate this to codebooks since there are no categories anymore
             // For string features with extensible tagsets, extend the tagset
             if (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) {
                 String value = (String) featureState.value;
@@ -199,6 +197,7 @@ public abstract class CodebookEditorPanel
                     codebookService.createCodebookTag(selectedTag);
                 }
             }
+             */
 
             LOG.trace("writeFeatureEditorModelsToCas() " + featureState.feature.getUiName() + " = "
                     + featureState.value);

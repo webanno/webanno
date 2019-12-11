@@ -149,16 +149,18 @@ public class CodebookSuggestionPanel
 
     List<String> getTags(Codebook aCodebook)
     {
+        /* TODO I dont see the point of the code below and would suggest to remove it
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
         }
         CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getCategory() == null) {
+        if (codebookFeature.getCodebook() == null) {
             return new ArrayList<>();
         }
+        */
         List<String> tags = new ArrayList<>();
-        for (CodebookTag tag : codebookService.listTags(codebookFeature.getCategory())) {
+        for (CodebookTag tag : codebookService.listTags(aCodebook)) {
             tags.add(tag.getName());
         }
         return tags;

@@ -24,13 +24,12 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 /**
- * This interface contains methods which are related to CodebookCategory,
+ * This interface contains methods which are related to Codebook,
  * CodebookTag and Type for the annotation project.
  */
 public interface CodebookSchemaService {
@@ -42,8 +41,8 @@ public interface CodebookSchemaService {
     void createCodebookFeature(CodebookFeature aFeature);
 
     /**
-     * creates a {@link CodebookTag} for a given {@link CodebookCategory}.
-     * Combination of {@code tag name} and {@code category name} should be unique
+     * creates a {@link CodebookTag} for a given {@link Codebook}.
+     * Combination of {@code tag name} and {@code codebook name} should be unique
      *
      * @param aTag
      *            the tag.
@@ -51,29 +50,20 @@ public interface CodebookSchemaService {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
     void createCodebookTag(CodebookTag aTag);
 
-    /**
-     * creates a {@link CodebookCategory} object in the database
-     *
-     * @param aCategory
-     *            the category.
-     */
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    void createCodebookCategory(CodebookCategory aCategory);
-
     boolean existsFeature(String aName, Codebook aCodebook);
 
     boolean existsCodebook(String name, Project project);
 
     /**
-     * Check if a tag with this name in the given category exists
+     * Check if a tag with this name in the given codebook exists
      *
      * @param tagName
      *            the tag name.
-     * @param category
-     *            the category.
+     * @param aCodebook
+     *            the codebook.
      * @return if the tag exists.
      */
-    boolean existsCodebookTag(String tagName, CodebookCategory category);
+    boolean existsCodebookTag(String tagName, Codebook aCodebook);
 
     Codebook getCodebook(long id);
 
@@ -93,23 +83,15 @@ public interface CodebookSchemaService {
     CodebookFeature getCodebookFeature(String name, Codebook codebook);
 
     /**
-     * gets a {@link CodebookTag} using its name and a {@link CodebookCategory}
+     * gets a {@link CodebookTag} using its name and a {@link Codebook}
      *
      * @param tagName
      *            the tag name.
-     * @param category
-     *            the category.
+     * @param aCodebook
+     *            the codebook.
      * @return the tag.
      */
-    CodebookTag getCodebookTag(String tagName, CodebookCategory category);
-
-    /**
-     * removes a {@link CodebookCategory } from the database
-     *
-     * @param category
-     *            the category.
-     */
-    void removeCodebookCategory(CodebookCategory category);
+    CodebookTag getCodebookTag(String tagName, Codebook aCodebook);
 
     /**
      * Removes a {@link CodebookTag} from the database
@@ -121,13 +103,13 @@ public interface CodebookSchemaService {
     void removeCodebookTag(CodebookTag tag);
 
     /**
-     * list all {@link CodebookTag} in a {@link CodebookCategory}
+     * list all {@link CodebookTag} in a {@link Codebook}
      *
-     * @param category
-     *            the category.
+     * @param aCodebook
+     *            the codebook.
      * @return the tags.
      */
-    List<CodebookTag> listTags(CodebookCategory category);
+    List<CodebookTag> listTags(Codebook aCodebook);
 
     /**
      * List all codebooks in the project
