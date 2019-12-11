@@ -86,10 +86,6 @@ public abstract class CodebookEditorPanel
         add(CodebookLayoutCssResourceBehavior.get());
 
         codebookEditorModel = aModel.getObject();
-        // create the form
-        IModel<Collection<Codebook>> codebooksToAdeModel = new CollectionModel<>(new ArrayList<>());
-        Form<Collection<Codebook>> form = new Form<>("form", codebooksToAdeModel);
-        add(form);
 
         // add but don't init the tree
         codebookEditorTreePanel = new CodebookEditorTreePanel("codebookEditorTreePanel", aModel,

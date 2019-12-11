@@ -16,7 +16,6 @@
  * limitations under the License.
  */package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.codebook;
 
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
@@ -33,7 +32,6 @@ public class CodebookSidebar
     {
         super(aId, aModel, null, null, aAnnotationPage);
 
-        add(new Label("info", "Here comes the new CodeAnno Sidebar!"));
         add(aAnnotationPage.getCodebookPanel());
     }
 
