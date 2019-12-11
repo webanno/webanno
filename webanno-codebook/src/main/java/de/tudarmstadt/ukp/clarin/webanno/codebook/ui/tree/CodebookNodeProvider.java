@@ -139,26 +139,30 @@ public class CodebookNodeProvider
     }
 
     /*
-        Mapping functions between CodebookNodes and Codebooks and vice versa
+     * Mapping functions between CodebookNodes and Codebooks and vice versa
      */
-    private Codebook getCodebook(final CodebookNode node) {
+    private Codebook getCodebook(final CodebookNode node)
+    {
         return nameToCodebooks.get(node.getName());
     }
 
-    private CodebookNode getCodebookNode(final Codebook book) {
+    private CodebookNode getCodebookNode(final Codebook book)
+    {
         return nameToNodes.get(book.getName());
     }
 
-    private Set<Codebook> getCodebooks(final Set<CodebookNode> nodes) {
+    private Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
+    {
         Set<Codebook> books = new HashSet<>();
-        for(CodebookNode node : nodes)
+        for (CodebookNode node : nodes)
             books.add(this.getCodebook(node));
         return books;
     }
 
-    private Set<CodebookNode> getCodebookNodes(final Set<Codebook> books) {
+    private Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
+    {
         Set<CodebookNode> nodes = new HashSet<>();
-        for(Codebook book : books)
+        for (Codebook book : books)
             nodes.add(this.getCodebookNode(book));
         return nodes;
     }

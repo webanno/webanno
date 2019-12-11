@@ -20,7 +20,9 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,6 +31,9 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * A persistence object for a CodebookTag
@@ -52,17 +57,24 @@ public class CodebookTag
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "codebook_category")
-    private CodebookCategory category;
+    @JoinColumn(name = "codebook", foreignKey =
+        @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    private Codebook codebook;
+
+    @ManyToOne
+    @JoinColumn(name = "parent", foreignKey =
+        @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @OnDelete(action = OnDeleteAction.CASCADE) // TODO do we really want cascading delete?!
+    private CodebookTag parent;
 
     public CodebookTag()
     {
         // Nothing to do
     }
 
-    public CodebookTag(CodebookCategory aCategory, String aName)
+    public CodebookTag(Codebook aCodebook, String aName)
     {
-        category = aCategory;
+        codebook = aCodebook;
         name = aName;
     }
 
@@ -102,14 +114,20 @@ public class CodebookTag
         description = aDescription;
     }
 
-    public CodebookCategory getCategory()
-    {
-        return category;
+    public Codebook getCodebook() {
+        return codebook;
     }
 
-    public void setCategory(CodebookCategory aCategory)
-    {
-        category = aCategory;
+    public void setCodebook(Codebook codebook) {
+        this.codebook = codebook;
+    }
+
+    public CodebookTag getParent() {
+        return parent;
+    }
+
+    public void setParent(CodebookTag parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -118,7 +136,7 @@ public class CodebookTag
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((category == null) ? 0 : category.hashCode());
+        result = prime * result + ((codebook == null) ? 0 : codebook.hashCode());
         return result;
     }
 
@@ -143,12 +161,12 @@ public class CodebookTag
         else if (!name.equals(other.name)) {
             return false;
         }
-        if (category == null) {
-            if (other.category != null) {
+        if (codebook == null) {
+            if (other.codebook != null) {
                 return false;
             }
         }
-        else if (!category.equals(other.category)) {
+        else if (!codebook.equals(other.codebook)) {
             return false;
         }
         return true;

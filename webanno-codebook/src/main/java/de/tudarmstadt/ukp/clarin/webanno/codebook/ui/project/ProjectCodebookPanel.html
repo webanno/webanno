@@ -43,7 +43,6 @@
           </div>  
         </form>
 
-
         <form wicket:id="importCodebookForm" class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title"><wicket:message key="import.codebooks"/></h3>
@@ -61,18 +60,24 @@
           <div class="panel-footer text-right">
             <input wicket:id="import" type="submit" class="btn btn-primary" wicket:message="value:import"/>
           </div>            
-        </form> 
+        </form>
+
       </div>
-      
+
+      <div class="flex-content flex-v-container">
       <form wicket:id="codebookDetailForm" class="flex-content flex-v-container flex-gutter">
         <div wicket:id="confirmationDialog"></div>
+
         <div class="flex-content panel panel-default panel-flex">
+
           <div class="panel-heading">
             <h3 class="panel-title">
               <wicket:message key="codebook.details"/>
             </h3>
           </div>
+
           <div class="scrolling panel-body flex-v-container">
+
             <div class="panel-small panel panel-default panel-flex min-content-height">
               <div class="panel-heading">
                 <h3 class="panel-title">
@@ -84,6 +89,7 @@
                   </span>
                 </h3>
               </div>
+
               <div class="panel-body form-horizontal">
                 <div class="col-sm-12">
                   <div class="form-group">
@@ -103,7 +109,7 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label wicket:id="parentLabel" class="col-sm-4 control-label" />
+                    <label wicket:id="parentCodebookLabel" class="col-sm-4 control-label" />
                     <div class="col-sm-8">
                       <select wicket:id="parent" class="form-control"></select>
                     </div>
@@ -135,8 +141,7 @@
                     </div>
                   </div> 
                 </div>
-              </div>           
-              
+              </div>
             </div>
     
           </div>  
@@ -156,6 +161,7 @@
           </div>
         </div>
       </form>
+      </div>
       
       <div class="flex-content flex-v-container flex-gutter">
         

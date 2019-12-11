@@ -252,6 +252,7 @@ public class CodebookCurationPanel
 
     List<String> getTags(Codebook aCodebook)
     {
+        /* TODO I dont see the point of the code below and would suggest to delete it
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
@@ -260,8 +261,9 @@ public class CodebookCurationPanel
         if (codebookFeature.getCategory() == null) {
             return new ArrayList<>();
         }
+         */
         List<String> tags = new ArrayList<>();
-        for (CodebookTag tag : codebookService.listTags(codebookFeature.getCategory())) {
+        for (CodebookTag tag : codebookService.listTags(aCodebook)) {
             tags.add(tag.getName());
         }
         return tags;
@@ -347,6 +349,7 @@ public class CodebookCurationPanel
 
         for (CodebookFeatureState featureState : featureStates) {
 
+            /* TODO how to translate this to codebooks since there is no category anymore
             // For string features with extensible tagsets, extend the tagset
             if (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) {
                 String value = (String) featureState.value;
@@ -360,6 +363,7 @@ public class CodebookCurationPanel
                     codebookService.createCodebookTag(selectedTag);
                 }
             }
+             */
 
             AnnotationFS existingFs = aAdapter.getExistingFs(aJCas/* , featureState.feature */);
             int annoId;

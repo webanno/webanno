@@ -96,10 +96,12 @@ public class PrimitiveUimaCodebookFeatureSupport
     @Override
     public void configureCodeBookFeature(CodebookFeature aFeature)
     {
+        /* TODO
         // If the feature is not a string feature, force the tagset to null.
         if (!(CAS.TYPE_NAME_STRING.equals(aFeature.getType()))) {
             aFeature.setCategory(null);
         }
+         */
     }
     
     @Override

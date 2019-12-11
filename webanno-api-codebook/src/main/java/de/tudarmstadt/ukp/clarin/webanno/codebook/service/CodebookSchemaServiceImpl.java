@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -91,23 +90,6 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void createCodebookCategory(CodebookCategory aCategory) {
-        if (isNull(aCategory.getId())) {
-            entityManager.persist(aCategory);
-        } else {
-            entityManager.merge(aCategory);
-        }
-
-        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
-                String.valueOf(aCategory.getProject().getId()))) {
-            Project project = aCategory.getProject();
-            log.info("Created codebook_category [{}]({}) in project [{}]({})", aCategory.getName(),
-                    aCategory.getId(), project.getName(), project.getId());
-        }
-    }
-
-    @Override
-    @Transactional
     public boolean existsFeature(String aName, Codebook aCodebook) {
 
         try {
@@ -124,9 +106,9 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     }
 
     @Override
-    public boolean existsCodebookTag(String aTagName, CodebookCategory aCategory) {
+    public boolean existsCodebookTag(String aTagName, Codebook aCodebook) {
         try {
-            getCodebookTag(aTagName, aCategory);
+            getCodebookTag(aTagName, aCodebook);
             return true;
         } catch (NoResultException e) {
             return false;
@@ -135,11 +117,11 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public CodebookTag getCodebookTag(String aTagName, CodebookCategory aCategory) {
+    public CodebookTag getCodebookTag(String aTagName, Codebook aCodebook) {
         return entityManager
-                .createQuery("FROM CodebookTag WHERE name = :name AND" + " category =:category",
+                .createQuery("FROM CodebookTag WHERE name = :name AND" + " codebook =:codebook",
                         CodebookTag.class)
-                .setParameter("name", aTagName).setParameter("category", aCategory)
+                .setParameter("name", aTagName).setParameter("codebook", aCodebook)
                 .getSingleResult();
     }
 
@@ -199,17 +181,6 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void removeCodebookCategory(CodebookCategory aCategory) 
-    {
-        for (CodebookTag tag : this.listTags(aCategory)) {
-            entityManager.remove(tag);
-        }
-        entityManager.remove(
-                entityManager.contains(aCategory) ? aCategory : entityManager.merge(aCategory));
-    }
-
-    @Override
-    @Transactional
     public void createCodebookTag(CodebookTag aTag) {
         if (isNull(aTag.getId())) {
             entityManager.persist(aTag);
@@ -218,12 +189,12 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
         }
 
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
-                String.valueOf(aTag.getCategory().getProject().getId()))) {
-            CodebookCategory category = aTag.getCategory();
-            Project project = category.getProject();
+                String.valueOf(aTag.getCodebook().getProject().getId()))) {
+            Codebook codebook = aTag.getCodebook();
+            Project project = codebook.getProject();
             log.info(
-                    "Created codebook_tag [{}]({}) in codebook_category [{}]({}) in project [{}]({})",
-                    aTag.getName(), aTag.getId(), category.getName(), category.getId(),
+                    "Created codebook_tag [{}]({}) in codebook [{}]({}) in project [{}]({})",
+                    aTag.getName(), aTag.getId(), codebook.getName(), codebook.getId(),
                     project.getName(), project.getId());
         }
     }
@@ -236,11 +207,11 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public List<CodebookTag> listTags(CodebookCategory aCategory) {
+    public List<CodebookTag> listTags(Codebook aCodebook) {
         return entityManager
-                .createQuery("FROM CodebookTag WHERE category = :category ORDER BY name ASC",
+                .createQuery("FROM CodebookTag WHERE codebook = :codebook ORDER BY name ASC",
                         CodebookTag.class)
-                .setParameter("category", aCategory).getResultList();
+                .setParameter("codebook", aCodebook).getResultList();
     }
 
     @Override

@@ -56,9 +56,12 @@ public class CodebookTagSelectionComboBox
 
     private static final long serialVersionUID = -6038478625103441332L;
 
+    // TODO add identifier wrt to codebook
+
     public CodebookTagSelectionComboBox(String id, IModel<String> model, List<CodebookTag> choices)
     {
         super(id, model, choices);
+
 
         this.add(new Behavior()
         {
@@ -108,7 +111,6 @@ public class CodebookTagSelectionComboBox
     {
         super.onConfigure();
         reloadTags();
-
     }
 
     private void reloadTags() {

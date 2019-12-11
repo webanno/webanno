@@ -21,12 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 
 public class ImportUtil {
     public static de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exportCodebook(
@@ -49,24 +45,7 @@ public class ImportUtil {
             exFeature.setType(feature.getType());
             exFeature.setUiName(feature.getUiName());
 
-            if (feature.getCategory() != null) {
-                CodebookCategory category = feature.getCategory();
-                ExportedTagSet exTagSet = new ExportedTagSet();
-                exTagSet.setDescription(category.getDescription());
-                exTagSet.setLanguage(category.getLanguage());
-                exTagSet.setName(category.getName());
-                exTagSet.setCreateTag(category.isCreateTag());
-
-                List<ExportedTag> exportedTags = new ArrayList<>();
-                for (CodebookTag tag : aCodebookService.listTags(category)) {
-                    ExportedTag exTag = new ExportedTag();
-                    exTag.setDescription(tag.getDescription());
-                    exTag.setName(tag.getName());
-                    exportedTags.add(exTag);
-                }
-                exTagSet.setTags(exportedTags);
-                exFeature.setTagSet(exTagSet);
-            }
+            // TODO what happens here since we removed the codebook category (tagset)?!
             exFeatures.add(exFeature);
         }
         exLayer.setFeatures(exFeatures);

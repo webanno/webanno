@@ -48,14 +48,10 @@ import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExporter;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.csv.WebannoCsvWriter;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocumentState;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
@@ -157,24 +153,7 @@ public class CodebookExporter
                 exF.setType(feature.getType());
                 exF.setUiName(feature.getUiName());
 
-                if (feature.getCategory() != null) {
-                    CodebookCategory tagSet = feature.getCategory();
-                    ExportedTagSet exTagSet = new ExportedTagSet();
-                    exTagSet.setDescription(tagSet.getDescription());
-                    exTagSet.setLanguage(tagSet.getLanguage());
-                    exTagSet.setName(tagSet.getName());
-                    exTagSet.setCreateTag(tagSet.isCreateTag());
-
-                    List<ExportedTag> exportedTags = new ArrayList<>();
-                    for (CodebookTag tag : codebookService.listTags(tagSet)) {
-                        ExportedTag exTag = new ExportedTag();
-                        exTag.setDescription(tag.getDescription());
-                        exTag.setName(tag.getName());
-                        exportedTags.add(exTag);
-                    }
-                    exTagSet.setTags(exportedTags);
-                    exF.setTagSet(exTagSet);
-                }
+                // TODO what happens here since we deleted codebook category (tagset)
                 exFeatures.add(exF);
             }
             exLayer.setFeatures(exFeatures);

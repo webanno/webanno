@@ -24,7 +24,7 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookCategory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
@@ -39,20 +39,22 @@ public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
     private @SpringBean CodebookSchemaService codebookSchemaService;
 
     private OverviewListChoice<CodebookTag> overviewList;
-    private IModel<CodebookCategory> selectedTagSet;
+    private IModel<Codebook> selectedCodebook;
+    private IModel<CodebookTag> selectedTag;
 
-    public CodebookTagSelectionPanel(String id, IModel<CodebookCategory> aTagset,
-            IModel<CodebookTag> aTag) {
-        super(id, aTagset);
+    public CodebookTagSelectionPanel(String id,
+                                     IModel<Codebook> aCodebook, IModel<CodebookTag> aTag) {
+        super(id, aCodebook);
 
         setOutputMarkupId(true);
         setOutputMarkupPlaceholderTag(true);
 
-        selectedTagSet = aTagset;
+        selectedCodebook = aCodebook;
+        selectedTag = aTag;
 
         overviewList = new OverviewListChoice<>("tag");
         overviewList.setChoiceRenderer(new ChoiceRenderer<>("name"));
-        overviewList.setModel(aTag);
+        overviewList.setModel(selectedTag);
         overviewList.setChoices(LambdaModel.of(this::listTags));
         overviewList.add(new LambdaAjaxFormComponentUpdatingBehavior("change", this::onChange));
         add(overviewList);
@@ -60,9 +62,10 @@ public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
         add(new LambdaAjaxLink("create", this::actionCreate));
     }
 
+    //TODO
     private List<CodebookTag> listTags() {
-        if (selectedTagSet.getObject() != null) {
-            return codebookSchemaService.listTags(selectedTagSet.getObject());
+        if (selectedCodebook.getObject() != null) {
+            return codebookSchemaService.listTags(selectedCodebook.getObject());
         } else {
             return Collections.emptyList();
         }

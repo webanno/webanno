@@ -25,6 +25,8 @@
 
    
   <!-- CODEBOOK schema -->
+
+	<!-- create codebook_feature table -->
   	<changeSet author="WebAnno Team" id="1512223050574-20">
 		<preConditions onFail="MARK_RAN">
 			<not>
@@ -45,32 +47,32 @@
 			</column>
 			<column name="project" type="BIGINT" />
 			<column name="codebook" type="BIGINT" />
-			<column name="codebook_category" type="BIGINT" />
 		</createTable>
 	</changeSet>
 	
-		<changeSet author="WebAnno Team" id="1512223050574-20.2"
+	<changeSet author="WebAnno Team" id="1512223050574-20.2"
 		failOnError="false">
 		<addUniqueConstraint
 			tableName="codebook_feature"
 			constraintName="UK-codebook_feature"
-			columnNames="codebook name, project" />
+			columnNames="codebook, name, project" />
 	</changeSet>
 
-	<!-- Add index (project) on (annotation_feature) -->
+<!-- Add index (project) on (codebook_feature) -->
 	<changeSet author="WebAnno Team" id="1512223050574-20.4">
 		<preConditions onFail="MARK_RAN">
 			<not>
 				<indexExists tableName="codebook_feature"
-					indexName="FK-codebook_feature" />
+					indexName="FK_codebook_feature" />
 			</not>
 		</preConditions>
-		<createIndex indexName="FK-codebook_feature"
+		<createIndex indexName="FK_codebook_feature"
 			tableName="codebook_feature">
 			<column name="project" />
 		</createIndex>
 	</changeSet>
 
+	<!-- create codebook table -->
 	<changeSet author="WebAnno Team" id="1512223050574-30">
 		<preConditions onFail="MARK_RAN">
 			<not>
@@ -101,6 +103,9 @@
 		<addUniqueConstraint tableName="codebook"
 			constraintName="UK-codebook" columnNames="name, project" />
 	</changeSet>
+
+
+	<!-- create codebook_tag table -->
 	<changeSet author="WebAnno Team" id="1512223050574-12">
 		<preConditions onFail="MARK_RAN">
 			<not>
@@ -115,13 +120,12 @@
 			<column name="name" type="VARCHAR(255)">
 				<constraints nullable="false" />
 			</column>
-			<column name="codebook_category" type="BIGINT" />
+			<column name="codebook" type="BIGINT" />
+			<column name="parent" type="BIGINT" />
 		</createTable>
 	</changeSet>
 
-	<!--
-      Add index (codebook_category) on (codebook_tag)
-     -->
+	<!-- Add index (codebook) on (codebook_tag) -->
 	<changeSet author="WebAnno Team" id="1512223050574-30.2">
 		<preConditions onFail="MARK_RAN">
 			<not>
@@ -129,75 +133,26 @@
 			</not>
 		</preConditions>
 		<createIndex indexName="FKcodebook_1" tableName="codebook_tag">
-			<column name="codebook_category" />
+			<column name="codebook" />
 		</createIndex>
 	</changeSet>
 
-	<changeSet author="WebAnno Team" id="1512223050574-30.3">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<tableExists tableName="codebook_category" />
-			</not>
-		</preConditions>
-		<createTable tableName="codebook_category">
-			<column autoIncrement="true" name="id" type="BIGINT">
-				<constraints primaryKey="true" />
-			</column>
-			<column name="createTag" type="BIT(1)">
-				<constraints nullable="false" />
-			</column>
-			<column name="description" type="LONGTEXT" />
-			<column name="language" type="VARCHAR(255)" />
-			<column name="name" type="VARCHAR(255)">
-				<constraints nullable="false" />
-			</column>
-			<column name="project" type="BIGINT" />
-		</createTable>
-	</changeSet>
-
 	<!--
-      Clean up legacy unique constraint (name, project) on (codebook_category)
-
-      NOTE: This change set ignores failures since there is no precondition to check if
-            unique constraints exist or not. So we simply have to try it.
-     -->
-	<changeSet author="WebAnno Team" id="1512223050574-30.30" failOnError="false">
-		<dropUniqueConstraint
-				tableName="codebook_category"
-				constraintName="UK_codebook_1"
-				uniqueColumns="name, project" />
-	</changeSet>
-
-	<!--
-      Add unique constraint (name, project) on (codebook_category)
-
-      NOTE: This change set ignores failures since there is no precondition to check if
-            unique constraints exist or not. So we simply have to try it.
-     -->
-	<changeSet author="WebAnno Team" id="1512223050574-30.4" failOnError="false">
-		<addUniqueConstraint
-				tableName="codebook_category"
-				constraintName="UK_codebook_2"
-				columnNames="name, project" />
-	</changeSet>
-
-	<!--
-      Add index (project) on (codebook_category)
-     -->
+          Add index (project) on (codebook_category)
+         -->
 	<changeSet author="WebAnno Team" id="1512223050574-30.5">
 		<preConditions onFail="MARK_RAN">
 			<not>
-				<indexExists tableName="codebook_category" indexName="FKcodebook_2"/>
+				<indexExists tableName="codebook" indexName="FKcodebook_2"/>
 			</not>
 		</preConditions>
-		<createIndex indexName="FKcodebook_2" tableName="codebook_category">
+		<createIndex indexName="FKcodebook_2" tableName="codebook">
 			<column name="project" />
 		</createIndex>
 	</changeSet>
 
-
 	<!--
-      Clean up legacy index (codebook_category) on (codebook_tag)
+      Clean up legacy index (codebook) on (codebook_tag)
      -->
 	<changeSet author="WebAnno Team" id="1512223050574-30.6">
 		<preConditions onFail="MARK_RAN">
@@ -209,17 +164,18 @@
 	</changeSet>
 
 	<!--
-      Clean up legacy index (project) on (codebook_category)
+      Clean up legacy index (project) on (codebook)
      -->
 	<changeSet author="WebAnno Team" id="1512223050574-30.7">
 		<preConditions onFail="MARK_RAN">
-			<indexExists tableName="codebook_category" indexName="FKcodebook_4"/>
+			<indexExists tableName="codebook" indexName="FKcodebook_4"/>
 		</preConditions>
 		<dropIndex
-				tableName="codebook_category"
+				tableName="codebook"
 				indexName="FKcodebook_4" />
 	</changeSet>
 
+	<!-- Clean up foreign key constraints on (codebook_tag) -->
 	<changeSet author="WebAnno Team" id="1512223050574-30.8">
 		<preConditions onFail="MARK_RAN">
 			<foreignKeyConstraintExists foreignKeyTableName="codebook_tag" foreignKeyName="FKcodebook_5" />
@@ -240,9 +196,9 @@
 				<foreignKeyConstraintExists foreignKeyTableName="codebook_tag" foreignKeyName="FKcodebook_1" />
 			</not>
 		</preConditions>
-		<addForeignKeyConstraint baseColumnNames="codebook_category" baseTableName="codebook_tag"
+		<addForeignKeyConstraint baseColumnNames="codebook" baseTableName="codebook_tag"
 								 constraintName="FKcodebook_1" deferrable="false" initiallyDeferred="false"
-								 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="codebook_category" />
+								 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="codebook" />
 	</changeSet>
 
 </databaseChangeLog>

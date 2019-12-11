@@ -83,16 +83,18 @@ public class CodebookEditorNodePanel
 
     private List<CodebookTag> getTags(Codebook aCodebook)
     {
+        /* TODO I dont see the point of the code below and would suggest to remove it
         if (codebookService.listCodebookFeature(aCodebook) == null
                 || codebookService.listCodebookFeature(aCodebook).size() == 0) {
             return new ArrayList<>();
         }
         // TODO only get(0) because there is only one feature at the moment!
         CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getCategory() == null) {
+        if (codebookFeature.getCodebook() == null) {
             return new ArrayList<>();
         }
-        return new ArrayList<>(codebookService.listTags(codebookFeature.getCategory()));
+        */
+        return new ArrayList<>(codebookService.listTags(aCodebook));
     }
 
     // package private by intention
