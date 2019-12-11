@@ -88,7 +88,8 @@ public abstract class CodebookTreePanel
         }
     }
 
-    protected final CodebookNodeProvider getProvider() {
+    public final CodebookNodeProvider getProvider()
+    {
         return this.provider;
     }
 }

@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -33,7 +34,9 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.ListPanel_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 
-public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
+public class CodebookTagSelectionPanel
+    extends ListPanel_ImplBase
+{
     private static final long serialVersionUID = -1L;
 
     private @SpringBean CodebookSchemaService codebookSchemaService;
@@ -42,8 +45,9 @@ public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
     private IModel<Codebook> selectedCodebook;
     private IModel<CodebookTag> selectedTag;
 
-    public CodebookTagSelectionPanel(String id,
-                                     IModel<Codebook> aCodebook, IModel<CodebookTag> aTag) {
+    public CodebookTagSelectionPanel(String id, IModel<Codebook> aCodebook,
+            IModel<CodebookTag> aTag)
+    {
         super(id, aCodebook);
 
         setOutputMarkupId(true);
@@ -62,12 +66,29 @@ public class CodebookTagSelectionPanel extends ListPanel_ImplBase {
         add(new LambdaAjaxLink("create", this::actionCreate));
     }
 
-    //TODO
-    private List<CodebookTag> listTags() {
+    private List<CodebookTag> listTags()
+    {
         if (selectedCodebook.getObject() != null) {
             return codebookSchemaService.listTags(selectedCodebook.getObject());
-        } else {
+        }
+        else {
             return Collections.emptyList();
         }
     }
+
+    @Override
+    protected void onConfigure()
+    {
+        super.onConfigure();
+        this.setVisible(selectedCodebook.getObject() != null
+                && selectedCodebook.getObject().getId() != null);
+    }
+
+    @Override
+    protected void actionCreate(AjaxRequestTarget aTarget) throws Exception
+    {
+        super.actionCreate(aTarget);
+        selectedTag.setObject(new CodebookTag());
+    }
+
 }

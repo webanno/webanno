@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,8 @@ import java.util.Set;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 
-public class ParentSelectionWrapper<T> implements Serializable
+public class ParentSelectionWrapper<T>
+    implements Serializable
 {
 
     private static final long serialVersionUID = 7597507351396638287L;
@@ -34,15 +36,20 @@ public class ParentSelectionWrapper<T> implements Serializable
     private Set<T> allParentTags;
 
     /**
-     * @param aId wicked markup Id for the dropdown
-     * @param displayExpression name of field that's displayed in the dropdown (e.g. name or uiName)
-     * @param aParentChoices the list of possible parents
+     * @param aId
+     *            wicked markup Id for the dropdown
+     * @param displayExpression
+     *            name of field that's displayed in the dropdown (e.g. name or uiName)
+     * @param aParentChoices
+     *            the list of possible parents
      */
-    public ParentSelectionWrapper(String aId, String displayExpression, List<T> aParentChoices)
+    public ParentSelectionWrapper(String aId, String displayExpression,
+            Collection<T> aParentChoices)
     {
         this.allParentTags = new HashSet<>(aParentChoices);
         this.parentSelection = new DropDownChoice<>(aId, new ArrayList<>(aParentChoices),
                 new ChoiceRenderer<>(displayExpression));
+        this.parentSelection.setNullValid(true);
     }
 
     public void addParent(T parent)
@@ -62,10 +69,16 @@ public class ParentSelectionWrapper<T> implements Serializable
         this.parentSelection.setChoices(new ArrayList<>(this.allParentTags));
     }
 
-    /* package private */ void updateParentChoices(T currentCodebook)
+    public void updateParents(Collection<T> parentChoices)
+    {
+        this.allParentTags = new HashSet<>(parentChoices);
+        this.updateParents();
+    }
+
+    /* package private */ void removeFromParentChoices(T parentToRemove)
     {
         List<T> parentChoices = new ArrayList<>(this.allParentTags);
-        parentChoices.remove(currentCodebook);
+        parentChoices.remove(parentToRemove);
         this.parentSelection.setChoices(parentChoices);
     }
 

@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -143,25 +145,20 @@ public class ProjectCodebookPanel
         codebookDetailForm = new CodebookDetailForm("codebookDetailForm", selectedCodebook);
         add(codebookDetailForm);
 
+        // tag editor panel
+        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedCodebook,
+                selectedTag);
+        add(tagEditorPanel);
 
         // tag selection panel
         tagSelectionPanel = new CodebookTagSelectionPanel("codebookTagSelector", selectedCodebook,
                 selectedTag);
-        tagSelectionPanel.onConfigure(_this -> _this
-                .setVisible(selectedCodebook.getObject() != null
-                        && selectedCodebook.getObject().getId() != null));
-        tagSelectionPanel.setCreateAction(target -> selectedTag.setObject(new CodebookTag()));
         tagSelectionPanel.setChangeAction(target -> {
             target.add(tagEditorPanel);
         });
         add(tagSelectionPanel);
 
-        // tag editor panel
-        tagEditorPanel = new CodebookTagEditorPanel("codebookTagEditor", selectedCodebook,
-                selectedTag);
-        tagEditorPanel.onConfigure(
-            _this -> _this.setVisible(selectedTag != null && selectedTag.getObject() != null));
-        add(tagEditorPanel);
+
 
         // import form
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
@@ -210,8 +207,8 @@ public class ProjectCodebookPanel
                 {
                     selectedTag.setObject(null);
                     tagSelectionPanel.setDefaultModelObject(null);
-                    tagEditorPanel.setDefaultModel(null);
-                    CodebookSelectionForm.this.setModelObject(null);
+                    tagEditorPanel.setDefaultModelObject(null);
+                    CodebookSelectionForm.this.setDefaultModelObject(null);
                     codebookDetailForm.setDefaultModelObject(new Codebook());
                 }
             });
@@ -337,10 +334,13 @@ public class ProjectCodebookPanel
             });
 
             // add Parent Selection
-            Project project = ProjectCodebookPanel.this.getModelObject();
-            List<Codebook> codebooks = codebookService.listCodebook(project);
+            Set<Codebook> possibleParents = new HashSet<>();
+            if (aSelectedCodebook.getObject() != null) {
+                possibleParents = projectCodebookTreePanel.getProvider()
+                        .getPossibleParents(aSelectedCodebook.getObject());
+            }
             this.codebookParentSelection = new ParentSelectionWrapper<>("parent",
-                    "uiName", codebooks);
+                    "uiName", possibleParents);
             add(this.codebookParentSelection.getDropdown());
             add(new Label("parentCodebookLabel", "Parent Codebook"));
 
@@ -515,7 +515,11 @@ public class ProjectCodebookPanel
 
         /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
         {
-            this.codebookParentSelection.updateParentChoices(currentCodebook);
+            Set<Codebook> possibleParents = new HashSet<>();
+            possibleParents = projectCodebookTreePanel.getProvider()
+                    .getPossibleParents(currentCodebook);
+            this.codebookParentSelection.updateParents(possibleParents);
+            this.codebookParentSelection.removeFromParentChoices(currentCodebook);
         }
 
         @Override
@@ -523,6 +527,10 @@ public class ProjectCodebookPanel
         {
             super.onConfigure();
             setVisible(getDefaultModelObject() != null);
+            // hide and reset tag editor panel when the selected codebook changed
+            tagEditorPanel.setDefaultModelObject(null);
+            // update parent selections
+            this.updateParentChoicesForCodebook(getModelObject());
         }
     }
 

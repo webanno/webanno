@@ -167,8 +167,30 @@ public class CodebookNodeProvider
         return nodes;
     }
 
-    public Set<Codebook> getChildren(final Codebook book)
+    private Set<Codebook> getChildren(final Codebook book)
     {
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
+    }
+
+    private Set<CodebookNode> getParentsRecursively(final CodebookNode node)
+    {
+        Set<CodebookNode> parents = new HashSet<>();
+        CodebookNode parent = node.getParent();
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        return parents;
+    }
+
+    public Set<Codebook> getPossibleParents(final Codebook book)
+    {
+        if (book == null || book.getId() == null)
+            return new HashSet<>(this.nameToCodebooks.values());
+
+        // all but own children
+        Set<Codebook> possibleParents = new HashSet<>(this.nameToCodebooks.values());
+        possibleParents.removeAll(this.getChildren(book));
+        return possibleParents;
     }
 }

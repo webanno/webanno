@@ -97,6 +97,18 @@ public class CodebookTagEditorPanel
         add(form);
     }
 
+    @Override
+    protected void onConfigure() {
+        super.onConfigure();
+        this.setVisible(selectedTag != null && selectedTag.getObject() != null);
+        List<CodebookTag> parentTags = new ArrayList<>();
+        if (selectedCodebook.getObject() != null) {
+            parentTags = codebookSchemaService
+                    .listTags(selectedCodebook.getObject().getParent());
+        }
+        this.codebookTagParentSelection.updateParents(parentTags);
+    }
+
     private void actionSave(AjaxRequestTarget aTarget, Form<CodebookTag> aForm)
     {
         selectedTag.getObject().setCodebook(selectedCodebook.getObject());
