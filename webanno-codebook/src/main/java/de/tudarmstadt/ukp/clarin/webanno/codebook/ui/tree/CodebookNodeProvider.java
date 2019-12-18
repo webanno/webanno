@@ -17,10 +17,12 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -141,17 +143,17 @@ public class CodebookNodeProvider
     /*
      * Mapping functions between CodebookNodes and Codebooks and vice versa
      */
-    private Codebook getCodebook(final CodebookNode node)
+    public Codebook getCodebook(final CodebookNode node)
     {
         return nameToCodebooks.get(node.getName());
     }
 
-    private CodebookNode getCodebookNode(final Codebook book)
+    public CodebookNode getCodebookNode(final Codebook book)
     {
         return nameToNodes.get(book.getName());
     }
 
-    private Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
+    public Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
     {
         Set<Codebook> books = new HashSet<>();
         for (CodebookNode node : nodes)
@@ -159,7 +161,7 @@ public class CodebookNodeProvider
         return books;
     }
 
-    private Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
+    public Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
     {
         Set<CodebookNode> nodes = new HashSet<>();
         for (Codebook book : books)
@@ -172,7 +174,7 @@ public class CodebookNodeProvider
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
     }
 
-    private Set<CodebookNode> getParentsRecursively(final CodebookNode node)
+    public Set<CodebookNode> getPrecedents(final CodebookNode node)
     {
         Set<CodebookNode> parents = new HashSet<>();
         CodebookNode parent = node.getParent();
@@ -181,6 +183,19 @@ public class CodebookNodeProvider
             parent = parent.getParent();
         }
         return parents;
+    }
+
+    public Set<CodebookNode> getDescendants(final CodebookNode node,
+                                             Set<CodebookNode> allChildren) {
+        if(allChildren == null)
+            allChildren = new HashSet<>();
+
+        for (CodebookNode child : node.getChildren()) {
+            allChildren.add(child);
+            getDescendants(child, allChildren);
+        }
+
+        return allChildren;
     }
 
     public Set<Codebook> getPossibleParents(final Codebook book)

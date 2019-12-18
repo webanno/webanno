@@ -17,7 +17,9 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.tree.NestedTree;
@@ -37,6 +39,7 @@ public class CodebookEditorTreePanel
     private static final long serialVersionUID = -8329270688665288003L;
 
     private CodebookEditorPanel parentEditor;
+    private Map<CodebookNode, CodebookNodePanel> nodePanels;
 
     public CodebookEditorTreePanel(String aId, IModel<?> aModel, CodebookEditorPanel parentEditor)
     {
@@ -61,7 +64,8 @@ public class CodebookEditorTreePanel
                 CodebookNodeExpansion.get().collapseAll();
             }
         });
-
+        ;
+        this.nodePanels = new HashMap<>();
         this.parentEditor = parentEditor;
     }
 
@@ -90,7 +94,11 @@ public class CodebookEditorTreePanel
             @Override
             protected Component newContentComponent(String id, IModel<CodebookNode> model)
             {
-                return new CodebookEditorNodePanel(id, model, parentEditor);
+                // we save the nodes and their panels to get 'easy' access to the panels since
+                // we have need them later
+                CodebookNodePanel nodePanel = new CodebookNodePanel(id, model, parentEditor);
+                CodebookEditorTreePanel.this.nodePanels.put(model.getObject(), nodePanel);
+                return nodePanel;
             }
         };
 
@@ -98,5 +106,9 @@ public class CodebookEditorTreePanel
 
         tree.setOutputMarkupId(true);
         this.add(tree);
+    }
+
+    public Map<CodebookNode, CodebookNodePanel> getNodePanels() {
+        return nodePanels;
     }
 }

@@ -92,4 +92,8 @@ public abstract class CodebookTreePanel
     {
         return this.provider;
     }
+
+    protected AbstractTree<CodebookNode> getTree() {
+        return this.tree;
+    }
 }

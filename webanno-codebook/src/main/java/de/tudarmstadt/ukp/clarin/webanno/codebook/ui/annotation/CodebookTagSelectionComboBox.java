@@ -107,6 +107,11 @@ public class CodebookTagSelectionComboBox
     }
 
     @Override
+    protected void onModelChanged() {
+        super.onModelChanged();
+    }
+
+    @Override
     protected void onConfigure()
     {
         super.onConfigure();
