@@ -169,7 +169,7 @@ public class CodebookNodeProvider
         return nodes;
     }
 
-    private Set<Codebook> getChildren(final Codebook book)
+    public Set<Codebook> getChildren(final Codebook book)
     {
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
     }

@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +64,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
@@ -378,7 +380,20 @@ public class ProjectCodebookPanel
             saveCodebook(codebook);
             // update the tree (if the parent changed)
             projectCodebookTreePanel.initTree();
-            projectCodebookTreePanel.collapseAll();
+            projectCodebookTreePanel.expandAll();
+        }
+
+        private void purgeCodebook(Codebook codebook) {
+            // recursively purges all child codebooks and their respective tags
+            CodebookNodeProvider codebookNodeProvider =
+                    ProjectCodebookPanel.this.projectCodebookTreePanel.getProvider();
+
+            codebookNodeProvider.getChildren(codebook).forEach(this::purgeCodebook);
+
+            List<CodebookTag> tags = codebookService.listTags(codebook);
+            tags.forEach(codebookService::removeCodebookTag);
+
+            codebookService.removeCodebook(codebook);
         }
 
         private void actionDelete(AjaxRequestTarget aTarget, Form aForm)
@@ -390,10 +405,19 @@ public class ProjectCodebookPanel
             confirmationDialog.show(aTarget);
 
             confirmationDialog.setConfirmAction((_target) -> {
-                Codebook codebook = codebookDetailForm.getModelObject();
-                // also remove the codebook from the parent selection
-                this.codebookParentSelection.removeParent(codebook);
-                codebookService.removeCodebook(codebookDetailForm.getModelObject());
+                try {
+                    Codebook codebook = codebookDetailForm.getModelObject();
+                    this.purgeCodebook(codebook);
+                } catch (DataIntegrityViolationException e) {
+                    // TODO
+                    //  due to the limitations of ConfirmationDialog it's not possible to display
+                    //  a meaningful error (i.e. some child tags or sth cant be deleted what lead
+                    //  to the error)
+                }
+
+                // update the tree
+                projectCodebookTreePanel.initTree();
+                projectCodebookTreePanel.expandAll();
 
                 Project project = getModelObject().getProject();
 
