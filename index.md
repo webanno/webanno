@@ -14,6 +14,29 @@ header-1:
 
 WebAnno is a multi-user tool supporting different roles such as annotator, curator, and project manager. The progress and quality of annotation projects can be monitored and measuered in terms of inter-annotator agreement. Multiple annotation projects can be conducted in parallel.
 
+<table width="100%">
+<tr>
+<td style="vertical-align: middle;">
+<a href="https://inception-project.github.io"><img src="{{ site.url }}/images/logos/inception-banner.png"/></a>
+</td>
+<td>
+<p style="text-align: center	;">You like WebAnno?</p>
+<p style="text-align: center	;">
+<b style="font-size: 150%;"><a href="https://inception-project.github.io">Try INCEpTION</a></b>
+</p>
+<div>
+INCEpTION has all the flexibility and many more exciting features including a completely new ML-based annotation assitance
+support, the ability to search texts and annotations, support for RDF/SPARQL knowledge bases for
+entity linking, and much more. <br/>
+And best: it can import your WebAnno annotation<sup>1</sup> projects. <br/>
+<span style="font-size: 75%">
+<sup>1</sup> <i>Projects of type 'automation' or 'correction' are not supported.</i>
+</span>
+</div>
+</td>
+</tr>
+</table>
+
 Different modes of annotation are supported, including a correction mode to review externally pre-annotated data, and an automation mode in which WebAnno learns and offers annotation suggestions.
 
 WebAnno is a fully web-based tool with a lower entry barrier than other annotation tools. Annotators and annotation project managers do not require to download any software. A modern web-browser is sufficent. After installation on a web-server, all settings can be reached through the browser.
