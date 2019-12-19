@@ -25,7 +25,7 @@ WebAnno is a multi-user tool supporting different roles such as annotator, curat
 <b style="font-size: 150%;"><a href="https://inception-project.github.io">Try INCEpTION</a></b>
 </p>
 <div>
-INCEpTION has all the flexibility and many more exciting features including a completely new ML-based annotation assitance
+INCEpTION has all the flexibility and many more exciting features including a completely new human-in-the-loop annotation assistance
 support, the ability to search texts and annotations, support for RDF/SPARQL knowledge bases for
 entity linking, and much more. <br/>
 And best: it can import your WebAnno annotation<sup>1</sup> projects. <br/>
