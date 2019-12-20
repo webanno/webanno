@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +63,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
@@ -81,6 +79,7 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -408,11 +407,10 @@ public class ProjectCodebookPanel
                 try {
                     Codebook codebook = codebookDetailForm.getModelObject();
                     this.purgeCodebook(codebook);
-                } catch (DataIntegrityViolationException e) {
+                } catch (Exception e) {
                     // TODO
                     //  due to the limitations of ConfirmationDialog it's not possible to display
-                    //  a meaningful error (i.e. some child tags or sth cant be deleted what lead
-                    //  to the error)
+                    //  a meaningful error of DataIntegrityViolationException
                 }
 
                 // update the tree

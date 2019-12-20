@@ -75,12 +75,13 @@ public class CodebookNodePanel
         this.add(this.tagSelectionForm);
     }
 
-    private CodebookTagSelectionComboBox createTagSelectionComboBox() {
+    private CodebookTagSelectionComboBox createTagSelectionComboBox()
+    {
 
         List<CodebookTag> tagChoices = this.getPossibleTagChoices();
         String existingCode = this.parentEditor.getExistingCode(this.node.getCodebook());
-        CodebookTagSelectionComboBox tagSelection = new CodebookTagSelectionComboBox("codebookTagBox",
-                new Model<>(existingCode), tagChoices);
+        CodebookTagSelectionComboBox tagSelection = new CodebookTagSelectionComboBox(
+                "codebookTagBox", new Model<>(existingCode), tagChoices);
 
         Codebook codebook = this.node.getCodebook();
         CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
@@ -103,7 +104,8 @@ public class CodebookNodePanel
          */
 
         // get the possible tag choices for the current node
-        CodebookNodePanel parentPanel = this.parentEditor.getNodePanels().get(this.node.getParent());
+        CodebookNodePanel parentPanel = this.parentEditor.getNodePanels()
+                .get(this.node.getParent());
         if (parentPanel == null)
             return codebookService.listTags(this.node.getCodebook());
         // TODO also check parents of parent
@@ -131,7 +133,8 @@ public class CodebookNodePanel
     }
 
     // package private by intention
-    void clearSelection() {
+    void clearSelection()
+    {
         this.tagSelectionComboBox.setModelObject(null);
     }
 
