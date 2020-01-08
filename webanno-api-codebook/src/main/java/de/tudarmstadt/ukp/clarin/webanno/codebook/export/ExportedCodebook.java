@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ExportedCodebook
 {
     @JsonProperty("name")
-    java.lang.String name;
+    private java.lang.String name;
 
     @JsonProperty("uiName")
     private java.lang.String uiName;
@@ -48,7 +48,7 @@ public class ExportedCodebook
     private java.lang.String projectName;
 
     @JsonProperty("order")
-    int codebookOrder;
+    private int codebookOrder;
 
     @JsonProperty("features")
     private List<ExportedCodebookFeature> features;

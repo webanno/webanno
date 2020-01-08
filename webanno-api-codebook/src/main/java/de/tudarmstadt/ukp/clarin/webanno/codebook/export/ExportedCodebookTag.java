@@ -32,7 +32,7 @@ public class ExportedCodebookTag
 {
 
     @JsonProperty("name")
-    String name;
+    private String name;
 
     @JsonProperty("description")
     private String description;

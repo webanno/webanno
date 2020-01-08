@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 
@@ -42,4 +43,7 @@ public interface CodebookImportExportService
         throws UIMAException, IOException, ClassNotFoundException;
 
     List<ExportedCodebook> exportCodebooks(List<Codebook> codebooks);
+
+    void importCodebooks(List<ExportedCodebook> exportedCodebooks, Project aProject);
+
 }

@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ExportedCodebookFeature
 {
     @JsonProperty("name")
-    String name;
+    private String name;
 
     @JsonProperty("uiName")
     private String uiName;

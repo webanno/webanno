@@ -30,6 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -277,6 +279,7 @@ public class ProjectCodebookPanel
                     bis.mark(buf.length + 1);
                     bis.read(buf, 0, buf.length);
                     bis.reset();
+
                     importCodebook(bis);
                 }
                 catch (Exception e) {
@@ -286,6 +289,11 @@ public class ProjectCodebookPanel
             }
             codebookDetailForm.setVisible(false);
             aTarget.add(ProjectCodebookPanel.this);
+            aTarget.add(getPage());
+            aTarget.add(ProjectCodebookPanel.this.codebookSelectionForm);
+
+            applicationEventPublisherHolder.get()
+                    .publishEvent(new CodebookConfigurationChangedEvent(this, project));
         }
 
         private void importCodebook(InputStream aIS) throws IOException
@@ -293,29 +301,8 @@ public class ProjectCodebookPanel
             String text = IOUtils.toString(aIS, StandardCharsets.UTF_8);
             ExportedCodebook[] exCodebooks = JSONUtil.getObjectMapper().readValue(text,
                     ExportedCodebook[].class);
-
-            for (ExportedCodebook exCodebook : exCodebooks) {
-                Codebook codebook = new Codebook();
-
-                codebook.setUiName(exCodebook.getUiName());
-                saveCodebook(codebook);
-
-                CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
-                // TODO
-                // ExportedTagSet tagset = exCodebook.getFeatures().get(0).getTagSet();
-                // for (ExportedTag exTag : tagset.getTags()) {
-                // if (codebookService.existsCodebookTag(exTag.getName(), feature.getCodebook())) {
-                // continue;
-                // }
-                // CodebookTag tag = new CodebookTag();
-                // tag.setDescription(exTag.getDescription());
-                // tag.setCodebook(codebook);
-                // tag.setName(exTag.getName());
-                // codebookService.createCodebookTag(tag);
-                // }
-
-            }
-
+            codebookExporter.importCodebooks(Arrays.asList(exCodebooks),
+                    ProjectCodebookPanel.this.getModelObject());
         }
     }
 

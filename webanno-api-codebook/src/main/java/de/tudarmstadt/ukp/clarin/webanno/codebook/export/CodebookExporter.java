@@ -229,6 +229,85 @@ public class CodebookExporter
         return createExportedCodebooks(tree);
     }
 
+    private Codebook createCodebooksRecursively(ExportedCodebook exCB, Project project,
+            List<Codebook> importedCodebooks)
+    {
+        Codebook cb = new Codebook();
+
+        cb.setName(exCB.getName());
+        cb.setUiName(exCB.getUiName());
+        cb.setOrder(exCB.getOrder());
+        cb.setDescription(exCB.getDescription());
+        cb.setProject(project);
+
+        if (exCB.getParent() != null)
+            cb.setParent(createCodebooksRecursively(exCB.getParent(), project, importedCodebooks));
+
+        // we have to persist the codebook before importing features and tags
+        codebookService.createCodebook(cb);
+
+        // TODO import features and tags
+        for (ExportedCodebookFeature exFeature : exCB.getFeatures())
+            importExportedCodebookFeature(exFeature, cb);
+
+        for (ExportedCodebookTag exTag : exCB.getTags())
+            importExportedCodebookTagsRecursively(exTag, cb);
+
+        importedCodebooks.add(cb);
+        return cb;
+    }
+
+    private void importExportedCodebookTagsRecursively(ExportedCodebookTag exTag, Codebook cb)
+    {
+        CodebookTag tag = new CodebookTag();
+        tag.setDescription(exTag.getDescription());
+        tag.setName(exTag.getName());
+        tag.setCodebook(cb);
+
+        if (cb.getParent() != null && exTag.getParent() != null) {
+            for (CodebookTag pTag : codebookService.listTags(cb.getParent()))
+                if (exTag.getParent().getName().equals(pTag.getName()))
+                    tag.setParent(pTag);
+        }
+        else
+            tag.setParent(null); // TODO
+
+        CodebookFeature feature = codebookService.listCodebookFeature(cb).get(0);
+        if (codebookService.existsCodebookTag(exTag.getName(), feature.getCodebook())) {
+            return;
+        }
+
+        codebookService.createCodebookTag(tag);
+    }
+
+    private void importExportedCodebookFeature(ExportedCodebookFeature exFeature, Codebook cb)
+    {
+        CodebookFeature feature = new CodebookFeature();
+        feature.setUiName(exFeature.getUiName());
+        feature.setName(exFeature.getName());
+        feature.setDescription(exFeature.getDescription());
+        feature.setType(exFeature.getType());
+        feature.setCodebook(cb);
+        feature.setProject(cb.getProject());
+
+        codebookService.createCodebookFeature(feature);
+    }
+
+    @Override
+    public void importCodebooks(List<ExportedCodebook> exportedCodebooks, Project aProject)
+    {
+        /*
+         * all of the ExportedCodebook in the list should be leafs (if they were exported with the
+         * exportCodebooks() function!
+         */
+        List<Codebook> importedCodebooks = new ArrayList<>();
+
+        for (ExportedCodebook leafExCB : exportedCodebooks) {
+            createCodebooksRecursively(leafExCB, aProject, importedCodebooks);
+        }
+
+    }
+
     @Override
     public void importData(ProjectImportRequest aRequest, Project aProject,
             ExportedProject aExProject, ZipFile aZip)
