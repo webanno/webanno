@@ -47,10 +47,10 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
 
 public abstract class CodebookEditorPanel
     extends Panel
@@ -131,7 +131,8 @@ public abstract class CodebookEditorPanel
                         CodebookAdapter adapter = new CodebookAdapter(codebook);
                         adapter.delete(jcas, feature);
                         writeCodebookCas(jcas);
-                    } else {
+                    }
+                    else {
                         CodebookEditorModel state = CodebookEditorPanel.this.getModelObject();
                         state.getCodebookFeatureStates()
                                 .add(new CodebookFeatureState(feature, comboBox.getModelObject()));
@@ -148,18 +149,17 @@ public abstract class CodebookEditorPanel
                 CodebookNode currentNode = CodebookEditorPanel.this.codebookEditorTreePanel
                         .getProvider().getCodebookNode(codebook);
                 Set<CodebookNodePanel> childNodePanels = getChildNodePanels(currentNode);
-                // TODO this doesn't work and I have no clue how to get this working...
-                childNodePanels.forEach(CodebookNodePanel::clearSelection);
-                childNodePanels.forEach(aTarget::add);
 
                 // secondly update the possible tag selection combo boxes of all the child nodes
                 childNodePanels.forEach(CodebookNodePanel::updateTagSelectionCombobox);
+
+                // TODO this doesn't work and I have no clue how to get this working...
+                childNodePanels.forEach(CodebookNodePanel::clearSelection);
                 // add the node panels to the ajax target for re-rendering
                 childNodePanels.forEach(aTarget::add);
             }
         };
     }
-
 
     public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState)
     {
@@ -191,20 +191,18 @@ public abstract class CodebookEditorPanel
 
         for (CodebookFeatureState featureState : featureStates) {
 
-            /* TODO how to translate this to codebooks since there are no categories anymore
-            // For string features with extensible tagsets, extend the tagset
-            if (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) {
-                String value = (String) featureState.value;
-
-                if (value != null && featureState.feature.getCategory() != null
-                        && featureState.feature.getCategory().isCreateTag() && !codebookService
-                                .existsCodebookTag(value, featureState.feature.getCategory())) {
-                    CodebookTag selectedTag = new CodebookTag();
-                    selectedTag.setName(value);
-                    selectedTag.setCategory(featureState.feature.getCategory());
-                    codebookService.createCodebookTag(selectedTag);
-                }
-            }
+            /*
+             * TODO how to translate this to codebooks since there are no categories anymore // For
+             * string features with extensible tagsets, extend the tagset if
+             * (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) { String value =
+             * (String) featureState.value;
+             * 
+             * if (value != null && featureState.feature.getCategory() != null &&
+             * featureState.feature.getCategory().isCreateTag() && !codebookService
+             * .existsCodebookTag(value, featureState.feature.getCategory())) { CodebookTag
+             * selectedTag = new CodebookTag(); selectedTag.setName(value);
+             * selectedTag.setCategory(featureState.feature.getCategory());
+             * codebookService.createCodebookTag(selectedTag); } }
              */
 
             LOG.trace("writeFeatureEditorModelsToCas() " + featureState.feature.getUiName() + " = "
@@ -248,18 +246,21 @@ public abstract class CodebookEditorPanel
     }
 
     // package private by intention
-    Map<CodebookNode, CodebookNodePanel> getNodePanels() {
+    Map<CodebookNode, CodebookNodePanel> getNodePanels()
+    {
         return this.codebookEditorTreePanel.getNodePanels();
     }
 
-    private CodebookNodePanel getParentNodePanel(CodebookNode node) {
+    private CodebookNodePanel getParentNodePanel(CodebookNode node)
+    {
         return this.codebookEditorTreePanel.getNodePanels().get(node.getParent());
     }
 
-    private Set<CodebookNodePanel> getChildNodePanels(CodebookNode node) {
+    private Set<CodebookNodePanel> getChildNodePanels(CodebookNode node)
+    {
         Set<CodebookNodePanel> childNodePanels = new HashSet<>();
-        Map<CodebookNode, CodebookNodePanel> nodePanels =
-                this.codebookEditorTreePanel.getNodePanels();
+        Map<CodebookNode, CodebookNodePanel> nodePanels = this.codebookEditorTreePanel
+                .getNodePanels();
         Set<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
                 .getDescendants(node, null);
         allChildren.forEach(child -> childNodePanels.add(nodePanels.get(child)));

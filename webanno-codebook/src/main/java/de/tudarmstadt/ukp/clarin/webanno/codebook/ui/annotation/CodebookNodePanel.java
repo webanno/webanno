@@ -32,9 +32,9 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 
 public class CodebookNodePanel
@@ -88,7 +88,7 @@ public class CodebookNodePanel
         AjaxFormComponentUpdatingBehavior updatingBehavior = parentEditor
                 .createOnChangeSaveUpdatingBehavior(tagSelection, codebook, feature);
         tagSelection.add(updatingBehavior);
-
+        tagSelection.setOutputMarkupId(true);
         return tagSelection;
     }
 
@@ -110,7 +110,7 @@ public class CodebookNodePanel
             return codebookService.listTags(this.node.getCodebook());
         // TODO also check parents of parent
         CodebookTag parentTag = parentPanel.getCurrentlySelectedTag();
-        if (parentTag == null)
+        if (parentTag == null) // TODO why is this null for street ?!?!?!?
             return codebookService.listTags(this.node.getCodebook());
 
         // only tags that have parentTag as parent

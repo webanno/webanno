@@ -28,10 +28,10 @@ import org.apache.wicket.model.IModel;
 import com.googlecode.wicket.kendo.ui.markup.html.link.Link;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeExpansion;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreePanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreeProvider;
 
 public class CodebookEditorTreePanel
     extends CodebookTreePanel
@@ -79,7 +79,7 @@ public class CodebookEditorTreePanel
 
         // get all codebooks and init the provider
         List<Codebook> codebooks = this.codebookService.listCodebook(model.getProject());
-        this.provider = new CodebookNodeProvider(codebooks);
+        this.provider = new CodebookTreeProvider(codebooks);
     }
 
     @Override
@@ -108,7 +108,8 @@ public class CodebookEditorTreePanel
         this.add(tree);
     }
 
-    public Map<CodebookNode, CodebookNodePanel> getNodePanels() {
+    public Map<CodebookNode, CodebookNodePanel> getNodePanels()
+    {
         return nodePanels;
     }
 }

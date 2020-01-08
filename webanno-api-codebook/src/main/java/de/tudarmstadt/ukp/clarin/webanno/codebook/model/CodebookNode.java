@@ -15,23 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project.ProjectCodebookPanel;
-
+/**
+ * This is only a wrapper class that represents a {@link Codebook} in a tree and eases the inter-
+ * action with the tree.
+ */
 public class CodebookNode
     implements Serializable
 {
     private static final long serialVersionUID = 7317710381928186621L;
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectCodebookPanel.class);
 
     private Codebook codebook;
 
@@ -72,9 +69,8 @@ public class CodebookNode
     public void setParent(CodebookNode parent)
     {
         if (this.children.contains(parent)) {
-            LOG.error("Cannot set Codebook '" + parent.getName() + "' as parent for Codebook '"
-                    + this.getName() + "' because '" + parent.getName() + "' is a child of '"
-                    + this.getName() + "!");
+            // FIXME what to throw?
+            return;
         }
         this.parent = parent;
     }

@@ -24,18 +24,22 @@ import java.util.List;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
 public interface CodebookImportExportService
 {
     String SERVICE_NAME = "codebookImportExportService";
-    
+
     File exportCodebooks(CAS cas, SourceDocument document, String fileName, File exportDir,
             boolean withHeaders, boolean withText, List<String> codebooks, String annotator,
-            String documentName) throws IOException, UIMAException;
+            String documentName)
+        throws IOException, UIMAException;
 
     File exportCodebookDocument(SourceDocument document, String user, String fileName, Mode mode,
             File exportDir, boolean withHeaders, boolean withText, List<String> codebooks)
-            throws UIMAException, IOException, ClassNotFoundException;
+        throws UIMAException, IOException, ClassNotFoundException;
+
+    List<ExportedCodebook> exportCodebooks(List<Codebook> codebooks);
 }

@@ -30,7 +30,7 @@ public class CodebookFeatureState
     private static final long serialVersionUID = 3512979848975446735L;
     public final CodebookFeature feature;
     public Serializable value;
-    public List<Tag> tagset;
+    public List<Tag> tagset; // FIXME i guess we can remove this!
 
     public CodebookFeatureState(CodebookFeature aFeature, Serializable aValue)
     {

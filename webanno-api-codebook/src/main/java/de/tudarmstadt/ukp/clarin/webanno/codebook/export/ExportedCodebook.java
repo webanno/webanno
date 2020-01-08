@@ -19,13 +19,15 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.export;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * All required contents of a
- * {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook} project to be
- * exported.
+ * All required contents of a {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook}
+ * project to be exported.
  *
  *
  */
@@ -34,29 +36,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ExportedCodebook
 {
     @JsonProperty("name")
-    String name;
+    java.lang.String name;
+
+    @JsonProperty("uiName")
+    private java.lang.String uiName;
+
+    @JsonProperty("description")
+    private java.lang.String description;
+
+    @JsonProperty("project_name")
+    private java.lang.String projectName;
+
+    @JsonProperty("order")
+    int codebookOrder;
 
     @JsonProperty("features")
     private List<ExportedCodebookFeature> features;
 
-    @JsonProperty("uiName")
-    private String uiName;
+    @JsonProperty("tags")
+    private List<ExportedCodebookTag> tags;
 
-    @JsonProperty("description")
-    private String description;
-    
-    @JsonProperty("order")
-    int codebookOrder;
+    @JsonProperty("parent")
+    private ExportedCodebook parent;
 
-    @JsonProperty("project_name")
-    private String projectName;
-    
-    public String getName()
+    public java.lang.String getName()
     {
         return name;
     }
 
-    public void setName(String name)
+    public void setName(java.lang.String name)
     {
         this.name = name;
     }
@@ -71,78 +79,86 @@ public class ExportedCodebook
         this.features = features;
     }
 
-    public String getUiName()
+    public List<ExportedCodebookTag> getTags()
+    {
+        return tags;
+    }
+
+    public void setTags(List<ExportedCodebookTag> tags)
+    {
+        this.tags = tags;
+    }
+
+    public java.lang.String getUiName()
     {
         return uiName;
     }
 
-    public void setUiName(String uiName)
+    public void setUiName(java.lang.String uiName)
     {
         this.uiName = uiName;
     }
 
-    public String getDescription()
+    public java.lang.String getDescription()
     {
         return description;
     }
 
-    public void setDescription(String description)
+    public void setDescription(java.lang.String description)
     {
         this.description = description;
     }
 
-    public String isProjectName()
+    public java.lang.String isProjectName()
     {
         return projectName;
     }
 
-    public void setProjectName(String projectName)
+    public void setProjectName(java.lang.String projectName)
     {
         this.projectName = projectName;
     }
-    
-    public int getOrder() {
+
+    public int getOrder()
+    {
         return codebookOrder;
     }
 
-    public void setOrder(int codebookOrder) {
+    public void setOrder(int codebookOrder)
+    {
         this.codebookOrder = codebookOrder;
+    }
+
+    public ExportedCodebook getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(ExportedCodebook parent)
+    {
+        this.parent = parent;
     }
 
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
-        return result;
+        return new HashCodeBuilder(17, 37).append(name).append(projectName).append(parent)
+                .toHashCode();
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(Object o)
     {
-        if (this == obj) {
+        if (this == o)
             return true;
-        }
-        if (obj == null) {
+
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ExportedCodebook other = (ExportedCodebook) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        }
-        else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (projectName != other.projectName) {
-            return false;
-        }
-        return true;
+
+        ExportedCodebook that = (ExportedCodebook) o;
+
+        return new EqualsBuilder().append(name, that.name).append(features, that.features)
+                .append(tags, that.tags).append(description, that.description)
+                .append(parent, that.parent).isEquals();
     }
 }
