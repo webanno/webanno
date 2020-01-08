@@ -21,12 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
+import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
 public interface CodebookImportExportService
