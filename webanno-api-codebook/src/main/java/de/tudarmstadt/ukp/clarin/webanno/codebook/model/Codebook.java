@@ -71,19 +71,23 @@ public class Codebook
     @OnDelete(action = OnDeleteAction.CASCADE) // TODO do we really want cascading delete?!
     private Codebook parent;
 
-    @Column(name = "codebookorder")
-    int codebookOrder = 0;
+    @Column(name = "codebookorder", nullable = false)
+    private int codebookOrder = 0;
+
+    @Column(name = "createTag", nullable = false)
+    private boolean createTag = false;
 
     public Codebook()
     {
         // Required
     }
 
-    public Codebook(String aName, String aUiName, String aType, Project aProject, boolean aBuiltIn)
+    public Codebook(String aName, String aUiName, String aType, Project aProject, boolean aCreateTag)
     {
         setName(aName);
         setUiName(aUiName);
         setProject(aProject);
+        setCreateTag(aCreateTag);
     }
 
     /**
@@ -202,6 +206,14 @@ public class Codebook
     public void setParent(Codebook parent)
     {
         this.parent = parent;
+    }
+
+    public boolean isCreateTag() {
+        return createTag;
+    }
+
+    public void setCreateTag(boolean createTag) {
+        this.createTag = createTag;
     }
 
     @Override

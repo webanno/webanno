@@ -251,7 +251,7 @@ public abstract class CodebookEditorPanel
         return this.codebookEditorTreePanel.getNodePanels();
     }
 
-    private CodebookNodePanel getParentNodePanel(CodebookNode node)
+    public CodebookNodePanel getParentNodePanel(CodebookNode node)
     {
         return this.codebookEditorTreePanel.getNodePanels().get(node.getParent());
     }

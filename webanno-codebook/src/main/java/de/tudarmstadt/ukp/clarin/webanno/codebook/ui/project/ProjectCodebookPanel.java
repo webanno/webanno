@@ -44,6 +44,7 @@ import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
@@ -350,6 +351,9 @@ public class ProjectCodebookPanel
                     possibleParents);
             add(this.codebookParentSelection.getDropdown());
             add(new Label("parentCodebookLabel", "Parent Codebook"));
+
+            // create tag checkbox
+            add(new CheckBox("createTag"));
 
             // add save and delete buttons
             add(new LambdaAjaxButton<>("save", this::actionSave));

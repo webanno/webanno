@@ -73,7 +73,7 @@
 	</changeSet>
 
 	<!-- create codebook table -->
-	<changeSet author="WebAnno Team" id="1512223050574-30">
+	<changeSet author="WebAnno Team" id="1512223050574-30.11">
 		<preConditions onFail="MARK_RAN">
 			<not>
 				<tableExists tableName="codebook" />
@@ -91,7 +91,10 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="codebookorder" type="INT">
-			<constraints nullable="false" />
+				<constraints nullable="false" />
+			</column>
+			<column name="createTag" type="BIT(1)">
+				<constraints nullable="false" />
 			</column>
 			<column name="project" type="BIGINT" />
 			<column name="parent" type="BIGINT" />

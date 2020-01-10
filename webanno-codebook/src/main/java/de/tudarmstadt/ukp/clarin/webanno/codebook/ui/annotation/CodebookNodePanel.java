@@ -80,7 +80,7 @@ public class CodebookNodePanel
 
         List<CodebookTag> tagChoices = this.getPossibleTagChoices();
         String existingCode = this.parentEditor.getExistingCode(this.node.getCodebook());
-        CodebookTagSelectionComboBox tagSelection = new CodebookTagSelectionComboBox(
+        CodebookTagSelectionComboBox tagSelection = new CodebookTagSelectionComboBox(this,
                 "codebookTagBox", new Model<>(existingCode), tagChoices);
 
         Codebook codebook = this.node.getCodebook();
@@ -115,7 +115,7 @@ public class CodebookNodePanel
         return validTags;
     }
 
-    private CodebookTag getCurrentlySelectedTag()
+    public CodebookTag getCurrentlySelectedTag()
     {
         String tagString = this.tagSelectionComboBox.getModelObject();
         if (tagString == null || tagString.isEmpty())
@@ -137,5 +137,17 @@ public class CodebookNodePanel
     void updateTagSelectionCombobox()
     {
         this.tagSelectionForm.addOrReplace(createTagSelectionComboBox());
+    }
+
+    public CodebookSchemaService getCodebookService() {
+        return codebookService;
+    }
+
+    public CodebookEditorPanel getParentEditor() {
+        return parentEditor;
+    }
+
+    public CodebookNode getNode() {
+        return node;
     }
 }
