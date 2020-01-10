@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
@@ -136,8 +138,6 @@ public class CodebookExporter
         }
         return codebookFile;
     }
-
-    // TODO private Map<Codebook, CodebookTag> getAllTags
 
     private ExportedCodebook createExportedCodebook(Codebook cb, ExportedCodebook parent)
     {
@@ -313,8 +313,13 @@ public class CodebookExporter
             ExportedProject aExProject, ZipFile aZip)
         throws Exception
     {
-        // TODO COMING SOON
-
+        Optional<ExportedCodebook[]> exportedCodebooksArray =
+                aExProject.getProperty(CODEBOOKS, ExportedCodebook[].class);
+        if(exportedCodebooksArray.isPresent()) {
+            List<ExportedCodebook> exportedCodebooks =
+                    Arrays.asList(exportedCodebooksArray.get());
+            this.importCodebooks(exportedCodebooks, aProject);
+        }
     }
 
     @Override
