@@ -94,14 +94,6 @@ public class CodebookNodePanel
 
     private List<CodebookTag> getPossibleTagChoices()
     {
-        /*
-         * TODO I dont see the point of the code below and would suggest to remove it if
-         * (codebookService.listCodebookFeature(aCodebook) == null ||
-         * codebookService.listCodebookFeature(aCodebook).size() == 0) { return new ArrayList<>(); }
-         * // TODO only get(0) because there is only one feature at the moment! CodebookFeature
-         * codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0); if
-         * (codebookFeature.getCodebook() == null) { return new ArrayList<>(); }
-         */
 
         // get the possible tag choices for the current node
         CodebookNodePanel parentPanel = this.parentEditor.getNodePanels()
@@ -115,7 +107,10 @@ public class CodebookNodePanel
 
         // only tags that have parentTag as parent
         List<CodebookTag> validTags = codebookService.listTags(this.node.getCodebook()).stream()
-                .filter(codebookTag -> codebookTag.getParent().equals(parentTag))
+                .filter(codebookTag -> {
+                    if (codebookTag.getParent() == null)
+                        return false;
+                    return codebookTag.getParent().equals(parentTag);})
                 .collect(Collectors.toList());
         return validTags;
     }
