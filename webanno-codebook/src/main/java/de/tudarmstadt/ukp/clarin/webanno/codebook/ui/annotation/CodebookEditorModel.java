@@ -32,6 +32,7 @@ public class CodebookEditorModel
 {
 
     private static final long serialVersionUID = -628789175872734603L;
+    // TODO I think we can remove codebook and code from the editor model ?!
     private Codebook codebook;
     private String code;
     private int codebooksPerPage;

@@ -30,10 +30,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNode;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeExpansion;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreePanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class ProjectCodebookTreePanel
@@ -66,7 +66,7 @@ public class ProjectCodebookTreePanel
         Project project = (Project) this.getDefaultModelObject();
         // get all codebooks and init the provider
         List<Codebook> codebooks = this.codebookService.listCodebook(project);
-        this.provider = new CodebookNodeProvider(codebooks);
+        this.provider = new CodebookTreeProvider(codebooks);
     }
 
     private Folder<CodebookNode> buildFolderComponent(String id, IModel<CodebookNode> model)
@@ -122,15 +122,15 @@ public class ProjectCodebookTreePanel
         // remove tree theme specific styling of the labels
         folder.streamChildren().forEach(
             component -> component.add(new AttributeModifier("class", new Model<>("tree-label"))
-            {
-                private static final long serialVersionUID = -3206327021544384435L;
-
-                @Override
-                protected String newValue(String currentValue, String valueToRemove)
                 {
-                    return currentValue.replaceAll(valueToRemove, "");
-                }
-            }));
+                    private static final long serialVersionUID = -3206327021544384435L;
+
+                    @Override
+                    protected String newValue(String currentValue, String valueToRemove)
+                    {
+                        return currentValue.replaceAll(valueToRemove, "");
+                    }
+                }));
 
         return folder;
     }

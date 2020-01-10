@@ -26,6 +26,8 @@ import java.util.Set;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Session;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
+
 public class CodebookNodeExpansion
     implements Set<CodebookNode>, Serializable
 {

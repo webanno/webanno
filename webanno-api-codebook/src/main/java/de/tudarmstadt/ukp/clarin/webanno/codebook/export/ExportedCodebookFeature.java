@@ -20,21 +20,15 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.export;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
-
 /**
- * All required contents of
- * {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature} to
- * be exported.
+ * All required contents of {@link de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature}
+ * to be exported.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExportedCodebookFeature
 {
     @JsonProperty("name")
-    String name;
-
-    @JsonProperty("tag_set")
-    private ExportedTagSet tagSet;
+    private String name;
 
     @JsonProperty("uiName")
     private String uiName;
@@ -86,16 +80,6 @@ public class ExportedCodebookFeature
     public void setDescription(String description)
     {
         this.description = description;
-    }
-
-    public ExportedTagSet getTagSet()
-    {
-        return tagSet;
-    }
-
-    public void setTagSet(ExportedTagSet tagSet)
-    {
-        this.tagSet = tagSet;
     }
 
     public String getProjectName()

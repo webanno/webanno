@@ -23,9 +23,11 @@ import java.util.Optional;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,9 @@ import com.googlecode.wicket.kendo.ui.KendoUIBehavior;
 import com.googlecode.wicket.kendo.ui.form.combobox.ComboBoxBehavior;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.api.coloring.ColoringStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.StyledComboBox;
 
@@ -56,13 +60,14 @@ public class CodebookTagSelectionComboBox
 
     private static final long serialVersionUID = -6038478625103441332L;
 
-    // TODO add identifier wrt to codebook
+    private CodebookNodePanel parentPanel;
+    private @SpringBean CodebookSchemaService codebookService;
 
-    public CodebookTagSelectionComboBox(String id, IModel<String> model, List<CodebookTag> choices)
+    public CodebookTagSelectionComboBox(CodebookNodePanel parentPanel, String id,
+            IModel<String> model, List<CodebookTag> choices)
     {
         super(id, model, choices);
-
-
+        this.parentPanel = parentPanel;
         this.add(new Behavior()
         {
             private static final long serialVersionUID = -8375331706930026335L;
@@ -71,6 +76,49 @@ public class CodebookTagSelectionComboBox
             public void onConfigure(final Component component)
             {
                 super.onConfigure(component);
+            }
+        });
+
+        // FIXME for any reason the "blur" event gets not correctly handled by wicket..
+        //  blur should only be raise when the element loses focus, but here it gets raised two
+        //  when it gains focus and two times when it loses focus. This was tested on latest
+        //  versions of Chrome and Firefox under Ubuntu 18.04LTS.
+        this.add(new AjaxFormComponentUpdatingBehavior("blur")
+        {
+            private static final long serialVersionUID = 4047719831314013445L;
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target)
+            {
+                String newTagValue = this.getFormComponent().getInput();
+                if (newTagValue.isEmpty())
+                    return;
+
+                // every third time it's the real blur event
+                // create a new Tag if it doesnt exist yet
+                CodebookNode node = parentPanel.getNode();
+
+                CodebookTag newUserTag = new CodebookTag();
+                newUserTag.setName(newTagValue);
+                newUserTag.setCodebook(node.getCodebook());
+
+                String user =
+                        parentPanel.getParentEditor().getModelObject().getUser().getUsername();
+                newUserTag.setDescription("This tag was created by " + user + "!");
+
+                // parent tag
+                CodebookNodePanel parentNodePanel =
+                        parentPanel.getParentEditor().getParentNodePanel(node);
+                if (parentNodePanel != null)
+                    newUserTag.setParent(parentNodePanel.getCurrentlySelectedTag());
+
+                // persist
+                if (!codebookService
+                        .existsCodebookTag(newUserTag.getName(), newUserTag.getCodebook())) {
+                    codebookService.createCodebookTag(newUserTag);
+                } else {
+                    // TODO log or waring or whateveR?!
+                }
             }
         });
 
@@ -107,13 +155,20 @@ public class CodebookTagSelectionComboBox
     }
 
     @Override
+    protected void onModelChanged()
+    {
+        super.onModelChanged();
+    }
+
+    @Override
     protected void onConfigure()
     {
         super.onConfigure();
         reloadTags();
     }
 
-    private void reloadTags() {
+    private void reloadTags()
+    {
         // Trigger a re-loading of the tagset from the server as constraints may
         // have
         // changed the ordering

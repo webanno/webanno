@@ -30,6 +30,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 
 public abstract class CodebookTreePanel
@@ -41,7 +42,7 @@ public abstract class CodebookTreePanel
 
     protected AbstractTree<CodebookNode> tree;
     protected Behavior theme;
-    protected CodebookNodeProvider provider;
+    protected CodebookTreeProvider provider;
 
     protected @SpringBean CodebookSchemaService codebookService;
 
@@ -88,8 +89,13 @@ public abstract class CodebookTreePanel
         }
     }
 
-    public final CodebookNodeProvider getProvider()
+    public final CodebookTreeProvider getProvider()
     {
         return this.provider;
+    }
+
+    protected AbstractTree<CodebookNode> getTree()
+    {
+        return this.tree;
     }
 }

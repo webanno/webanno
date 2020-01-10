@@ -19,6 +19,8 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree;
 
 import org.apache.wicket.model.Model;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
+
 public class CodebookNodeModel
     extends Model<CodebookNode>
 {

@@ -20,7 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CURATION_USER;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
-import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.wicket.util.string.Strings.escapeMarkup;
@@ -31,7 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +44,7 @@ import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
@@ -56,7 +54,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -70,17 +67,16 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ImportUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.config.CodebookLayoutCssResourceBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.event.CodebookConfigurationChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookExporter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTag;
-import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedTagSet;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -88,9 +84,7 @@ import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.dialog.ConfirmationDialog;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublisherHolder;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.AjaxDownloadLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.InputStreamResourceStream;
@@ -110,6 +104,7 @@ public class ProjectCodebookPanel
 
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean CodebookSchemaService codebookService;
+    private @SpringBean CodebookExporter codebookExporter;
     private @SpringBean ProjectService repository;
     private @SpringBean UserDao userRepository;
     private @SpringBean FeatureSupportRegistry featureSupportRegistry;
@@ -134,7 +129,7 @@ public class ProjectCodebookPanel
         add(CodebookLayoutCssResourceBehavior.get());
 
         selectedTag = Model.of();
-        Model<Codebook> selectedCodebook =  Model.of();
+        Model<Codebook> selectedCodebook = Model.of();
 
         // codebook selection form
         codebookSelectionForm = new CodebookSelectionForm("codebookSelectionForm",
@@ -158,19 +153,16 @@ public class ProjectCodebookPanel
         });
         add(tagSelectionPanel);
 
-
-
         // import form
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
         add(importCodebookForm);
 
+        // export panel
+        add(new ExportCodebooksForm());
+
         // add and init tree
         projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",
-                aProjectModel,
-                this,
-                codebookDetailForm,
-                tagSelectionPanel,
-                tagEditorPanel);
+                aProjectModel, this, codebookDetailForm, tagSelectionPanel, tagEditorPanel);
         projectCodebookTreePanel.initTree();
         projectCodebookTreePanel.setOutputMarkupId(true);
         // add tree to selection form
@@ -199,7 +191,8 @@ public class ProjectCodebookPanel
             super(id, aModel);
 
             // add create button
-            add(new Button("create", new StringResourceModel("label")) {
+            add(new Button("create", new StringResourceModel("label"))
+            {
                 private static final long serialVersionUID = -4482428496358679571L;
 
                 @Override
@@ -214,6 +207,42 @@ public class ProjectCodebookPanel
             });
         }
 
+    }
+
+    private class ExportCodebooksForm
+        extends Form<String>
+    {
+
+        private static final long serialVersionUID = -3368827563695416292L;
+
+        public ExportCodebooksForm()
+        {
+            super("exportCodebooksForm"); // hardcoded by intention
+
+            add(new AjaxDownloadLink("export",
+                    new StringResourceModel("export.codebooks.filename", this),
+                    LoadableDetachableModel.of(this::exportCodebooks)));
+        }
+
+        private IResourceStream exportCodebooks()
+        {
+            try {
+                List<Codebook> codebooks = codebookService
+                        .listCodebook(ProjectCodebookPanel.this.getModelObject());
+                List<ExportedCodebook> exCBs = codebookExporter.exportCodebooks(codebooks);
+
+                return new InputStreamResourceStream(new ByteArrayInputStream(
+                        JSONUtil.toPrettyJsonString(exCBs).getBytes(StandardCharsets.UTF_8)));
+
+            }
+            catch (Exception e) {
+                error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
+                LOG.error("Unable to generate the JSON file", e);
+                RequestCycle.get().find(IPartialPageRequestHandler.class)
+                        .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
+                return null;
+            }
+        }
     }
 
     private class ImportCodebookForm
@@ -250,6 +279,7 @@ public class ProjectCodebookPanel
                     bis.mark(buf.length + 1);
                     bis.read(buf, 0, buf.length);
                     bis.reset();
+
                     importCodebook(bis);
                 }
                 catch (Exception e) {
@@ -259,6 +289,11 @@ public class ProjectCodebookPanel
             }
             codebookDetailForm.setVisible(false);
             aTarget.add(ProjectCodebookPanel.this);
+            aTarget.add(getPage());
+            aTarget.add(ProjectCodebookPanel.this.codebookSelectionForm);
+
+            applicationEventPublisherHolder.get()
+                    .publishEvent(new CodebookConfigurationChangedEvent(this, project));
         }
 
         private void importCodebook(InputStream aIS) throws IOException
@@ -266,34 +301,9 @@ public class ProjectCodebookPanel
             String text = IOUtils.toString(aIS, StandardCharsets.UTF_8);
             ExportedCodebook[] exCodebooks = JSONUtil.getObjectMapper().readValue(text,
                     ExportedCodebook[].class);
-
-            for (ExportedCodebook exCodebook : exCodebooks) {
-                Codebook codebook = new Codebook();
-
-                codebook.setUiName(exCodebook.getUiName());
-                saveCodebook(codebook);
-
-                CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
-                ExportedTagSet tagset = exCodebook.getFeatures().get(0).getTagSet();
-                for (ExportedTag exTag : tagset.getTags()) {
-                    if (codebookService.existsCodebookTag(exTag.getName(), feature.getCodebook())) {
-                        continue;
-                    }
-                    CodebookTag tag = new CodebookTag();
-                    tag.setDescription(exTag.getDescription());
-                    tag.setCodebook(codebook);
-                    tag.setName(exTag.getName());
-                    codebookService.createCodebookTag(tag);
-                }
-
-            }
-
+            codebookExporter.importCodebooks(Arrays.asList(exCodebooks),
+                    ProjectCodebookPanel.this.getModelObject());
         }
-    }
-
-    private enum CodebookExportMode
-    {
-        SELECTED, ALL
     }
 
     private ConfirmationDialog confirmationDialog;
@@ -306,7 +316,6 @@ public class ProjectCodebookPanel
     {
 
         private static final long serialVersionUID = 4032381828920667771L;
-        private CodebookExportMode exportMode = CodebookExportMode.SELECTED;
 
         private ParentSelectionWrapper<Codebook> codebookParentSelection;
 
@@ -316,8 +325,7 @@ public class ProjectCodebookPanel
 
             setOutputMarkupPlaceholderTag(true);
 
-            add(new TextField<String>("uiName")
-                    .setRequired(true));
+            add(new TextField<String>("uiName").setRequired(true));
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
 
             add(new Label("name")
@@ -339,21 +347,15 @@ public class ProjectCodebookPanel
                 possibleParents = projectCodebookTreePanel.getProvider()
                         .getPossibleParents(aSelectedCodebook.getObject());
             }
-            this.codebookParentSelection = new ParentSelectionWrapper<>("parent",
-                    "uiName", possibleParents);
+            this.codebookParentSelection = new ParentSelectionWrapper<>("parent", "uiName",
+                    possibleParents);
             add(this.codebookParentSelection.getDropdown());
             add(new Label("parentCodebookLabel", "Parent Codebook"));
 
-            // add export, save and delete buttons
-            add(new DropDownChoice<CodebookExportMode>("exportMode",
-                    new PropertyModel<CodebookExportMode>(this, "exportMode"),
-                    asList(CodebookExportMode.values()), new EnumChoiceRenderer<>(this))
-                            .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
+            // create tag checkbox
+            add(new CheckBox("createTag"));
 
-            add(new AjaxDownloadLink("export",
-                    new LambdaModel<>(this::getExportCodebookFileName).autoDetaching(),
-                    LoadableDetachableModel.of(this::exportCodebook)));
-
+            // add save and delete buttons
             add(new LambdaAjaxButton<>("save", this::actionSave));
             add(new LambdaAjaxButton<>("delete", this::actionDelete)
                     .add(visibleWhen(() -> !isNull(this.getModelObject().getId()))));
@@ -378,7 +380,21 @@ public class ProjectCodebookPanel
             saveCodebook(codebook);
             // update the tree (if the parent changed)
             projectCodebookTreePanel.initTree();
-            projectCodebookTreePanel.collapseAll();
+            projectCodebookTreePanel.expandAll();
+        }
+
+        private void purgeCodebook(Codebook codebook)
+        {
+            // recursively purges all child codebooks and their respective tags
+            CodebookTreeProvider codebookNodeProvider =
+                    ProjectCodebookPanel.this.projectCodebookTreePanel.getProvider();
+
+            codebookNodeProvider.getChildren(codebook).forEach(this::purgeCodebook);
+
+            List<CodebookTag> tags = codebookService.listTags(codebook);
+            tags.forEach(codebookService::removeCodebookTag);
+
+            codebookService.removeCodebook(codebook);
         }
 
         private void actionDelete(AjaxRequestTarget aTarget, Form aForm)
@@ -390,10 +406,19 @@ public class ProjectCodebookPanel
             confirmationDialog.show(aTarget);
 
             confirmationDialog.setConfirmAction((_target) -> {
-                Codebook codebook = codebookDetailForm.getModelObject();
-                // also remove the codebook from the parent selection
-                this.codebookParentSelection.removeParent(codebook);
-                codebookService.removeCodebook(codebookDetailForm.getModelObject());
+                try {
+                    Codebook codebook = codebookDetailForm.getModelObject();
+                    this.purgeCodebook(codebook);
+                }
+                catch (Exception e) {
+                    // TODO
+                    // due to the limitations of ConfirmationDialog it's not possible to display
+                    // a meaningful error of DataIntegrityViolationException
+                }
+
+                // update the tree
+                projectCodebookTreePanel.initTree();
+                projectCodebookTreePanel.expandAll();
 
                 Project project = getModelObject().getProject();
 
@@ -441,76 +466,6 @@ public class ProjectCodebookPanel
             codebookDetailForm.setModelObject(null);
             tagSelectionPanel.setDefaultModelObject(null);
             tagEditorPanel.setDefaultModelObject(null);
-        }
-
-        private String getExportCodebookFileName()
-        {
-            switch (exportMode) {
-            case SELECTED:
-                return "codebook.json";
-            case ALL:
-                return "codebook.json";
-            default:
-                throw new IllegalStateException("Unknown mode: [" + exportMode + "]");
-            }
-        }
-
-        private IResourceStream exportCodebook()
-        {
-            switch (exportMode) {
-            case SELECTED:
-                return exportSelectedCodebook();
-            case ALL:
-                return exportAllCodebook();
-            default:
-                throw new IllegalStateException("Unknown mode: [" + exportMode + "]");
-            }
-        }
-
-        private IResourceStream exportSelectedCodebook()
-        {
-            try {
-                Codebook codebook = codebookDetailForm.getModelObject();
-
-                de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook =
-                        ImportUtil.exportCodebook(codebook, codebookService);
-
-                return new InputStreamResourceStream(new ByteArrayInputStream(
-                        JSONUtil.toPrettyJsonString(exCodebook).getBytes(StandardCharsets.UTF_8)));
-
-            }
-            catch (Exception e) {
-                error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
-                LOG.error("Unable to generate the JSON file", e);
-                RequestCycle.get().find(IPartialPageRequestHandler.class)
-                        .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
-                return null;
-            }
-        }
-
-        private IResourceStream exportAllCodebook()
-        {
-            try {
-                List<de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook> codebooks
-                        = new ArrayList<>();
-                for (Codebook codebook : codebookService
-                        .listCodebook(getModelObject().getProject())) {
-                    de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook exCodebook
-                            = ImportUtil.exportCodebook(codebook, codebookService);
-                    codebooks.add(exCodebook);
-                }
-
-                return new InputStreamResourceStream(new ByteArrayInputStream(
-                        JSONUtil.toPrettyJsonString(codebooks).getBytes(StandardCharsets.UTF_8)));
-
-            }
-            catch (Exception e) {
-                error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
-                LOG.error("Unable to generate the JSON file", e);
-                RequestCycle.get().find(IPartialPageRequestHandler.class)
-                        .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
-                return null;
-            }
         }
 
         /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
