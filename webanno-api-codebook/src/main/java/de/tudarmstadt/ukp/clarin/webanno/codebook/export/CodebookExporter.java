@@ -313,11 +313,10 @@ public class CodebookExporter
             ExportedProject aExProject, ZipFile aZip)
         throws Exception
     {
-        Optional<ExportedCodebook[]> exportedCodebooksArray =
-                aExProject.getProperty(CODEBOOKS, ExportedCodebook[].class);
-        if(exportedCodebooksArray.isPresent()) {
-            List<ExportedCodebook> exportedCodebooks =
-                    Arrays.asList(exportedCodebooksArray.get());
+        Optional<ExportedCodebook[]> exportedCodebooksArray = aExProject.getProperty(CODEBOOKS,
+                ExportedCodebook[].class);
+        if (exportedCodebooksArray.isPresent()) {
+            List<ExportedCodebook> exportedCodebooks = Arrays.asList(exportedCodebooksArray.get());
             this.importCodebooks(exportedCodebooks, aProject);
         }
     }

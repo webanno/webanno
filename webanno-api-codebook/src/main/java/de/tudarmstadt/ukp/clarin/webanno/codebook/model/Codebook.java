@@ -82,7 +82,8 @@ public class Codebook
         // Required
     }
 
-    public Codebook(String aName, String aUiName, String aType, Project aProject, boolean aCreateTag)
+    public Codebook(String aName, String aUiName,
+                    String aType, Project aProject, boolean aCreateTag)
     {
         setName(aName);
         setUiName(aUiName);
@@ -94,7 +95,7 @@ public class Codebook
      * A short unique numeric identifier for the type (primary key in the DB). This identifier is
      * only transiently used when communicating with the UI. It is not persisted long term other
      * than in the type registry (e.g. in the database).
-     * 
+     *
      * @return the id.
      */
     public Long getId()
@@ -106,7 +107,7 @@ public class Codebook
      * A short unique numeric identifier for the type (primary key in the DB). This identifier is
      * only transiently used when communicating with the UI. It is not persisted long term other
      * than in the type registry (e.g. in the database).
-     * 
+     *
      * @param typeId
      *            the id.
      */
@@ -127,7 +128,7 @@ public class Codebook
 
     /**
      * The name displayed to the user in the UI.
-     * 
+     *
      * @return the displayed name.
      */
     public String getUiName()
@@ -137,7 +138,7 @@ public class Codebook
 
     /**
      * The name displayed to the user in the UI.
-     * 
+     *
      * @param uiName
      *            the displayed name.
      */
@@ -149,7 +150,7 @@ public class Codebook
     /**
      * The name of the UIMA annotation type handled by the adapter. This name must be unique for
      * each type in a project
-     * 
+     *
      * @return the name.
      */
     public String getName()
@@ -160,7 +161,7 @@ public class Codebook
     /**
      * The name of the UIMA annotation type handled by the adapter. This name must be unique for
      * each type in a project
-     * 
+     *
      * @param annotationTypeName
      *            the type name.
      */
@@ -171,7 +172,7 @@ public class Codebook
 
     /**
      * the project id where this type belongs to
-     * 
+     *
      * @return the project.
      */
     public Project getProject()
@@ -181,7 +182,7 @@ public class Codebook
 
     /**
      * the project id where this type belongs to
-     * 
+     *
      * @param project
      *            the project.
      */
@@ -200,7 +201,7 @@ public class Codebook
 
     /**
      * Set the parent codebook of this codebook
-     * 
+     *
      * @param parent
      */
     public void setParent(Codebook parent)

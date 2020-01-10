@@ -110,8 +110,8 @@ public class CodebookNodePanel
                 .filter(codebookTag -> {
                     if (codebookTag.getParent() == null)
                         return false;
-                    return codebookTag.getParent().equals(parentTag);})
-                .collect(Collectors.toList());
+                    return codebookTag.getParent().equals(parentTag);
+                }).collect(Collectors.toList());
         return validTags;
     }
 
@@ -139,15 +139,18 @@ public class CodebookNodePanel
         this.tagSelectionForm.addOrReplace(createTagSelectionComboBox());
     }
 
-    public CodebookSchemaService getCodebookService() {
+    public CodebookSchemaService getCodebookService()
+    {
         return codebookService;
     }
 
-    public CodebookEditorPanel getParentEditor() {
+    public CodebookEditorPanel getParentEditor()
+    {
         return parentEditor;
     }
 
-    public CodebookNode getNode() {
+    public CodebookNode getNode()
+    {
         return node;
     }
 }
