@@ -17,9 +17,11 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.uima.cas.CASException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -27,7 +29,9 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
@@ -40,18 +44,39 @@ public class DocumentStatsSidebar
 {
     private static final long serialVersionUID = -694508827886594987L;
 
-    private DocStats stats;
+    private LoadableDetachableModel<DocStats> stats;
 
     private TextField<String> tokenFilter;
     private TextField<Integer> minCount;
     private TextField<Integer> maxCount;
     private Form<String> filterForm;
 
+    private @SpringBean DocStatsFactory docStatsFactory;
+
     public DocumentStatsSidebar(String aId, IModel<AnnotatorState> aModel,
-            AnnotationPage aAnnotationPage, DocStats stats)
+            AnnotationPage aAnnotationPage)
     {
         super(aId, aModel, null, null, aAnnotationPage);
-        this.stats = stats;
+
+        this.stats = new LoadableDetachableModel<DocStats>()
+        {
+            private static final long serialVersionUID = 4666440621462423520L;
+
+            @Override
+            protected DocStats load()
+            {
+                try {
+                    return docStatsFactory.create(aModel.getObject().getDocument());
+                }
+                catch (IOException | CASException e) {
+                    // TODO what to throw or do?!
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+
+        DocStats s = this.stats.getObject();
 
         // freq filter form
         this.filterForm = new Form<>("filterForm");
@@ -68,8 +93,8 @@ public class DocumentStatsSidebar
 
         // max count
         this.filterForm.add(new Label("maxCountLabel", "Maximum Count"));
-        this.maxCount = new TextField<>("maxCount",
-                new Model<>(stats.getTokensSortedByFrequency().get(0).getValue()), Integer.class);
+        this.maxCount = new TextField<>("maxCount", new Model<>(s.getMaxTokenCount()),
+                Integer.class);
         this.maxCount.setOutputMarkupId(true);
         this.maxCount
                 .add(new LambdaAjaxFormComponentUpdatingBehavior("update", this::applyFilters));
@@ -102,15 +127,20 @@ public class DocumentStatsSidebar
         this.add(this.filterForm);
 
         // token counts
-        this.add(new Label("totalTokens", stats.getTotalTokenCount()));
-        this.add(new Label("distinctTokens", stats.getDistinctTokenCount()));
-        this.updateListView(stats.getTokensSortedByFrequency());
+        this.add(new Label("totalTokens", s.getTotalTokenCount()));
+        this.add(new Label("distinctTokens", s.getDistinctTokenCount()));
+        this.updateListView(s.getSortedTokenFrequencies());
+
+        this.stats.detach();
     }
 
     private void resetFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
     {
+        Integer max = this.stats.getObject().getMaxTokenCount();
+        this.stats.detach();
+
         this.minCount.setModelObject(0);
-        this.maxCount.setModelObject(this.stats.getTokensSortedByFrequency().get(0).getValue());
+        this.maxCount.setModelObject(max);
         this.tokenFilter.setModelObject("");
         ajaxRequestTarget.add(this.minCount);
         ajaxRequestTarget.add(this.tokenFilter);
@@ -130,15 +160,17 @@ public class DocumentStatsSidebar
         String startWith = this.tokenFilter.getModelObject();
         startWith = startWith == null ? "" : startWith;
 
-        this.updateListView(stats.getTokenFrequency(min, max, startWith));
+        this.updateListView(stats.getObject().getTokenFrequency(min, max, startWith));
+        this.stats.detach();
 
         ajaxRequestTarget.add(this);
         ajaxRequestTarget.add(this.filterForm);
     }
 
-    private void updateListView(List<Map.Entry<String, Integer>> list)
+    private void updateListView(List<Pair<String, Integer>> list)
     {
-        ListView<Map.Entry<String, Integer>> tokenFreqs = new ListView<Map.Entry<String, Integer>>(
+        // TODO maybe use (Ajax)DataView ?
+        ListView<Pair<String, Integer>> tokenFreqs = new ListView<Pair<String, Integer>>(
                 "tokenFreqs", list)
         {
             private static final long serialVersionUID = -4707500638635391896L;
@@ -147,7 +179,7 @@ public class DocumentStatsSidebar
             protected void populateItem(ListItem item)
             {
                 @SuppressWarnings("unchecked")
-                Map.Entry<String, Integer> e = (Map.Entry<String, Integer>) item.getModelObject();
+                Pair<String, Integer> e = (Pair<String, Integer>) item.getModelObject();
                 item.add(new Label("token", e.getKey()));
                 item.add(new Label("count", e.getValue()));
             }

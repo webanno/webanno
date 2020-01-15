@@ -18,15 +18,11 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class DocStats
     implements Serializable
@@ -34,61 +30,52 @@ public class DocStats
 
     private static final long serialVersionUID = -3719857960844288525L;
 
-    private Map<String, Integer> tokenFrequencies;
+    private List<Pair<String, Integer>> sortedTokenFrequencies;
 
     // package private by intention
-    DocStats()
+    DocStats(List<Pair<String, Integer>> sortedTokenFrequencies)
     {
-        tokenFrequencies = new HashMap<>();
+        this.sortedTokenFrequencies = sortedTokenFrequencies;
+    }
+
+    public List<Pair<String, Integer>> getSortedTokenFrequencies()
+    {
+        return sortedTokenFrequencies;
+    }
+
+    // package private by intention
+    Integer getMaxTokenCount()
+    {
+        return sortedTokenFrequencies.get(0).getRight();
     }
 
     // package private by intention
     Integer getTotalTokenCount()
     {
-        return tokenFrequencies.values().stream().mapToInt(Integer::intValue).sum();
-    }
-    
-    // package private by intention
-    List<Map.Entry<String, Integer>> getTokenFrequency(Integer min, Integer max,
-            String startWith)
-    {
-        List<Map.Entry<String, Integer>> sorted = this.getTokensSortedByFrequency();
-
-        return sorted.stream().filter(e -> StringUtils.startsWithIgnoreCase(e.getKey(), startWith)
-                && e.getValue() >= min && e.getValue() <= max).collect(Collectors.toList());
+        return sortedTokenFrequencies.stream().mapToInt(Pair::getRight).sum();
     }
 
     // package private by intention
-    void add(String token)
+    List<Pair<String, Integer>> getTokenFrequency(Integer min, Integer max, String startWith)
     {
-        this.tokenFrequencies.computeIfPresent(token, (s, count) -> ++count);
-        this.tokenFrequencies.putIfAbsent(token, 1);
-    }
-
-    // credits to https://stackoverflow.com/questions/2864840/treemap-sort-by-value
-    // package private by intention
-    List<Map.Entry<String, Integer>> getTokensSortedByFrequency()
-    {
-        SortedSet<Map.Entry<String, Integer>> sortedEntries = new TreeSet<>((e1, e2) -> {
-            int res = e2.getValue().compareTo(e1.getValue());
-            return res != 0 ? res : 1; // Special fix to preserve items with equal values
-        });
-        sortedEntries.addAll(this.tokenFrequencies.entrySet());
-        return new ArrayList<>(sortedEntries);
+        return this.sortedTokenFrequencies.stream()
+                .filter(e -> StringUtils.startsWithIgnoreCase(e.getKey(), startWith)
+                        && e.getValue() >= min && e.getValue() <= max)
+                .collect(Collectors.toList());
     }
 
     // package private by intention
-    List<Map.Entry<String, Integer>> getTopNTokens(Integer topN)
+    List<Pair<String, Integer>> getTopNTokens(Integer topN)
     {
-        if (this.tokenFrequencies.size() >= topN)
-            return this.getTokensSortedByFrequency().subList(0, topN);
+        if (this.sortedTokenFrequencies.size() >= topN)
+            return this.sortedTokenFrequencies.subList(0, topN);
         else
-            return this.getTokensSortedByFrequency();
+            return this.sortedTokenFrequencies;
     }
 
     // package private by intention
     Integer getDistinctTokenCount()
     {
-        return this.tokenFrequencies.size();
+        return this.sortedTokenFrequencies.size();
     }
 }
