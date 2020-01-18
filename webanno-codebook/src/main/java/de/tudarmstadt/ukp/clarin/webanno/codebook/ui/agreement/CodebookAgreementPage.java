@@ -36,7 +36,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.fit.util.FSUtil;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -48,6 +47,7 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -74,10 +74,10 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.AgreementReportExportFormat;
-import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.AgreementResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.AgreementUtils.ConcreteAgreementMeasure;
 import de.tudarmstadt.ukp.clarin.webanno.curation.agreement.PairwiseAnnotationResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
@@ -111,6 +111,7 @@ public class CodebookAgreementPage
 
     private ProjectSelectionForm projectSelectionForm;
     private CodebookAgreementForm agreementForm;
+    private AgreementCodebookTreePanel agreementCodebookTreePanel;
 
     public CodebookAgreementPage()
     {
@@ -135,7 +136,7 @@ public class CodebookAgreementPage
 
         if (project.isPresent()) {
             // Check access to project
-            if (project != null && !(projectService.isCurator(project.get(), user)
+            if (!(projectService.isCurator(project.get(), user)
                     || projectService.isManager(project.get(), user))) {
                 error("You have no permission to access project [" + project.get().getId() + "]");
                 setResponsePage(getApplication().getHomePage());
@@ -147,6 +148,7 @@ public class CodebookAgreementPage
             error("Project [" + projectParameter + "] does not exist");
             setResponsePage(getApplication().getHomePage());
         }
+
     }
 
     private void commonInit()
@@ -155,15 +157,16 @@ public class CodebookAgreementPage
         add(agreementForm = new CodebookAgreementForm("agreementForm"));
     }
 
-    private void updateAgreementTable(AjaxRequestTarget aTarget, boolean aClearCache)
+    // package private by intention
+    void updateAgreementTable(AjaxRequestTarget aTarget, boolean aClearCache)
     {
         try {
             if (aClearCache) {
                 cachedCASes = null;
             }
-            agreementForm.agreementTable2.getDefaultModel().detach();
-            if (aTarget != null && agreementForm.agreementTable2.isVisibleInHierarchy()) {
-                aTarget.add(agreementForm.agreementTable2);
+            agreementForm.agreementTable.getDefaultModel().detach();
+            if (aTarget != null && agreementForm.agreementTable.isVisibleInHierarchy()) {
+                aTarget.add(agreementForm.agreementTable);
             }
         }
         catch (Throwable e) {
@@ -235,8 +238,7 @@ public class CodebookAgreementPage
                 }
 
                 // The next line can enter null values into the list if a user didn't work on
-                // this
-                // source document yet.
+                // this source document yet.
                 cases.add(cas);
             }
 
@@ -246,14 +248,13 @@ public class CodebookAgreementPage
         return cachedCASes;
     }
 
-    private class CodebookAgreementForm
+    class CodebookAgreementForm
         extends Form<CodebookAgreementFormModel>
     {
-        private static final long serialVersionUID = -1L;
 
-        private ListChoice<CodebookFeature> featureList;
+        private static final long serialVersionUID = 4784458348203374001L;
 
-        private CodebookAgreementTable agreementTable2;
+        private CodebookAgreementTable agreementTable;
 
         private DropDownChoice<ConcreteAgreementMeasure> measureDropDown;
 
@@ -279,11 +280,18 @@ public class CodebookAgreementPage
                 protected void onConfigure()
                 {
                     super.onConfigure();
-
-                    setVisible(featureList.getModelObject() != null);
                 }
             };
+            agreementResults.setOutputMarkupId(true);
             add(agreementResults);
+            // add and init tree
+            ProjectSelectionModel model = projectSelectionForm.getModelObject();
+            agreementCodebookTreePanel = new AgreementCodebookTreePanel(
+                    "agreementCodebookTreePanel", new Model<CodebookNode>(null), model.project,
+                    CodebookAgreementPage.this);
+            agreementCodebookTreePanel.initTree();
+            agreementCodebookTreePanel.setOutputMarkupId(true);
+            agreementResults.add(agreementCodebookTreePanel);
 
             PopoverConfig config = new PopoverConfig().withPlacement(Placement.left).withHtml(true);
             WebMarkupContainer legend = new WebMarkupContainer("legend");
@@ -296,7 +304,7 @@ public class CodebookAgreementPage
                     new EnumChoiceRenderer<>(CodebookAgreementPage.this)));
             addUpdateAgreementTableBehavior(measureDropDown);
 
-            agreementResults.add(new DropDownChoice<AgreementReportExportFormat>("exportFormat",
+            agreementResults.add(new DropDownChoice<>("exportFormat",
                     asList(AgreementReportExportFormat.values()),
                     new EnumChoiceRenderer<>(CodebookAgreementPage.this))
                             .add(new LambdaAjaxFormComponentUpdatingBehavior("change")));
@@ -316,46 +324,8 @@ public class CodebookAgreementPage
             });
             addUpdateAgreementTableBehavior(excludeIncomplete);
 
-            add(featureList = new ListChoice<CodebookFeature>("feature")
-            {
-                private static final long serialVersionUID = 1L;
-
-                {
-                    setOutputMarkupId(true);
-
-                    setChoices(new LoadableDetachableModel<List<CodebookFeature>>()
-                    {
-                        private static final long serialVersionUID = 1L;
-
-                        @Override
-                        protected List<CodebookFeature> load()
-                        {
-                            List<CodebookFeature> features = codebookService.listCodebookFeature(
-                                    (projectSelectionForm.getModelObject().project));
-                            return features;
-                        }
-                    });
-                    setChoiceRenderer(new ChoiceRenderer<CodebookFeature>()
-                    {
-                        private static final long serialVersionUID = -3370671999669664776L;
-
-                        @Override
-                        public Object getDisplayValue(CodebookFeature aObject)
-                        {
-                            return aObject.getCodebook().getUiName() + " : " + aObject.getUiName();
-                        }
-                    });
-                    setNullValid(false);
-                }
-
-                @Override
-                protected CharSequence getDefaultChoice(String aSelectedValue)
-                {
-                    return "";
-                }
-            });
-            addUpdateAgreementTableBehavior(featureList);
-            agreementResults.add(agreementTable2 = new CodebookAgreementTable("agreementTable",
+            // addUpdateAgreementTableBehavior(featureList);
+            agreementResults.add(agreementTable = new CodebookAgreementTable("agreementTable",
                     getModel(), new LoadableDetachableModel<PairwiseAnnotationResult>()
                     {
                         private static final long serialVersionUID = -5400505010677053446L;
@@ -363,7 +333,9 @@ public class CodebookAgreementPage
                         @Override
                         protected PairwiseAnnotationResult load()
                         {
-                            CodebookFeature feature = featureList.getModelObject();
+                            CodebookFeature feature =
+                                    (CodebookFeature) agreementCodebookTreePanel
+                                    .getDefaultModelObject();
 
                             // Do not do any agreement if no feature has been selected yet.
                             if (feature == null) {
@@ -411,8 +383,9 @@ public class CodebookAgreementPage
                                 public InputStream getInputStream()
                                     throws ResourceStreamNotFoundException
                                 {
-                                    CodebookFeature feature = featureList.getModelObject();
-
+                                    CodebookFeature feature = (CodebookFeature)
+                                            CodebookAgreementPage.this.agreementCodebookTreePanel
+                                            .getDefaultModelObject();
                                     // Do not do any agreement if no feature has been selected yet.
                                     if (feature == null) {
                                         return null;
@@ -431,9 +404,10 @@ public class CodebookAgreementPage
                                             asList(feature.getCodebook().getName()), adapters, null,
                                             casMap);
 
-                                    AgreementResult agreementResult = AgreementUtils.makeStudy(diff,
-                                            feature.getCodebook().getName(), feature.getName(),
-                                            pref.excludeIncomplete, casMap);
+                                    AgreementUtils.AgreementResult agreementResult = AgreementUtils
+                                            .makeStudy(diff, feature.getCodebook().getName(),
+                                                    feature.getName(), pref.excludeIncomplete,
+                                                    casMap);
                                     try {
                                         return AgreementUtils.generateCsvReport(agreementResult);
                                     }
@@ -461,8 +435,7 @@ public class CodebookAgreementPage
                 protected void onConfigure()
                 {
                     super.onConfigure();
-
-                    setVisible(featureList.getModelObject() != null);
+                    setVisible(agreementCodebookTreePanel.getDefaultModelObject() != null);
                 }
 
                 @Override
@@ -485,7 +458,7 @@ public class CodebookAgreementPage
             setVisible(model != null && model.project != null);
         }
 
-        private void addUpdateAgreementTableBehavior(Component aComponent)
+        private void addUpdateAgreementTableBehavior(FormComponent aComponent)
         {
             aComponent.add(new OnChangeAjaxBehavior()
             {
@@ -554,8 +527,7 @@ public class CodebookAgreementPage
         }
 
         // This method must be here so Wicket sets the "measure" value through the
-        // setter instead
-        // of using field injection
+        // setter instead of using field injection
         public ConcreteAgreementMeasure getMeasure()
         {
             return measure;
@@ -583,6 +555,7 @@ public class CodebookAgreementPage
         {
             selectProject(getModelObject().project);
             aTarget.add(agreementForm);
+            aTarget.add(agreementCodebookTreePanel);
         }
 
         private List<Project> listAllowedProjects()
@@ -610,6 +583,8 @@ public class CodebookAgreementPage
             // reload them.
             updateAgreementTable(RequestCycle.get().find(AjaxRequestTarget.class).orElse(null),
                     true);
+
+            agreementCodebookTreePanel.setProject(aProject);
         }
     }
 

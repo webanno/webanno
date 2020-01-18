@@ -21,12 +21,14 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.wicket.model.IDetachable;
+
 /**
  * This is only a wrapper class that represents a {@link Codebook} in a tree and eases the inter-
  * action with the tree.
  */
 public class CodebookNode
-    implements Serializable
+    implements Serializable, IDetachable
 {
     private static final long serialVersionUID = 7317710381928186621L;
 
@@ -123,6 +125,11 @@ public class CodebookNode
     public void setSelected(boolean selected)
     {
         this.selected = selected;
+    }
+
+    @Override
+    public void detach()
+    {
     }
 
     @Override

@@ -64,7 +64,7 @@ public class CodebookEditorTreePanel
                 CodebookNodeExpansion.get().collapseAll();
             }
         });
-        ;
+
         this.nodePanels = new HashMap<>();
         this.parentEditor = parentEditor;
     }
