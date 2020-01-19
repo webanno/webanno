@@ -320,8 +320,8 @@ public class CodebookAgreementTable
         return (PairwiseAnnotationResult) getDefaultModelObject();
     }
 
-    public void setModelObject(PairwiseAnnotationResult aAgreements2)
+    public void setModelObject(PairwiseAnnotationResult pairwiseAnnotationResult)
     {
-        setDefaultModelObject(aAgreements2);
+        setDefaultModelObject(pairwiseAnnotationResult);
     }
 }
