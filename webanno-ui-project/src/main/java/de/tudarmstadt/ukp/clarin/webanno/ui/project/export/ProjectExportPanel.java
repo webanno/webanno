@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.channels.ClosedByInterruptException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
@@ -57,6 +58,7 @@ import org.wicketstuff.progressbar.ProgressBar;
 import org.wicketstuff.progressbar.Progression;
 import org.wicketstuff.progressbar.ProgressionModel;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
@@ -70,7 +72,6 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.AJAXDownload;
 import de.tudarmstadt.ukp.clarin.webanno.support.ZipUtils;
-import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.LogMessage;
@@ -146,8 +147,8 @@ public class ProjectExportPanel
             });
             format.setChoices(LoadableDetachableModel.of(() -> {
                 List<String> formats = importExportService.getWritableFormats().stream()
+                        .sorted(Comparator.comparing(FormatSupport::getName))
                         .map(FormatSupport::getId)
-                        .sorted()
                         .collect(Collectors.toCollection(ArrayList::new));
                 formats.add(0, ProjectExportRequest.FORMAT_AUTO);
                 return formats;
@@ -263,7 +264,7 @@ public class ProjectExportPanel
                         info("Project export cancelled");
                         break;
                     default:
-                        error("Invalid project export state after export: " + exportProject);
+                        error("Invalid project export state after export: " + runnable.getState());
                     }
                     
                     runnable = null;
@@ -378,13 +379,15 @@ public class ProjectExportPanel
     {
         private final String username;
         private final ProjectExportRequest model;
-        private volatile State state;
+        private State state;
 
         public FileGenerator(ProjectExportRequest aModel, String aUsername)
         {
             model = aModel;
             username = aUsername;
-            state = State.NOT_STARTED;
+            synchronized (this) {
+                state = State.NOT_STARTED;
+            }
         }
 
         @Override
@@ -397,23 +400,29 @@ public class ProjectExportPanel
                 MDC.put(Logging.KEY_PROJECT_ID, String.valueOf(model.getProject().getId()));
                 MDC.put(Logging.KEY_REPOSITORY_PATH, documentService.getDir().toString());
                 
-                state = State.RUNNING;
+                synchronized (this) {
+                    state = State.RUNNING;
+                }
                 file = exportService.exportProject(model);
                 fileName = file.getAbsolutePath();
                 projectName = model.getProject().getName();
-                state = State.COMPLETED;
+                synchronized (this) {
+                    state = State.COMPLETED;
+                }
             }
             catch (ClosedByInterruptException e) {
                 cancel();
             }
             catch (Throwable e) {
+                synchronized (this) {
+                    state = State.FAILED;
+                    // This marks the progression as complete and causes ProgressBar#onFinished
+                    // to be called where we display the messages
+                    model.progress = 100; 
+                }
                 LOG.error("Unexpected error during project export", e);
                 model.addMessage(LogMessage.error(this, "Unexpected error during project export: %s",
                                 ExceptionUtils.getRootCauseMessage(e)));
-                state = State.FAILED;
-                // This marks the progression as complete and causes ProgressBar#onFinished
-                // to be called where we display the messages
-                model.progress = 100; 
             }
         }
         
@@ -424,13 +433,17 @@ public class ProjectExportPanel
 
         public void cancel()
         {
-            state = State.CANCELLED;
-            model.progress = 100;
+            synchronized (this) {
+                state = State.CANCELLED;
+                model.progress = 100;
+            }
         }
         
         public State getState()
         {
-            return state;
+            synchronized (this) {
+                return state;
+            }
         }
     }
 }

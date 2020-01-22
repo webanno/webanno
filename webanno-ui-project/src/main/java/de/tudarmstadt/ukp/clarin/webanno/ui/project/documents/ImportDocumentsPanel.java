@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
+import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
@@ -45,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
@@ -56,9 +59,6 @@ import de.tudarmstadt.ukp.clarin.webanno.csv.WebAnnoExcelFormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
-import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
-import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
@@ -68,7 +68,7 @@ public class ImportDocumentsPanel extends Panel
     private static final long serialVersionUID = 4927011191395114886L;
     
     private final static Logger LOG = LoggerFactory.getLogger(ImportDocumentsPanel.class);
-    
+
     private @SpringBean DocumentService documentService;
     private @SpringBean ImportExportService importExportService;
     private @SpringBean UserDao userRepository;
@@ -76,7 +76,7 @@ public class ImportDocumentsPanel extends Panel
     private FileUploadField fileUpload;
 
     private IModel<String> format;
-    
+
     private IModel<Project> projectModel;
 
     public ImportDocumentsPanel(String aId, IModel<Project> aProject)
@@ -84,10 +84,10 @@ public class ImportDocumentsPanel extends Panel
         super(aId);
 
         projectModel = aProject;
-        
+
         Form<Void> form = new Form<>("form");
         add(form);
-        
+
         format = Model.of();
         List<String> readableFormats = listReadableFormats();
         if (!readableFormats.isEmpty()) {
@@ -98,17 +98,17 @@ public class ImportDocumentsPanel extends Panel
                 format.setObject(readableFormats.get(0));
             }
         }
-        
+
         form.add(fileUpload = new FileUploadField("documents"));
 
         DropDownChoice<String> formats = new BootstrapSelect<>("format");
         formats.setModel(format);
         formats.setChoices(LambdaModel.of(this::listReadableFormats));
         form.add(formats);
-        
+
         form.add(new LambdaAjaxButton<>("import", this::actionImport));
     }
-    
+
     private List<String> listReadableFormats()
     {
         return importExportService.getReadableFormats().stream().map(FormatSupport::getName)
@@ -118,7 +118,7 @@ public class ImportDocumentsPanel extends Panel
     private void actionImport(AjaxRequestTarget aTarget, Form<Void> aForm)
     {
         aTarget.addChildren(getPage(), IFeedback.class);
-        
+
         List<FileUpload> uploadedFiles = fileUpload.getFileUploads();
         Project project = projectModel.getObject();
         if (isEmpty(uploadedFiles)) {
@@ -179,7 +179,7 @@ public class ImportDocumentsPanel extends Panel
                     SourceDocument document = new SourceDocument();
                     document.setName(cD.getDocumentName());
                     document.setProject(project);
-                    document.setFormat(documentFormat.getId());                   
+                    document.setFormat(documentFormat.getId());
                     InputStream is = CodebookDocumentUtil.getStream(cD);
                     documentService.uploadSourceDocument(is, document);
                     for (int u = 0; u < cD.getAnnotators().size(); u++) {
@@ -226,7 +226,7 @@ public class ImportDocumentsPanel extends Panel
             }
         }
     }
-    
+
     private void readExcel(List<FileUpload> uploadedFiles, Project project,
             FormatSupport documentFormat) {
         for (FileUpload documentToUpload : uploadedFiles) {
@@ -238,7 +238,7 @@ public class ImportDocumentsPanel extends Panel
                     SourceDocument document = new SourceDocument();
                     document.setName(cD.getDocumentName());
                     document.setProject(project);
-                    document.setFormat(documentFormat.getId());                   
+                    document.setFormat(documentFormat.getId());
                     InputStream is = CodebookDocumentUtil.getExcelStream(cD);
                     documentService.uploadSourceDocument(is, document);
                 }
@@ -255,6 +255,6 @@ public class ImportDocumentsPanel extends Panel
             }
         }
     }
-    
-    
+
+
 }
