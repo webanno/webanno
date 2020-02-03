@@ -98,6 +98,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicketstuff.UrlParametersReceivingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.component.DocumentNamePanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
+import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.event.AnnotationPageCreatedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.SidebarPanel;
 
 /**
@@ -180,9 +181,12 @@ public class AnnotationPage
     protected void commonInit(StringValue focus)
     {
         createChildComponents();
-        SourceDocument doc = getModelObject().getDocument();
-        
-        updateDocumentView(null, doc, focus);
+        AnnotatorState state = getModelObject();
+        if (state != null && state.getProject() != null) {
+            applicationEventPublisherHolder.get().publishEvent(new AnnotationPageCreatedEvent(this,
+                    state.getUser().getUsername(), state.getProject().getId()));
+        }
+        updateDocumentView(null, state.getDocument(), focus);
     }
     
     private void createChildComponents()
@@ -545,6 +549,10 @@ public class AnnotationPage
                 // tabs may have changed depending on user rights
                 if (previousDoc == null) {
                     leftSidebar.refreshTabs(aTarget);
+                    AnnotatorState state = getModelObject();
+                    applicationEventPublisherHolder.get()
+                            .publishEvent(new AnnotationPageCreatedEvent(this,
+                                    state.getUser().getUsername(), state.getProject().getId()));
                 }
                 
                 updateDocumentView(aTarget, previousDoc, focus);
