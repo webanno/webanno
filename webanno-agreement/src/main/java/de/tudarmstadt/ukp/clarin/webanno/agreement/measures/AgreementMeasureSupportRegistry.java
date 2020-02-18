@@ -17,19 +17,17 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.agreement.measures;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.uima.cas.CAS;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 
-public interface AggreementMeasure<R extends Serializable>
+public interface AgreementMeasureSupportRegistry
 {
-    R getAgreement(Map<String, List<CAS>> aCasMap);
-    
-    AnnotationFeature getFeature();
-    
-    DefaultAgreementTraits getTraits();
+
+    List<AgreementMeasureSupport> getAgreementMeasureSupports();
+
+    AgreementMeasureSupport getAgreementMeasureSupport(String aId);
+
+    List<AgreementMeasureSupport> getAgreementMeasureSupports(AnnotationFeature aFeature);
+
 }

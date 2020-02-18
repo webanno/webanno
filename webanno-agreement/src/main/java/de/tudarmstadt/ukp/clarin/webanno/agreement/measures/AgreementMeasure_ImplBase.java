@@ -17,17 +17,33 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.agreement.measures;
 
-import java.util.List;
+import java.io.Serializable;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 
-public interface AggreementMeasureSupportRegistry
+public abstract class AgreementMeasure_ImplBase<
+        R extends Serializable,
+        T extends DefaultAgreementTraits>
+    implements AgreementMeasure<R>
 {
+    private final AnnotationFeature feature;
+    private final T traits;
 
-    List<AggreementMeasureSupport> getAgreementMeasureSupports();
+    public AgreementMeasure_ImplBase(AnnotationFeature aFeature, T aTraits)
+    {
+        feature = aFeature;
+        traits = aTraits;
+    }
 
-    AggreementMeasureSupport getAgreementMeasureSupport(String aId);
-
-    List<AggreementMeasureSupport> getAgreementMeasureSupports(AnnotationFeature aFeature);
-
+    @Override
+    public AnnotationFeature getFeature()
+    {
+        return feature;
+    }
+    
+    @Override
+    public T getTraits()
+    {
+        return traits;
+    }
 }

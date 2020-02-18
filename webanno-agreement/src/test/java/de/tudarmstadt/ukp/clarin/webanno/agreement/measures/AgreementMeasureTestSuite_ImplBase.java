@@ -109,7 +109,7 @@ public class AgreementMeasureTestSuite_ImplBase
     
     public <R extends Serializable, T extends DefaultAgreementTraits> R 
             multiLinkWithRoleLabelDifferenceTest(
-                    AggreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
+                    AgreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
         throws Exception
     {
         AnnotationLayer layer = new AnnotationLayer(HOST_TYPE, HOST_TYPE, SPAN_TYPE, project, false,
@@ -139,13 +139,13 @@ public class AgreementMeasureTestSuite_ImplBase
         casByUser.put("user1", asList(jcasA.getCas()));
         casByUser.put("user2", asList(jcasB.getCas()));
 
-        AggreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
+        AgreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
         
         return measure.getAgreement(casByUser);
     }
     
     public <R extends Serializable, T extends DefaultAgreementTraits> R twoEmptyCasTest(
-            AggreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
+            AgreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
         throws Exception
     {
         AnnotationLayer layer = new AnnotationLayer(Lemma.class.getName(),
@@ -172,14 +172,14 @@ public class AgreementMeasureTestSuite_ImplBase
         casByUser.put("user1", asList(user1Cas));
         casByUser.put("user2", asList(user2Cas));
         
-        AggreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
+        AgreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
         
         return measure.getAgreement(casByUser);
     }
     
     public <R extends Serializable, T extends DefaultAgreementTraits> R 
             singleNoDifferencesWithAdditionalCasTest(
-                    AggreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
+                    AgreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport)
         throws Exception
     {
         AnnotationLayer layer = new AnnotationLayer(POS.class.getName(),
@@ -211,13 +211,13 @@ public class AgreementMeasureTestSuite_ImplBase
         casByUser.put("user2", asList(user2.getCas()));
         casByUser.put("user3", asList(user3.getCas()));
         
-        AggreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
+        AgreementMeasure<R> measure = aSupport.createMeasure(feature, traits);
         
         return measure.getAgreement(casByUser);
     }
 
     public <R extends Serializable, T extends DefaultAgreementTraits> R twoWithoutLabelTest(
-            AggreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport, T aTraits)
+            AgreementMeasureSupport<T, R, ICodingAnnotationStudy> aSupport, T aTraits)
         throws Exception
     {
         AnnotationLayer layer = new AnnotationLayer(POS.class.getName(),
@@ -250,7 +250,7 @@ public class AgreementMeasureTestSuite_ImplBase
         casByUser.put("user1", asList(user1.getCas()));
         casByUser.put("user2", asList(user2.getCas()));
         
-        AggreementMeasure<R> measure = aSupport.createMeasure(feature, aTraits);
+        AgreementMeasure<R> measure = aSupport.createMeasure(feature, aTraits);
         
         return measure.getAgreement(casByUser);
     }

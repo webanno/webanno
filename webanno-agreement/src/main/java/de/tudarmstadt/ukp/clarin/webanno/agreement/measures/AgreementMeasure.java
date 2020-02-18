@@ -18,32 +18,18 @@
 package de.tudarmstadt.ukp.clarin.webanno.agreement.measures;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.uima.cas.CAS;
 
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 
-public abstract class AggreementMeasure_ImplBase<
-        R extends Serializable,
-        T extends DefaultAgreementTraits>
-    implements AggreementMeasure<R>
+public interface AgreementMeasure<R extends Serializable>
 {
-    private final AnnotationFeature feature;
-    private final T traits;
-
-    public AggreementMeasure_ImplBase(AnnotationFeature aFeature, T aTraits)
-    {
-        feature = aFeature;
-        traits = aTraits;
-    }
-
-    @Override
-    public AnnotationFeature getFeature()
-    {
-        return feature;
-    }
+    R getAgreement(Map<String, List<CAS>> aCasMap);
     
-    @Override
-    public T getTraits()
-    {
-        return traits;
-    }
+    AnnotationFeature getFeature();
+    
+    DefaultAgreementTraits getTraits();
 }

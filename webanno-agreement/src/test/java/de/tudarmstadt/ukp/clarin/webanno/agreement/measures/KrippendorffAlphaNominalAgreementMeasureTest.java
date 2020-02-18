@@ -34,10 +34,10 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 public class KrippendorffAlphaNominalAgreementMeasureTest
     extends AgreementMeasureTestSuite_ImplBase
 {
-    private AggreementMeasureSupport<
-        KrippendorffAlphaAgreementTraits, 
-            PairwiseAnnotationResult<CodingAgreementResult>, 
-            ICodingAnnotationStudy> sut;
+    private AgreementMeasureSupport<
+            KrippendorffAlphaAgreementTraits,
+                PairwiseAnnotationResult<CodingAgreementResult>,
+                ICodingAnnotationStudy> sut;
     private KrippendorffAlphaAgreementTraits traits;
     
     @Override
