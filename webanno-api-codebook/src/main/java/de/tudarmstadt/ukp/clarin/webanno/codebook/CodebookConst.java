@@ -23,5 +23,5 @@ public class CodebookConst {
     public static final String EXCEL_TYPE = "excel";
     public static final String CSV_TYPE = "csv";
     public static final String CODEBOOK_FEATURE_NAME = "code"; 
-    public static final String  CODEBOOK_NAME_PREFIX = "webanno.codebook.";
+    public static final String CODEBOOK_NAME_PREFIX = "webanno.codebook.";
 }

@@ -53,6 +53,8 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.CasStorageServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.ImportExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.export.ProjectExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
@@ -61,15 +63,18 @@ import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiFormatSupport;
 public class AnnotationDocumentsExporterTest
 {
     public @Rule TemporaryFolder tempFolder = new TemporaryFolder();
-    
+
     private RepositoryProperties repositoryProperties;
     private BackupProperties backupProperties;
     private ImportExportService importExportSerivce;
     private CasStorageService casStorageService;
-    
+
     private @Mock DocumentService documentService;
     private @Mock AnnotationSchemaService schemaService;
-    
+
+    private @Mock CodebookImportExportService codebookImportExportService;
+    private @Mock CodebookSchemaService codebookService;
+
     private Project project;
     private File workFolder;
     private long nextDocId = 1;
@@ -94,19 +99,18 @@ public class AnnotationDocumentsExporterTest
 
         casStorageService = spy(new CasStorageServiceImpl(null, schemaService, repositoryProperties,
                 backupProperties));
-        
+
         importExportSerivce = new ImportExportServiceImpl(repositoryProperties,
-                asList(new XmiFormatSupport()), casStorageService, schemaService);
-        
+                asList(new XmiFormatSupport()), casStorageService, schemaService,
+                codebookImportExportService, codebookService);
+
         // documentService.getCasFile() is just a stupid wrapper around storageService.getCasFile()
         // and it is easiest we emulate it here
-        when(documentService.getCasFile(any(), any()))
-                .thenAnswer(invocation -> {
-                    return casStorageService.getCasFile(
-                            invocation.getArgument(0, SourceDocument.class),
-                            invocation.getArgument(1, String.class));
-                });
-        
+        when(documentService.getCasFile(any(), any())).thenAnswer(invocation -> {
+            return casStorageService.getCasFile(invocation.getArgument(0, SourceDocument.class),
+                    invocation.getArgument(1, String.class));
+        });
+
         // Dynamically generate a SourceDocument with an incrementing ID when asked for one
         when(documentService.getSourceDocument(any(), any())).then(invocation -> {
             SourceDocument doc = new SourceDocument();
@@ -115,7 +119,7 @@ public class AnnotationDocumentsExporterTest
             doc.setName(invocation.getArgument(1, String.class));
             return doc;
         });
-                
+
         sut = new AnnotationDocumentExporter(documentService, null, importExportSerivce);
     }
 
@@ -123,7 +127,7 @@ public class AnnotationDocumentsExporterTest
     public void thatImportingAnnotationProjectWorks_3_6_1() throws Exception
     {
         project.setMode(PROJECT_TYPE_ANNOTATION);
-        
+
         // Export the project and import it again
         List<Pair<SourceDocument, String>> imported = runImportAndFetchDocuments(new ZipFile(
                 "src/test/resources/exports/Export+Test+-+Curated+annotation+project_3_6_1.zip"));
@@ -134,30 +138,29 @@ public class AnnotationDocumentsExporterTest
         assertThat(imported).extracting(Pair::getValue)
                 .containsExactlyInAnyOrder(INITIAL_CAS_PSEUDO_USER, "admin");
     }
-    
+
     @Test
     public void thatImportingCorrectionProjectWorks_3_6_1() throws Exception
     {
         project.setMode(PROJECT_TYPE_CORRECTION);
-        
+
         // Export the project and import it again
         List<Pair<SourceDocument, String>> imported = runImportAndFetchDocuments(new ZipFile(
                 "src/test/resources/exports/Export+Test+-+Curated+correction+project_3_6_1.zip"));
 
         // Check that the curation for the document in the project is imported
-        assertThat(imported).extracting(p -> p.getKey().getName())
-                .containsExactlyInAnyOrder("example_sentence.txt", "example_sentence.txt", 
-                        "example_sentence.txt");
+        assertThat(imported).extracting(p -> p.getKey().getName()).containsExactlyInAnyOrder(
+                "example_sentence.txt", "example_sentence.txt", "example_sentence.txt");
         // Since WebAnno 3.5.x, the CORRECTION_USER CAS is stored with the annotations
         assertThat(imported).extracting(Pair::getValue)
                 .containsExactlyInAnyOrder(INITIAL_CAS_PSEUDO_USER, "admin", CORRECTION_USER);
     }
-    
+
     @Test
     public void thatImportingCorrectionProjectWorks_3_4_x() throws Exception
     {
         project.setMode(PROJECT_TYPE_CORRECTION);
-        
+
         // Export the project and import it again
         List<Pair<SourceDocument, String>> imported = runImportAndFetchDocuments(new ZipFile(
                 "src/test/resources/exports/Export+Test+-+Curated+correction+project_3_4_8.zip"));
@@ -168,7 +171,8 @@ public class AnnotationDocumentsExporterTest
         // Before WebAnno 3.5.x, the CORRECTION_USER CAS was stored with the curations
         assertThat(imported).extracting(Pair::getValue)
                 .containsExactlyInAnyOrder(INITIAL_CAS_PSEUDO_USER, "admin");
-    }    
+    }
+
     private List<Pair<SourceDocument, String>> runImportAndFetchDocuments(ZipFile aZipFile)
         throws Exception
     {
@@ -190,7 +194,7 @@ public class AnnotationDocumentsExporterTest
         for (int i = 0; i < docs.size(); i++) {
             importedCases.add(Pair.of(docs.get(i), users.get(i)));
         }
-        
+
         return importedCases;
     }
 }

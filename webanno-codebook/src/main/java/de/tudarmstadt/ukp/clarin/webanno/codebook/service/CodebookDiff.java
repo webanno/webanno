@@ -60,23 +60,27 @@ public class CodebookDiff
         for (Type t : aEntryTypes) {
             entryTypes.add(t.getName());
         }
-        
+
         Map<String, List<CAS>> casMap = new LinkedHashMap<>();
         for (Entry<String, CAS> e : aCasMap.entrySet()) {
             casMap.put(e.getKey(), asList(e.getValue()));
         }
-        return CasDiff.doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior);
+        return CasDiff.doDiff(entryTypes, adapters, casMap, aBegin, aEnd, aLinkCompareBehavior)
+                .toResult();
     }
-    
-    public static class CodebookDiffAdapter extends DiffAdapter_ImplBase {
-        public CodebookDiffAdapter(String aType, Set<String> aLabelFeatures) {
+
+    public static class CodebookDiffAdapter
+        extends DiffAdapter_ImplBase
+    {
+        public CodebookDiffAdapter(String aType, Set<String> aLabelFeatures)
+        {
             super(aType, aLabelFeatures);
         }
 
         @Override
         public Position getPosition(int aCasId, FeatureStructure aFS, String aFeature, String aRole,
-                int aLinkTargetBegin, int aLinkTargetEnd,
-                LinkCompareBehavior aLinkCompareBehavior) {
+                int aLinkTargetBegin, int aLinkTargetEnd, LinkCompareBehavior aLinkCompareBehavior)
+        {
 
             AnnotationFS annoFS = (AnnotationFS) aFS;
 
@@ -86,10 +90,10 @@ public class CodebookDiff
                 FeatureStructure dmd = WebAnnoCasUtil.getDocumentMetadata(aFS.getCAS());
                 collectionId = FSUtil.getFeature(dmd, "collectionId", String.class);
                 documentId = FSUtil.getFeature(dmd, "documentId", String.class);
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e) {
                 // We use this information only for debugging - so we can ignore if the
-                // information
-                // is missing.
+                // information is missing.
             }
             return new CodebookPosition(collectionId, documentId, aCasId, getType(), 0, 0,
                     annoFS.getCoveredText(), aFeature, aRole, aLinkTargetBegin, aLinkTargetEnd,

@@ -48,11 +48,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentU
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.AjaxDownloadLink;
 
-//import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
-//import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
-//import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
-//import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-
 /**
  * Modal window to Export annotated document
  */
@@ -64,8 +59,6 @@ public class ExportDocumentDialogContent
     private static final Logger LOG = LoggerFactory.getLogger(ExportDocumentDialogContent.class);
 
     private @SpringBean ImportExportService importExportService;
-//    private @SpringBean CodebookImportExportService codebookImportExportService;
-//    private @SpringBean CodebookSchemaService codebookService;
 
     private IModel<AnnotatorState> state;
     private IModel<Preferences> preferences;
@@ -114,10 +107,8 @@ public class ExportDocumentDialogContent
 
         String username;
 
-        if (state.getObject().getMode()
-                .equals(Mode.AUTOMATION)
-                && preferences.getObject().documentType
-                        .equals(SELECTEXPORT.AUTOMATED.toString())) {
+        if (state.getObject().getMode().equals(Mode.AUTOMATION)
+                && preferences.getObject().documentType.equals(SELECTEXPORT.AUTOMATED.toString())) {
             username = WebAnnoConst.CORRECTION_USER;
         }
         else {
@@ -126,32 +117,21 @@ public class ExportDocumentDialogContent
 
         format = preferences.getObject().format;
         FormatSupport formatSuport = importExportService.getFormatByName(format).get();
-        String filename = state.getObject().getDocument().getName();
-        File tmpDir = null;
 
+        String filename = state.getObject().getDocument().getName();
         try {
             if (formatSuport.isDocumentLevel()) {
-//                tmpDir = File.createTempFile("webanno", "export");
-//                tmpDir.delete();
-//                tmpDir.mkdirs();
-//                filename = new File(tmpDir,
-//                        FilenameUtils.getBaseName(filename) + CodebookConst.CODEBOOK_EXT)
-//                                .getAbsolutePath();
-//                List<String> codebooks = new ArrayList<>();
-//                for (Codebook codebok : codebookService
-//                        .listCodebook(state.getObject().getProject())) {
-//                    codebooks.add(codebok.getName());
-//                }
-//
-//                downloadFile = codebookImportExportService.exportCodebookDocument(
-//                        state.getObject().getDocument(), username, filename,
-//                        state.getObject().getMode(), tmpDir, true, true, codebooks);
-            } else {
+                downloadFile = importExportService.exportCodebookDocument(
+                        state.getObject().getDocument(), username, state.getObject().getProject(),
+                        state.getObject().getMode());
+            }
+            else {
                 downloadFile = importExportService.exportAnnotationDocument(
                         state.getObject().getDocument(), username, formatSuport, filename,
                         state.getObject().getMode());
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOG.error("Export failed", e);
             error("Export failed:" + ExceptionUtils.getRootCauseMessage(e));
             // This will cause the open dialog to pop up again, but at least

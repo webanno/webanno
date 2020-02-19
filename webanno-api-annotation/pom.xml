@@ -66,6 +66,10 @@
       <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
       <artifactId>webanno-constraints</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>-->
+<!--      <artifactId>webanno-api-codebook</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.dkpro.core</groupId>
       <artifactId>dkpro-core-api-segmentation-asl</artifactId>
@@ -74,6 +78,7 @@
       <groupId>org.dkpro.core</groupId>
       <artifactId>dkpro-core-api-metadata-asl</artifactId>
     </dependency>
+
 
     <dependency>
       <groupId>commons-io</groupId>

@@ -36,13 +36,13 @@ import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 public interface ImportExportService
 {
     String SERVICE_NAME = "importExportService";
-    
+
     // --------------------------------------------------------------------------------------------
     // Methods related to import/export data formats
     // --------------------------------------------------------------------------------------------
-    
+
     List<FormatSupport> getFormats();
-    
+
     default List<FormatSupport> getReadableFormats()
     {
         return getFormats().stream().filter(FormatSupport::isReadable).collect(Collectors.toList());
@@ -80,11 +80,11 @@ public interface ImportExportService
     {
         return getFormats().stream().filter(f -> f.getName().equals(aFormatName)).findFirst();
     }
-    
+
     // --------------------------------------------------------------------------------------------
     // Methods related to importing/exporting
     // --------------------------------------------------------------------------------------------
-    
+
     /**
      * Convert a file to a CAS.
      *
@@ -104,7 +104,7 @@ public interface ImportExportService
         throws UIMAException, IOException;
 
     /**
-     * Exports the given CAS to a file on disk. 
+     * Exports the given CAS to a file on disk.
      * 
      * A new directory is created using UUID so that every exported file will reside in its own
      * directory. This is useful as the written file can have multiple extensions based on the
@@ -113,9 +113,9 @@ public interface ImportExportService
     File exportCasToFile(CAS cas, SourceDocument aDocument, String aFileName, FormatSupport aFormat,
             boolean aStripExtension)
         throws IOException, UIMAException;
-    
+
     /**
-     * Exports an {@link AnnotationDocument } CAS Object as TCF/TXT/XMI... file formats. 
+     * Exports an {@link AnnotationDocument } CAS Object as TCF/TXT/XMI... file formats.
      *
      * @param document
      *            The {@link SourceDocument} where we get the id which hosts both the source
@@ -143,4 +143,7 @@ public interface ImportExportService
     File exportAnnotationDocument(SourceDocument document, String user, FormatSupport aFormat,
             String fileName, Mode mode, boolean stripExtension)
         throws UIMAException, IOException, ClassNotFoundException;
+
+    File exportCodebookDocument(SourceDocument document, String user, Project project, Mode mode)
+        throws IOException, UIMAException, ClassNotFoundException;
 }

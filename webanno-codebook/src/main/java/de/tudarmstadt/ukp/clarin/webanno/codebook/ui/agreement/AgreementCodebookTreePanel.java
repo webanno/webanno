@@ -17,10 +17,15 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.agreement;
 
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.SPAN_TYPE;
+import static de.tudarmstadt.ukp.clarin.webanno.model.AnchoringMode.TOKENS;
+import static de.tudarmstadt.ukp.clarin.webanno.model.OverlapMode.ANY_OVERLAP;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.uima.cas.CAS;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -36,11 +41,14 @@ import org.apache.wicket.model.Model;
 
 import com.googlecode.wicket.kendo.ui.markup.html.link.Link;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeExpansion;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreePanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreeProvider;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
+import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class AgreementCodebookTreePanel
@@ -78,6 +86,20 @@ public class AgreementCodebookTreePanel
                 CodebookNodeExpansion.get().collapseAll();
             }
         });
+    }
+
+    private AnnotationFeature createWrapperAnnotationFeature()
+    {
+        if (selected == null)
+            return null;
+
+        AnnotationLayer neLayer = new AnnotationLayer(selected.getName(), selected.getUiName(),
+                SPAN_TYPE, project, false, TOKENS, ANY_OVERLAP);
+
+        return new AnnotationFeature(project, neLayer, CodebookConst.CODEBOOK_FEATURE_NAME,
+                CodebookConst.CODEBOOK_FEATURE_NAME, CAS.TYPE_NAME_STRING,
+                selected.getCodebook().getDescription(),
+                null);
     }
 
     @Override
@@ -158,9 +180,13 @@ public class AgreementCodebookTreePanel
 
                 AjaxRequestTarget _target = targetOptional.get();
 
+                parentPage.agreementForm.actionSelectFeature(_target,
+                        createWrapperAnnotationFeature());
+
                 // TODO for some reason, highlighting the node the way I try won't work..
                 // highlightNode(_target, this.getModelObject(), true);
-                this.showAgreementResults(_target, AgreementCodebookTreePanel.this.selected);
+
+                // this.showAgreementResults(_target, AgreementCodebookTreePanel.this.selected);
 
                 if (!CodebookNodeExpansion.get().contains(this.getModelObject())) {
                     CodebookNodeExpansion.get().add(this.getModelObject());
@@ -176,7 +202,8 @@ public class AgreementCodebookTreePanel
             {
                 AgreementCodebookTreePanel.this.setDefaultModelObject(
                         codebookService.listCodebookFeature(node.getCodebook()).get(0));
-                parentPage.updateAgreementTable(_target, false);
+                // TODO
+                // parentPage.updateAgreementTable(_target, false);
             }
 
             private void highlightNode(AjaxRequestTarget target, CodebookNode selectedNode,
@@ -197,8 +224,7 @@ public class AgreementCodebookTreePanel
                         treeNodeList.get(0).getParent()
                                 .add(new AttributeModifier("class", new Model<>("highlighted"))
                                 {
-                                    private static final long serialVersionUID =
-                                            -3206327021544384435L;
+                                    private static final long serialVersionUID = -1L;
 
                                     @Override
                                     protected String newValue(String currentValue,
@@ -207,7 +233,6 @@ public class AgreementCodebookTreePanel
                                         return currentValue.replaceAll(valueToRemove, "");
                                     }
                                 });
-
 
                     target.add(AgreementCodebookTreePanel.this);
                     target.add(tree);
@@ -220,17 +245,17 @@ public class AgreementCodebookTreePanel
         };
 
         // remove tree theme specific styling of the labels
-        folder.streamChildren().forEach(
-            component -> component.add(new AttributeModifier("class", new Model<>("tree-label"))
-            {
-                private static final long serialVersionUID = -3206327021544384435L;
-
-                @Override
-                protected String newValue(String currentValue, String valueToRemove)
+        folder.streamChildren().forEach(component -> component.add(
+                        new AttributeModifier("class", new Model<>("tree-label"))
                 {
-                    return currentValue.replaceAll(valueToRemove, "");
-                }
-            }));
+                    private static final long serialVersionUID = -3206327021544384435L;
+
+                    @Override
+                    protected String newValue(String currentValue, String valueToRemove)
+                    {
+                        return currentValue.replaceAll(valueToRemove, "");
+                    }
+                }));
 
         return folder;
     }

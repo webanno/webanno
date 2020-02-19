@@ -686,8 +686,12 @@ public class CurationPage
             upgradeCasAndSave(ad.getDocument(), ad.getUser());
         }
 
-        SuggestionBuilder cb = new SuggestionBuilder(casStorageService, documentService,
-                correctionDocumentService, curationDocumentService, annotationService, codebookService,
+        SuggestionBuilder cb = new SuggestionBuilder(casStorageService,
+                documentService,
+                correctionDocumentService,
+                curationDocumentService,
+                annotationService,
+                codebookService,
                 userRepository);
         Map<String, CAS> casses = cb.listCassesforCuration(finishedAnnotationDocuments,
                 randomAnnotationDocument, state.getMode());
