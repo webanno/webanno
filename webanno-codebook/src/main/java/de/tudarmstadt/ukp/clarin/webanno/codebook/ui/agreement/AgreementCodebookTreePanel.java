@@ -186,7 +186,7 @@ public class AgreementCodebookTreePanel
                         createWrapperAnnotationFeature());
 
                 // TODO for some reason, highlighting the node the way I try won't work..
-                 highlightNode(_target, this.getModelObject(), true);
+                highlightNode(_target, this.getModelObject(), true);
 
                 if (!CodebookNodeExpansion.get().contains(this.getModelObject())) {
                     CodebookNodeExpansion.get().add(this.getModelObject());
