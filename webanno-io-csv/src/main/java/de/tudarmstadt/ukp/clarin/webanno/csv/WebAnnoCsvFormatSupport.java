@@ -35,7 +35,7 @@ public class WebAnnoCsvFormatSupport
     implements FormatSupport
 {
     public static final String ID = "csv";
-    public static final String NAME = "WebAnno CSV (Codebook annottaions)";
+    public static final String NAME = "WebAnno CSV (Codebook annotations)";
     
     @Override
     public String getId()

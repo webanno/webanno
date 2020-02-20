@@ -39,6 +39,7 @@ import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
@@ -70,7 +71,7 @@ public class CodebookExporter
 {
     private @Autowired AnnotationSchemaService annotationService;
     private @Autowired CodebookSchemaService codebookService;
-    private @Autowired DocumentService documentService;
+    private @Autowired @Lazy DocumentService documentService;
     private @Autowired UserDao userRepository;
     private @Autowired CasStorageService casStorageService;
 
