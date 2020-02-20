@@ -103,7 +103,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.agilecoders.wicket</groupId>
-			<artifactId>wicket-bootstrap-core</artifactId>
+			<artifactId>wicket-bootstrap-extensions</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
@@ -146,11 +146,6 @@
 			<artifactId>webanno-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.statistics</groupId>
-			<artifactId>dkpro-statistics-agreement</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.persistence</groupId>
 			<artifactId>javax.persistence-api</artifactId>
 		</dependency>
@@ -174,5 +169,9 @@
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-api-metadata-asl</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+            <artifactId>webanno-agreement</artifactId>
+        </dependency>
+    </dependencies>
 </project>

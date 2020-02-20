@@ -76,6 +76,8 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.DocumentServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.ImportExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.export.ProjectExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookExporter;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistryImpl;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
@@ -105,7 +107,7 @@ public class RemoteApiController2Test
 {
     private @Autowired WebApplicationContext context;
     private @Autowired UserDao userRepository;
-    
+
     private MockMvc mvc;
 
     // If this is not static, for some reason the value is re-set to false before a
@@ -319,8 +321,20 @@ public class RemoteApiController2Test
         {
             return new CodebookSchemaServiceImpl();
         }
-        
-        
+
+
+        @Bean
+        public CodebookSchemaService codebookSchemaService()
+        {
+            return new CodebookSchemaServiceImpl();
+        }
+
+        @Bean
+        public CodebookImportExportService codebookImportExportService()
+        {
+            return new CodebookExporter();
+        }
+
         @Bean
         public FeatureSupportRegistry featureSupportRegistry()
         {
@@ -346,7 +360,11 @@ public class RemoteApiController2Test
         public ImportExportService importExportService()
         {
             return new ImportExportServiceImpl(repositoryProperties(),
-                    asList(new TextFormatSupport()), casStorageService(), annotationService());
+                    asList(new TextFormatSupport()),
+                    casStorageService(),
+                    annotationService(),
+                    codebookImportExportService(),
+                    codebookSchemaService());
         }
         
         @Bean

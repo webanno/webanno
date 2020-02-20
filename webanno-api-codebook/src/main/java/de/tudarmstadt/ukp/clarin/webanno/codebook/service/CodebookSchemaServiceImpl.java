@@ -35,38 +35,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
-/**
- * Implementation of methods defined in the {@link AnnotationSchemaService}
- * interface
- */
 @Component(CodebookSchemaService.SERVICE_NAME)
-public class CodebookSchemaServiceImpl implements CodebookSchemaService {
+public class CodebookSchemaServiceImpl
+    implements CodebookSchemaService
+{
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    
 
     private @PersistenceContext EntityManager entityManager;
     // private @Lazy @Autowired(required = false) List<ProjectInitializer>
     // initializerProxy;
     private @Autowired CodebookFeatureSupportRegistry featureSupportRegistry;
 
-    public CodebookSchemaServiceImpl() {
-       // Nothing to do
+    public CodebookSchemaServiceImpl()
+    {
+        // Nothing to do
     }
 
     @Override
     @Transactional
-    public void createCodebook(Codebook codebook) {
+    public void createCodebook(Codebook codebook)
+    {
         if (isNull(codebook.getId())) {
             entityManager.persist(codebook);
-        } else {
+        }
+        else {
             entityManager.merge(codebook);
         }
 
@@ -80,17 +78,20 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void createCodebookFeature(CodebookFeature aFeature) {
+    public void createCodebookFeature(CodebookFeature aFeature)
+    {
         if (isNull(aFeature.getId())) {
             entityManager.persist(aFeature);
-        } else {
+        }
+        else {
             entityManager.merge(aFeature);
         }
     }
 
     @Override
     @Transactional
-    public boolean existsFeature(String aName, Codebook aCodebook) {
+    public boolean existsFeature(String aName, Codebook aCodebook)
+    {
 
         try {
             entityManager
@@ -99,25 +100,29 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
                     .setParameter("name", aName).setParameter("codebook", aCodebook)
                     .getSingleResult();
             return true;
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return false;
 
         }
     }
 
     @Override
-    public boolean existsCodebookTag(String aTagName, Codebook aCodebook) {
+    public boolean existsCodebookTag(String aTagName, Codebook aCodebook)
+    {
         try {
             getCodebookTag(aTagName, aCodebook);
             return true;
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return false;
         }
     }
 
     @Override
     @Transactional
-    public CodebookTag getCodebookTag(String aTagName, Codebook aCodebook) {
+    public CodebookTag getCodebookTag(String aTagName, Codebook aCodebook)
+    {
         return entityManager
                 .createQuery("FROM CodebookTag WHERE name = :name AND" + " codebook =:codebook",
                         CodebookTag.class)
@@ -127,7 +132,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
-    public boolean existsCodebook(String aName, Project aProject) {
+    public boolean existsCodebook(String aName, Project aProject)
+    {
         try {
             entityManager
                     .createQuery("FROM Codebook WHERE name = :name AND project = :project",
@@ -135,7 +141,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
                     .setParameter("name", aName).setParameter("project", aProject)
                     .getSingleResult();
             return true;
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return false;
         }
     }
@@ -162,7 +169,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public Codebook getCodeBook(String aName, Project aProject) {
+    public Codebook getCodeBook(String aName, Project aProject)
+    {
         return entityManager
                 .createQuery("From Codebook where name = :name AND project =:project",
                         Codebook.class)
@@ -181,10 +189,12 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void createCodebookTag(CodebookTag aTag) {
+    public void createCodebookTag(CodebookTag aTag)
+    {
         if (isNull(aTag.getId())) {
             entityManager.persist(aTag);
-        } else {
+        }
+        else {
             entityManager.merge(aTag);
         }
 
@@ -192,8 +202,7 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
                 String.valueOf(aTag.getCodebook().getProject().getId()))) {
             Codebook codebook = aTag.getCodebook();
             Project project = codebook.getProject();
-            log.info(
-                    "Created codebook_tag [{}]({}) in codebook [{}]({}) in project [{}]({})",
+            log.info("Created codebook_tag [{}]({}) in codebook [{}]({}) in project [{}]({})",
                     aTag.getName(), aTag.getId(), codebook.getName(), codebook.getId(),
                     project.getName(), project.getId());
         }
@@ -201,13 +210,15 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void removeCodebookTag(CodebookTag aTag) {
+    public void removeCodebookTag(CodebookTag aTag)
+    {
         entityManager.remove(entityManager.contains(aTag) ? aTag : entityManager.merge(aTag));
     }
 
     @Override
     @Transactional
-    public List<CodebookTag> listTags(Codebook aCodebook) {
+    public List<CodebookTag> listTags(Codebook aCodebook)
+    {
         return entityManager
                 .createQuery("FROM CodebookTag WHERE codebook = :codebook ORDER BY name ASC",
                         CodebookTag.class)
@@ -216,7 +227,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public List<Codebook> listCodebook(Project aProject) {
+    public List<Codebook> listCodebook(Project aProject)
+    {
         return entityManager
                 .createQuery("FROM Codebook WHERE project =:project ORDER BY codebookorder asc",
                         Codebook.class)
@@ -225,7 +237,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public List<CodebookFeature> listCodebookFeature(Codebook code) {
+    public List<CodebookFeature> listCodebookFeature(Codebook code)
+    {
         if (isNull(code) || isNull(code.getId())) {
             return new ArrayList<>();
         }
@@ -247,7 +260,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
 
     @Override
     @Transactional
-    public void removeCodebook(Codebook aCodebook) {
+    public void removeCodebook(Codebook aCodebook)
+    {
         for (CodebookFeature feature : listCodebookFeature(aCodebook)) {
 
             removeCodebookFeature(feature);
@@ -258,7 +272,8 @@ public class CodebookSchemaServiceImpl implements CodebookSchemaService {
     }
 
     public void generateFeatures(TypeSystemDescription aTSD, TypeDescription aTD,
-            Codebook aCodebook) {
+            Codebook aCodebook)
+    {
         List<CodebookFeature> features = listCodebookFeature(aCodebook);
         for (CodebookFeature feature : features) {
             CodebookFeatureSupport fs = featureSupportRegistry.getFeatureSupport(feature);

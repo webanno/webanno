@@ -27,7 +27,9 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUt
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectByAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.selectFsByAddr;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.setFeature;
+
 import static java.util.Arrays.asList;
+
 import static org.apache.uima.fit.util.CasUtil.selectAt;
 
 import java.io.IOException;
@@ -59,6 +61,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -69,6 +72,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.event.annotation.OnEvent;
 
 import com.googlecode.wicket.kendo.ui.form.TextField;
 
@@ -86,12 +90,15 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.event.AnnotationCreatedE
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.IllegalPlacementException;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.NotEditableException;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.event.FeatureEditorValueChangedEvent;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.event.LinkFeatureDeletedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.FeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.LinkWithRoleModel;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.Selection;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.VID;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.AnnotationPageBase;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.event.RenderSlotsEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.TypeUtil;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.evaluator.Evaluator;
@@ -542,7 +549,7 @@ public abstract class AnnotationDetailEditorPanel
         // to the CAS
         if (state.getSelection().getAnnotation().equals(state.getArmedFeature().vid)) {
             // Make sure that panel is re-rendered when a slot is filled
-            aTarget.add(annotationFeatureForm.getFeatureEditorPanel());
+            annotationFeatureForm.refresh(aTarget);
                         
             // Loading feature editor values from CAS
             loadFeatureEditorModels(aCas, aTarget);
@@ -599,6 +606,10 @@ public abstract class AnnotationDetailEditorPanel
             AnnotationFS targetFS = selectAnnotationByAddr(aCas, state.getSelection().getTarget());
             
             if (!originFS.getType().equals(targetFS.getType())) {
+                state.getSelection().clear();
+                loadFeatureEditorModels(aCas, aTarget);
+                send(getPage(), Broadcast.BREADTH, new RenderSlotsEvent(aTarget));
+                onChange(aTarget);
                 throw new IllegalPlacementException(
                         "Cannot create relation between spans on different layers");
             }
@@ -646,6 +657,9 @@ public abstract class AnnotationDetailEditorPanel
         internalCommitAnnotation(aTarget, aCas);
 
         internalCompleteAnnotation(aTarget, aCas);
+    
+        state.clearArmedSlot();    
+        send(getPage(), Broadcast.BREADTH, new RenderSlotsEvent(aTarget));
     }
     
     private Optional<AnnotationLayer> getRelationLayerFor(AnnotationLayer aSpanLayer)
@@ -882,7 +896,7 @@ public abstract class AnnotationDetailEditorPanel
                 state.getDefaultAnnotationLayer().getUiName());
 
         // #186 - After filling a slot, the annotation detail panel is not updated
-        aTarget.add(annotationFeatureForm.getFeatureEditorPanel());
+        annotationFeatureForm.refresh(aTarget);
 
         // internalCommitAnnotation is used to update an existing annotation as well as to create
         // a new one. In either case, the selectedAnnotationLayer indicates the layer type! Do not
@@ -1232,7 +1246,9 @@ public abstract class AnnotationDetailEditorPanel
         }
 
         try {
-            if (selection.isSpan()) {
+            // If we reset the layers while doing a relation, we won't be able to complete the 
+            // relation - so in this case, we leave the layers alone...
+            if (!selection.isArc()) {
                 annotationFeatureForm.updateLayersDropdown();
             }
 
@@ -1292,7 +1308,7 @@ public abstract class AnnotationDetailEditorPanel
             annotationFeatureForm.updateRememberLayer();
 
             if (aTarget != null) {
-                aTarget.add(annotationFeatureForm);
+                annotationFeatureForm.refresh(aTarget);
             }
         }
         catch (Exception e) {
@@ -1347,16 +1363,19 @@ public abstract class AnnotationDetailEditorPanel
             if (featureState != null) {
                 state.getFeatureStates().add(featureState);
 
-                // verification to check whether constraints exist for this project or NOT
-                if (state.getConstraints() != null
-                        && state.getSelection().getAnnotation().isSet()) {
-                    // indicator.setRulesExist(true);
-                    populateTagsBasedOnRules(aCas, featureState);
-                }
-                else {
-                    // indicator.setRulesExist(false);
-                    featureState.tagset = annotationService
-                            .listTags(featureState.feature.getTagset());
+                // Populate tagsets if necessary
+                if (featureState.feature.getTagset() != null) {
+                    // verification to check whether constraints exist for this project or NOT
+                    if (state.getConstraints() != null
+                            && state.getSelection().getAnnotation().isSet()) {
+                        // indicator.setRulesExist(true);
+                        populateTagsBasedOnRules(aCas, featureState);
+                    }
+                    else {
+                        // indicator.setRulesExist(false);
+                        featureState.tagset = annotationService
+                                .listTags(featureState.feature.getTagset());
+                    }
                 }
             }
         }
@@ -1417,7 +1436,7 @@ public abstract class AnnotationDetailEditorPanel
         LOG.trace("clearFeatureEditorModels()");
         getModelObject().getFeatureStates().clear();
         if (aTarget != null) {
-            aTarget.add(annotationFeatureForm);
+            annotationFeatureForm.refresh(aTarget);
         }
     }
 
@@ -1696,5 +1715,31 @@ public abstract class AnnotationDetailEditorPanel
     public static class AttachStatus {
         boolean readOnlyAttached;
         int attachCount;
+    }
+    
+    @OnEvent(stop = true)
+    public void onLinkFeatureDeletedEvent(LinkFeatureDeletedEvent aEvent)
+    {
+        AjaxRequestTarget target = aEvent.getTarget();
+        // Auto-commit if working on existing annotation
+        if (getModelObject().getSelection().getAnnotation().isSet()) {
+            try {
+                actionCreateOrUpdate(target, getEditorCas());
+            }
+            catch (Exception e) {
+                handleException(this, target, e);
+            }
+        }
+    }
+    
+    @OnEvent(stop = true)
+    public void onFeatureUpdatedEvent(FeatureEditorValueChangedEvent aEvent) {
+        AjaxRequestTarget target = aEvent.getTarget();
+        try {
+            actionCreateOrUpdate(target, getEditorCas());
+        }
+        catch (Exception e) {
+            handleException(this, target, e);
+        }
     }
 }

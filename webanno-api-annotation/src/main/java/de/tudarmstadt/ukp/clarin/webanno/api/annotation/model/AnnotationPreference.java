@@ -41,11 +41,11 @@ public class AnnotationPreference
     public static final int FONT_ZOOM_MIN = 10;
     public static final int FONT_ZOOM_MAX = 1000;
     public static final int FONT_ZOOM_DEFAULT = 100;
-    
+
     public static final int SIDEBAR_SIZE_MIN = 10;
     public static final int SIDEBAR_SIZE_MAX = 50;
     public static final int SIDEBAR_SIZE_DEFAULT = 20;
-    
+
     public static final int CODEBOOKS_PER_PAGE = 12;
     private int codebooksPerPage ;
     // TODO
@@ -55,20 +55,20 @@ public class AnnotationPreference
     //  decided to postpone this to a later PR.
     private boolean showCodebookCuration = false;
     private boolean showEditor = true;
-    
+
     // Id of annotation layers, to be stored in the properties file comma separated: 12, 34,....
     @Deprecated
     private List<Long> annotationLayers;
-    
+
     // Id of annotation layers, to be stored in the properties file comma separated: 12, 34,....
     private Set<Long> hiddenAnnotationLayerIds = new HashSet<>();
 
     private long defaultLayer = -1;
-    
+
     private int windowSize;
 
     private boolean scrollPage = true;
-    
+
     // if a default layer is to be set
     private boolean rememberLayer;
 
@@ -80,13 +80,15 @@ public class AnnotationPreference
 
     private Map<Long, ColoringStrategyType> colorPerLayer = new HashMap<>();
 
-    private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour = 
+    private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour =
             ReadonlyColoringBehaviour.LEGACY;
 
     private int sidebarSize;
     private int fontZoom;
-    
+
     private String editor;
+
+    private boolean collapseArcs = false;
 
     /**
      * working with preferred layers is deprecated, use hidden layers instead
@@ -97,10 +99,10 @@ public class AnnotationPreference
     {
         return annotationLayers;
     }
-    
+
     /**
-     * working with preferred layers is deprecated, use hidden layers instead 
-     * 
+     * working with preferred layers is deprecated, use hidden layers instead
+     *
      * @param aAnnotationLayers
      */
     @Deprecated()
@@ -108,12 +110,12 @@ public class AnnotationPreference
     {
         annotationLayers = aAnnotationLayers;
     }
-    
+
     public Set<Long> getHiddenAnnotationLayerIds()
     {
         return hiddenAnnotationLayerIds;
     }
-    
+
     public void setHiddenAnnotationLayerIds(Set<Long> aAnnotationLayerIds)
     {
         hiddenAnnotationLayerIds = aAnnotationLayerIds;
@@ -134,7 +136,7 @@ public class AnnotationPreference
     {
         windowSize = aWindowSize;
     }
-    
+
     /**
      * Used to enable/disable auto-scrolling while annotation
      */
@@ -210,7 +212,7 @@ public class AnnotationPreference
             sidebarSize = aSidebarSize;
         }
     }
-    
+
     public int getFontZoom()
     {
         if (fontZoom < FONT_ZOOM_MIN || fontZoom > FONT_ZOOM_MAX) {
@@ -233,17 +235,17 @@ public class AnnotationPreference
             fontZoom = aFontZoom;
         }
     }
-    
+
     public String getEditor()
     {
         return editor;
     }
-    
+
     public void setEditor(String aEditor)
     {
         editor = aEditor;
     }
-    
+
     public int getCodebooksPerPage()
     {
         return codebooksPerPage < 1 ? CODEBOOKS_PER_PAGE : codebooksPerPage;
@@ -257,7 +259,7 @@ public class AnnotationPreference
     {
         defaultLayer = aLayerId;
     }
-    
+
     public long getDefaultLayer()
     {
         return defaultLayer;
@@ -269,13 +271,23 @@ public class AnnotationPreference
     public void setShowCodebookCuration(boolean aShowCodebook) {
         this.showCodebookCuration = aShowCodebook;
     }
-    
-    
+
+
     public boolean isShowEditor() {
         return showEditor;
     }
 
     public void setShowEditor(boolean aShowEditor) {
         this.showEditor = aShowEditor;
+    }
+
+    public boolean isCollapseArcs()
+    {
+        return collapseArcs;
+    }
+
+    public void setCollapseArcs(boolean aCollapseArcs)
+    {
+        collapseArcs = aCollapseArcs;
     }
 }

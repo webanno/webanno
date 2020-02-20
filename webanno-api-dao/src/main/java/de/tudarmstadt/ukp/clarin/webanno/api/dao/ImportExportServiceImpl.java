@@ -20,7 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.api.dao;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.DOCUMENT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.PROJECT_FOLDER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.ProjectService.SOURCE_FOLDER;
-import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.createCas;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.createSentence;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.createToken;
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil.exists;
@@ -42,6 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -52,6 +52,7 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.collection.CollectionReaderDescription;
+import org.apache.uima.fit.factory.CasFactory;
 import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
@@ -75,6 +76,10 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.api.RepositoryProperties;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.Mode;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -97,19 +102,25 @@ public class ImportExportServiceImpl
     private final CasStorageService casStorageService;
     private final AnnotationSchemaService annotationService;
 
+    private final CodebookImportExportService codebookImportExportService;
+    private final CodebookSchemaService codebookService;
+
     private final List<FormatSupport> formatsProxy;
     private Map<String, FormatSupport> formats;
-    
-    public ImportExportServiceImpl(
-            @Autowired RepositoryProperties aRepositoryProperties, 
+
+    public ImportExportServiceImpl(@Autowired RepositoryProperties aRepositoryProperties,
             @Lazy @Autowired(required = false) List<FormatSupport> aFormats,
             @Autowired CasStorageService aCasStorageService,
-            @Autowired AnnotationSchemaService aAnnotationService)
+            @Autowired AnnotationSchemaService aAnnotationService,
+            @Autowired CodebookImportExportService codebookImportExportService,
+            @Autowired CodebookSchemaService codebookService)
     {
         repositoryProperties = aRepositoryProperties;
         casStorageService = aCasStorageService;
         annotationService = aAnnotationService;
         formatsProxy = aFormats;
+        this.codebookImportExportService = codebookImportExportService;
+        this.codebookService = codebookService;
     }
 
     @EventListener(ContextRefreshedEvent.class)
@@ -117,11 +128,11 @@ public class ImportExportServiceImpl
     {
         init();
     }
-    
+
     /* package private */ void init()
     {
         Map<String, FormatSupport> formatMap = new LinkedHashMap<>();
-        
+
         if (formatsProxy != null) {
             List<FormatSupport> forms = new ArrayList<>(formatsProxy);
             AnnotationAwareOrderComparator.sort(forms);
@@ -132,35 +143,35 @@ public class ImportExportServiceImpl
                         readWriteMsg(format));
             });
         }
-        
+
         // Parse "formats.properties" information into format supports
-//        if (readWriteFileFormats != null) {
-//            for (String key : readWriteFileFormats.stringPropertyNames()) {
-//                if (key.endsWith(".label")) {
-//                    String formatId = key.substring(0, key.lastIndexOf(".label"));
-//                    String formatName = readWriteFileFormats.getProperty(key);
-//                    String readerClass = readWriteFileFormats.getProperty(formatId + ".reader");
-//                    String writerClass = readWriteFileFormats.getProperty(formatId + ".writer");
-//                    
-//                    if (formatMap.containsKey(formatId)) {
-//                        log.info("Found format (format.properties): {} - format already defined by "
-//                                + "a built-in format support, ignoring entry from "
-//                                + "formats.properties file", formatId);
-//                    }
-//                    else {
-//                        FormatSupport format = new FormatSupportDescription(formatId, formatName,
-//                                readerClass, writerClass);
-//                        formatMap.put(format.getId(), format);
-//                        log.info("Found format (format.properties): {} ({})", formatId,
-//                                readWriteMsg(format));
-//                    }
-//                }
-//            }
-//        }
-        
+        // if (readWriteFileFormats != null) {
+        // for (String key : readWriteFileFormats.stringPropertyNames()) {
+        // if (key.endsWith(".label")) {
+        // String formatId = key.substring(0, key.lastIndexOf(".label"));
+        // String formatName = readWriteFileFormats.getProperty(key);
+        // String readerClass = readWriteFileFormats.getProperty(formatId + ".reader");
+        // String writerClass = readWriteFileFormats.getProperty(formatId + ".writer");
+        //
+        // if (formatMap.containsKey(formatId)) {
+        // log.info("Found format (format.properties): {} - format already defined by "
+        // + "a built-in format support, ignoring entry from "
+        // + "formats.properties file", formatId);
+        // }
+        // else {
+        // FormatSupport format = new FormatSupportDescription(formatId, formatName,
+        // readerClass, writerClass);
+        // formatMap.put(format.getId(), format);
+        // log.info("Found format (format.properties): {} ({})", formatId,
+        // readWriteMsg(format));
+        // }
+        // }
+        // }
+        // }
+
         formats = Collections.unmodifiableMap(formatMap);
     }
-    
+
     private String readWriteMsg(FormatSupport aFormat)
     {
         if (aFormat.isReadable() && !aFormat.isWritable()) {
@@ -177,13 +188,13 @@ public class ImportExportServiceImpl
                     "Format [" + aFormat.getId() + "] must be at least readable or writable.");
         }
     }
-    
+
     @Override
     public List<FormatSupport> getFormats()
     {
         return unmodifiableList(new ArrayList<>(formats.values()));
     }
-    
+
     /**
      * A new directory is created using UUID so that every exported file will reside in its own
      * directory. This is useful as the written file can have multiple extensions based on the
@@ -232,7 +243,7 @@ public class ImportExportServiceImpl
         File exportFile = exportCasToFile(cas, aDocument, aFileName, aFormat, aStripExtension);
 
         Project project = aDocument.getProject();
-        
+
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(project.getId()))) {
             log.info("Exported annotations [{}]({}) for user [{}] from project [{}]({}) "
@@ -242,27 +253,48 @@ public class ImportExportServiceImpl
 
         return exportFile;
     }
-    
+
+    @Override
+    public File exportCodebookDocument(SourceDocument document, String username, Project project,
+            Mode mode)
+        throws IOException, UIMAException, ClassNotFoundException
+    {
+        String filename = document.getName();
+        File tmpDir = null;
+        tmpDir = File.createTempFile("webanno", "export");
+        tmpDir.delete();
+        tmpDir.mkdirs();
+        filename = new File(tmpDir,
+                FilenameUtils.getBaseName(filename) + CodebookConst.CODEBOOK_EXT).getAbsolutePath();
+        List<String> codebooks = new ArrayList<>();
+        for (Codebook codebook : codebookService.listCodebook(project)) {
+            codebooks.add(codebook.getName());
+        }
+
+        return codebookImportExportService.exportCodebookDocument(document, username, filename,
+                mode, tmpDir, true, true, codebooks);
+    }
+
     @Override
     public CAS importCasFromFile(File aFile, Project aProject, String aFormatId)
         throws UIMAException, IOException
     {
         // Prepare a CAS with the project type system
         TypeSystemDescription allTypes = annotationService.getFullProjectTypeSystem(aProject);
-        CAS cas = createCas(allTypes);
+        CAS cas = CasFactory.createCas(allTypes);
 
         // Convert the source document to CAS
         FormatSupport format = getReadableFormatById(aFormatId).orElseThrow(() -> 
                 new IOException("No reader available for format [" + aFormatId + "]"));
         
         CollectionReaderDescription readerDescription = format.getReaderDescription();
-        ConfigurationParameterFactory.addConfigurationParameters(readerDescription, 
-                ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION, 
-                    aFile.getParentFile().getAbsolutePath(), 
+        ConfigurationParameterFactory.addConfigurationParameters(readerDescription,
+                ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION,
+                aFile.getParentFile().getAbsolutePath(),
                 ResourceCollectionReaderBase.PARAM_PATTERNS,
-                    new String[] { "[+]" + aFile.getName() });
+                new String[] { "[+]" + aFile.getName() });
         CollectionReader reader = createReader(readerDescription);
-        
+
         if (!reader.hasNext()) {
             throw new FileNotFoundException(
                     "Source file [" + aFile.getName() + "] not found in [" + aFile.getPath() + "]");
@@ -272,14 +304,14 @@ public class ImportExportServiceImpl
         boolean hasTokens = exists(cas, getType(cas, Token.class));
         boolean hasSentences = exists(cas, getType(cas, Sentence.class));
 
-//        if (!hasTokens || !hasSentences) {
-//            AnalysisEngine pipeline = createEngine(createEngineDescription(
-//                    BreakIteratorSegmenter.class, 
-//                    BreakIteratorSegmenter.PARAM_WRITE_TOKEN, !hasTokens,
-//                    BreakIteratorSegmenter.PARAM_WRITE_SENTENCE, !hasSentences));
-//            pipeline.process(jCas);
-//        }
-        
+        // if (!hasTokens || !hasSentences) {
+        // AnalysisEngine pipeline = createEngine(createEngineDescription(
+        // BreakIteratorSegmenter.class,
+        // BreakIteratorSegmenter.PARAM_WRITE_TOKEN, !hasTokens,
+        // BreakIteratorSegmenter.PARAM_WRITE_SENTENCE, !hasSentences));
+        // pipeline.process(jCas);
+        // }
+
         if (!hasSentences) {
             splitSentences(cas);
         }
@@ -293,10 +325,10 @@ public class ImportExportServiceImpl
             throw new IOException("The document appears to be empty. Unable to detect any "
                     + "tokens or sentences. Empty documents cannot be imported.");
         }
-        
+
         return cas;
     }
-    
+
     public static void splitSentences(CAS aCas)
     {
         BreakIterator bi = BreakIterator.getSentenceInstance(Locale.US);
@@ -313,7 +345,7 @@ public class ImportExportServiceImpl
             cur = bi.next();
         }
     }
-    
+
     public static void tokenize(CAS aCas)
     {
         BreakIterator bi = BreakIterator.getWordInstance(Locale.US);
@@ -333,7 +365,7 @@ public class ImportExportServiceImpl
             }
         }
     }
-    
+
     /**
      * Remove trailing or leading whitespace from the annotation.
      * 
@@ -380,10 +412,10 @@ public class ImportExportServiceImpl
         case '\u2028': return true; // LINE SEPARATOR
         case '\u2029': return true; // PARAGRAPH SEPARATOR
         default:
-            return  Character.isWhitespace(aChar);
+            return Character.isWhitespace(aChar);
         }
-    }    
-    
+    }
+
     @Override
     public File exportCasToFile(CAS aCas, SourceDocument aDocument, String aFileName,
             FormatSupport aFormat, boolean aStripExtension)
@@ -392,7 +424,7 @@ public class ImportExportServiceImpl
         // Update type system the CAS, compact it (remove all non-reachable feature strucutres)
         // and remove all internal feature structures in the process
         CAS cas = annotationService.prepareCasForExport(aCas, aDocument);
-        
+
         // Update the source file name in case it is changed for some reason. This is necessary
         // for the writers to create the files under the correct names.
         Project project = aDocument.getProject();
@@ -423,7 +455,7 @@ public class ImportExportServiceImpl
         try {
             exportTempDir.delete();
             exportTempDir.mkdirs();
-            
+
             AnalysisEngineDescription writer = aFormat.getWriterDescription(aDocument.getProject(),
                     cas);
             ConfigurationParameterFactory.addConfigurationParameters(writer,
@@ -433,7 +465,7 @@ public class ImportExportServiceImpl
                     JCasFileWriter_ImplBase.PARAM_STRIP_EXTENSION, aStripExtension);
 
             runPipeline(cas, writer);
-    
+
             // If the writer produced more than one file, we package it up as a ZIP file
             File exportFile;
             if (exportTempDir.listFiles().length > 1) {
@@ -453,7 +485,7 @@ public class ImportExportServiceImpl
                         exportTempDir.listFiles()[0].getName());
                 FileUtils.copyFile(exportTempDir.listFiles()[0], exportFile);
             }
-            
+
             return exportFile;
         }
         finally {
@@ -462,7 +494,7 @@ public class ImportExportServiceImpl
             }
         }
     }
-    
+
     /**
      * A Helper method to add {@link TagsetDescription} to {@link CAS}
      *
