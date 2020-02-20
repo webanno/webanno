@@ -180,13 +180,13 @@ public class AgreementCodebookTreePanel
 
                 AjaxRequestTarget _target = targetOptional.get();
 
+                // create a wrapper annotation feature from the selected codebook and select the
+                // annotation feature in the agreement form
                 parentPage.agreementForm.actionSelectFeature(_target,
                         createWrapperAnnotationFeature());
 
                 // TODO for some reason, highlighting the node the way I try won't work..
-                // highlightNode(_target, this.getModelObject(), true);
-
-                // this.showAgreementResults(_target, AgreementCodebookTreePanel.this.selected);
+                 highlightNode(_target, this.getModelObject(), true);
 
                 if (!CodebookNodeExpansion.get().contains(this.getModelObject())) {
                     CodebookNodeExpansion.get().add(this.getModelObject());
@@ -198,14 +198,6 @@ public class AgreementCodebookTreePanel
                 }
             }
 
-            private void showAgreementResults(AjaxRequestTarget _target, CodebookNode node)
-            {
-                AgreementCodebookTreePanel.this.setDefaultModelObject(
-                        codebookService.listCodebookFeature(node.getCodebook()).get(0));
-                // TODO
-                // parentPage.updateAgreementTable(_target, false);
-            }
-
             private void highlightNode(AjaxRequestTarget target, CodebookNode selectedNode,
                     boolean activate)
             {
@@ -214,6 +206,7 @@ public class AgreementCodebookTreePanel
                                 && component.getDefaultModelObject().equals(selectedNode))
                         .collect(Collectors.toList());
 
+                // add or remove the highlighted class..
                 if (treeNodeList.size() == 1) {
                     treeNodeList.get(0).setOutputMarkupId(true);
                     treeNodeList.get(0).getParent().setOutputMarkupId(true);
@@ -243,19 +236,6 @@ public class AgreementCodebookTreePanel
             }
 
         };
-
-        // remove tree theme specific styling of the labels
-        folder.streamChildren().forEach(component -> component.add(
-                        new AttributeModifier("class", new Model<>("tree-label"))
-                {
-                    private static final long serialVersionUID = -3206327021544384435L;
-
-                    @Override
-                    protected String newValue(String currentValue, String valueToRemove)
-                    {
-                        return currentValue.replaceAll(valueToRemove, "");
-                    }
-                }));
 
         return folder;
     }
