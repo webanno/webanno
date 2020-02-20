@@ -266,10 +266,7 @@ public class ImportExportServiceImpl
         tmpDir.mkdirs();
         filename = new File(tmpDir,
                 FilenameUtils.getBaseName(filename) + CodebookConst.CODEBOOK_EXT).getAbsolutePath();
-        List<String> codebooks = new ArrayList<>();
-        for (Codebook codebook : codebookService.listCodebook(project)) {
-            codebooks.add(codebook.getName());
-        }
+        List<Codebook> codebooks = codebookService.listCodebook(project);
 
         return codebookImportExportService.exportCodebookDocument(document, username, filename,
                 mode, tmpDir, true, true, codebooks);

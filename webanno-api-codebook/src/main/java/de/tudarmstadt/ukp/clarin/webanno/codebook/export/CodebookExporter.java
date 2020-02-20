@@ -104,10 +104,7 @@ public class CodebookExporter
         throws IOException, UIMAException, ClassNotFoundException
     {
         List<SourceDocument> documents = documentService.listSourceDocuments(project);
-        List<String> codebooks = new ArrayList<>();
-        for (Codebook codebok : codebookService.listCodebook(project)) {
-            codebooks.add(codebok.getName());
-        }
+        List<Codebook> codebooks = codebookService.listCodebook(project);
         boolean withHeader = true;
         File codebookFile = new File(codebookDir, project.getName() + CodebookConst.CODEBOOK_EXT);
         for (SourceDocument sourceDocument : documents) {
@@ -324,7 +321,7 @@ public class CodebookExporter
     @Override
     public File exportCodebookDocument(SourceDocument aDocument, String aUser, String aFileName,
             Mode aMode, File aExportDir, boolean aWithHeaders, boolean aWithText,
-            List<String> aCodebooks)
+            List<Codebook> aCodebooks)
         throws UIMAException, IOException, ClassNotFoundException
     {
         File annotationFolder = casStorageService.getAnnotationFolder(aDocument);
@@ -363,14 +360,27 @@ public class CodebookExporter
 
     @Override
     public File exportCodebooks(CAS cas, SourceDocument aDocument, String aFileName,
-            File aExportDir, boolean aWithHeaders, boolean aWithText, List<String> aCodebooks,
+            File aExportDir, boolean aWithHeaders, boolean aWithText, List<Codebook> aCodebooks,
             String aAnnotator, String documentName)
         throws IOException, UIMAException
     {
 
+        // create codebook string names that reflect the hierarchies
+        CodebookTree tree = new CodebookTree(aCodebooks);
+        List<String> codebookNames = new ArrayList<>();
+        // root CBs
+        for (CodebookNode root : tree.getRootNodes()) {
+            String name = root.getName(); // full name
+            codebookNames.add(name);
+
+            // create children names recursively
+            for (CodebookNode child : root.getChildren())
+                createCodebookNamesRecursively(child, root, name, codebookNames);
+        }
+
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,
-                "withHeaders", aWithHeaders, "withText", aWithText, "codebooks", aCodebooks,
+                "withHeaders", aWithHeaders, "withText", aWithText, "codebooks", codebookNames,
                 "annotator", aAnnotator, "documentName", documentName);
 
         runPipeline(cas, writer);
@@ -379,6 +389,17 @@ public class CodebookExporter
         // FileUtils.copyFile(aExportDir.listFiles()[0], exportFile);
         return exportFile;
 
+    }
+
+    private void createCodebookNamesRecursively(CodebookNode child, CodebookNode parent,
+            String name, List<String> cbNames)
+    {
+        String childCBName = name + "." + child.getUiName();
+        cbNames.add(childCBName);
+
+        // create children names recursively
+        for (CodebookNode childrenChild : child.getChildren())
+            createCodebookNamesRecursively(childrenChild, child, childCBName, cbNames);
     }
 
 }

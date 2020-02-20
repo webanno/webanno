@@ -119,9 +119,14 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
         headers.add("DocumentName");
         headers.add("Annotator");
 
-        for (String t : codebooks) {
-            codebookTypes.add(aJCas.getTypeSystem().getType(t));
-            headers.add(t);
+        // find codebook types
+        for (String cbName : codebooks) {
+            // always the first two splits (= webanno.codebook.) + the last split (= actual name)
+            String[] splits = cbName.split("\\.");
+            String codebookTypeName = splits[0] + "." + splits[1] + "." + splits[splits.length - 1];
+            codebookTypes.add(aJCas.getTypeSystem().getType(codebookTypeName));
+
+            headers.add(cbName);
         }
 
         if (codebookTypes.isEmpty()) {

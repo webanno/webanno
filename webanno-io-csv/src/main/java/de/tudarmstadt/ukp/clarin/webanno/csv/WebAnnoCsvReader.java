@@ -85,7 +85,9 @@ public class WebAnnoCsvReader
         // annotator name respectively. Also the last header entry (text of the document) is
         // ignored.
         for (int i = 2; i < record.size() - 1; i++) {
-            Type codebook = aJCas.getTypeSystem().getType(headers.get(i));
+            String[] splits =  headers.get(i).split("\\.");
+            String cbName = splits[0] + "." + splits[1] + "." + splits[splits.length - 1];
+            Type codebook = aJCas.getTypeSystem().getType(cbName);
             if (codebook == null)
                 throw new IOException("Codebook Type with name '" + headers.get(i)
                         + "' is not registered in the typesystem!");
