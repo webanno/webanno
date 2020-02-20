@@ -63,10 +63,11 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
 
-public class ImportDocumentsPanel extends Panel
+public class ImportDocumentsPanel
+    extends Panel
 {
     private static final long serialVersionUID = 4927011191395114886L;
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(ImportDocumentsPanel.class);
 
     private @SpringBean DocumentService documentService;
@@ -133,7 +134,8 @@ public class ImportDocumentsPanel extends Panel
                 .get();
         if (documentFormat.getClass().getName().equals(WebAnnoCsvFormatSupport.class.getName())) {
             readCSV(uploadedFiles, project, documentFormat);
-        } else if (documentFormat.getClass().getName()
+        }
+        else if (documentFormat.getClass().getName()
                 .equals(WebAnnoExcelFormatSupport.class.getName())) {
             readExcel(uploadedFiles, project, documentFormat);
         }
@@ -158,7 +160,8 @@ public class ImportDocumentsPanel extends Panel
                         documentService.uploadSourceDocument(is, document);
                     }
                     info("File [" + fileName + "] has been imported successfully!");
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     error("Error while uploading document " + fileName + ": "
                             + ExceptionUtils.getRootCauseMessage(e));
                     LOG.error(fileName + ": " + e.getMessage(), e);
@@ -169,7 +172,8 @@ public class ImportDocumentsPanel extends Panel
     }
 
     private void readCSV(List<FileUpload> uploadedFiles, Project project,
-            FormatSupport documentFormat) {
+            FormatSupport documentFormat)
+    {
         for (FileUpload documentToUpload : uploadedFiles) {
             String fileName = documentToUpload.getClientFileName();
             try {
@@ -189,28 +193,28 @@ public class ImportDocumentsPanel extends Panel
 
                             AnnotationDocument annotationDocument = documentService
                                     .createOrGetAnnotationDocument(document, user);
-                            CAS editorCas = documentService
-                                    .readAnnotationCas(annotationDocument);
-                            annotationService.upgradeCas(editorCas,
-                                    annotationDocument);
+                            CAS editorCas = documentService.readAnnotationCas(annotationDocument);
+                            annotationService.upgradeCas(editorCas, annotationDocument);
                             if (cD.getCodebooks().get(u).isEmpty()) {
                                 continue;
                             }
                             for (int h = 2; h < cD.getHeaders().size() - 1; h++) {
                                 String annotation = cD.getCodebooks().get(u).get(h - 2);
-                                String codebook = cD.getHeaders().get(h);
+                                String[] splits = cD.getHeaders().get(h).split("\\.");
+                                String codebook = splits[0] + "." + splits[1] + "."
+                                        + splits[splits.length - 1];
                                 Type type = editorCas.getTypeSystem().getType(codebook);
-                                Feature f = type.getFeatureByBaseName(
-                                        CodebookConst.CODEBOOK_FEATURE_NAME);
-                                AnnotationFS fs = editorCas.createAnnotation(type, 0,
-                                        0);
+                                Feature f = type
+                                        .getFeatureByBaseName(CodebookConst.CODEBOOK_FEATURE_NAME);
+                                AnnotationFS fs = editorCas.createAnnotation(type, 0, 0);
                                 fs.setFeatureValueFromString(f, annotation);
                                 editorCas.addFsToIndexes(fs);
 
                             }
-                            documentService.writeAnnotationCas(editorCas,
-                                    annotationDocument, false);
-                        } catch (Exception e) {
+                            documentService.writeAnnotationCas(editorCas, annotationDocument,
+                                    false);
+                        }
+                        catch (Exception e) {
                             error("Unable to create Annotation CAS for the user "
                                     + cD.getAnnotators().get(u) + " Cause: " + e.getMessage());
                         }
@@ -219,7 +223,8 @@ public class ImportDocumentsPanel extends Panel
                 }
                 info("File [" + fileName + "] has been imported successfully!");
 
-            } catch (IOException | UIMAException e) {
+            }
+            catch (IOException | UIMAException e) {
                 error("Error while uploading document " + fileName + ": "
                         + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error(fileName + ": " + e.getMessage(), e);
@@ -228,7 +233,8 @@ public class ImportDocumentsPanel extends Panel
     }
 
     private void readExcel(List<FileUpload> uploadedFiles, Project project,
-            FormatSupport documentFormat) {
+            FormatSupport documentFormat)
+    {
         for (FileUpload documentToUpload : uploadedFiles) {
             String fileName = documentToUpload.getClientFileName();
             try {
@@ -244,17 +250,18 @@ public class ImportDocumentsPanel extends Panel
                 }
                 info("File [" + fileName + "] has been imported successfully!");
 
-            } catch (IOException | UIMAException e) {
+            }
+            catch (IOException | UIMAException e) {
                 error("Error while uploading document " + fileName + ": "
                         + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error(fileName + ": " + e.getMessage(), e);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 error("Error while uploading document " + fileName + ": "
                         + ExceptionUtils.getRootCauseMessage(e));
                 LOG.error(fileName + ": " + e.getMessage(), e);
             }
         }
     }
-
 
 }
