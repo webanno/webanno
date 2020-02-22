@@ -98,8 +98,7 @@ public class AgreementCodebookTreePanel
 
         return new AnnotationFeature(project, neLayer, CodebookConst.CODEBOOK_FEATURE_NAME,
                 CodebookConst.CODEBOOK_FEATURE_NAME, CAS.TYPE_NAME_STRING,
-                selected.getCodebook().getDescription(),
-                null);
+                selected.getCodebook().getDescription(), null);
     }
 
     @Override
@@ -108,7 +107,7 @@ public class AgreementCodebookTreePanel
     // and only provide a callback for newContentComponent(.) and pass the treeID
     // in the ctor of CodebookTreePanel ...
     {
-        this.initCodebookNodeProvider();
+        this.initCodebookTreeProvider();
         tree = new NestedTree<CodebookNode>("agreementCodebookTree", this.provider,
                 new CodebookNodeExpansionModel())
         {
@@ -144,7 +143,7 @@ public class AgreementCodebookTreePanel
     }
 
     @Override
-    public void initCodebookNodeProvider()
+    public void initCodebookTreeProvider()
     {
         // get all codebooks and init the provider
         List<Codebook> codebooks = this.codebookService.listCodebook(this.project);
@@ -243,7 +242,7 @@ public class AgreementCodebookTreePanel
     public void setProject(Project project)
     {
         this.project = project;
-        this.initCodebookNodeProvider();
+        this.initCodebookTreeProvider();
         this.initTree();
     }
 

@@ -53,7 +53,7 @@ public abstract class CodebookTreePanel
 
     public abstract void initTree();
 
-    public abstract void initCodebookNodeProvider();
+    public abstract void initCodebookTreeProvider();
 
     protected void applyTheme()
     {
@@ -77,6 +77,16 @@ public abstract class CodebookTreePanel
         });
     }
 
+    public final CodebookTreeProvider getProvider()
+    {
+        return this.provider;
+    }
+
+    protected AbstractTree<CodebookNode> getTree()
+    {
+        return this.tree;
+    }
+
     public static class CodebookNodeExpansionModel
         implements IModel<Set<CodebookNode>>
     {
@@ -87,15 +97,5 @@ public abstract class CodebookTreePanel
         {
             return CodebookNodeExpansion.get();
         }
-    }
-
-    public final CodebookTreeProvider getProvider()
-    {
-        return this.provider;
-    }
-
-    protected AbstractTree<CodebookNode> getTree()
-    {
-        return this.tree;
     }
 }
