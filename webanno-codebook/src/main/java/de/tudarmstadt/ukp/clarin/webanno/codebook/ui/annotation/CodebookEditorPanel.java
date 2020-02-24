@@ -263,7 +263,11 @@ public abstract class CodebookEditorPanel
                 .getNodePanels();
         Set<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
                 .getDescendants(node, null);
-        allChildren.forEach(child -> childNodePanels.add(nodePanels.get(child)));
+        allChildren.forEach(child -> {
+        	if (null != child && null!=nodePanels.get(child) ) {
+        		childNodePanels.add(nodePanels.get(child));
+        	}
+        });
         return childNodePanels;
     }
 

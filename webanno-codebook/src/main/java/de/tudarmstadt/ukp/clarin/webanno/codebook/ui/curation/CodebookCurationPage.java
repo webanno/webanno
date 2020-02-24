@@ -666,14 +666,22 @@ public class CodebookCurationPage
         return userSuggestions;
     }
 
-    private boolean hasDiff(List<CodebookUserSuggestion> userSuggestions)
-    {
-        String val = userSuggestions.get(0).getValue();
-        for (CodebookUserSuggestion suggestion : userSuggestions)
-            if (!val.equals(suggestion.getValue()))
-                return true;
-        return false;
-    }
+	private boolean hasDiff(List<CodebookUserSuggestion> userSuggestions) {
+		String val = userSuggestions.get(0).getValue();
+		for (CodebookUserSuggestion suggestion : userSuggestions) {
+			if (val == null && suggestion.getValue() == null){
+				return false;
+			}
+			if ((val == null && suggestion.getValue() != null) 
+					|| (val != null && suggestion.getValue() == null)) {
+				return true;
+			}
+
+			if (!val.equals(suggestion.getValue()))
+				return true;
+		}
+		return false;
+	}
 
     // FIXME this doesn't seem to work properly?! (or did I get CodebookDiff wrong?!)
     private boolean hasDiff(Codebook codebook, List<Codebook> codebooks, Map<String, CAS> casMap)

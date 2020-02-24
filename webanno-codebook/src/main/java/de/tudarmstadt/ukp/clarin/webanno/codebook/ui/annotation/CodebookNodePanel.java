@@ -123,7 +123,10 @@ public class CodebookNodePanel
         List<CodebookTag> tags = codebookService.listTags(this.node.getCodebook());
         Set<CodebookTag> tag = tags.stream().filter(t -> t.getName().equals(tagString))
                 .collect(Collectors.toSet());
-        assert tag.size() == 1; // TODO what to throw?
+       // assert tag.size() == 1; // TODO what to throw?
+        if (tag.size() < 1) {
+        	return null;
+        }
         return tag.iterator().next();
     }
 
