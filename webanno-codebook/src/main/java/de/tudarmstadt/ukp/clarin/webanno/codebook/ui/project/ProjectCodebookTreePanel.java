@@ -61,7 +61,7 @@ public class ProjectCodebookTreePanel
 
     @Override
     @SuppressWarnings({ "unchecked" })
-    public void initCodebookNodeProvider()
+    public void initCodebookTreeProvider()
     {
         Project project = (Project) this.getDefaultModelObject();
         // get all codebooks and init the provider
@@ -138,7 +138,7 @@ public class ProjectCodebookTreePanel
     @Override
     public void initTree()
     {
-        this.initCodebookNodeProvider();
+        this.initCodebookTreeProvider();
         tree = new NestedTree<CodebookNode>("projectCodebookTree", this.provider,
                 new CodebookNodeExpansionModel())
         {

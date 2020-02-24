@@ -30,7 +30,8 @@ import static org.apache.uima.fit.util.CasUtil.getType;
 import static org.apache.uima.fit.util.CasUtil.selectAt;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,115 +90,6 @@ public class CodebookCasMerge
     {
         schemaService = aSchemaService;
         eventPublisher = aEventPublisher;
-    }
-
-    public void setMergeIncompleteAnnotations(boolean aMergeIncompleteAnnotations)
-    {
-        mergeIncompleteAnnotations = aMergeIncompleteAnnotations;
-    }
-
-    public boolean isMergeIncompleteAnnotations()
-    {
-        return mergeIncompleteAnnotations;
-    }
-
-    private boolean shouldMerge(DiffResult aDiff, ConfigurationSet cfgs)
-    {
-        boolean stacked = cfgs.getConfigurations().stream().anyMatch(Configuration::isStacked);
-        if (stacked) {
-            LOG.trace(" `-> Not merging stacked annotation");
-            return false;
-        }
-
-        if (!aDiff.isComplete(cfgs) && !isMergeIncompleteAnnotations()) {
-            LOG.trace(" `-> Not merging incomplete annotation");
-            return false;
-        }
-
-        if (!aDiff.isAgreement(cfgs)) {
-            LOG.trace(" `-> Not merging annotation with disagreement");
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Using {@code DiffResult}, determine the annotations to be deleted from the randomly generated
-     * MergeCase. The initial Merge CAs is stored under a name {@code CurationPanel#CURATION_USER}.
-     * <p>
-     * Any similar annotations stacked in a {@code CasDiff2.Position} will be assumed a difference
-     * <p>
-     * Any two annotation with different value will be assumed a difference
-     * 
-     * @param aDiff
-     *            the {@link DiffResult}
-     * @param aCases
-     *            a map of {@code CAS}s for each users and the random merge
-     */
-    public void reMergeCas(DiffResult aDiff, SourceDocument aTargetDocument, String aTargetUsername,
-            CAS aTargetCas, Map<String, CAS> aCases)
-        throws AnnotationException, UIMAException
-    {
-
-        List<LogMessage> messages = new ArrayList<>();
-
-        // Remove any annotations from the target CAS - keep type system, sentences and tokens
-        clearAnnotations(aTargetCas);
-
-        // If there is nothing to merge, bail out
-        if (aCases.isEmpty()) {
-            return;
-        }
-
-        // Set up a cache for resolving type to layer to avoid hammering the DB as we
-        // process each position
-        Map<String, Codebook> type2code = aDiff.getPositions().stream().map(Position::getType)
-                .distinct()
-                .map(type -> schemaService.getCodeBook(type, aTargetDocument.getProject()))
-                .collect(Collectors.toMap(Codebook::getName, Function.identity()));
-
-        List<String> codeNames = new ArrayList<>(type2code.keySet());
-
-        for (String codeName : codeNames) {
-            List<CodebookPosition> positions = aDiff.getPositions().stream()
-                    .filter(pos -> codeName.equals(pos.getType()))
-                    .filter(pos -> pos instanceof CodebookPosition)
-                    .map(pos -> (CodebookPosition) pos).filter(pos -> pos.getFeature() == null)
-                    .collect(Collectors.toList());
-
-            if (positions.isEmpty()) {
-                continue;
-            }
-
-            LOG.trace("Processing {} codebook positions on layer {}", positions.size(), codeName);
-            for (CodebookPosition position : positions) {
-                LOG.trace(" |   processing {}", position);
-                ConfigurationSet cfgs = aDiff.getConfigurtionSet(position);
-
-                if (!shouldMerge(aDiff, cfgs)) {
-                    continue;
-                }
-
-                try {
-                    AnnotationFS sourceFS = (AnnotationFS) cfgs.getConfigurations().get(0)
-                            .getRepresentative(new HashMap<>()); // FIXME, what to do?
-                    mergeCodebookAnnotation(aTargetDocument, aTargetUsername,
-                            type2code.get(position.getType()), aTargetCas, sourceFS, false);
-                    LOG.trace(" `-> merged annotation with agreement");
-                }
-                catch (AnnotationException e) {
-                    LOG.trace(" `-> not merged annotation: {}", e.getMessage());
-                    messages.add(LogMessage.error(this, "%s", e.getMessage()));
-                }
-            }
-        }
-
-        if (eventPublisher != null) {
-            eventPublisher.publishEvent(
-                    new BulkAnnotationEvent(this, aTargetDocument, aTargetUsername, null));
-        }
-
     }
 
     private static void clearAnnotations(CAS aCas) throws UIMAException
@@ -303,6 +195,127 @@ public class CodebookCasMerge
                 .filter(cand -> isSameAnno(aFs, cand)).findAny().isPresent();
     }
 
+    private static boolean shouldIgnoreFeatureOnMerge(FeatureStructure aFS, Feature aFeature)
+    {
+        return !WebAnnoCasUtil.isPrimitiveType(aFeature.getRange()) || isBasicFeature(aFeature)
+                || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN)
+                || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END);
+    }
+
+    public boolean isMergeIncompleteAnnotations()
+    {
+        return mergeIncompleteAnnotations;
+    }
+
+    public void setMergeIncompleteAnnotations(boolean aMergeIncompleteAnnotations)
+    {
+        mergeIncompleteAnnotations = aMergeIncompleteAnnotations;
+    }
+
+    private boolean shouldMerge(DiffResult aDiff, ConfigurationSet cfgs)
+    {
+        boolean stacked = cfgs.getConfigurations().stream().anyMatch(Configuration::isStacked);
+        if (stacked) {
+            LOG.trace(" `-> Not merging stacked annotation");
+            return false;
+        }
+
+        if (!aDiff.isComplete(cfgs) && !isMergeIncompleteAnnotations()) {
+            LOG.trace(" `-> Not merging incomplete annotation");
+            return false;
+        }
+
+        if (!aDiff.isAgreement(cfgs)) {
+            LOG.trace(" `-> Not merging annotation with disagreement");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Using {@code DiffResult}, determine the annotations to be deleted from the randomly generated
+     * MergeCase. The initial Merge CAs is stored under a name {@code CurationPanel#CURATION_USER}.
+     * <p>
+     * Any similar annotations stacked in a {@code CasDiff2.Position} will be assumed a difference
+     * <p>
+     * Any two annotation with different value will be assumed a difference
+     *
+     * @param aDiff
+     *            the {@link DiffResult}
+     * @param aCases
+     *            a map of {@code CAS}s for each users and the random merge
+     */
+    public void reMergeCas(DiffResult aDiff, SourceDocument aTargetDocument, String aTargetUsername,
+            CAS aTargetCas, Map<String, CAS> aCases)
+        throws AnnotationException, UIMAException
+    {
+
+        List<LogMessage> messages = new ArrayList<>();
+
+        // Remove any annotations from the target CAS - keep type system, sentences and tokens
+        clearAnnotations(aTargetCas);
+
+        // If there is nothing to merge, bail out
+        if (aCases.isEmpty()) {
+            return;
+        }
+
+        // Set up a cache for resolving type to layer to avoid hammering the DB as we
+        // process each position
+        Map<String, Codebook> type2code = aDiff.getPositions().stream().map(Position::getType)
+                .distinct()
+                .map(type -> schemaService.getCodeBook(type, aTargetDocument.getProject()))
+                .collect(Collectors.toMap(Codebook::getName, Function.identity()));
+
+        List<String> codeNames = new ArrayList<>(type2code.keySet());
+
+        for (String codeName : codeNames) {
+            List<CodebookPosition> positions = aDiff.getPositions().stream()
+                    .filter(pos -> codeName.equals(pos.getType()))
+                    .filter(pos -> pos instanceof CodebookPosition)
+                    .map(pos -> (CodebookPosition) pos).filter(pos -> pos.getFeature() == null)
+                    .collect(Collectors.toList());
+
+            if (positions.isEmpty()) {
+                continue;
+            }
+
+            LOG.trace("Processing {} codebook positions on layer {}", positions.size(), codeName);
+            for (CodebookPosition position : positions) {
+                LOG.trace(" |   processing {}", position);
+                ConfigurationSet cfgs = aDiff.getConfigurationSet(position);
+
+                if (!shouldMerge(aDiff, cfgs)) {
+                    continue;
+                }
+
+                try {
+
+                    Map<String, List<CAS>> casMap = new LinkedHashMap<>();
+                    for (Map.Entry<String, CAS> e : aCases.entrySet()) {
+                        casMap.put(e.getKey(), Collections.singletonList(e.getValue()));
+                    }
+                    AnnotationFS sourceFS = (AnnotationFS) cfgs.getConfigurations().get(0)
+                            .getRepresentative(casMap);
+                    mergeCodebookAnnotation(aTargetDocument, aTargetUsername,
+                            type2code.get(position.getType()), aTargetCas, sourceFS, false);
+                    LOG.trace(" `-> merged annotation with agreement");
+                }
+                catch (AnnotationException e) {
+                    LOG.trace(" `-> not merged annotation: {}", e.getMessage());
+                    messages.add(LogMessage.error(this, "%s", e.getMessage()));
+                }
+            }
+        }
+
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(
+                    new BulkAnnotationEvent(this, aTargetDocument, aTargetUsername, null));
+        }
+
+    }
+
     private void copyFeatures(SourceDocument aDocument, String aUsername, CodebookAdapter aAdapter,
             Codebook aCodebook, FeatureStructure aTargetFS, FeatureStructure aSourceFs)
     {
@@ -324,13 +337,6 @@ public class CodebookCasMerge
         Object value = aAdapter.getExistingCodeValue(aSourceFs.getCAS(), feature);
         aAdapter.setFeatureValue(aTargetFS.getCAS(), feature, getAddr(aTargetFS), value);
 
-    }
-
-    private static boolean shouldIgnoreFeatureOnMerge(FeatureStructure aFS, Feature aFeature)
-    {
-        return !WebAnnoCasUtil.isPrimitiveType(aFeature.getRange()) || isBasicFeature(aFeature)
-                || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN)
-                || aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END);
     }
 
     public CasMergeOpertationResult mergeCodebookAnnotation(SourceDocument aDocument,

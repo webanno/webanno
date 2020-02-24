@@ -73,12 +73,7 @@ public class CodebookSuggestionPanel
 
     private CodebookCurationModel cModel;
     private WebMarkupContainer codebooksGroup;
-    private PageableListView<CodebookSuggestions> suggestions;
-
-    public CodebookCurationModel getModelObject()
-    {
-        return (CodebookCurationModel) getDefaultModelObject();
-    }
+    private PageableListView<CodebookSuggestion> suggestions;
 
     public CodebookSuggestionPanel(String id, IModel<CodebookCurationModel> aModel)
     {
@@ -87,16 +82,17 @@ public class CodebookSuggestionPanel
         setOutputMarkupId(true);
 
         cModel = aModel.getObject();
-        suggestions = new PageableListView<CodebookSuggestions>("suggestions",
-                cModel.getCodebooksuggestions(), cModel.getCodebooksuggestions().size())
+        suggestions = new PageableListView<CodebookSuggestion>("suggestions",
+                (IModel<? extends List<CodebookSuggestion>>) cModel.getCodebooksuggestions(),
+                cModel.getCodebooksuggestions().size())
         {
 
             private static final long serialVersionUID = -3591948738133097041L;
 
             @Override
-            protected void populateItem(final ListItem<CodebookSuggestions> item)
+            protected void populateItem(final ListItem<CodebookSuggestion> item)
             {
-                final CodebookSuggestions suggestion = item.getModelObject();
+                final CodebookSuggestion suggestion = item.getModelObject();
                 item.add(new Label("codebook", suggestion.getCodebook().getUiName()));
                 item.add(new Label("username", suggestion.getUsername()));
                 item.add(new Label("annotation", suggestion.getAnnotation())
@@ -134,9 +130,14 @@ public class CodebookSuggestionPanel
         form.add(codebooksGroup);
     }
 
+    public CodebookCurationModel getModelObject()
+    {
+        return (CodebookCurationModel) getDefaultModelObject();
+    }
+
     public void setSuggestionModel(AjaxRequestTarget aTarget, CodebookFeature aFeature)
     {
-        List<CodebookSuggestions> suggestionsModel = getSuggestions(aFeature);
+        List<CodebookSuggestion> suggestionsModel = getSuggestions(aFeature);
         suggestions.setModelObject(suggestionsModel);
         suggestions.setItemsPerPage(suggestionsModel.size());
     }
@@ -149,16 +150,13 @@ public class CodebookSuggestionPanel
 
     List<String> getTags(Codebook aCodebook)
     {
-        /* TODO I dont see the point of the code below and would suggest to remove it
-        if (codebookService.listCodebookFeature(aCodebook) == null
-                || codebookService.listCodebookFeature(aCodebook).size() == 0) {
-            return new ArrayList<>();
-        }
-        CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
-        if (codebookFeature.getCodebook() == null) {
-            return new ArrayList<>();
-        }
-        */
+        /*
+         * TODO I dont see the point of the code below and would suggest to remove it if
+         * (codebookService.listCodebookFeature(aCodebook) == null ||
+         * codebookService.listCodebookFeature(aCodebook).size() == 0) { return new ArrayList<>(); }
+         * CodebookFeature codebookFeature = codebookService.listCodebookFeature(aCodebook).get(0);
+         * if (codebookFeature.getCodebook() == null) { return new ArrayList<>(); }
+         */
         List<String> tags = new ArrayList<>();
         for (CodebookTag tag : codebookService.listTags(aCodebook)) {
             tags.add(tag.getName());
@@ -166,13 +164,13 @@ public class CodebookSuggestionPanel
         return tags;
     }
 
-    private List<CodebookSuggestions> getSuggestions(CodebookFeature feature)
+    private List<CodebookSuggestion> getSuggestions(CodebookFeature feature)
     {
         Map<String, CAS> jCases = setSuggestionCases();
         List<Codebook> types = new ArrayList<>();
         types.add(feature.getCodebook());
         CodebookAdapter adapter = new CodebookAdapter(feature.getCodebook());
-        List<CodebookSuggestions> suggestions = new ArrayList<>();
+        List<CodebookSuggestion> suggestions = new ArrayList<>();
 
         for (String username : jCases.keySet()) {
 
@@ -184,7 +182,7 @@ public class CodebookSuggestionPanel
             Map<String, CAS> suggestionCas = new HashMap<>();
             suggestionCas.put(username, jCases.get(username));
             suggestionCas.put(WebAnnoConst.CURATION_USER, jCases.get(WebAnnoConst.CURATION_USER));
-            CodebookSuggestions suggestion = new CodebookSuggestions(username, existingCode,
+            CodebookSuggestion suggestion = new CodebookSuggestion(username, existingCode,
                     isDiffs(feature.getCodebook(), types, suggestionCas), feature.getCodebook(),
                     feature);
             suggestions.add(suggestion);

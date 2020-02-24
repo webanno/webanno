@@ -33,22 +33,12 @@ public class CodebookCurationModel
     implements Serializable
 {
     private static final long serialVersionUID = -7826210722492638188L;
+    private final List<CodebookFeatureState> codebookModels = new ArrayList<>();
     private List<Codebook> codebooks;
     private SourceDocument document;
     private Project project;
     private List<CodebookCurations> codebookCurations = new ArrayList<>();
     private List<CodebookSuggestions> codebooksuggestions = new ArrayList<>();
-    private final List<CodebookFeatureState> codebookModels = new ArrayList<>();
-
-    public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature)
-    {
-        for (CodebookFeatureState f : codebookModels) {
-            if (Objects.equals(f.feature.getId(), aFeature.getId())) {
-                return f;
-            }
-        }
-        return null;
-    }
 
     public CodebookCurationModel()
     {
@@ -61,6 +51,16 @@ public class CodebookCurationModel
         this.codebooks = aCodebooks;
         this.document = aDocument;
         this.project = aProject;
+    }
+
+    public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature)
+    {
+        for (CodebookFeatureState f : codebookModels) {
+            if (Objects.equals(f.feature.getId(), aFeature.getId())) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public List<Codebook> getCodebooks()
