@@ -223,7 +223,6 @@ public class BratAnnotationEditor
                     }
                     else if (DoActionResponse.is(action)) {
                         if (paramId.isSynthetic()) {
-                            Offsets offsets = getOffsetsFromRequest(request, cas, paramId);
                             extensionRegistry.fireAction(getActionHandler(), getModelObject(),
                                     aTarget, cas, paramId, action);
                         }
@@ -233,7 +232,6 @@ public class BratAnnotationEditor
                     }
                     else {
                         if (paramId.isSynthetic()) {
-                            Offsets offsets = getOffsetsFromRequest(request, cas, paramId);
                             extensionRegistry.fireAction(getActionHandler(), getModelObject(),
                                     aTarget, cas, paramId, action);
                         }
@@ -267,6 +265,15 @@ public class BratAnnotationEditor
                                 result = actionGetDocument(cas);
                             }
                         }
+                    }
+                }
+                catch (AnnotationException e) {
+                    // These are common exceptions happening as part of the user interaction. We do
+                    // not really need to log their stack trace to the log.
+                    error("Error: " + e.getMessage());
+                    // If debug is enabled, we'll also write the error to the log just in case.
+                    if (LOG.isDebugEnabled()) {
+                        LOG.error("Error: {}", e.getMessage(), e);
                     }
                 }
                 catch (Exception e) {
@@ -389,8 +396,10 @@ public class BratAnnotationEditor
     {
         // This is the span the user has marked in the browser in order to create a new slot-filler
         // annotation OR the span of an existing annotation which the user has selected.
-        Offsets userSelectedSpan = getOffsetsFromRequest(request, aCas, aSelectedAnnotation);
-
+        Offsets optUserSelectedSpan = getOffsetsFromRequest(request, aCas,
+                aSelectedAnnotation);
+        
+        Offsets userSelectedSpan = optUserSelectedSpan;
         AnnotatorState state = getModelObject();
         Selection selection = state.getSelection();
 
@@ -415,7 +424,7 @@ public class BratAnnotationEditor
                 }
             }
         }
-
+        
         return new SpanAnnotationResponse();
     }
     
@@ -524,6 +533,7 @@ public class BratAnnotationEditor
             // Create new span annotation - in this case we get the offset information from the
             // request
             String offsets = request.getParameterValue(PARAM_OFFSETS).toString();
+            
             OffsetsList offsetLists = JSONUtil.getObjectMapper().readValue(offsets,
                     OffsetsList.class);
 

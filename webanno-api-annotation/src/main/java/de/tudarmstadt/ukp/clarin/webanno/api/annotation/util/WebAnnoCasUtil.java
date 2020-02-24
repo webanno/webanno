@@ -26,6 +26,7 @@ import static org.apache.uima.fit.util.CasUtil.selectAt;
 import static org.apache.uima.fit.util.CasUtil.selectCovering;
 import static org.apache.uima.fit.util.CasUtil.selectSingle;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,6 +46,9 @@ import org.apache.uima.cas.impl.CASImpl;
 import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.fit.util.FSUtil;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.util.CasCreationUtils;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.LinkWithRoleModel;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
@@ -58,6 +62,116 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  */
 public class WebAnnoCasUtil
 {
+    private static final String PROP_ENFORCE_CAS_THREAD_LOCK = "webanno.debug.enforce_cas_thread_lock";
+
+    private static final boolean ENFORCE_CAS_THREAD_LOCK = System
+            .getProperty(PROP_ENFORCE_CAS_THREAD_LOCK, "false").equals("true");
+    
+    public static CAS createCas(TypeSystemDescription aTSD) throws ResourceInitializationException
+    {
+        CAS cas = CasCreationUtils.createCas(aTSD, null, null);
+        
+        if (ENFORCE_CAS_THREAD_LOCK) {
+            cas = (CAS) Proxy.newProxyInstance(cas.getClass().getClassLoader(),
+                    new Class[] { CAS.class }, new ThreadLockingInvocationHandler(cas));
+        }
+        
+        return cas;
+    }
+    
+    public static CAS createCas() throws ResourceInitializationException
+    {
+        return createCas(null);
+    }
+    
+    public static CAS getRealCas(CAS aCas)
+    {
+        if (!ENFORCE_CAS_THREAD_LOCK) {
+            return aCas;
+        }
+        
+        if (!Proxy.isProxyClass(aCas.getClass())) {
+            return aCas;
+        }
+
+        ThreadLockingInvocationHandler handler = (ThreadLockingInvocationHandler) Proxy
+                .getInvocationHandler(aCas);
+        return (CAS) handler.getTarget();
+    }
+    
+    /**
+     * Return true if these two annotations agree on every non slot features
+     */
+    public static boolean isEquivalentAnnotation(AnnotationFS aFs1, AnnotationFS aFs2)
+    {
+        // Check offsets (because they are excluded by shouldIgnoreFeatureOnMerge())
+        if (aFs1.getBegin() != aFs2.getBegin() || aFs1.getEnd() != aFs2.getEnd()) {
+            return false;
+        }
+        
+        // Check the features (basically limiting to the primitive features)
+        for (Feature f : aFs1.getType().getFeatures()) {
+            if (shouldIgnoreFeatureOnMerge(aFs1, f)) {
+                continue;
+            }
+
+            Object value1 = getFeatureValue(aFs1, f);
+            Object value2 = getFeatureValue(aFs2, f);
+            
+            if (!Objects.equals(value1, value2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean shouldIgnoreFeatureOnMerge(FeatureStructure aFS, Feature aFeature)
+    {
+        return !WebAnnoCasUtil.isPrimitiveType(aFeature.getRange()) || 
+                isBasicFeature(aFeature) ||
+                aFeature.getName().equals(CAS.FEATURE_FULL_NAME_BEGIN) ||
+                aFeature.getName().equals(CAS.FEATURE_FULL_NAME_END);
+    }
+
+    /**
+     * Do not check on agreement on Position and SOfa feature - already checked
+     */
+    private static boolean isBasicFeature(Feature aFeature)
+    {
+        // FIXME The two parts of this OR statement seem to be redundant. Also the order
+        // of the check should be changes such that equals is called on the constant.
+        return aFeature.getName().equals(CAS.FEATURE_FULL_NAME_SOFA)
+                || aFeature.toString().equals("uima.cas.AnnotationBase:sofa");
+    }
+
+    /**
+     * Get the feature value of this {@code Feature} on this annotation
+     */
+    private static Object getFeatureValue(FeatureStructure aFS, Feature aFeature)
+    {
+        switch (aFeature.getRange().getName()) {
+        case CAS.TYPE_NAME_STRING:
+            return aFS.getFeatureValueAsString(aFeature);
+        case CAS.TYPE_NAME_BOOLEAN:
+            return aFS.getBooleanValue(aFeature);
+        case CAS.TYPE_NAME_FLOAT:
+            return aFS.getFloatValue(aFeature);
+        case CAS.TYPE_NAME_INTEGER:
+            return aFS.getIntValue(aFeature);
+        case CAS.TYPE_NAME_BYTE:
+            return aFS.getByteValue(aFeature);
+        case CAS.TYPE_NAME_DOUBLE:
+            return aFS.getDoubleValue(aFeature);
+        case CAS.TYPE_NAME_LONG:
+            aFS.getLongValue(aFeature);
+        case CAS.TYPE_NAME_SHORT:
+            aFS.getShortValue(aFeature);
+        default:
+            return null;
+        // return aFS.getFeatureValue(aFeature);
+        }
+    }
+    
     /**
      * Annotation a and annotation b are the same if they have the same address.
      *
