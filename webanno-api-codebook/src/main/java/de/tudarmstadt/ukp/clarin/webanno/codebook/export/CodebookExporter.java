@@ -47,6 +47,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportRequest;
+import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportTaskMonitor;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExporter;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
@@ -79,9 +80,10 @@ public class CodebookExporter
 
     private static final String CODEBOOKS_FOLDER = "/codebooks/";
     private static final String CODEBOOKS = "codebooks";
-
+    
     @Override
-    public void exportData(ProjectExportRequest aRequest, ExportedProject aExProject, File aStage)
+    public void exportData(ProjectExportRequest aRequest, ProjectExportTaskMonitor aMonitor,
+    		ExportedProject aExProject, File aStage)
         throws Exception
     {
 

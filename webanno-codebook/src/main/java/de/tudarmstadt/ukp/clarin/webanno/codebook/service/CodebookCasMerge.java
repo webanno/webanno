@@ -63,7 +63,8 @@ import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.ConfigurationS
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.api.Position;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casmerge.AlreadyMergedException;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casmerge.CasMergeOpertationResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casmerge.CasMergeOperationResult;
+import de.tudarmstadt.ukp.clarin.webanno.curation.casmerge.CasMergeOperationResult.ResultState;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.support.logging.LogMessage;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
@@ -339,7 +340,7 @@ public class CodebookCasMerge
 
     }
 
-    public CasMergeOpertationResult mergeCodebookAnnotation(SourceDocument aDocument,
+    public ResultState mergeCodebookAnnotation(SourceDocument aDocument,
             String aUsername, Codebook aCodebook, CAS aTargetCas, AnnotationFS aSourceFs,
             boolean aAllowStacking)
         throws AnnotationException
@@ -361,13 +362,13 @@ public class CodebookCasMerge
 
             AnnotationFS mergedCode = adapter.getExistingFs(aTargetCas);
             copyFeatures(aDocument, aUsername, adapter, aCodebook, mergedCode, aSourceFs);
-            return CasMergeOpertationResult.CREATED;
+            return CasMergeOperationResult.ResultState.CREATED;
         }
 
         else {
             copyFeatures(aDocument, aUsername, adapter, aCodebook, existingAnnos.get(0), aSourceFs);
         }
-        return CasMergeOpertationResult.UPDATED;
+        return CasMergeOperationResult.ResultState.UPDATED;
 
     }
 }
