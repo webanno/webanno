@@ -373,22 +373,10 @@ public class CodebookExporter
         throws IOException, UIMAException
     {
 
-        // create codebook string names that reflect the hierarchies
-        CodebookTree tree = new CodebookTree(aCodebooks);
-        List<String> codebookNames = new ArrayList<>();
-        // root CBs
-        for (CodebookNode root : tree.getRootNodes()) {
-            String name = root.getName(); // full name
-            codebookNames.add(name);
-
-            // create children names recursively
-            for (CodebookNode child : root.getChildren())
-                createCodebookNamesRecursively(child, root, name, codebookNames);
-        }
 
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,
-                "withHeaders", aWithHeaders, "withText", aWithText, "codebooks", codebookNames,
+                "withHeaders", aWithHeaders, "withText", aWithText,
                 "annotator", aAnnotator, "documentName", documentName);
 
         runPipeline(cas, writer);
@@ -397,17 +385,6 @@ public class CodebookExporter
         // FileUtils.copyFile(aExportDir.listFiles()[0], exportFile);
         return exportFile;
 
-    }
-
-    private void createCodebookNamesRecursively(CodebookNode child, CodebookNode parent,
-            String name, List<String> cbNames)
-    {
-        String childCBName = name + "." + child.getUiName();
-        cbNames.add(childCBName);
-
-        // create children names recursively
-        for (CodebookNode childrenChild : child.getChildren())
-            createCodebookNamesRecursively(childrenChild, child, childCBName, cbNames);
     }
 
 }

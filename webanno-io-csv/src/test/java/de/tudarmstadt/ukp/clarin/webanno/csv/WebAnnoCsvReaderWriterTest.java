@@ -144,7 +144,6 @@ public class WebAnnoCsvReaderWriterTest
                 WebannoCsvWriter.PARAM_FILENAME, targetFileName,
                 WebannoCsvWriter.WITH_HEADERS, true,
                 WebannoCsvWriter.WITH_TEXT, true,
-                WebannoCsvWriter.PARAM_CODEBOOKS, codebooks,
                 WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
                 WebannoCsvWriter.DOCUMENT_NAME, docName);
 

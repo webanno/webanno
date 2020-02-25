@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
+import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.jcas.JCas;
@@ -48,11 +50,6 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
-    // TODO I think this is not necessary since the codebooks should be in the CAS
-    // already!
-    public static final String PARAM_CODEBOOKS = "codebooks";
-    @ConfigurationParameter(name = PARAM_CODEBOOKS, mandatory = true, defaultValue = {})
-    private List<String> codebooks;
 
     public static final String WITH_HEADERS = "withHeaders";
     @ConfigurationParameter(name = WITH_HEADERS, mandatory = true, defaultValue = "false")
@@ -119,12 +116,24 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
         headers.add("DocumentName");
         headers.add("Annotator");
 
+        TypeSystem cbooks = aJCas.getTypeSystem();
+        Iterator<Type> it = cbooks.iterator();
+        Set<String>cbks = new LinkedHashSet<String>();
+        while (it.hasNext()) {
+        	String cbit = it.next().getName();
+        	if (cbit.startsWith("webanno.codebook")) {
+        		cbks.add(cbit);
+        	}
+        }
         // find codebook types
-        for (String cbName : codebooks) {
+        //for (String cbName : codebooks) {
+        for (String cbName : cbks) {
             // always the first two splits (= webanno.codebook.) + the last split (= actual name)
-            String[] splits = cbName.split("\\.");
-            String codebookTypeName = splits[0] + "." + splits[1] + "." + splits[splits.length - 1];
-            codebookTypes.add(aJCas.getTypeSystem().getType(codebookTypeName));
+           // String[] splits = cbName.split("\\.");
+           // String codebookTypeName = splits[0] + "." + splits[1] + "." + splits[splits.length - 1];
+           // codebookTypes.add(aJCas.getTypeSystem().getType(codebookTypeName));
+        	
+        	codebookTypes.add(aJCas.getTypeSystem().getType(cbName));
 
             headers.add(cbName);
         }
