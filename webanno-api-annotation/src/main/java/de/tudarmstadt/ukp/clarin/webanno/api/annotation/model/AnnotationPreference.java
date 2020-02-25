@@ -46,14 +46,9 @@ public class AnnotationPreference
     public static final int SIDEBAR_SIZE_MAX = 50;
     public static final int SIDEBAR_SIZE_DEFAULT = 20;
 
-    public static final int CODEBOOKS_PER_PAGE = 12;
-    private int codebooksPerPage ;
     // TODO
     //  this actually makes no sense here and needs to be refactored into the curations module
     //  where a own CurationPreference similar to AnnotationPreference needs to be implemented!
-    //  Since there would be only one boolean (showCodebookCuration) for the CurationPreference we
-    //  decided to postpone this to a later PR.
-    private boolean showCodebookCuration = false;
     private boolean showEditor = true;
 
     // Id of annotation layers, to be stored in the properties file comma separated: 12, 34,....
@@ -246,15 +241,6 @@ public class AnnotationPreference
         editor = aEditor;
     }
 
-    public int getCodebooksPerPage()
-    {
-        return codebooksPerPage < 1 ? CODEBOOKS_PER_PAGE : codebooksPerPage;
-    }
-
-    public void setCodebooksPerPage(int codebooksPerPage) {
-        this.codebooksPerPage = codebooksPerPage;
-    }
-
     public void setDefaultLayer(long aLayerId)
     {
         defaultLayer = aLayerId;
@@ -264,14 +250,6 @@ public class AnnotationPreference
     {
         return defaultLayer;
     }
-    public boolean isShowCodebookCuration() {
-        return showCodebookCuration;
-    }
-
-    public void setShowCodebookCuration(boolean aShowCodebook) {
-        this.showCodebookCuration = aShowCodebook;
-    }
-
 
     public boolean isShowEditor() {
         return showEditor;

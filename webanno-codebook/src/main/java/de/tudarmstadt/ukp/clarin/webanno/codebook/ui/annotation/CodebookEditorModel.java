@@ -35,7 +35,6 @@ public class CodebookEditorModel
     // TODO I think we can remove codebook and code from the editor model ?!
     private Codebook codebook;
     private String code;
-    private int codebooksPerPage;
     private User user;
     private SourceDocument document;
     private Project project;
@@ -70,16 +69,6 @@ public class CodebookEditorModel
     public void setCode(String code)
     {
         this.code = code;
-    }
-
-    public int getCodebooksPerPage()
-    {
-        return codebooksPerPage;
-    }
-
-    public void setCodebooksPerPage(int codebooksPerPage)
-    {
-        this.codebooksPerPage = codebooksPerPage;
     }
 
     public SourceDocument getDocument()

@@ -134,6 +134,7 @@ public class AnnotationPage extends AnnotationPageBase {
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel detailEditor;
     private SidebarPanel leftSidebar;
+    private WebMarkupContainer rightSidebar;
 
     private WebMarkupContainer codebookPanel;
     private CodebookEditorPanel codebookdetailEditor;
@@ -205,8 +206,9 @@ public class AnnotationPage extends AnnotationPageBase {
         centerArea.add(actionBar);
 
         createAnnotationEditor(null);
-
-        add(createRightSidebar());
+        rightSidebar = createRightSidebar();
+        add(rightSidebar);
+        
         leftSidebar = createLeftSidebar();
         add(leftSidebar);
     }
@@ -497,6 +499,8 @@ public class AnnotationPage extends AnnotationPageBase {
             detailEditor.reset(null);
             // Populate the layer dropdown box
             detailEditor.loadFeatureEditorModels(editorCas, null);
+            rightSidebar.add(visibleWhen(() -> getModelObject().getPreferences().isShowEditor()));
+
 
             // update codebook editor
             // flo find better way?!
@@ -743,7 +747,6 @@ public class AnnotationPage extends AnnotationPageBase {
     private CodebookEditorModel getCodebookEditorModel() {
         CodebookEditorModel model = new CodebookEditorModel();
         model.setDocument(getModelObject().getDocument());
-        model.setCodebooksPerPage(getModelObject().getPreferences().getCodebooksPerPage());
         model.setUser(getModelObject().getUser());
         model.setProject(getModelObject().getProject());
         return model;

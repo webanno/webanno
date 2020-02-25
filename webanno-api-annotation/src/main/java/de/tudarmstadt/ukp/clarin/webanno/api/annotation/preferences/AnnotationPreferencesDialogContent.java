@@ -49,8 +49,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
@@ -78,8 +76,6 @@ public class AnnotationPreferencesDialogContent
 {
     private static final long serialVersionUID = -2102136855109258306L;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(AnnotationPreferencesDialogContent.class);
 
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean ProjectService projectService;
@@ -150,18 +146,6 @@ public class AnnotationPreferencesDialogContent
         form.add(new LambdaAjaxButton<>("save", this::actionSave));
         form.add(new LambdaAjaxLink("cancel", this::actionCancel));
 
-        // show codebook curation checkbox
-        CheckBox codebookCheckbox = new CheckBox("showCodebookCuration");
-        form. add(codebookCheckbox);
-        // Disable the checkbox and set the flag to false if we are in ANNOTATION mode!
-        if (stateModel.getObject().getMode().equals(ANNOTATION)) {
-            codebookCheckbox.setEnabled(false);
-            stateModel.getObject().getPreferences().setShowCodebookCuration(false);
-            form.getModelObject().showCodebookCuration = false;
-        } else if (stateModel.getObject().getMode().equals(ANNOTATION)) {
-            codebookCheckbox.setEnabled(true);
-        }
-
 
         WebMarkupContainer showEditorCont = new WebMarkupContainer("showEditorCont");
         showEditorCont.add(new AttributeModifier("style",
@@ -170,10 +154,6 @@ public class AnnotationPreferencesDialogContent
                 : "visibility:hidden;display:none"));
         CheckBox showEditor = new CheckBox("showEditor");
         form.add(showEditorCont.add(showEditor));
-        NumberTextField<Integer> codebooksPerPage = new NumberTextField<>("codebooksPerPage");
-        codebooksPerPage.setType(Integer.class);
-        codebooksPerPage.setMinimum(1);
-        form.add(codebooksPerPage);
 
         add(form);
     }
@@ -196,9 +176,7 @@ public class AnnotationPreferencesDialogContent
             prefs.setReadonlyLayerColoringBehaviour(model.readonlyLayerColoringBehaviour);
             prefs.setEditor(model.editor.getKey());
 
-            prefs.setShowCodebookCuration(model.showCodebookCuration);
             prefs.setShowEditor(model.showEditor);
-            prefs.setCodebooksPerPage(model.codebooksPerPage);
             prefs.setCollapseArcs(model.collapseArcs);
 
             state.setAnnotationLayers(model.annotationLayers.stream()
@@ -252,9 +230,6 @@ public class AnnotationPreferencesDialogContent
                                 // disable coreference annotation for correction/curation pages
                                 || state.getMode().equals(CURATION))))
                 .collect(Collectors.toList());
-
-        model.codebooksPerPage = prefs.getCodebooksPerPage();
-        model.showCodebookCuration = prefs.isShowCodebookCuration();
         model.showEditor = prefs.isShowEditor();
 
         return model;
@@ -323,8 +298,6 @@ public class AnnotationPreferencesDialogContent
         private ReadonlyColoringBehaviour readonlyLayerColoringBehaviour;
         private Map<Long, ColoringStrategyType> colorPerLayer;
 
-        private int codebooksPerPage;
-        private boolean showCodebookCuration;
         private boolean showEditor;
         private boolean collapseArcs;
     }
