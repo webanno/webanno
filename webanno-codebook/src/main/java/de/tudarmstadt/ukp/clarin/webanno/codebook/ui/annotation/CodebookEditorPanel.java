@@ -261,7 +261,7 @@ public abstract class CodebookEditorPanel
         Set<CodebookNodePanel> childNodePanels = new HashSet<>();
         Map<CodebookNode, CodebookNodePanel> nodePanels = this.codebookEditorTreePanel
                 .getNodePanels();
-        Set<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
+        List<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
                 .getDescendants(node, null);
         allChildren.forEach(child -> {
         	if (null != child && null!=nodePanels.get(child) ) {

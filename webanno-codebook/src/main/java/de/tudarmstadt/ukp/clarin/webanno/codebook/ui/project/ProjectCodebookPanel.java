@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -342,7 +343,7 @@ public class ProjectCodebookPanel
             });
 
             // add Parent Selection
-            Set<Codebook> possibleParents = new HashSet<>();
+            List<Codebook> possibleParents = new ArrayList<>();
             if (aSelectedCodebook.getObject() != null) {
                 possibleParents = projectCodebookTreePanel.getProvider()
                         .getPossibleParents(aSelectedCodebook.getObject());
@@ -470,7 +471,7 @@ public class ProjectCodebookPanel
 
         /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
         {
-            Set<Codebook> possibleParents = new HashSet<>();
+            List<Codebook> possibleParents = new ArrayList<>();
             possibleParents = projectCodebookTreePanel.getProvider()
                     .getPossibleParents(currentCodebook);
             this.codebookParentSelection.updateParents(possibleParents);

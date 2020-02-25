@@ -18,11 +18,10 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CodebookTree
@@ -33,21 +32,21 @@ public class CodebookTree
 
     private Map<String, CodebookNode> nameToNodes;
     private Map<String, Codebook> nameToCodebooks;
-    private Set<CodebookNode> roots;
+    private List<CodebookNode> roots;
 
     public CodebookTree(List<Codebook> allCodebooks)
     {
 
-        this.nameToCodebooks = allCodebooks.parallelStream()
+        this.nameToCodebooks = allCodebooks.stream()
                 .collect(Collectors.toMap(Codebook::getName, o -> o));
 
-        this.nameToNodes = allCodebooks.parallelStream().map(CodebookNode::new)
+        this.nameToNodes = allCodebooks.stream().map(CodebookNode::new)
                 .collect(Collectors.toMap(CodebookNode::getName, o -> o));
 
         buildTreeStructures();
 
-        this.roots = this.nameToNodes.values().parallelStream().filter(CodebookNode::isRoot)
-                .collect(Collectors.toSet());
+        this.roots = this.nameToNodes.values().stream().filter(CodebookNode::isRoot)
+                .collect(Collectors.toList());
     }
 
     public void setParent(CodebookNode node)
@@ -79,7 +78,7 @@ public class CodebookTree
         return this.roots.iterator();
     }
 
-    public Set<CodebookNode> getRootNodes()
+    public List<CodebookNode> getRootNodes()
     {
         return this.roots;
     }
@@ -107,30 +106,30 @@ public class CodebookTree
         return nameToNodes.get(book.getName());
     }
 
-    public Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
+    public List<Codebook> getCodebooks(final List<CodebookNode> nodes)
     {
-        Set<Codebook> books = new HashSet<>();
+        List<Codebook> books = new ArrayList<>();
         for (CodebookNode node : nodes)
             books.add(this.getCodebook(node));
         return books;
     }
 
-    public Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
+    public List<CodebookNode> getCodebookNodes(final List<Codebook> books)
     {
-        Set<CodebookNode> nodes = new HashSet<>();
+        List<CodebookNode> nodes = new ArrayList<>();
         for (Codebook book : books)
             nodes.add(this.getCodebookNode(book));
         return nodes;
     }
 
-    public Set<Codebook> getChildren(final Codebook book)
+    public List<Codebook> getChildren(final Codebook book)
     {
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
     }
 
-    public Set<CodebookNode> getPrecedents(final CodebookNode node)
+    public List<CodebookNode> getPrecedents(final CodebookNode node)
     {
-        Set<CodebookNode> parents = new HashSet<>();
+        List<CodebookNode> parents = new ArrayList<>();
         CodebookNode parent = node.getParent();
         while (parent != null) {
             parents.add(parent);
@@ -139,10 +138,10 @@ public class CodebookTree
         return parents;
     }
 
-    public Set<CodebookNode> getDescendants(final CodebookNode node, Set<CodebookNode> allChildren)
+    public List<CodebookNode> getDescendants(final CodebookNode node, List<CodebookNode> allChildren)
     {
         if (allChildren == null)
-            allChildren = new HashSet<>();
+            allChildren = new ArrayList<>();
 
         for (CodebookNode child : node.getChildren()) {
             allChildren.add(child);
@@ -152,13 +151,13 @@ public class CodebookTree
         return allChildren;
     }
 
-    public Set<Codebook> getPossibleParents(final Codebook book)
+    public List<Codebook> getPossibleParents(final Codebook book)
     {
         if (book == null || book.getId() == null)
-            return new HashSet<>(this.nameToCodebooks.values());
+            return new ArrayList<>(this.nameToCodebooks.values());
 
         // all but own children
-        Set<Codebook> possibleParents = new HashSet<>(this.nameToCodebooks.values());
+        List<Codebook> possibleParents = new ArrayList<>(this.nameToCodebooks.values());
         possibleParents.removeAll(this.getChildren(book));
         return possibleParents;
     }

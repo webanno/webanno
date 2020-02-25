@@ -95,32 +95,32 @@ public class CodebookTreeProvider
         return this.tree.getCodebookNode(book);
     }
 
-    public Set<Codebook> getCodebooks(final Set<CodebookNode> nodes)
+    public List<Codebook> getCodebooks(final List<CodebookNode> nodes)
     {
         return this.tree.getCodebooks(nodes);
     }
 
-    public Set<CodebookNode> getCodebookNodes(final Set<Codebook> books)
+    public List<CodebookNode> getCodebookNodes(final List<Codebook> books)
     {
         return this.tree.getCodebookNodes(books);
     }
 
-    public Set<Codebook> getChildren(final Codebook book)
+    public List<Codebook> getChildren(final Codebook book)
     {
         return this.tree.getChildren(book);
     }
 
-    public Set<CodebookNode> getPrecedents(final CodebookNode node)
+    public List<CodebookNode> getPrecedents(final CodebookNode node)
     {
         return this.tree.getPrecedents(node);
     }
 
-    public Set<CodebookNode> getDescendants(final CodebookNode node, Set<CodebookNode> allChildren)
+    public List<CodebookNode> getDescendants(final CodebookNode node, List<CodebookNode> allChildren)
     {
         return this.tree.getDescendants(node, allChildren);
     }
 
-    public Set<Codebook> getPossibleParents(final Codebook book)
+    public List<Codebook> getPossibleParents(final Codebook book)
     {
         return this.tree.getPossibleParents(book);
     }

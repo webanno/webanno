@@ -60,7 +60,6 @@ public class ProjectCodebookTreePanel
     }
 
     @Override
-    @SuppressWarnings({ "unchecked" })
     public void initCodebookTreeProvider()
     {
         Project project = (Project) this.getDefaultModelObject();

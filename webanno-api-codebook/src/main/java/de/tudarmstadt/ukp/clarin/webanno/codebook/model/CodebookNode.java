@@ -18,9 +18,8 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.wicket.model.IDetachable;
 
 /**
@@ -41,7 +40,7 @@ public class CodebookNode
 
     private CodebookNode parent;
 
-    private Set<CodebookNode> children;
+    private List<CodebookNode> children;
 
     public CodebookNode(Codebook codebook)
     {
@@ -50,7 +49,7 @@ public class CodebookNode
         this.uiName = this.codebook.getUiName();
         this.selected = false;
         this.parent = null;
-        this.children = new HashSet<>();
+        this.children = new ArrayList<>();
     }
 
     public Codebook getCodebook()
@@ -77,7 +76,7 @@ public class CodebookNode
         this.parent = parent;
     }
 
-    public Set<CodebookNode> getChildren()
+    public List<CodebookNode> getChildren()
     {
         return children;
     }
