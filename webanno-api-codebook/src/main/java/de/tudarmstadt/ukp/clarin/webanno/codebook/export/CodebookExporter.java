@@ -240,8 +240,13 @@ public class CodebookExporter
         cb.setDescription(exCB.getDescription());
         cb.setProject(project);
 
-        if (exCB.getParent() != null)
-            cb.setParent(createCodebooksRecursively(exCB.getParent(), project, importedCodebooks));
+		if (exCB.getParent() != null) {
+			if (codebookService.existsCodebook(exCB.getParent().getName(), project)) {
+				cb.setParent(codebookService.getCodeBook(exCB.getParent().getName(), project));
+			} else {
+				cb.setParent(createCodebooksRecursively(exCB.getParent(), project, importedCodebooks));
+			}
+		}
 
         // we have to persist the codebook before importing features and tags
         codebookService.createCodebook(cb);
