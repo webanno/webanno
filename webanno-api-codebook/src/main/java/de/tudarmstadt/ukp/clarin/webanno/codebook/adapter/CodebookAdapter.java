@@ -60,19 +60,21 @@ public class CodebookAdapter
         return createAnnotation(aJCas, 0, 0);
 
     }
-    
-    // get feature Value of existing  annotation 
-    public Serializable getExistingCodeValue(CAS aJCas, CodebookFeature aFeature)
-    {
-               
-        Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
-        String value = null;
-        for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
-            value =  WebAnnoCasUtil.getFeature(fs, aFeature.getName()); 
-        }
-        
-        return value;
-    }
+
+	// get feature Value of existing annotation
+	public Serializable getExistingCodeValue(CAS aJCas, CodebookFeature aFeature) {
+		try {
+			Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
+			String value = null;
+			for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
+				value = WebAnnoCasUtil.getFeature(fs, aFeature.getName());
+			}
+			return value;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
     
     public AnnotationFS getExistingFs(CAS aJCas) {
 
