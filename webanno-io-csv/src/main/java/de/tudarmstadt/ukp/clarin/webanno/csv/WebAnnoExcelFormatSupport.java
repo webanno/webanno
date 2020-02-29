@@ -21,7 +21,7 @@ import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDe
 
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.resource.ResourceInitializationException;
-
+import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
@@ -64,8 +64,10 @@ public class WebAnnoExcelFormatSupport
     }
     
     @Override
-    public CollectionReaderDescription getReaderDescription() throws ResourceInitializationException
+    public CollectionReaderDescription getReaderDescription(TypeSystemDescription aTSD)
+        throws ResourceInitializationException
     {
+       
         return createReaderDescription(WebAnnoExcelReader.class);
     }
 }
