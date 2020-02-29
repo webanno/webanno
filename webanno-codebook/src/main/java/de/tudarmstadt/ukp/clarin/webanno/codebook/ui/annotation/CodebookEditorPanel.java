@@ -52,12 +52,10 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 
-public abstract class CodebookEditorPanel
-    extends Panel
-{
+public abstract class CodebookEditorPanel extends Panel {
     /**
-     * Function to return tooltip using jquery Docs for the JQuery tooltip widget that we configure
-     * below: https://api.jqueryui.com/tooltip/
+     * Function to return tooltip using jquery Docs for the JQuery tooltip widget
+     * that we configure below: https://api.jqueryui.com/tooltip/
      */
     protected static final String FUNCTION_FOR_TOOLTIP = "function() { return "
             + "'<div class=\"tooltip-title\">'+($(this).text() "
@@ -78,8 +76,7 @@ public abstract class CodebookEditorPanel
 
     private CodebookEditorTreePanel codebookEditorTreePanel;
 
-    public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel)
-    {
+    public CodebookEditorPanel(String id, IModel<CodebookEditorModel> aModel) {
         super(id, aModel);
 
         setOutputMarkupId(true);
@@ -94,20 +91,17 @@ public abstract class CodebookEditorPanel
         add(codebookEditorTreePanel);
     }
 
-    public CodebookEditorModel getModelObject()
-    {
+    public CodebookEditorModel getModelObject() {
         return (CodebookEditorModel) getDefaultModelObject();
     }
 
-    public String getExistingCode(Codebook codebook)
-    {
+    public String getExistingCode(Codebook codebook) {
         CodebookAdapter adapter = new CodebookAdapter(codebook);
         CodebookFeature feature = codebookService.listCodebookFeature(codebook).get(0);
         CAS cas = null;
         try {
             cas = getCodebookCas();
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             // TODO why it is here??
         }
 
@@ -115,15 +109,12 @@ public abstract class CodebookEditorPanel
     }
 
     public AjaxFormComponentUpdatingBehavior createOnChangeSaveUpdatingBehavior(
-            ComboBox<CodebookTag> comboBox, Codebook codebook, CodebookFeature feature)
-    {
-        return new AjaxFormComponentUpdatingBehavior("change")
-        {
+            ComboBox<CodebookTag> comboBox, Codebook codebook, CodebookFeature feature) {
+        return new AjaxFormComponentUpdatingBehavior("change") {
             private static final long serialVersionUID = 5179816588460867471L;
 
             @Override
-            public void onUpdate(AjaxRequestTarget aTarget)
-            {
+            public void onUpdate(AjaxRequestTarget aTarget) {
                 try { // to persist the changes made to the codebook
                     CAS jcas = getCodebookCas();
                     if (comboBox.getModelObject() == null) {
@@ -131,18 +122,17 @@ public abstract class CodebookEditorPanel
                         CodebookAdapter adapter = new CodebookAdapter(codebook);
                         adapter.delete(jcas, feature);
                         writeCodebookCas(jcas);
-                    }
-                    else {
+                    } else {
                         CodebookEditorModel state = CodebookEditorPanel.this.getModelObject();
                         state.getCodebookFeatureStates()
                                 .add(new CodebookFeatureState(feature, comboBox.getModelObject()));
                         saveCodebookAnnotation(feature, jcas);
                     }
-                }
-                catch (IOException | AnnotationException e) {
+                } catch (IOException | AnnotationException e) {
                     error("Unable to update" + e.getMessage());
                 }
-                // update the tag selection combo boxes of the child nodes so that they offer only
+                // update the tag selection combo boxes of the child nodes so that they offer
+                // only
                 // the valid tags based on the currently selected tag..
 
                 // fist clear the child combo boxes selections // TODO only for invalid?!
@@ -161,8 +151,7 @@ public abstract class CodebookEditorPanel
         };
     }
 
-    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState)
-    {
+    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState) {
         codebookEditorModel = aState;
         setDefaultModelObject(codebookEditorModel);
 
@@ -173,8 +162,7 @@ public abstract class CodebookEditorPanel
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)
-        throws AnnotationException, IOException
-    {
+            throws AnnotationException, IOException {
         CodebookAdapter adapter = new CodebookAdapter(aCodebookFeature.getCodebook());
         writeCodebookFeatureModelsToCas(adapter, aJCas);
 
@@ -184,18 +172,17 @@ public abstract class CodebookEditorPanel
     }
 
     private void writeCodebookFeatureModelsToCas(CodebookAdapter aAdapter, CAS aJCas)
-        throws IOException, AnnotationException
-    {
+            throws IOException, AnnotationException {
         CodebookEditorModel state = getModelObject();
         List<CodebookFeatureState> featureStates = state.getCodebookFeatureStates();
 
         for (CodebookFeatureState featureState : featureStates) {
 
             /*
-             * TODO how to translate this to codebooks since there are no categories anymore // For
-             * string features with extensible tagsets, extend the tagset if
-             * (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) { String value =
-             * (String) featureState.value;
+             * TODO how to translate this to codebooks since there are no categories anymore
+             * // For string features with extensible tagsets, extend the tagset if
+             * (CAS.TYPE_NAME_STRING.equals(featureState.feature.getType())) { String value
+             * = (String) featureState.value;
              * 
              * if (value != null && featureState.feature.getCategory() != null &&
              * featureState.feature.getCategory().isCreateTag() && !codebookService
@@ -213,16 +200,14 @@ public abstract class CodebookEditorPanel
 
             if (existingFs != null) {
                 annoId = getAddr(existingFs);
-            }
-            else {
+            } else {
                 annoId = aAdapter.add(aJCas);
             }
             aAdapter.setFeatureValue(aJCas, featureState.feature, annoId, featureState.value);
         }
     }
 
-    private CAS getCodebookCas() throws IOException
-    {
+    private CAS getCodebookCas() throws IOException {
         CodebookEditorModel state = getModelObject();
 
         if (state.getDocument() == null) {
@@ -231,8 +216,7 @@ public abstract class CodebookEditorPanel
         return (onGetJCas());
     }
 
-    private void writeCodebookCas(CAS aJCas) throws IOException
-    {
+    private void writeCodebookCas(CAS aJCas) throws IOException {
 
         CodebookEditorModel state = getModelObject();
         documentService.writeAnnotationCas(aJCas, state.getDocument(), state.getUser(), true);
@@ -246,27 +230,24 @@ public abstract class CodebookEditorPanel
     }
 
     // package private by intention
-    Map<CodebookNode, CodebookNodePanel> getNodePanels()
-    {
+    Map<CodebookNode, CodebookNodePanel> getNodePanels() {
         return this.codebookEditorTreePanel.getNodePanels();
     }
 
-    public CodebookNodePanel getParentNodePanel(CodebookNode node)
-    {
+    public CodebookNodePanel getParentNodePanel(CodebookNode node) {
         return this.codebookEditorTreePanel.getNodePanels().get(node.getParent());
     }
 
-    private Set<CodebookNodePanel> getChildNodePanels(CodebookNode node)
-    {
+    private Set<CodebookNodePanel> getChildNodePanels(CodebookNode node) {
         Set<CodebookNodePanel> childNodePanels = new HashSet<>();
         Map<CodebookNode, CodebookNodePanel> nodePanels = this.codebookEditorTreePanel
                 .getNodePanels();
         List<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
                 .getDescendants(node, null);
         allChildren.forEach(child -> {
-        	if (null != child && null!=nodePanels.get(child) ) {
-        		childNodePanels.add(nodePanels.get(child));
-        	}
+            if (null != child && null != nodePanels.get(child)) {
+                childNodePanels.add(nodePanels.get(child));
+            }
         });
         return childNodePanels;
     }

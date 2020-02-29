@@ -27,47 +27,39 @@ import org.springframework.stereotype.Component;
 import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
 
 @Component
-public class WebAnnoExcelFormatSupport
-    implements FormatSupport
-{
+public class WebAnnoExcelFormatSupport implements FormatSupport {
     public static final String ID = "excel";
     public static final String NAME = "WebAnno Excel- Multiple documents (name,content)";
-    
+
     @Override
-    public String getId()
-    {
+    public String getId() {
         return ID;
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return NAME;
     }
 
     @Override
-    public boolean isReadable()
-    {
+    public boolean isReadable() {
         return true;
     }
 
     @Override
-    public boolean isWritable()
-    {
+    public boolean isWritable() {
         return false;
     }
-    
+
     @Override
-    public boolean isDocumentLevel()
-    {
+    public boolean isDocumentLevel() {
         return true;
     }
-    
+
     @Override
     public CollectionReaderDescription getReaderDescription(TypeSystemDescription aTSD)
-        throws ResourceInitializationException
-    {
-       
+            throws ResourceInitializationException {
+
         return createReaderDescription(WebAnnoExcelReader.class);
     }
 }

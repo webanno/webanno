@@ -37,9 +37,7 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
 
-public class CodebookNodePanel
-    extends Panel
-{
+public class CodebookNodePanel extends Panel {
     private static final long serialVersionUID = 5875644822389693657L;
 
     private CodebookTagSelectionComboBox tagSelectionComboBox;
@@ -48,8 +46,8 @@ public class CodebookNodePanel
     private Form<CodebookTag> tagSelectionForm;
     private CodebookNode node;
 
-    public CodebookNodePanel(String id, IModel<CodebookNode> node, CodebookEditorPanel parentEditor)
-    {
+    public CodebookNodePanel(String id, IModel<CodebookNode> node,
+            CodebookEditorPanel parentEditor) {
         super(id, new CompoundPropertyModel<>(node));
 
         this.node = node.getObject();
@@ -75,8 +73,7 @@ public class CodebookNodePanel
         this.add(this.tagSelectionForm);
     }
 
-    private CodebookTagSelectionComboBox createTagSelectionComboBox()
-    {
+    private CodebookTagSelectionComboBox createTagSelectionComboBox() {
 
         List<CodebookTag> tagChoices = this.getPossibleTagChoices();
         String existingCode = this.parentEditor.getExistingCode(this.node.getCodebook());
@@ -92,8 +89,7 @@ public class CodebookNodePanel
         return tagSelection;
     }
 
-    private List<CodebookTag> getPossibleTagChoices()
-    {
+    private List<CodebookTag> getPossibleTagChoices() {
 
         // get the possible tag choices for the current node
         CodebookNodePanel parentPanel = this.parentEditor.getNodePanels()
@@ -115,45 +111,39 @@ public class CodebookNodePanel
         return validTags;
     }
 
-    public CodebookTag getCurrentlySelectedTag()
-    {
+    public CodebookTag getCurrentlySelectedTag() {
         String tagString = this.tagSelectionComboBox.getModelObject();
         if (tagString == null || tagString.isEmpty())
             return null;
         List<CodebookTag> tags = codebookService.listTags(this.node.getCodebook());
         Set<CodebookTag> tag = tags.stream().filter(t -> t.getName().equals(tagString))
                 .collect(Collectors.toSet());
-       // assert tag.size() == 1; // TODO what to throw?
+        // assert tag.size() == 1; // TODO what to throw?
         if (tag.size() < 1) {
-        	return null;
+            return null;
         }
         return tag.iterator().next();
     }
 
     // package private by intention
-    void clearSelection()
-    {
+    void clearSelection() {
         this.tagSelectionComboBox.setModelObject(null);
     }
 
     // package private by intention
-    void updateTagSelectionCombobox()
-    {
+    void updateTagSelectionCombobox() {
         this.tagSelectionForm.addOrReplace(createTagSelectionComboBox());
     }
 
-    public CodebookSchemaService getCodebookService()
-    {
+    public CodebookSchemaService getCodebookService() {
         return codebookService;
     }
 
-    public CodebookEditorPanel getParentEditor()
-    {
+    public CodebookEditorPanel getParentEditor() {
         return parentEditor;
     }
 
-    public CodebookNode getNode()
-    {
+    public CodebookNode getNode() {
         return node;
     }
 }

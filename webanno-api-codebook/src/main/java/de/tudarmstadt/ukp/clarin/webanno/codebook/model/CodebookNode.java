@@ -20,15 +20,14 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.wicket.model.IDetachable;
 
 /**
- * This is only a wrapper class that represents a {@link Codebook} in a tree and eases the inter-
- * action with the tree.
+ * This is only a wrapper class that represents a {@link Codebook} in a tree and
+ * eases the inter- action with the tree.
  */
-public class CodebookNode
-    implements Serializable, IDetachable
-{
+public class CodebookNode implements Serializable, IDetachable {
     private static final long serialVersionUID = 7317710381928186621L;
 
     private Codebook codebook;
@@ -42,8 +41,7 @@ public class CodebookNode
 
     private List<CodebookNode> children;
 
-    public CodebookNode(Codebook codebook)
-    {
+    public CodebookNode(Codebook codebook) {
         this.codebook = codebook;
         this.name = this.codebook.getName();
         this.uiName = this.codebook.getUiName();
@@ -52,23 +50,19 @@ public class CodebookNode
         this.children = new ArrayList<>();
     }
 
-    public Codebook getCodebook()
-    {
+    public Codebook getCodebook() {
         return codebook;
     }
 
-    public void setCodebook(Codebook codebook)
-    {
+    public void setCodebook(Codebook codebook) {
         this.codebook = codebook;
     }
 
-    public CodebookNode getParent()
-    {
+    public CodebookNode getParent() {
         return parent;
     }
 
-    public void setParent(CodebookNode parent)
-    {
+    public void setParent(CodebookNode parent) {
         if (this.children.contains(parent)) {
             // FIXME what to throw?
             return;
@@ -76,64 +70,52 @@ public class CodebookNode
         this.parent = parent;
     }
 
-    public List<CodebookNode> getChildren()
-    {
+    public List<CodebookNode> getChildren() {
         return children;
     }
 
-    public boolean isRoot()
-    {
+    public boolean isRoot() {
         return parent == null;
     }
 
-    public boolean isLeaf()
-    {
+    public boolean isLeaf() {
         return this.children == null || this.children.isEmpty();
     }
 
-    public void addChild(CodebookNode child)
-    {
+    public void addChild(CodebookNode child) {
         this.children.add(child);
     }
 
-    public Long getId()
-    {
+    public Long getId() {
         return this.codebook.getId();
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getUiName()
-    {
+    public String getUiName() {
         return uiName;
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         return selected;
     }
 
-    public void setSelected(boolean selected)
-    {
+    public void setSelected(boolean selected) {
         this.selected = selected;
     }
 
     @Override
-    public void detach()
-    {
+    public void detach() {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return uiName;
     }
 

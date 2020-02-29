@@ -31,54 +31,45 @@ import de.tudarmstadt.ukp.clarin.webanno.api.format.FormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 @Component
-public class WebAnnoCsvFormatSupport
-    implements FormatSupport
-{
+public class WebAnnoCsvFormatSupport implements FormatSupport {
     public static final String ID = "csv";
     public static final String NAME = "WebAnno CSV (Codebook annotations)";
-    
+
     @Override
-    public String getId()
-    {
+    public String getId() {
         return ID;
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return NAME;
     }
 
     @Override
-    public boolean isReadable()
-    {
+    public boolean isReadable() {
         return true;
     }
 
     @Override
-    public boolean isWritable()
-    {
+    public boolean isWritable() {
         return true;
     }
-    
+
     @Override
-    public boolean isDocumentLevel()
-    {
+    public boolean isDocumentLevel() {
         return true;
     }
+
     @Override
     public AnalysisEngineDescription getWriterDescription(Project aProject,
-            TypeSystemDescription aTSD, CAS aCAS)
-        throws ResourceInitializationException
-    {
+            TypeSystemDescription aTSD, CAS aCAS) throws ResourceInitializationException {
         return createEngineDescription(WebannoCsvWriter.class);
     }
-    
+
     @Override
     public CollectionReaderDescription getReaderDescription(TypeSystemDescription aTSD)
-        throws ResourceInitializationException
-    {
-       
+            throws ResourceInitializationException {
+
         return createReaderDescription(WebAnnoCsvReader.class);
     }
 }

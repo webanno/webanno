@@ -38,44 +38,45 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 /**
  * A class that is used to create Brat Span to CAS and vice-versa.
  */
-public class CodebookAdapter
-{   
-     
+public class CodebookAdapter {
+
     private Codebook codebook;
 
     public CodebookAdapter(Codebook aCodebook) {
         this.codebook = aCodebook;
     }
+
     /**
-         * Add new codebook annotation into the CAS and return the the id of the annotation
-        *
-        * @param aJCas
-        *            the JCas.
-        * @return the ID.
-        * @throws AnnotationException
-        *             if the annotation cannot be created/updated.
-        */
+     * Add new codebook annotation into the CAS and return the the id of the
+     * annotation
+     *
+     * @param aJCas
+     *            the JCas.
+     * @return the ID.
+     * @throws AnnotationException
+     *             if the annotation cannot be created/updated.
+     */
     public Integer add(CAS aJCas) throws AnnotationException {
 
         return createAnnotation(aJCas, 0, 0);
 
     }
 
-	// get feature Value of existing annotation
-	public Serializable getExistingCodeValue(CAS aJCas, CodebookFeature aFeature) {
-		try {
-			Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
-			String value = null;
-			for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
-				value = WebAnnoCasUtil.getFeature(fs, aFeature.getName());
-			}
-			return value;
-		} catch (Exception e) {
-			return null;
-		}
+    // get feature Value of existing annotation
+    public Serializable getExistingCodeValue(CAS aJCas, CodebookFeature aFeature) {
+        try {
+            Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
+            String value = null;
+            for (AnnotationFS fs : CasUtil.selectCovered(aJCas, type, 0, 0)) {
+                value = WebAnnoCasUtil.getFeature(fs, aFeature.getName());
+            }
+            return value;
+        } catch (Exception e) {
+            return null;
+        }
 
-	}
-    
+    }
+
     public AnnotationFS getExistingFs(CAS aJCas) {
 
         Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
@@ -90,21 +91,16 @@ public class CodebookAdapter
     /**
      * A Helper method to add annotation to CAS
      */
-    private Integer createAnnotation(CAS aCas, int aBegin, int aEnd)
-        throws AnnotationException
-    {
+    private Integer createAnnotation(CAS aCas, int aBegin, int aEnd) throws AnnotationException {
         Type type = CasUtil.getType(aCas, getAnnotationTypeName());
-        
+
         AnnotationFS newAnnotation = aCas.createAnnotation(type, aBegin, aEnd);
-       
+
         aCas.addFsToIndexes(newAnnotation);
-        
-        
+
         return getAddr(newAnnotation);
     }
 
-
-    
     public void delete(CAS aJCas, CodebookFeature aFeature) {
 
         Type type = CasUtil.getType(aJCas, getAnnotationTypeName());
@@ -113,14 +109,11 @@ public class CodebookAdapter
         }
     }
 
-    public long getTypeId()
-    {
+    public long getTypeId() {
         return codebook.getId();
     }
 
-
-    public Type getAnnotationType(CAS cas)
-    {
+    public Type getAnnotationType(CAS cas) {
         return CasUtil.getType(cas, getAnnotationTypeName());
     }
 
@@ -128,38 +121,31 @@ public class CodebookAdapter
      * The UIMA type name.
      */
 
-    public String getAnnotationTypeName()
-    {
+    public String getAnnotationTypeName() {
         return codebook.getName();
     }
 
-    
-/*    *//**
-     * The features defined for a given {@link Codebook}. Currently it has a single
-     * feature
-     * 
-     * @return
-     *//*
-    public Collection<CodebookFeature> listCodebookFeatures() {
+    /*    *//**
+             * The features defined for a given {@link Codebook}. Currently it has a single
+             * feature
+             * 
+             * @return
+             *//*
+                * public Collection<CodebookFeature> listCodebookFeatures() {
+                * 
+                * return null; }
+                */
 
-        return null;
-    }
-*/
-
-    
-    public void setFeatureValue(CAS aJcas, CodebookFeature aFeature, int aAddress,
-            Object aValue)
-    {
+    public void setFeatureValue(CAS aJcas, CodebookFeature aFeature, int aAddress, Object aValue) {
         FeatureStructure fs = selectByAddr(aJcas, AnnotationFS.class, aAddress);
         setFeature(fs, aFeature, aValue);
     }
-  
-    public static void setFeature(FeatureStructure aFS, CodebookFeature aFeature, Object aValue)
-    {
+
+    public static void setFeature(FeatureStructure aFS, CodebookFeature aFeature, Object aValue) {
         if (aFeature == null) {
             return;
         }
         Feature feature = aFS.getType().getFeatureByBaseName(aFeature.getName());
-        aFS.setStringValue(feature,  aValue.toString());
+        aFS.setStringValue(feature, aValue.toString());
     }
 }

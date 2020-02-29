@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CodebookTree
-    implements Serializable
-{
+public class CodebookTree implements Serializable {
 
     private static final long serialVersionUID = 7312208573006457875L;
 
@@ -34,8 +32,7 @@ public class CodebookTree
     private Map<String, Codebook> nameToCodebooks;
     private List<CodebookNode> roots;
 
-    public CodebookTree(List<Codebook> allCodebooks)
-    {
+    public CodebookTree(List<Codebook> allCodebooks) {
 
         this.nameToCodebooks = allCodebooks.stream()
                 .collect(Collectors.toMap(Codebook::getName, o -> o));
@@ -49,16 +46,14 @@ public class CodebookTree
                 .collect(Collectors.toList());
     }
 
-    public void setParent(CodebookNode node)
-    {
+    public void setParent(CodebookNode node) {
         Codebook book = this.nameToCodebooks.get(node.getName());
         if (book.getParent() == null)
             return;
         node.setParent(this.nameToNodes.get(book.getParent().getName()));
     }
 
-    private void buildTreeStructures()
-    {
+    private void buildTreeStructures() {
         for (CodebookNode node : this.nameToNodes.values()) {
             this.setParent(node);
             if (node.getParent() != null)
@@ -66,69 +61,58 @@ public class CodebookTree
         }
     }
 
-    public void addChildrenRecursively(CodebookNode parent, CodebookNode child)
-    {
+    public void addChildrenRecursively(CodebookNode parent, CodebookNode child) {
         parent.addChild(child);
         if (!parent.isRoot())
             this.addChildrenRecursively(parent.getParent(), parent);
     }
 
-    public Iterator<CodebookNode> getRoots()
-    {
+    public Iterator<CodebookNode> getRoots() {
         return this.roots.iterator();
     }
 
-    public List<CodebookNode> getRootNodes()
-    {
+    public List<CodebookNode> getRootNodes() {
         return this.roots;
     }
 
-    public boolean hasChildren(CodebookNode node)
-    {
+    public boolean hasChildren(CodebookNode node) {
         return !node.isLeaf();
     }
 
-    public Iterator<CodebookNode> getChildren(final CodebookNode node)
-    {
+    public Iterator<CodebookNode> getChildren(final CodebookNode node) {
         return node.getChildren().iterator();
     }
 
     /*
      * Mapping functions between CodebookNodes and Codebooks and vice versa
      */
-    public Codebook getCodebook(final CodebookNode node)
-    {
+    public Codebook getCodebook(final CodebookNode node) {
         return nameToCodebooks.get(node.getName());
     }
 
-    public CodebookNode getCodebookNode(final Codebook book)
-    {
+    public CodebookNode getCodebookNode(final Codebook book) {
         return nameToNodes.get(book.getName());
     }
 
-    public List<Codebook> getCodebooks(final List<CodebookNode> nodes)
-    {
+    public List<Codebook> getCodebooks(final List<CodebookNode> nodes) {
         List<Codebook> books = new ArrayList<>();
         for (CodebookNode node : nodes)
             books.add(this.getCodebook(node));
         return books;
     }
 
-    public List<CodebookNode> getCodebookNodes(final List<Codebook> books)
-    {
+    public List<CodebookNode> getCodebookNodes(final List<Codebook> books) {
         List<CodebookNode> nodes = new ArrayList<>();
         for (Codebook book : books)
             nodes.add(this.getCodebookNode(book));
         return nodes;
     }
 
-    public List<Codebook> getChildren(final Codebook book)
-    {
+    public List<Codebook> getChildren(final Codebook book) {
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
     }
 
-    public List<CodebookNode> getPrecedents(final CodebookNode node)
-    {
+    public List<CodebookNode> getPrecedents(final CodebookNode node) {
         List<CodebookNode> parents = new ArrayList<>();
         CodebookNode parent = node.getParent();
         while (parent != null) {
@@ -138,8 +122,8 @@ public class CodebookTree
         return parents;
     }
 
-    public List<CodebookNode> getDescendants(final CodebookNode node, List<CodebookNode> allChildren)
-    {
+    public List<CodebookNode> getDescendants(final CodebookNode node,
+            List<CodebookNode> allChildren) {
         if (allChildren == null)
             allChildren = new ArrayList<>();
 
@@ -151,8 +135,7 @@ public class CodebookTree
         return allChildren;
     }
 
-    public List<Codebook> getPossibleParents(final Codebook book)
-    {
+    public List<Codebook> getPossibleParents(final Codebook book) {
         if (book == null || book.getId() == null)
             return new ArrayList<>(this.nameToCodebooks.values());
 
@@ -162,13 +145,11 @@ public class CodebookTree
         return possibleParents;
     }
 
-    public CodebookNode getCodebookNode(String id)
-    {
+    public CodebookNode getCodebookNode(String id) {
         return findCodebookNodeRecursively(roots, id);
     }
 
-    private CodebookNode findCodebookNodeRecursively(Iterable<CodebookNode> nodes, String id)
-    {
+    private CodebookNode findCodebookNodeRecursively(Iterable<CodebookNode> nodes, String id) {
         for (CodebookNode node : nodes) {
             if (node.getId().equals(id)) {
                 return node;
