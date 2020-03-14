@@ -363,11 +363,11 @@ public class CurationPage
         // sentences outside of the current page
         crossSentAnnoView = new WebMarkupContainer("crossSentAnnoView");
         crossSentAnnoView.setOutputMarkupPlaceholderTag(true);
-        crossSentAnnoView.add(visibleWhen(
-            () -> getModelObject() != null && getModelObject().getDocument() != null));
         centerArea.add(crossSentAnnoView);
-        crossSentAnnoList = new ListView<String>("crossSentAnnoList",
-                this::invisibleCrossSentenceAnnotations)
+        
+        IModel<List<String>> crossSentenceAnnotations = LoadableDetachableModel.of(
+                this::invisibleCrossSentenceAnnotations);
+        crossSentAnnoList = new ListView<String>("crossSentAnnoList", crossSentenceAnnotations)
         {
             private static final long serialVersionUID = 8539162089561432091L;
 
@@ -394,6 +394,9 @@ public class CurationPage
             }
 
         };
+        crossSentAnnoView.add(visibleWhen(() -> getModelObject() != null && 
+                getModelObject().getDocument() != null && 
+                !crossSentenceAnnotations.getObject().isEmpty()));
         crossSentAnnoView.add(crossSentAnnoList);
 
         // add container for sentences panel

@@ -156,6 +156,13 @@ public class AutomationPage
 
         setModel(Model.of(new AnnotatorStateImpl(Mode.AUTOMATION)));
 
+        WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
+        // Override sidebar width from preferencesa
+        rightSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
+                .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
+        rightSidebar.setOutputMarkupId(true);
+        add(rightSidebar);
+
         centerArea = new WebMarkupContainer("centerArea");
         centerArea.add(visibleWhen(() -> getModelObject().getDocument() != null));
         centerArea.setOutputMarkupPlaceholderTag(true);
@@ -170,6 +177,8 @@ public class AutomationPage
         actionBar.add(new AnnotatorWorkflowActionBarItemGroup("workflowActions", this));
         centerArea.add(actionBar);
 
+        rightSidebar.add(detailEditor = createDetailEditor());
+
         annotationEditor = new BratAnnotationEditor("mergeView", getModel(), detailEditor,
                 this::getEditorCas);
         centerArea.add(annotationEditor);
@@ -183,13 +192,6 @@ public class AutomationPage
                 .add(visibleWhen(() -> getModelObject().getDocument() != null))
                 .add(LambdaBehavior.onEvent(RenderAnnotationsEvent.class,
                     (c, e) -> e.getRequestHandler().add(c))));
-
-        WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
-        // Override sidebar width from preferencesa
-        rightSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
-                .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
-        rightSidebar.setOutputMarkupId(true);
-        add(rightSidebar);
 
         List<UserAnnotationSegment> segments = new LinkedList<>();
         UserAnnotationSegment userAnnotationSegment = new UserAnnotationSegment();
@@ -228,8 +230,6 @@ public class AutomationPage
             }
         };
         centerArea.add(suggestionView);
-
-        rightSidebar.add(detailEditor = createDetailEditor());
 
         curationContainer = new CurationContainer();
         curationContainer.setState(getModelObject());
@@ -425,8 +425,8 @@ public class AutomationPage
     @Override
     public void writeEditorCas(CAS aCas) throws IOException, AnnotationException
     {
-        ensureIsEditable(); 
-        
+        ensureIsEditable();
+
         AnnotatorState state = getModelObject();
         documentService.writeAnnotationCas(aCas, state.getDocument(), state.getUser(), true);
 

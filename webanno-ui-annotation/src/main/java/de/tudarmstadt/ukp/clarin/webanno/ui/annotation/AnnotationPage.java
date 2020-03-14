@@ -205,10 +205,11 @@ public class AnnotationPage extends AnnotationPageBase {
         actionBar.add(new AnnotatorWorkflowActionBarItemGroup("workflowActions", this));
         centerArea.add(actionBar);
 
-        createAnnotationEditor(null);
+
         rightSidebar = createRightSidebar();
         add(rightSidebar);
-        
+        createAnnotationEditor(null);
+
         leftSidebar = createLeftSidebar();
         add(leftSidebar);
     }
@@ -743,7 +744,7 @@ public class AnnotationPage extends AnnotationPageBase {
             super.loadPreferences();
         }
     }
-    
+
     private CodebookEditorModel getCodebookEditorModel() {
         CodebookEditorModel model = new CodebookEditorModel();
         model.setDocument(getModelObject().getDocument());
@@ -751,7 +752,7 @@ public class AnnotationPage extends AnnotationPageBase {
         model.setProject(getModelObject().getProject());
         return model;
     }
-    
+
     public WebMarkupContainer getCodebookPanel() {
         return codebookPanel;
     }

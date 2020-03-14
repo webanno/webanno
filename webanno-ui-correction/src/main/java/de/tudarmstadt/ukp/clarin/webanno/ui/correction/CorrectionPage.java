@@ -151,6 +151,15 @@ public class CorrectionPage
 
         setModel(Model.of(new AnnotatorStateImpl(Mode.CORRECTION)));
 
+        WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
+        // Override sidebar width from preferences
+        rightSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
+                .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
+        rightSidebar.setOutputMarkupId(true);
+        add(rightSidebar);
+
+        rightSidebar.add(detailEditor = createDetailEditor());
+
         centerArea = new WebMarkupContainer("centerArea");
         centerArea.add(visibleWhen(() -> getModelObject().getDocument() != null));
         centerArea.setOutputMarkupPlaceholderTag(true);
@@ -205,13 +214,6 @@ public class CorrectionPage
                 .add(LambdaBehavior.onEvent(RenderAnnotationsEvent.class,
                     (c, e) -> e.getRequestHandler().add(c))));
 
-        WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
-        // Override sidebar width from preferences
-        rightSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
-                .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
-        rightSidebar.setOutputMarkupId(true);
-        add(rightSidebar);
-
         List<UserAnnotationSegment> segments = new LinkedList<>();
         UserAnnotationSegment userAnnotationSegment = new UserAnnotationSegment();
         if (getModelObject().getDocument() != null) {
@@ -255,8 +257,6 @@ public class CorrectionPage
             }
         };
         centerArea.add(suggestionView);
-
-        rightSidebar.add(detailEditor = createDetailEditor());
 
         curationContainer = new CurationContainer();
         curationContainer.setState(getModelObject());
@@ -364,8 +364,8 @@ public class CorrectionPage
     @Override
     public void writeEditorCas(CAS aCas) throws IOException, AnnotationException
     {
-        ensureIsEditable(); 
-        
+        ensureIsEditable();
+
         AnnotatorState state = getModelObject();
         documentService.writeAnnotationCas(aCas, state.getDocument(), state.getUser(), true);
 
