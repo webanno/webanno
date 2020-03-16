@@ -265,9 +265,15 @@ public class CodebookCurationNodePanel
         if (tagString == null || tagString.isEmpty())
             return null;
         List<CodebookTag> tags = codebookService.listTags(this.node.getCodebook());
-        Set<CodebookTag> tag = tags.stream().filter(t -> t.getName().equals(tagString))
+        Set<CodebookTag> tag = tags.stream().filter(t -> {
+          return  t.getName().equals(tagString);
+            
+        })
                 .collect(Collectors.toSet());
         assert tag.size() == 1; // TODO what to throw?
+        if (tag.size() == 0) {
+            return null;
+        }
         return tag.iterator().next();
     }
 

@@ -51,7 +51,6 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationModel;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
@@ -224,7 +223,8 @@ public class CodebookSuggestionPanel
     private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases)
     {
         DiffResult diff = CodebookDiff.doCodebookDiff(codebookService, codebook.getProject(),
-                CurationUtil.getCodebookTypes(jCases.get(CurationUtil.CURATION_USER), types), null,
+               // CurationUtil.getCodebookTypes(jCases.get(CurationUtil.CURATION_USER), types),
+                null,
                 jCases, 0, 0);
         if (diff.getIncompleteConfigurationSets().size() > 0) {
             return true;

@@ -43,7 +43,6 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.IFeedback;
@@ -82,7 +81,6 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookCasMerge;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.tree.CodebookCurationTreePanel;
 import de.tudarmstadt.ukp.clarin.webanno.constraints.ConstraintsService;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
@@ -490,11 +488,12 @@ public class CodebookCurationPage
 
         try (StopWatch watch = new StopWatch(LOG, "CasMerge (codebook)")) {
             // codebook types
-            List<Type> entryTypes = CurationUtil.getCodebookTypes(mergeCas,
-                    codebookService.listCodebook(aState.getProject()));
+        //    List<Type> entryTypes = CurationUtil.getCodebookTypes(mergeCas,
+         //           codebookService.listCodebook(aState.getProject()));
             // codebook cas diff
             CasDiff.DiffResult diff = CodebookDiff.doCodebookDiff(codebookService,
-                    aState.getProject(), entryTypes, null, aCasses, 0, 0);
+                    aState.getProject(),// entryTypes, 
+                    null, aCasses, 0, 0);
 
             // cas merge
             CodebookCasMerge casMerge = new CodebookCasMerge(codebookService);

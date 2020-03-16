@@ -154,10 +154,10 @@ public class ProjectCodebookPanel
 
         // import form
         importCodebookForm = new ImportCodebookForm("importCodebookForm");
-        add(importCodebookForm);
+        codebookSelectionForm.add(importCodebookForm);
 
         // export panel
-        add(new ExportCodebooksForm());
+        codebookSelectionForm.add(new ExportCodebooksForm());
 
         // add and init tree
         projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",

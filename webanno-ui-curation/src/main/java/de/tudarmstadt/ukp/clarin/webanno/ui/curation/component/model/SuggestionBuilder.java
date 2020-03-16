@@ -62,8 +62,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookCasMerge;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookDiff;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.CurationUtil;
-import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.Configuration;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.ConfigurationSet;
 import de.tudarmstadt.ukp.clarin.webanno.curation.casdiff.CasDiff.DiffResult;
@@ -556,9 +554,9 @@ public class SuggestionBuilder
         }
 
         try (StopWatch watch = new StopWatch(log, "CasMerge (codebook)")) {
-            entryTypes = CurationUtil.getCodebookTypes(mergeCas,
-                    codebookService.listCodebook(aState.getProject()));
-            diff = CodebookDiff.doCodebookDiff(codebookService, aState.getProject(), entryTypes,
+           // entryTypes = CurationUtil.getCodebookTypes(mergeCas,
+           //         codebookService.listCodebook(aState.getProject()));
+            diff = CodebookDiff.doCodebookDiff(codebookService, aState.getProject(),// entryTypes,
                     null, aCasses, 0, 0);
             CodebookCasMerge casMerge = new CodebookCasMerge(codebookService);
             casMerge.setMergeIncompleteAnnotations(aMergeIncompleteAnnotations);
