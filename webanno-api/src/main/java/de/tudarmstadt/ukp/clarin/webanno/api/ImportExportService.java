@@ -20,9 +20,11 @@ package de.tudarmstadt.ukp.clarin.webanno.api;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
@@ -141,6 +143,17 @@ public interface ImportExportService
         throws IOException, UIMAException;
 
     /**
+     * Exports the given CAS to a file on disk.
+     *
+     * A new directory is created using UUID so that every exported file will reside in its own
+     * directory. This is useful as the written file can have multiple extensions based on the
+     * Writer class used.
+     */
+    File exportCasToFile(CAS cas, SourceDocument aDocument, String aFileName, FormatSupport aFormat,
+            boolean aStripExtension, Map<Pair<Project, String>, Object> aBulkOperationContext)
+        throws IOException, UIMAException;
+
+    /**
      * Exports an {@link AnnotationDocument } CAS Object as TCF/TXT/XMI... file formats.
      *
      * @param document
@@ -172,4 +185,8 @@ public interface ImportExportService
 
     File exportCodebookDocument(SourceDocument document, String user, Project project, Mode mode)
         throws IOException, UIMAException, ClassNotFoundException;
+    File exportAnnotationDocument(SourceDocument document, String user, FormatSupport aFormat,
+            String fileName, Mode mode, boolean stripExtension,
+            Map<Pair<Project, String>, Object> aBulkOperationContext)
+        throws UIMAException, IOException, ClassNotFoundException;
 }

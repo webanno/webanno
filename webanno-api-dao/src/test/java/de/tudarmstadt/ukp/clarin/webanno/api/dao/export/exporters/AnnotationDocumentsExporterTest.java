@@ -56,6 +56,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectImportRequest;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedProject;
+import de.tudarmstadt.ukp.clarin.webanno.export.model.ExportedSourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiFormatSupport;
@@ -106,21 +107,15 @@ public class AnnotationDocumentsExporterTest
 
         // documentService.getCasFile() is just a stupid wrapper around storageService.getCasFile()
         // and it is easiest we emulate it here
-        when(documentService.getCasFile(any(), any())).thenAnswer(invocation -> {
-            return casStorageService.getCasFile(invocation.getArgument(0, SourceDocument.class),
-                    invocation.getArgument(1, String.class));
-        });
+        when(documentService.getCasFile(any(), any()))
+                .thenAnswer(invocation -> {
+                    return casStorageService.getCasFile(
+                            invocation.getArgument(0, SourceDocument.class),
+                            invocation.getArgument(1, String.class));
+                });
 
-        // Dynamically generate a SourceDocument with an incrementing ID when asked for one
-        when(documentService.getSourceDocument(any(), any())).then(invocation -> {
-            SourceDocument doc = new SourceDocument();
-            doc.setId(nextDocId++);
-            doc.setProject(invocation.getArgument(0, Project.class));
-            doc.setName(invocation.getArgument(1, String.class));
-            return doc;
-        });
-
-        sut = new AnnotationDocumentExporter(documentService, null, importExportSerivce);
+        sut = new AnnotationDocumentExporter(documentService, schemaService, null,
+                importExportSerivce);
     }
 
     @Test
@@ -182,6 +177,23 @@ public class AnnotationDocumentsExporterTest
 
         // Import the project again
         ExportedProject exProject = ProjectExportServiceImpl.loadExportedProject(aZipFile);
+
+        // Provide source documents based on data in the exported project
+        when(documentService.listSourceDocuments(any())).then(invocation -> {
+            long i = 1;
+            List<SourceDocument> docs = new ArrayList<>();
+            for (ExportedSourceDocument exDoc : exProject.getSourceDocuments()) {
+                SourceDocument doc = new SourceDocument();
+                doc.setId(i++);
+                doc.setName(exDoc.getName());
+                doc.setProject(project);
+                docs.add(doc);
+            }
+
+            return docs;
+        });
+
+
         ProjectImportRequest importRequest = new ProjectImportRequest(true);
         sut.importData(importRequest, project, exProject, aZipFile);
 
