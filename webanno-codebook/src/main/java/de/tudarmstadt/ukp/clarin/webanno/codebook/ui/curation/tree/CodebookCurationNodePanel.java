@@ -266,7 +266,7 @@ public class CodebookCurationNodePanel
             return null;
         List<CodebookTag> tags = codebookService.listTags(this.node.getCodebook());
         Set<CodebookTag> tag = tags.stream().filter(t -> {
-          return  t.getName().equals(tagString);
+            return  t.getName().equals(tagString);
             
         })
                 .collect(Collectors.toSet());
