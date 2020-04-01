@@ -157,7 +157,7 @@ public class ProjectCodebookPanel
         codebookSelectionForm.add(importCodebookForm);
 
         // export panel
-        codebookSelectionForm.add(new ExportCodebooksForm());
+//        codebookSelectionForm.add(new ExportCodebooksForm());
 
         // add and init tree
         projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",

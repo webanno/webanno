@@ -137,7 +137,7 @@ public class AnnotationPage extends AnnotationPageBase {
     private WebMarkupContainer rightSidebar;
 
     private WebMarkupContainer codebookPanel;
-    private CodebookEditorPanel codebookdetailEditor;
+    private CodebookEditorPanel codebookDetailEditor;
 
     public AnnotationPage() {
         super();
@@ -322,7 +322,7 @@ public class AnnotationPage extends AnnotationPageBase {
 
     private SidebarPanel createLeftSidebar() {
         // instantiate the codebook panel here since it's needed in the left sidebar
-        this.codebookPanel = createCodebookPanel();
+        createCodebookPanel();
 
         SidebarPanel leftSidebar = new SidebarPanel("leftSidebar", getModel(), detailEditor,
                 this::getEditorCas, AnnotationPage.this);
@@ -332,15 +332,14 @@ public class AnnotationPage extends AnnotationPageBase {
         return leftSidebar;
     }
 
-    private WebMarkupContainer createCodebookPanel() {
-        WebMarkupContainer codebookPanel = new WebMarkupContainer("codebookPanel");
+    private void createCodebookPanel() {
+        codebookPanel = new WebMarkupContainer("codebookPanel");
         codebookPanel.setOutputMarkupId(true);
 
-        codebookdetailEditor = createCodebookDetailEditor();
-        codebookdetailEditor.setOutputMarkupId(true);
+        codebookDetailEditor = createCodebookDetailEditor();
+        codebookDetailEditor.setOutputMarkupId(true);
 
-        codebookPanel.add(codebookdetailEditor);
-        return codebookPanel;
+        codebookPanel.add(codebookDetailEditor);
     }
 
     private WebMarkupContainer createRightSidebar() {
@@ -505,7 +504,7 @@ public class AnnotationPage extends AnnotationPageBase {
 
             // update codebook editor
             // flo find better way?!
-            codebookdetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
+            codebookDetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
 //            decideSideBarSetup(aTarget);
 
             if (aTarget != null) {

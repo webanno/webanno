@@ -39,7 +39,7 @@ public class CodebookSidebarFactory
     @Override
     public String getDisplayName()
     {
-        return "Codebook Annotation Sidebar Editor";
+        return "Codebook Editor";
     }
 
     @Override

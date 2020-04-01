@@ -59,28 +59,6 @@
                 </div>
               </span>
 
-               <span class="dropdown" aria-haspopup="true" aria-expanded="false">
-                <button class="btn btn-secondary btn-action dropdown-toggle flex-content" type="button" data-toggle="dropdown">
-                  <i class="fas fa-download"></i>&nbsp;
-                  <wicket:message key="export"/>
-                </button>
-                <div class="dropdown-menu shadow-lg pt-0 pb-0" role="menu" style="min-width: 220px;">
-                  <div class="container">
-                    <div class="form-group form-row">
-                              <form wicket:id="exportCodebooksForm" class="flex-content flex-v-container flex-gutter">
-                              <div class="card-body form-horizontal"> <!-- TODO -->
-                                <div class="form-group">
-                                  <div class="col-sm-4">
-                                    <input wicket:id="export" type="button" class="btn btn-default" wicket:message="value:export"/>
-                                  </div>
-                              </div>
-                              </div>
-                            </form>
-                    </div>
-                  </div>
-                </div>
-              </span>
-
               <input wicket:id="create"  type="submit" class="btn btn-primary"
                    wicket:message="value:new.codebook.create"/>
             </div>

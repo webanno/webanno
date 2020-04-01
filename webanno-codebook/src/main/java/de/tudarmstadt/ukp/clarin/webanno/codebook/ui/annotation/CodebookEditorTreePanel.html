@@ -19,18 +19,16 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 <wicket:panel>
-    <div class="row-no-gutters">
-        <div class="col-md-12">
-            <a wicket:id="expandAll" class="btn btn-default pull-left">Expand all</a>
-            <a wicket:id="collapseAll" class="btn btn-default pull-right">Collapse all</a>
-        </div>
+    <div>
+        <button wicket:id="expandAll" class="btn btn-outline-secondary btn-sm">
+            Expand all
+        </button>
+        <button wicket:id="collapseAll" class="btn btn-outline-secondary btn-sm float-right">
+            Collapse all
+        </button>
     </div>
-    <hr />
-    <div class="row-no-gutters">
-        <div class="col-md-12">
-            <div wicket:id="editorCodebookTree"></div>
-        </div>
-    </div>
+    <hr class="float-none"/>
+    <div wicket:id="editorCodebookTree">[editorCodebookTree]</div>
 </wicket:panel>
 </body>
 </html>

@@ -83,7 +83,8 @@ public class CodebookNode implements Serializable, IDetachable {
     }
 
     public void addChild(CodebookNode child) {
-        this.children.add(child);
+        if (!this.children.contains(child))
+            this.children.add(child);
     }
 
     public Long getId() {

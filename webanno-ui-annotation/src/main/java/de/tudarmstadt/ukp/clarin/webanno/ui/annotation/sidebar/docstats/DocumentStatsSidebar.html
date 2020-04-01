@@ -18,80 +18,69 @@
 -->
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-  <div class="flex-content flex-v-container flex-gutter flex-only-internal-gutter">
-    <div class="panel panel-default panel-flex flex-content">
-      <div class="panel-heading">
-        <h3 class="panel-title">Document Statistics</h3>
-      </div>
-      <div class="scrolling panel-body">
-        <div class="form-horizontal">
-          <div class="col-sm-12">
+    <div class="card">
+      <div class="card-header">Document Statistics</div>
+      <div class="card-body">
 
-            <form wicket:id="filterForm" class="flex-content panel panel-default panel-flex">
-              <div class="panel-heading">
-                <h3 class="panel-title">Filter Token Frequencies</h3>
-              </div>
+            <form wicket:id="filterForm" class="card mt-1">
+              <div class="card-header">Filter Token Frequencies</div>
 
-              <div class="panel-body form-horizontal">
-                <div class="col-sm-12">
-
-                  <div class="form-group">
-                    <label wicket:id="maxCountLabel" class="col-sm-9 control-label" />
-                    <div class="col-sm-3">
-                      <input wicket:id="maxCount" type="text" class="form-control"/>
-                    </div>
+              <div class="card-body">
+                <div class="form-row">
+                  <label wicket:id="maxCountLabel" class="col-md-9 col-form-label pull-left"
+                         style="overflow-wrap: break-word;"></label>
+                  <div class="col-sm-3">
+                    <input wicket:id="maxCount" type="text" class="form-control"/>
                   </div>
-
-                  <div class="form-group">
-                    <label wicket:id="minCountLabel" class="col-sm-9 control-label" />
-                    <div class="col-sm-3">
-                      <input wicket:id="minCount" type="text" class="form-control"/>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label wicket:id="tokenFilterLabel" class="col-sm-9 control-label" />
-                    <div class="col-sm-3">
-                      <input wicket:id="tokenFilter" type="text" class="form-control"/>
-                    </div>
-                  </div>
-
                 </div>
+
+                <div class="form-row">
+                  <label wicket:id="minCountLabel" class="col-md-9 col-form-label pull-left"
+                         style="overflow-wrap: break-word;"></label>
+                  <div class="col-sm-3">
+                    <input wicket:id="minCount" type="text" class="form-control"/>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <label wicket:id="tokenFilterLabel" class="col-md-9 col-form-label pull-left"
+                         style="overflow-wrap: break-word;"></label>
+                  <div class="col-sm-3">
+                    <input wicket:id="tokenFilter" type="text" class="form-control"/>
+                  </div>
+                </div>
+
               </div>
-              <div class="panel-footer text-right">
-                <input wicket:id="applyFilters" type="submit" class="btn btn-primary pull-right" value="Apply filters!"/>
-                <input wicket:id="resetFilters" type="button" class="btn btn-secondary pull-left" value="Reset filters!"/>
+              <div class="card-footer">
+                <input wicket:id="applyFilters" type="submit" class="btn btn-primary btn-sm"
+                       value="Apply filters!"/>
+                <input wicket:id="resetFilters" type="button" class="btn btn-secondary btn-sm float-right"
+                       value="Reset filters!"/>
               </div>
             </form>
 
 
-            <div class="panel panel-default panel-flex flex-content">
-              <div class="panel-heading">
-                <h3 class="panel-title">Token Frequencies</h3>
-              </div>
-              <div class="panel-body">
+            <div class="card mt-2">
+              <div class="card-header">Token Frequencies</div>
+              <!-- TODO remove hardcoded max height! -->
+              <div class="card-body" style="overflow-y: scroll; max-height: 510px">
                 <div class="row">
                   <div class="col-md-9 pull-left">Total number of tokens</div>
-                  <label wicket:id="totalTokens" class="col-sm-3 pull-right" style="overflow-wrap: break-word;"/>
+                  <label wicket:id="totalTokens" class="col-sm-3 float-right" style="overflow-wrap: break-word;"/>
                 </div>
                 <div class="row">
                   <div class="col-md-9 pull-left">Number of distinct tokens</div>
-                  <label wicket:id="distinctTokens" class="col-sm-3 pull-right" style="overflow-wrap: break-word;"/>
+                  <label wicket:id="distinctTokens" class="col-sm-3 float-right" style="overflow-wrap: break-word;"/>
                 </div>
                 <hr />
-                <div class="row scrolling">
-                  <div wicket:id="tokenFreqs">
-                    <div wicket:id="token" class="col-md-9 pull-left" style="overflow-wrap: break-word;">Token</div>
-                    <div wicket:id="count" class="col-md-3 pull-right">Count</div>
-                  </div>
+                <div class="row" wicket:id="tokenFreqs">
+                  <div wicket:id="token" class="col-md-9" style="overflow-wrap: break-word;">Token</div>
+                  <div wicket:id="count" class="col-md-3 float-right">Count</div>
                 </div>
 
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 </wicket:panel>
 </html>
