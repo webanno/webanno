@@ -19,62 +19,32 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 <wicket:extend>
-        <div class="annotation-editor-container flex-content flex-h-container flex-gutter">
+    <div class="container-fluid row">
         <!--        Left Panel          -->
-        <div class="col-md-9 flex-content panel panel-default panel-flex" wicket:id="leftPanelContainer">
+        <div class="col-md-6" wicket:id="leftPanelContainer">
             <div wicket:id="codebookCurationTreePanel">[codebookCurationTreePanel]</div>
         </div>
 
-         <div wicket:id="rightPanelContainer" class="scrolling flex-content flex-v-container">
-        <div class="flex-content flex-v-container flex-gutter">
-          <div class="flex-content card">
-            <div class="card-header border-bottom-0">
-              <span wicket:id="documentNamePanel"/> 
-            </div>
-            <div class="card-body flex-v-container" style="padding: 0px;">
-              <nav wicket:id="actionBar" class="action-bar">
-                <span wicket:id="documentNavigator" />
-                <span wicket:id="guidelinesDialog" />
-                <span wicket:id="workflowActions" />
-              </nav>
-               <div class="text-center flex-content flex-v-container"
-                                 wicket:id="documentContentContainer">
-                                <span class="text-left" wicket:id="documentContent"></span>
-                            </div>
-            </div>
-          </div>
-      </div>
-  </div>
-
-        <!--        Right Panel        
-        <div class="col-md-3 flex-content panel panel-default panel-flex"
-             wicket:id="rightPanelContainer">
+        <div wicket:id="rightPanelContainer" class="scrolling col-md-6">
             <div class="flex-content flex-v-container flex-gutter">
-                <div class="flex-content flex-v-container flex-gutter flex-only-internal-gutter"
-                     style="flex: 0.75;">
-                    <div class="flex-content panel panel-primary panel-flex">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">
-                                <span wicket:id="documentNamePanel"/>
-                            </h3>
-                        </div>
-                        <div class="panel-body flex-v-container" style="padding: 0px;">
-                            <nav class="action-bar" wicket:id="actionBar">
-                                <span wicket:id="documentNavigator"/>
-                                <span wicket:id="guidelinesDialog"/>
-                                <span wicket:id="workflowActions"/>
-                            </nav>
+                <div class="flex-content card">
+                    <div class="card-header border-bottom-0">
+                        <span wicket:id="documentNamePanel"/>
 
-                            <div class="text-center flex-content flex-v-container"
-                                 wicket:id="documentContentContainer">
-                                <span class="text-left" wicket:id="documentContent"></span>
-                            </div>
-                        </div>
+                        <nav wicket:id="actionBar" class="action-bar float-right">
+                            <span wicket:id="documentNavigator"/>
+                            <span wicket:id="guidelinesDialog"/>
+                            <span wicket:id="workflowActions"/>
+                        </nav>
+                    </div>
+
+                    <div class="card-body flex-content flex-v-container"
+                         wicket:id="documentContentContainer" style="max-height: 250px; overflow-y: scroll">
+                        <span class="text-left" wicket:id="documentContent"></span>
                     </div>
                 </div>
             </div>
         </div>
- -->
     </div>
 </wicket:extend>
 </body>

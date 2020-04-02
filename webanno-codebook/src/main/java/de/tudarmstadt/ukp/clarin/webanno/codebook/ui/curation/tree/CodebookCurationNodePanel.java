@@ -60,10 +60,8 @@ public class CodebookCurationNodePanel
     extends Panel
 {
     private static final long serialVersionUID = 5875644822389693657L;
-    private static final String HAS_DIFF = "panel-danger";
-    private static final String HAS_NO_DIFF = "panel-success";
-    private static final String HAS_DIFF_FOOTER = "bg-danger";
-    private static final String HAS_NO_DIFF_FOOTER = "bg-success";
+    private static final String HAS_DIFF = "bg-danger";
+    private static final String HAS_NO_DIFF = "bg-success";
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean CurationDocumentService curationDocumentService;
     private CodebookCurationComboBox codebookCurationComboBox;
@@ -112,16 +110,16 @@ public class CodebookCurationNodePanel
 
         this.codebookCurationPanelFooter = new WebMarkupContainer("codebookCurationPanelFooter");
         this.codebookCurationPanelFooter.setOutputMarkupPlaceholderTag(true);
-        this.codebookCurationPanelFooter.add(
-                AttributeModifier.append("class", hasDiff ? HAS_DIFF_FOOTER : HAS_NO_DIFF_FOOTER));
+//        this.codebookCurationPanelFooter.add(
+//                AttributeModifier.append("class", hasDiff ? HAS_DIFF : HAS_NO_DIFF));
 
         // codebook curation form
         IModel<CodebookTag> selectedTag = Model.of();
         this.codebookCurationForm = new Form<>("codebookCurationForm",
                 CompoundPropertyModel.of(selectedTag));
         this.codebookCurationForm.setOutputMarkupId(true);
-        this.codebookCurationForm.add(
-                AttributeModifier.append("class", hasDiff ? HAS_DIFF_FOOTER : HAS_NO_DIFF_FOOTER));
+//        this.codebookCurationForm.add(
+//                AttributeModifier.append("class", hasDiff ? HAS_DIFF : HAS_NO_DIFF));
 
         // codebook curation ComboBox
         this.codebookCurationComboBox = createCurationComboBox();

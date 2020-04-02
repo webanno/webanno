@@ -20,26 +20,27 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
 <body>
 <wicket:panel>
-    <!-- TODO change panel-default to panel-danger if there is a diff with the codebook-->
-    <div class="panel" wicket:id="codebookCurationPanel">
+    <div class="card mt-2" wicket:id="codebookCurationPanel">
 
-        <div class="panel-heading">
-            <h3 class="panel-title" style="overflow-wrap: break-word;">
-                <span wicket:id="codebookName"/>
-            </h3>
+        <div class="card-header">
+            <span wicket:id="codebookName"/>
         </div>
 
-        <div class="panel-body scrolling">
-            <div class="container-fluid" wicket:id="suggestionsListView">
-                <div class="col-md-3 bg-info" wicket:id="userName">userName</div>
+        <div class="card-body">
+            <div class="row" wicket:id="suggestionsListView">
+                <div class="col-md-3"><span  wicket:id="userName">userName</span></div>
                 <div class="col-md-9" wicket:id="codebookTag">codebookTag</div>
             </div>
         </div>
 
-        <div class="panel-footer container-fluid" wicket:id="codebookCurationPanelFooter">
-            <form class="form-horizontal" style="margin: 0"
-                  wicket:id="codebookCurationForm">
-                <input type="text" wicket:id="codebookCurationComboBox"/>
+        <div class="card-footer pb-0 mb-0" wicket:id="codebookCurationPanelFooter">
+            <form class="form-horizontal" wicket:id="codebookCurationForm">
+                <div class="form-group form-row">
+                    <label class="col-sm-3 col-form-label">Curation:</label>
+                    <div class="col-sm-9">
+                        <input type="text" wicket:id="codebookCurationComboBox" class="form-control custom-select-sm"/>
+                    </div>
+                </div>
             </form>
         </div>
 

@@ -84,6 +84,10 @@
                 <i class="fas fa-times"></i>&nbsp;
                 <wicket:message key="close"/>
               </button>
+              <button wicket:id="delete" class="btn btn-danger">
+                <i class="fas fa-times"></i>&nbsp;
+                <wicket:message key="delete"/>
+              </button>
             </div>
           </div>
         <div wicket:id="confirmationDialog"></div>
@@ -154,10 +158,13 @@
             </div>
           </div>  
       </form>
-      
+
       <div class="scrolling card-body flex-v-container flex-gutter flex-only-internal-gutter">
-          <div wicket:id="codebookTagSelector" class="flex-h-container flex-no-gutter" style="flex: .3;"></div>
-        <div wicket:id="codebookTagEditor" class="flex-content flex-h-container flex-no-gutter">Codes</div>   
+        <div wicket:id="codebookTagSelector" class="flex-h-container flex-no-gutter"
+             style="flex: .3;"></div>
+        <div wicket:id="codebookTagEditor" class="flex-content flex-h-container flex-no-gutter">
+          Codes
+        </div>
       </div>
     </div>
   </wicket:panel>
