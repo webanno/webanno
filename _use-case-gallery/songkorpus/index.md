@@ -43,6 +43,10 @@ subject to inter-annotator reliability, using Fleiss’ kappa.
 
 ##### Publications
 
+* Schneider, Roman (2020). A Corpus Linguistic Perspective on Contemporary German Pop Lyrics with 
+  the Multi-Layer Annotated "Songkorpus". In: <i>Proceedings of LREC 2020 (Language Resources and 
+  Evaluation Conference)</i>, Marseille.
+
 * Schneider, Roman (2019). Konservenglück in Tiefkühl-Town – Das Songkorpus als empirische 
   Ressource interdisziplinärer Erforschung deutschsprachiger Poptexte. In: 
   <i>Proceedings KONVENS 2019 (Konferenz zur Verarbeitung natürlicher Sprache)</i>, Erlangen. 
