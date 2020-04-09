@@ -65,7 +65,7 @@ public class CodebookTree
 
     public void addChildrenRecursively(CodebookNode node)
     {
-        if (node != null && !isRoot(node)) {
+        if (node != null && !isRoot(node) && node.getParent() != null) {
             CodebookNode parent = node.getParent();
             parent.addChild(node);
             this.addChildrenRecursively(parent);
@@ -142,7 +142,12 @@ public class CodebookTree
         return parents;
     }
 
-    public List<CodebookNode> getDescendants(final CodebookNode node,
+    public List<CodebookNode> getDescendants(final CodebookNode node)
+    {
+        return getDescendants(node, null);
+    }
+
+    private List<CodebookNode> getDescendants(final CodebookNode node,
             List<CodebookNode> allChildren)
     {
         if (allChildren == null)

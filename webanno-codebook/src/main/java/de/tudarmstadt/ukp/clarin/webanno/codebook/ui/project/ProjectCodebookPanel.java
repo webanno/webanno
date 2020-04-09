@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.project;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CURATION_USER;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.wicket.util.string.Strings.escapeMarkup;
@@ -44,6 +45,7 @@ import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.EnumChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
@@ -53,6 +55,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -60,6 +63,7 @@ import org.apache.wicket.util.resource.IResourceStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.form.BootstrapRadioChoice;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
@@ -72,9 +76,11 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookExporter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.ExportedCodebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookNodeExpansion;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.tree.CodebookTreeProvider;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
@@ -83,6 +89,7 @@ import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
 import de.tudarmstadt.ukp.clarin.webanno.support.dialog.ConfirmationDialog;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
+import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormChoiceComponentUpdatingBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublisherHolder;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.AjaxDownloadLink;
@@ -100,6 +107,7 @@ public class ProjectCodebookPanel
     private static final long serialVersionUID = -7870526462864489252L;
 
     private String CFN = "code";
+    private CodebookExportMode exportMode = CodebookExportMode.ALL;
 
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean CodebookSchemaService codebookService;
@@ -157,7 +165,16 @@ public class ProjectCodebookPanel
         codebookSelectionForm.add(importCodebookForm);
 
         // export panel
-//        codebookSelectionForm.add(new ExportCodebooksForm());
+        // codebookSelectionForm.add(new ExportCodebooksForm());
+        BootstrapRadioChoice<CodebookExportMode> exportModeChoice = new BootstrapRadioChoice<>(
+                "exportMode", asList(CodebookExportMode.values()));
+        exportModeChoice.setModel(new PropertyModel<CodebookExportMode>(this, "exportMode"));
+        exportModeChoice.setChoiceRenderer(new EnumChoiceRenderer<>(this));
+        exportModeChoice.add(new LambdaAjaxFormChoiceComponentUpdatingBehavior());
+        codebookDetailForm.add(exportModeChoice);
+        codebookDetailForm.add(new AjaxDownloadLink("export",
+                new StringResourceModel("export.codebooks.filename", this),
+                LoadableDetachableModel.of(this::exportCodebooks)));
 
         // add and init tree
         projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",
@@ -176,6 +193,54 @@ public class ProjectCodebookPanel
         codebookDetailForm.setModelObject(null);
         tagSelectionPanel.setDefaultModelObject(null);
         tagEditorPanel.setDefaultModelObject(null);
+    }
+
+    private List<Codebook> getConnectedCodebooks(Codebook codebook)
+    {
+        CodebookNode node = this.projectCodebookTreePanel.getProvider().getCodebookNode(codebook);
+
+        List<CodebookNode> connected = new ArrayList<>(
+                this.projectCodebookTreePanel.getProvider().getDescendants(node));
+        connected.addAll(this.projectCodebookTreePanel.getProvider().getPrecedents(node));
+        connected.add(node);
+
+        return this.projectCodebookTreePanel.getProvider().getCodebooks(connected);
+    }
+
+    private IResourceStream exportCodebooks()
+    {
+        switch (exportMode) {
+        case SELECTED:
+            Codebook cb = codebookDetailForm.getModelObject();
+            if (cb == null)
+                throw new IllegalStateException("Selected Codebook is null!");
+
+            return exportCodebooks(getConnectedCodebooks(cb));
+
+        case ALL:
+            return exportCodebooks(
+                    codebookService.listCodebook(ProjectCodebookPanel.this.getModelObject()));
+        default:
+            throw new IllegalStateException("Unknown mode: [" + exportMode + "]");
+        }
+    }
+
+    private IResourceStream exportCodebooks(List<Codebook> codebooks)
+    {
+        try {
+            List<ExportedCodebook> exCBs = codebookExporter.exportCodebooks(codebooks);
+
+            return new InputStreamResourceStream(new ByteArrayInputStream(
+                    JSONUtil.toPrettyJsonString(exCBs).getBytes(StandardCharsets.UTF_8)));
+
+        }
+        catch (Exception e) {
+            error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
+            LOG.error("Unable to generate the JSON file", e);
+            RequestCycle.get().find(IPartialPageRequestHandler.class)
+                    .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
+            return null;
+        }
     }
 
     private class CodebookSelectionForm
@@ -204,43 +269,39 @@ public class ProjectCodebookPanel
                     codebookDetailForm.setDefaultModelObject(new Codebook());
                 }
             });
+
+            // create and add expand and collapse buttons
+            add(new Button("expandAll")
+            {
+                private static final long serialVersionUID = 2572198183232832062L;
+
+                @Override
+                public void onSubmit()
+                {
+                    actionExpand();
+                }
+            });
+
+            add(new Button("collapseAll")
+            {
+                private static final long serialVersionUID = 2572198183232832062L;
+
+                @Override
+                public void onSubmit()
+                {
+                    actionCollapse();
+                }
+            });
         }
 
-    }
-
-    private class ExportCodebooksForm
-        extends Form<String>
-    {
-
-        private static final long serialVersionUID = -3368827563695416292L;
-
-        public ExportCodebooksForm()
+        private void actionExpand()
         {
-            super("exportCodebooksForm"); // hardcoded by intention
-
-            add(new AjaxDownloadLink("export",
-                    new StringResourceModel("export.codebooks.filename", this),
-                    LoadableDetachableModel.of(this::exportCodebooks)));
+            CodebookNodeExpansion.get().expandAll();
         }
 
-        private IResourceStream exportCodebooks()
+        private void actionCollapse()
         {
-            try {
-                List<Codebook> codebooks = codebookService
-                        .listCodebook(ProjectCodebookPanel.this.getModelObject());
-                List<ExportedCodebook> exCBs = codebookExporter.exportCodebooks(codebooks);
-
-                return new InputStreamResourceStream(new ByteArrayInputStream(
-                        JSONUtil.toPrettyJsonString(exCBs).getBytes(StandardCharsets.UTF_8)));
-
-            }
-            catch (Exception e) {
-                error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
-                LOG.error("Unable to generate the JSON file", e);
-                RequestCycle.get().find(IPartialPageRequestHandler.class)
-                        .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
-                return null;
-            }
+            CodebookNodeExpansion.get().collapseAll();
         }
     }
 
@@ -543,4 +604,10 @@ public class ProjectCodebookPanel
         applicationEventPublisherHolder.get()
                 .publishEvent(new CodebookConfigurationChangedEvent(this, project));
     }
+
+    enum CodebookExportMode
+    {
+        SELECTED, ALL
+    }
+
 }

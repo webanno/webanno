@@ -243,7 +243,7 @@ public abstract class CodebookEditorPanel extends Panel {
         Map<CodebookNode, CodebookNodePanel> nodePanels = this.codebookEditorTreePanel
                 .getNodePanels();
         List<CodebookNode> allChildren = this.codebookEditorTreePanel.getProvider()
-                .getDescendants(node, null);
+                .getDescendants(node);
         allChildren.forEach(child -> {
             if (null != child && null != nodePanels.get(child)) {
                 childNodePanels.add(nodePanels.get(child));
