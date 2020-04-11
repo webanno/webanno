@@ -446,8 +446,7 @@ public class ProjectCodebookPanel
         private void purgeCodebook(Codebook codebook)
         {
             // recursively purges all child codebooks and their respective tags
-            CodebookTreeProvider codebookNodeProvider =
-                    ProjectCodebookPanel.this.projectCodebookTreePanel.getProvider();
+            CodebookTreeProvider codebookNodeProvider = projectCodebookTreePanel.getProvider();
 
             codebookNodeProvider.getChildren(codebook).forEach(this::purgeCodebook);
 
@@ -518,20 +517,18 @@ public class ProjectCodebookPanel
 
         private void actionCancel(AjaxRequestTarget aTarget)
         {
-            aTarget.add(ProjectCodebookPanel.this);
-            aTarget.addChildren(getPage(), IFeedback.class);
-
             codebookSelectionForm.setModelObject(null);
-
             codebookDetailForm.setModelObject(null);
             tagSelectionPanel.setDefaultModelObject(null);
             tagEditorPanel.setDefaultModelObject(null);
+
+            aTarget.add(ProjectCodebookPanel.this);
+            aTarget.addChildren(getPage(), IFeedback.class);
         }
 
         /* package private */ void updateParentChoicesForCodebook(Codebook currentCodebook)
         {
-            List<Codebook> possibleParents = new ArrayList<>();
-            possibleParents = projectCodebookTreePanel.getProvider()
+            List<Codebook> possibleParents = projectCodebookTreePanel.getProvider()
                     .getPossibleParents(currentCodebook);
             this.codebookParentSelection.updateParents(possibleParents);
             this.codebookParentSelection.removeFromParentChoices(currentCodebook);

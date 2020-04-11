@@ -20,22 +20,22 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
 <body>
 <wicket:panel>
-    <div class="card mt-2" wicket:id="codebookCurationPanel">
+    <div class="card mb-1" wicket:id="codebookCurationPanel">
 
-        <div class="card-header">
-            <span wicket:id="codebookName"/>
+        <div class="card-header text-center" wicket:id="codebookCurationPanelHeader">
+            <strong><span wicket:id="codebookName"/></strong>
         </div>
 
-        <div class="card-body">
+        <div class="card-body pt-0 pb-0" style="overflow-y: auto; overflow-x: hidden">
             <div class="row" wicket:id="suggestionsListView">
-                <div class="col-md-3"><span  wicket:id="userName">userName</span></div>
-                <div class="col-md-9" wicket:id="codebookTag">codebookTag</div>
+                <div class="col-md-3"><i><span wicket:id="userName">userName</span></i></div>
+                <div class="col-md-9"><i><span wicket:id="codebookTag">codebookTag</span></i></div>
             </div>
         </div>
 
         <div class="card-footer pb-0 mb-0" wicket:id="codebookCurationPanelFooter">
             <form class="form-horizontal" wicket:id="codebookCurationForm">
-                <div class="form-group form-row">
+                <div class="form-row">
                     <label class="col-sm-3 col-form-label">Curation:</label>
                     <div class="col-sm-9">
                         <input type="text" wicket:id="codebookCurationComboBox" class="form-control custom-select-sm"/>
