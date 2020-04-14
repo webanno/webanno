@@ -36,10 +36,9 @@ import org.apache.wicket.extensions.markup.html.repeater.tree.content.Folder;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-
-import com.googlecode.wicket.kendo.ui.markup.html.link.Link;
 
 import de.tudarmstadt.ukp.clarin.webanno.codebook.CodebookConst;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
@@ -67,21 +66,24 @@ public class AgreementCodebookTreePanel
         this.project = project;
         this.parentPage = parentPage;
 
-        // create and add expand and collapse links
-        this.add(new Link<Void>("expandAll")
+        // create and add expand and collapse button
+        this.add(new Button("expandAll")
         {
             private static final long serialVersionUID = -2081711094768955973L;
 
-            public void onClick()
+            @Override
+            public void onSubmit()
             {
                 CodebookNodeExpansion.get().expandAll();
             }
         });
-        this.add(new Link<Void>("collapseAll")
+
+        this.add(new Button("collapseAll")
         {
             private static final long serialVersionUID = -4576757597732733009L;
 
-            public void onClick()
+            @Override
+            public void onSubmit()
             {
                 CodebookNodeExpansion.get().collapseAll();
             }

@@ -60,10 +60,8 @@ public class CodebookCurationNodePanel
     extends Panel
 {
     private static final long serialVersionUID = 5875644822389693657L;
-    private static final String HAS_DIFF = "panel-danger";
-    private static final String HAS_NO_DIFF = "panel-success";
-    private static final String HAS_DIFF_FOOTER = "bg-danger";
-    private static final String HAS_NO_DIFF_FOOTER = "bg-success";
+    private static final String HAS_DIFF = "bg-danger";
+    private static final String HAS_NO_DIFF = "bg-success";
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean CurationDocumentService curationDocumentService;
     private CodebookCurationComboBox codebookCurationComboBox;
@@ -71,6 +69,7 @@ public class CodebookCurationNodePanel
     private Form<CodebookTag> codebookCurationForm;
     private CodebookNode node;
     private List<CodebookUserSuggestion> codebookUserSuggestions;
+    private WebMarkupContainer codebookCurationPanelHeader;
     private WebMarkupContainer codebookCurationPanelFooter;
     private WebMarkupContainer codebookCurationPanel;
 
@@ -87,11 +86,16 @@ public class CodebookCurationNodePanel
         this.codebookCurationPanel = new WebMarkupContainer("codebookCurationPanel");
         this.codebookCurationPanel.setOutputMarkupPlaceholderTag(true);
         boolean hasDiff = codebookUserSuggestions.get(0).hasDiff();
-        this.codebookCurationPanel
-                .add(AttributeModifier.append("class", hasDiff ? HAS_DIFF : HAS_NO_DIFF));
 
+        // header
+        this.codebookCurationPanelHeader = new WebMarkupContainer("codebookCurationPanelHeader");
+        this.codebookCurationPanelHeader.setOutputMarkupPlaceholderTag(true);
+        this.codebookCurationPanelHeader
+                .add(AttributeModifier.append("class", hasDiff ? HAS_DIFF : HAS_NO_DIFF));
         // name of the CB
-        this.codebookCurationPanel.add(new Label("codebookName", this.node.getUiName()));
+        this.codebookCurationPanelHeader.add(new Label("codebookName", this.node.getUiName()));
+
+        this.codebookCurationPanel.add(codebookCurationPanelHeader);
 
         // suggestions list view
         this.codebookCurationPanel.add(
@@ -106,22 +110,26 @@ public class CodebookCurationNodePanel
                                 .getModelObject();
 
                         item.add(new Label("userName", userSuggestion.getUser()));
-                        item.add(new Label("codebookTag", userSuggestion.getValue()));
+                        String tag = userSuggestion.getValue();
+                        if (tag == null)
+                            tag = "<NULL>";
+                        else if (tag.isEmpty())
+                            tag = "<EMPTY>";
+                        item.add(new Label("codebookTag", tag));
+
+                        // item.add(AttributeModifier.append("class",
+                        // userSuggestion.hasDiff() ? HAS_DIFF : HAS_NO_DIFF));
                     }
                 });
 
         this.codebookCurationPanelFooter = new WebMarkupContainer("codebookCurationPanelFooter");
         this.codebookCurationPanelFooter.setOutputMarkupPlaceholderTag(true);
-        this.codebookCurationPanelFooter.add(
-                AttributeModifier.append("class", hasDiff ? HAS_DIFF_FOOTER : HAS_NO_DIFF_FOOTER));
 
         // codebook curation form
         IModel<CodebookTag> selectedTag = Model.of();
         this.codebookCurationForm = new Form<>("codebookCurationForm",
                 CompoundPropertyModel.of(selectedTag));
         this.codebookCurationForm.setOutputMarkupId(true);
-        this.codebookCurationForm.add(
-                AttributeModifier.append("class", hasDiff ? HAS_DIFF_FOOTER : HAS_NO_DIFF_FOOTER));
 
         // codebook curation ComboBox
         this.codebookCurationComboBox = createCurationComboBox();
@@ -266,10 +274,9 @@ public class CodebookCurationNodePanel
             return null;
         List<CodebookTag> tags = codebookService.listTags(this.node.getCodebook());
         Set<CodebookTag> tag = tags.stream().filter(t -> {
-            return  t.getName().equals(tagString);
-            
-        })
-                .collect(Collectors.toSet());
+            return t.getName().equals(tagString);
+
+        }).collect(Collectors.toSet());
         assert tag.size() == 1; // TODO what to throw?
         if (tag.size() == 0) {
             return null;

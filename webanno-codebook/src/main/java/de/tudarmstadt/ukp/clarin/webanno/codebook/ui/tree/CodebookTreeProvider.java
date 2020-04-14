@@ -98,9 +98,8 @@ public class CodebookTreeProvider implements ITreeProvider<CodebookNode> {
         return this.tree.getPrecedents(node);
     }
 
-    public List<CodebookNode> getDescendants(final CodebookNode node,
-            List<CodebookNode> allChildren) {
-        return this.tree.getDescendants(node, allChildren);
+    public List<CodebookNode> getDescendants(final CodebookNode node) {
+        return this.tree.getDescendants(node);
     }
 
     public List<Codebook> getPossibleParents(final Codebook book) {

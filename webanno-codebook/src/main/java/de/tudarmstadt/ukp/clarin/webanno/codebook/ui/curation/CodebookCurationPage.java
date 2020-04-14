@@ -100,8 +100,9 @@ import de.tudarmstadt.ukp.clarin.webanno.support.wicket.WicketUtil;
 //  in a circular dependency problem if we import them...
 @MountPath("/codebookcuration.html")
 public class CodebookCurationPage
-        // FIXME currently we need AnnotationPageBase for the action bar..
-        extends AnnotationPageBase {
+    // FIXME currently we need AnnotationPageBase for the action bar..
+    extends AnnotationPageBase
+{
     private static final long serialVersionUID = 5814883864550600522L;
 
     private static final Logger LOG = LoggerFactory.getLogger(CodebookCurationPage.class);
@@ -126,7 +127,8 @@ public class CodebookCurationPage
     private WebMarkupContainer rightPanelContainer;
     private WebMarkupContainer actionBar;
 
-    public CodebookCurationPage() {
+    public CodebookCurationPage()
+    {
         super();
         LOG.debug("Setting up curation page without parameters");
         commonInit();
@@ -145,7 +147,8 @@ public class CodebookCurationPage
         }
     }
 
-    public CodebookCurationPage(final PageParameters aPageParameters) {
+    public CodebookCurationPage(final PageParameters aPageParameters)
+    {
         super(aPageParameters);
         LOG.debug("Setting up curation page with parameters: {}", aPageParameters);
 
@@ -158,7 +161,8 @@ public class CodebookCurationPage
         handleParameters(null, project, document, focus, true);
     }
 
-    private void commonInit() {
+    private void commonInit()
+    {
         setModel(Model.of(new AnnotatorStateImpl(Mode.CURATION)));
 
         // init left panel -> codebook tree
@@ -182,11 +186,13 @@ public class CodebookCurationPage
         // action bar
         actionBar = new WebMarkupContainer("actionBar");
         actionBar.add(new DocumentNavigator("documentNavigator", this, getAllowedProjects(),
-                this::listDocuments) {
+                this::listDocuments)
+        {
             private static final long serialVersionUID = 4342862409722750114L;
 
             @Override
-            public void onDocumentSelected(AjaxRequestTarget aTarget) {
+            public void onDocumentSelected(AjaxRequestTarget aTarget)
+            {
                 CodebookCurationPage.this.onDocumentSelected(aTarget);
             }
         });
@@ -205,17 +211,20 @@ public class CodebookCurationPage
         // (like in annotation mode) requires a lot of boilerplate code (see
         // CurationPage.java)
         documentContentContainer
-                .add(new MultiLineLabel("documentContent", new LoadableDetachableModel<String>() {
+                .add(new MultiLineLabel("documentContent", new LoadableDetachableModel<String>()
+                {
 
                     private static final long serialVersionUID = 3761758181939352279L;
 
                     @Override
-                    protected String load() {
+                    protected String load()
+                    {
                         try {
                             return new String(Files.readAllBytes(documentService
                                     .getSourceDocumentFile(getModelObject().getDocument())
                                     .toPath()));
-                        } catch (IOException e) {
+                        }
+                        catch (IOException e) {
                             e.printStackTrace();
                         }
                         return "Error loading document content!";
@@ -230,12 +239,13 @@ public class CodebookCurationPage
         add(rightPanelContainer);
     }
 
-    private void onDocumentSelected(AjaxRequestTarget aTarget) {
+    private void onDocumentSelected(AjaxRequestTarget aTarget)
+    {
         AnnotatorState state = getModelObject();
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         /*
-         * Changed for #152, getDocument was returning null even after opening a
-         * document Also, surrounded following code into if block to avoid error.
+         * Changed for #152, getDocument was returning null even after opening a document Also,
+         * surrounded following code into if block to avoid error.
          */
         if (state.getProject() == null) {
             setResponsePage(getApplication().getHomePage());
@@ -247,7 +257,8 @@ public class CodebookCurationPage
                 upgradeCasAndSave(state.getDocument(), username);
 
                 actionLoadDocument(aTarget);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOG.error("Unable to load data", e);
                 error("Unable to load data: " + ExceptionUtils.getRootCauseMessage(e));
             }
@@ -255,7 +266,8 @@ public class CodebookCurationPage
     }
 
     @Override
-    public void writeEditorCas(CAS aCas) throws IOException {
+    public void writeEditorCas(CAS aCas) throws IOException
+    {
         AnnotatorState state = getModelObject();
         curationDocumentService.writeCurationCas(aCas, state.getDocument(), true);
 
@@ -267,7 +279,8 @@ public class CodebookCurationPage
         }
     }
 
-    public void upgradeCasAndSave(SourceDocument aDocument, String aUsername) throws IOException {
+    public void upgradeCasAndSave(SourceDocument aDocument, String aUsername) throws IOException
+    {
         User user = userRepository.get(aUsername);
         if (documentService.existsAnnotationDocument(aDocument, user)) {
             AnnotationDocument annotationDocument = documentService.getAnnotationDocument(aDocument,
@@ -276,7 +289,8 @@ public class CodebookCurationPage
                 CAS cas = documentService.readAnnotationCas(annotationDocument);
                 annotationService.upgradeCas(cas, annotationDocument);
                 documentService.writeAnnotationCas(cas, annotationDocument, false);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // no need to catch, it is acceptable that no curation document
                 // exists to be upgraded while there are annotation documents
             }
@@ -284,16 +298,17 @@ public class CodebookCurationPage
     }
 
     @Override
-    public void actionLoadDocument(AjaxRequestTarget aTarget) {
+    public void actionLoadDocument(AjaxRequestTarget aTarget)
+    {
         actionLoadDocument(aTarget, 0);
     }
 
     /**
-     * Open a document or to a different document. This method should be used only
-     * the first time that a document is accessed. It reset the annotator state and
-     * upgrades the CAS.
+     * Open a document or to a different document. This method should be used only the first time
+     * that a document is accessed. It reset the annotator state and upgrades the CAS.
      */
-    private void actionLoadDocument(AjaxRequestTarget aTarget, int aFocus) {
+    private void actionLoadDocument(AjaxRequestTarget aTarget, int aFocus)
+    {
         LOG.info("BEGIN LOAD_DOCUMENT_ACTION at focus " + aFocus);
 
         AnnotatorState state = getModelObject();
@@ -348,7 +363,8 @@ public class CodebookCurationPage
             if (aTarget != null) {
                 WicketUtil.refreshPage(aTarget, getPage());
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             handleException(aTarget, e);
         }
 
@@ -356,7 +372,8 @@ public class CodebookCurationPage
     }
 
     void prepareMergeCAS(boolean aMergeIncompleteAnnotations)
-            throws IOException, UIMAException, ClassNotFoundException, AnnotationException {
+        throws IOException, UIMAException, ClassNotFoundException, AnnotationException
+    {
         AnnotatorState state = getModelObject();
 
         List<AnnotationDocument> finishedAnnotationDocuments = new ArrayList<>();
@@ -399,8 +416,8 @@ public class CodebookCurationPage
     }
 
     /**
-     * Fetches the CAS that the user will be able to edit. In CORRECTION mode, this
-     * is the CAS for the CURATION user.
+     * Fetches the CAS that the user will be able to edit. In CORRECTION mode, this is the CAS for
+     * the CURATION user.
      *
      * @param aState
      *            the model.
@@ -423,7 +440,8 @@ public class CodebookCurationPage
     private CAS createMergeCas(AnnotatorState aState, SourceDocument aDocument,
             Map<String, CAS> aCasses, AnnotationDocument randomAnnotationDocument, boolean aUpgrade,
             boolean aMergeIncompleteAnnotations)
-            throws UIMAException, ClassNotFoundException, IOException, AnnotationException {
+        throws UIMAException, ClassNotFoundException, IOException, AnnotationException
+    {
 
         // Upgrading should be an explicit action during the opening of a document at
         // the
@@ -453,9 +471,9 @@ public class CodebookCurationPage
     }
 
     /**
-     * For the first time a curation page is opened, create a MergeCas that contains
-     * only agreeing annotations Using the CAS of the curator user. This is done by
-     * copying a random cas and removing all differing annotations.
+     * For the first time a curation page is opened, create a MergeCas that contains only agreeing
+     * annotations Using the CAS of the curator user. This is done by copying a random cas and
+     * removing all differing annotations.
      *
      * @param aState
      *            the annotator state
@@ -470,7 +488,8 @@ public class CodebookCurationPage
     private CAS createCurationCas(AnnotatorState aState,
             AnnotationDocument aRandomAnnotationDocument, Map<String, CAS> aCasses,
             boolean aMergeIncompleteAnnotations)
-            throws IOException, UIMAException, AnnotationException {
+        throws IOException, UIMAException, AnnotationException
+    {
         Validate.notNull(aState, "State must be specified");
         Validate.notNull(aRandomAnnotationDocument, "Annotation document must be specified");
 
@@ -480,7 +499,8 @@ public class CodebookCurationPage
             cacheEnabled = casStorageService.isCacheEnabled();
             casStorageService.disableCache();
             mergeCas = documentService.readAnnotationCas(aRandomAnnotationDocument);
-        } finally {
+        }
+        finally {
             if (cacheEnabled) {
                 casStorageService.enableCache();
             }
@@ -488,11 +508,11 @@ public class CodebookCurationPage
 
         try (StopWatch watch = new StopWatch(LOG, "CasMerge (codebook)")) {
             // codebook types
-        //    List<Type> entryTypes = CurationUtil.getCodebookTypes(mergeCas,
-         //           codebookService.listCodebook(aState.getProject()));
+            // List<Type> entryTypes = CurationUtil.getCodebookTypes(mergeCas,
+            // codebookService.listCodebook(aState.getProject()));
             // codebook cas diff
             CasDiff.DiffResult diff = CodebookDiff.doCodebookDiff(codebookService,
-                    aState.getProject(),// entryTypes, 
+                    aState.getProject(), // entryTypes,
                     null, aCasses, 0, 0);
 
             // cas merge
@@ -510,7 +530,8 @@ public class CodebookCurationPage
 
     public Map<String, CAS> listCASesForCuration(List<AnnotationDocument> annotationDocuments,
             AnnotationDocument randomAnnotationDocument, Mode aMode)
-            throws UIMAException, ClassNotFoundException, IOException {
+        throws UIMAException, ClassNotFoundException, IOException
+    {
         Map<String, CAS> casses = new HashMap<>();
         for (AnnotationDocument annotationDocument : annotationDocuments) {
             String username = annotationDocument.getUser();
@@ -537,12 +558,14 @@ public class CodebookCurationPage
     }
 
     @Override
-    public void actionRefreshDocument(AjaxRequestTarget aTarget) {
+    public void actionRefreshDocument(AjaxRequestTarget aTarget)
+    {
         WicketUtil.refreshPage(aTarget, getPage());
     }
 
     @Override
-    public CAS getEditorCas() throws IOException {
+    public CAS getEditorCas() throws IOException
+    {
         AnnotatorState state = this.getModelObject();
 
         if (state.getDocument() == null) {
@@ -557,15 +580,19 @@ public class CodebookCurationPage
         return curationDocumentService.readCurationCas(state.getDocument());
     }
 
-    public User getCurrentUser() {
+    public User getCurrentUser()
+    {
         return getModelObject().getUser();
     }
 
     /**
-     * @return a map of all users and their corresponding CASes for the current
-     *         document (including the CURATION_USER and it's CAS)
+     * @return a map of all users and their corresponding CASes for the current document (including
+     *         the CURATION_USER and it's CAS)
      */
-    private Map<String, CAS> getUserCASes() {
+    // FIXME when the Curation for the doc is "opened" for the first time, the CURATION_USER Cas
+    // cannot be loaded..
+    private Map<String, CAS> getUserCASes()
+    {
         Map<String, CAS> curationCASes = new HashMap<>();
 
         // get all annotation documents of all users of the current doc
@@ -580,8 +607,9 @@ public class CodebookCurationPage
                 try {
                     cas = documentService.readAnnotationCas(annotationDocument);
                     curationCASes.put(username, cas);
-                } catch (IOException e) {
-                    error("Unable to load the curation CASes" + e.getMessage());
+                }
+                catch (IOException e) {
+                    error("Unable to load the curation CASes: " + e.getMessage());
                 }
 
             }
@@ -589,14 +617,16 @@ public class CodebookCurationPage
         // set the CAS for the CURATION_USER
         try {
             curationCASes.put(WebAnnoConst.CURATION_USER, getEditorCas());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             error("Unable to load the curation CASes" + e.getMessage());
         }
 
         return curationCASes;
     }
 
-    public Map<Codebook, List<CodebookUserSuggestion>> getUserSuggestionsOfCurrentDocument() {
+    public Map<Codebook, List<CodebookUserSuggestion>> getUserSuggestionsOfCurrentDocument()
+    {
         Project currentProject = getModelObject().getProject();
         if (currentProject == null)
             return new HashMap<>();
@@ -634,6 +664,7 @@ public class CodebookCurationPage
             }
         }
 
+        // check if there is a difference between the CodebookUserSuggestions
         for (List<CodebookUserSuggestion> suggestions : userSuggestions.values()) {
             boolean hasDiff = hasDiff(suggestions);
             for (CodebookUserSuggestion suggestion : suggestions)
@@ -643,37 +674,34 @@ public class CodebookCurationPage
         return userSuggestions;
     }
 
-    private boolean hasDiff(List<CodebookUserSuggestion> userSuggestions) {
+    private boolean hasDiff(List<CodebookUserSuggestion> userSuggestions)
+    {
         String val = userSuggestions.get(0).getValue();
+        boolean flag = false;
         for (CodebookUserSuggestion suggestion : userSuggestions) {
             if (val == null && suggestion.getValue() == null) {
-                return false;
+                flag = false;
             }
-            if ((val == null && suggestion.getValue() != null)
-                    || (val != null && suggestion.getValue() == null)) {
-                return true;
+            else if ((val == null && suggestion.getValue() != null)
+                    || (val != null && suggestion.getValue() == null)
+                    || (val != null && !val.equals(suggestion.getValue()))) {
+                flag = true;
             }
-
-            if (!val.equals(suggestion.getValue()))
-                return true;
         }
-        return false;
+        return flag;
     }
 
     // FIXME this doesn't seem to work properly?! (or did I get CodebookDiff
-  /*  // wrong?!)
-    private boolean hasDiff(Codebook codebook, List<Codebook> codebooks, Map<String, CAS> casMap) {
-        CasDiff.DiffResult diff = CodebookDiff.doCodebookDiff(codebookService,
-                codebook.getProject(),
-                CurationUtil.getCodebookTypes(casMap.get(CurationUtil.CURATION_USER), codebooks),
-                null, casMap, 0, 0);
-        if (diff.getIncompleteConfigurationSets().size() > 0) {
-            return true;
-        }
-        return diff.getDifferingConfigurationSets().size() > 0;
-    }*/
+    /*
+     * // wrong?!) private boolean hasDiff(Codebook codebook, List<Codebook> codebooks, Map<String,
+     * CAS> casMap) { CasDiff.DiffResult diff = CodebookDiff.doCodebookDiff(codebookService,
+     * codebook.getProject(), CurationUtil.getCodebookTypes(casMap.get(CurationUtil.CURATION_USER),
+     * codebooks), null, casMap, 0, 0); if (diff.getIncompleteConfigurationSets().size() > 0) {
+     * return true; } return diff.getDifferingConfigurationSets().size() > 0; }
+     */
 
-    private Project getProjectFromParameters(StringValue projectParam) {
+    private Project getProjectFromParameters(StringValue projectParam)
+    {
         Project project = null;
         if (projectParam != null && !projectParam.isEmpty()) {
             long projectId = projectParam.toLong();
@@ -682,7 +710,8 @@ public class CodebookCurationPage
         return project;
     }
 
-    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam) {
+    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam)
+    {
         SourceDocument document = null;
         if (documentParam != null && !documentParam.isEmpty()) {
             long documentId = documentParam.toLong();
@@ -692,12 +721,14 @@ public class CodebookCurationPage
     }
 
     private void handleParameters(AjaxRequestTarget aTarget, StringValue aProjectParameter,
-            StringValue aDocumentParameter, StringValue aFocusParameter, boolean aLockIfPreset) {
+            StringValue aDocumentParameter, StringValue aFocusParameter, boolean aLockIfPreset)
+    {
         // Get current project from parameters
         Project project = null;
         try {
             project = getProjectFromParameters(aProjectParameter);
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             error("Project [" + aProjectParameter + "] does not exist");
             return;
         }
@@ -707,7 +738,8 @@ public class CodebookCurationPage
         if (project != null) {
             try {
                 document = getDocumentFromParameters(project, aDocumentParameter);
-            } catch (NoResultException e) {
+            }
+            catch (NoResultException e) {
                 error("Document [" + aDocumentParameter + "] does not exist in project ["
                         + project.getId() + "]");
             }
@@ -752,11 +784,13 @@ public class CodebookCurationPage
             if (!document.equals(getModelObject().getDocument())) {
                 getModelObject().setDocument(document, getListOfDocs());
                 actionLoadDocument(aTarget, focus);
-            } else {
+            }
+            else {
                 try {
                     getModelObject().moveToUnit(getEditorCas(), focus, TOP);
                     actionRefreshDocument(aTarget);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     aTarget.addChildren(getPage(), IFeedback.class);
                     LOG.info("Error reading CAS " + e.getMessage());
                     error("Error reading CAS " + e.getMessage());
@@ -765,7 +799,8 @@ public class CodebookCurationPage
         }
     }
 
-    private List<DecoratedObject<SourceDocument>> listDocuments(Project aProject, User aUser) {
+    private List<DecoratedObject<SourceDocument>> listDocuments(Project aProject, User aUser)
+    {
         final List<DecoratedObject<SourceDocument>> allSourceDocuments = new ArrayList<>();
         List<SourceDocument> sdocs = curationDocumentService.listCuratableSourceDocuments(aProject);
 
@@ -778,12 +813,15 @@ public class CodebookCurationPage
         return allSourceDocuments;
     }
 
-    private IModel<List<DecoratedObject<Project>>> getAllowedProjects() {
-        return new LoadableDetachableModel<List<DecoratedObject<Project>>>() {
+    private IModel<List<DecoratedObject<Project>>> getAllowedProjects()
+    {
+        return new LoadableDetachableModel<List<DecoratedObject<Project>>>()
+        {
             private static final long serialVersionUID = -2518743298741342852L;
 
             @Override
-            protected List<DecoratedObject<Project>> load() {
+            protected List<DecoratedObject<Project>> load()
+            {
                 User user = userRepository
                         .get(SecurityContextHolder.getContext().getAuthentication().getName());
                 List<DecoratedObject<Project>> allowedProject = new ArrayList<>();
@@ -794,7 +832,8 @@ public class CodebookCurationPage
                         DecoratedObject<Project> dp = DecoratedObject.of(project);
                         if (projectsWithFinishedAnnos.contains(project)) {
                             dp.setColor("green");
-                        } else {
+                        }
+                        else {
                             dp.setColor("red");
                         }
                         allowedProject.add(dp);
@@ -807,27 +846,32 @@ public class CodebookCurationPage
 
     @Override
     @SuppressWarnings("unchecked")
-    public IModel<AnnotatorState> getModel() {
+    public IModel<AnnotatorState> getModel()
+    {
         return (IModel<AnnotatorState>) getDefaultModel();
     }
 
     @Override
-    public void setModel(IModel<AnnotatorState> aModel) {
+    public void setModel(IModel<AnnotatorState> aModel)
+    {
         setDefaultModel(aModel);
     }
 
     @Override
-    public AnnotatorState getModelObject() {
+    public AnnotatorState getModelObject()
+    {
         return (AnnotatorState) getDefaultModelObject();
     }
 
     @Override
-    public void setModelObject(AnnotatorState aModel) {
+    public void setModelObject(AnnotatorState aModel)
+    {
         setDefaultModelObject(aModel);
     }
 
     @Override
-    public List<SourceDocument> getListOfDocs() {
+    public List<SourceDocument> getListOfDocs()
+    {
         return curationDocumentService.listCuratableSourceDocuments(getModelObject().getProject());
     }
 
@@ -835,7 +879,8 @@ public class CodebookCurationPage
      * for the first time, open the <b>open document dialog</b>
      */
     @Override
-    public void renderHead(IHeaderResponse response) {
+    public void renderHead(IHeaderResponse response)
+    {
         super.renderHead(response);
 
         String jQueryString = "";
