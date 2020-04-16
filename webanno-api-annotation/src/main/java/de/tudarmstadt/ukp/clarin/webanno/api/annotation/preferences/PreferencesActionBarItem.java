@@ -47,6 +47,7 @@ public class PreferencesActionBarItem
     private void actionCompletePreferencesChange(AjaxRequestTarget aTarget)
     {
         page.actionLoadDocument(aTarget);
+        aTarget.add(getPage()); // TODO seid do we want this ?
     }
     
     private void actionShowPreferencesDialog(AjaxRequestTarget aTarget)

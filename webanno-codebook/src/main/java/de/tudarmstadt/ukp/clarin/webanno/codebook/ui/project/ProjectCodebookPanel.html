@@ -149,19 +149,19 @@
                   </div>
                 </div>
                 <div class="form-group form-row">
-                  <label wicket:id="parentCodebookLabel" class="col-sm-4 control-label"/>
+                  <label wicket:for="parent" class="col-sm-4 control-label">
+                    <wicket:label key="parentSelection"/>
+                  </label>
                   <div class="col-sm-8">
                     <select wicket:id="parent" class="form-control"></select>
                   </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group form-row">
+                  <label wicket:for="createTag" class="col-sm-4 control-label">
+                    <wicket:label key="createTag"/>
+                  </label>
                   <div class="col-sm-8">
-                    <div class="checkbox">
-                      <label wicket:for="createTag">
-                        <input wicket:id="createTag" type="checkbox"> Annotators may add new tags to
-                        this Codebook
-                      </label>
-                    </div>
+                    <input wicket:id="createTag" class="form-control-md" type="checkbox" checked/>
                   </div>
                 </div>
               </div>
