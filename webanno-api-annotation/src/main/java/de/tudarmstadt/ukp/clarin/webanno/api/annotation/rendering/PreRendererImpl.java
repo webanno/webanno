@@ -60,14 +60,15 @@ public class PreRendererImpl implements PreRenderer
         
         // Listing the features once is faster than repeatedly hitting the DB to list features for
         // every layer.
-        List<AnnotationFeature> allFeatures = annotationService.listAnnotationFeature(project);
+        List<AnnotationFeature> allFeatures = annotationService.listSupportedFeatures(project);
         
         // Render (custom) layers
         for (AnnotationLayer layer : aLayers) {
             List<AnnotationFeature> features = allFeatures.stream()
                     .filter(feature -> feature.getLayer().equals(layer))
                     .collect(toList());
-            Renderer renderer = layerSupportRegistry.getLayerSupport(layer).getRenderer(layer);
+            Renderer renderer = layerSupportRegistry.getLayerSupport(layer).createRenderer(layer,
+                () -> annotationService.listAnnotationFeature(layer));
             renderer.render(aCas, features, aResponse, windowBeginOffset, windowEndOffset);
         }
     }

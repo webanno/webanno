@@ -20,6 +20,7 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.annotation;
 import static de.tudarmstadt.ukp.clarin.webanno.api.CasUpgradeMode.FORCE_CAS_UPGRADE;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CURATION_USER;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_DOCUMENT_ID;
+import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_DOCUMENT_NAME;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_FOCUS;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_PROJECT_ID;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PROJECT_TYPE_ANNOTATION;
@@ -107,9 +108,12 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.SidebarPanel;
  * for pagination, annotation layer configuration, and Exporting document
  */
 @MountPath(value = "/annotation.html", alt = { "/annotate/${" + PAGE_PARAM_PROJECT_ID + "}",
-        "/annotate/${" + PAGE_PARAM_PROJECT_ID + "}/${" + PAGE_PARAM_DOCUMENT_ID + "}" })
-@ProjectType(id = PROJECT_TYPE_ANNOTATION, prio = 100)
-public class AnnotationPage extends AnnotationPageBase {
+        "/annotate/${" + PAGE_PARAM_PROJECT_ID + "}/${" + PAGE_PARAM_DOCUMENT_ID + "}",
+        "/annotate-by-name/${" + PAGE_PARAM_PROJECT_ID + "}/${" + PAGE_PARAM_DOCUMENT_NAME + "}" })
+@ProjectType(id = WebAnnoConst.PROJECT_TYPE_ANNOTATION, prio = 100)
+public class AnnotationPage
+    extends AnnotationPageBase
+{
     private static final String MID_NUMBER_OF_PAGES = "numberOfPages";
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPage.class);
@@ -156,9 +160,10 @@ public class AnnotationPage extends AnnotationPageBase {
 
             StringValue project = fragmentParameters.get(PAGE_PARAM_PROJECT_ID);
             StringValue document = fragmentParameters.get(PAGE_PARAM_DOCUMENT_ID);
+            StringValue name = fragmentParameters.get(PAGE_PARAM_DOCUMENT_NAME);
             focus = fragmentParameters.get(PAGE_PARAM_FOCUS);
 
-            handleParameters(project, document, focus, false);
+            handleParameters(project, document, name, focus, false);
         }
         commonInit(focus);
     }
@@ -173,9 +178,12 @@ public class AnnotationPage extends AnnotationPageBase {
 
         StringValue project = aPageParameters.get(PAGE_PARAM_PROJECT_ID);
         StringValue document = aPageParameters.get(PAGE_PARAM_DOCUMENT_ID);
+        StringValue name = aPageParameters.get(PAGE_PARAM_DOCUMENT_NAME);
         StringValue focus = aPageParameters.get(PAGE_PARAM_FOCUS);
 
         handleParameters(project, document, focus, true);
+        if (focus == null) focus = StringValue.valueOf(0);
+
         commonInit(focus);
     }
 
@@ -550,11 +558,14 @@ public class AnnotationPage extends AnnotationPageBase {
         return project;
     }
 
-    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam) {
+    private SourceDocument getDocumentFromParameters(Project aProject, StringValue documentParam,
+            StringValue nameParam) {
         SourceDocument document = null;
         if (documentParam != null && !documentParam.isEmpty()) {
             long documentId = documentParam.toLong();
             document = documentService.getSourceDocument(aProject.getId(), documentId);
+        } else if (nameParam != null && !nameParam.isEmpty()) {
+            document = documentService.getSourceDocument(aProject, nameParam.toString());
         }
         return document;
     }
@@ -570,11 +581,16 @@ public class AnnotationPage extends AnnotationPageBase {
 
                 StringValue project = aRequestParameters.getParameterValue(PAGE_PARAM_PROJECT_ID);
                 StringValue document = aRequestParameters.getParameterValue(PAGE_PARAM_DOCUMENT_ID);
+                StringValue name = aRequestParameters.getParameterValue(PAGE_PARAM_DOCUMENT_NAME);
                 StringValue focus = aRequestParameters.getParameterValue(PAGE_PARAM_FOCUS);
 
+                // nothing changed, do not check for project, because inception always opens
+                // on a project
+                if (document.isEmpty() && name.isEmpty() && focus.isEmpty()) {
+                    return;
+                }
                 SourceDocument previousDoc = getModelObject().getDocument();
-                handleParameters(project, document, focus, false);
-
+                handleParameters(project, document, name, focus, false);
                 // url is from external link, not just paging through documents,
                 // tabs may have changed depending on user rights
                 if (previousDoc == null) {
@@ -613,7 +629,8 @@ public class AnnotationPage extends AnnotationPageBase {
     }
 
     private void handleParameters(StringValue aProjectParameter,
-            StringValue aDocumentParameter, StringValue aFocusParameter, boolean aLockIfPreset)
+            StringValue aDocumentParameter, StringValue aNameParameter,
+            StringValue aFocusParameter, boolean aLockIfPreset)
     {
         // Get current project from parameters
         Project project = null;
@@ -628,7 +645,7 @@ public class AnnotationPage extends AnnotationPageBase {
         SourceDocument document = null;
         if (project != null) {
             try {
-                document = getDocumentFromParameters(project, aDocumentParameter);
+                document = getDocumentFromParameters(project, aDocumentParameter, aNameParameter);
             } catch (NoResultException e) {
                 error("Document [" + aDocumentParameter + "] does not exist in project ["
                         + project.getId() + "]");

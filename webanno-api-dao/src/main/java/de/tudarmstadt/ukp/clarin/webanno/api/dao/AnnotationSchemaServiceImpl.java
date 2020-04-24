@@ -29,21 +29,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
@@ -64,11 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,50 +94,25 @@ public class AnnotationSchemaServiceImpl
 
     private @PersistenceContext EntityManager entityManager;
 
-    private @Autowired FeatureSupportRegistry featureSupportRegistry;
-    private @Autowired ApplicationEventPublisher applicationEventPublisher;
-    private @Autowired LayerSupportRegistry layerSupportRegistry;
+    private final LayerSupportRegistry layerSupportRegistry;
 
     private @Autowired CodebookSchemaService codebookService;
 
-    private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
+    private final FeatureSupportRegistry featureSupportRegistry;
 
-    private List<ProjectInitializer> initializers;
-
-    public AnnotationSchemaServiceImpl()
+    @Autowired
+    public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
+            FeatureSupportRegistry aFeatureSupportRegistry)
     {
-        // Nothing to do
+        layerSupportRegistry = aLayerSupportRegistry;
+        featureSupportRegistry = aFeatureSupportRegistry;
     }
 
-    @EventListener
-    public void onContextRefreshedEvent(ContextRefreshedEvent aEvent)
+    public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
+            FeatureSupportRegistry aFeatureSupportRegistry, EntityManager aEntityManager)
     {
-        init();
-    }
-
-    /* package private */ void init()
-    {
-        List<ProjectInitializer> inits = new ArrayList<>();
-
-        if (initializerProxy != null) {
-            inits.addAll(initializerProxy);
-            AnnotationAwareOrderComparator.sort(inits);
-
-            Set<Class<? extends ProjectInitializer>> initializerClasses = new HashSet<>();
-            for (ProjectInitializer init : inits) {
-                if (initializerClasses.add(init.getClass())) {
-                    log.info("Found project initializer: {}",
-                            ClassUtils.getAbbreviatedName(init.getClass(), 20));
-                }
-                else {
-                    throw new IllegalStateException("There cannot be more than once instance "
-                            + "of each project initializer class! Duplicate instance of class: "
-                                    + init.getClass());
-                }
-            }
-        }
-
-        initializers = Collections.unmodifiableList(inits);
+        this(aLayerSupportRegistry, aFeatureSupportRegistry);
+        entityManager = aEntityManager;
     }
 
     @Override
@@ -549,58 +512,6 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     @Transactional
-    public void initializeProject(Project aProject)
-        throws IOException
-    {
-        Deque<ProjectInitializer> deque = new LinkedList<>(initializers);
-        Set<Class<? extends ProjectInitializer>> initsSeen = new HashSet<>();
-        Set<ProjectInitializer> initsDeferred = SetUtils.newIdentityHashSet();
-
-        Set<Class<? extends ProjectInitializer>> allInits = new HashSet<>();
-
-        for (ProjectInitializer initializer : deque) {
-            allInits.add(initializer.getClass());
-        }
-
-        while (!deque.isEmpty()) {
-            ProjectInitializer initializer = deque.pop();
-
-            if (!allInits.containsAll(initializer.getDependencies())) {
-                throw new IllegalStateException(
-                        "Missing dependencies of " + initializer + " initializer from " + deque);
-            }
-
-            if (initsDeferred.contains(initializer)) {
-                throw new IllegalStateException("Circular initializer dependencies in "
-                        + initsDeferred + " via " + initializer);
-            }
-
-            if (initsSeen.containsAll(initializer.getDependencies())) {
-                log.debug("Applying project initializer: {}", initializer);
-                initializer.configure(aProject);
-                initsSeen.add(initializer.getClass());
-                initsDeferred.clear();
-            }
-            else {
-                log.debug(
-                        "Deferring project initializer as dependencies are not yet fulfilled: [{}]",
-                        initializer);
-                deque.add(initializer);
-                initsDeferred.add(initializer);
-            }
-        }
-    }
-
-    @Override
-    @Transactional
-    public List<AnnotationLayer> listAnnotationType()
-    {
-        return entityManager.createQuery("FROM AnnotationLayer ORDER BY name",
-                AnnotationLayer.class).getResultList();
-    }
-
-    @Override
-    @Transactional
     public List<AnnotationLayer> listAnnotationLayer(Project aProject)
     {
         return entityManager
@@ -647,9 +558,33 @@ public class AnnotationSchemaServiceImpl
             return new ArrayList<>();
         }
 
-        return entityManager
-                .createQuery("FROM AnnotationFeature  WHERE layer =:layer ORDER BY uiName",
-                        AnnotationFeature.class).setParameter("layer", aLayer).getResultList();
+        String query = String.join("\n",
+                "FROM AnnotationFeature",
+                "WHERE layer = :layer",
+                "ORDER BY uiName");
+
+        return entityManager.createQuery(query, AnnotationFeature.class)
+                .setParameter("layer", aLayer)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listEnabledFeatures(AnnotationLayer aLayer)
+    {
+        if (isNull(aLayer) || isNull(aLayer.getId())) {
+            return new ArrayList<>();
+        }
+
+        String query = String.join("\n",
+                "FROM AnnotationFeature",
+                "WHERE layer = :layer",
+                "AND enabled = true",
+                "ORDER BY uiName");
+
+        return entityManager.createQuery(query, AnnotationFeature.class)
+                .setParameter("layer", aLayer)
+                .getResultList();
     }
 
     @Override
@@ -738,14 +673,82 @@ public class AnnotationSchemaServiceImpl
     }
 
     @Override
+    @Transactional
+    public List<AnnotationLayer> listSupportedLayers(Project aProject)
+    {
+        List<AnnotationLayer> supportedLayers = new ArrayList<>();
+
+        for (AnnotationLayer l : listAnnotationLayer(aProject)) {
+            try {
+                layerSupportRegistry.getLayerSupport(l);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported layers
+                continue;
+            }
+
+            // Add supported layers to the result
+            supportedLayers.add(l);
+        }
+
+        return supportedLayers;
+
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listSupportedFeatures(Project aProject)
+    {
+        List<AnnotationFeature> supportedFeatures = new ArrayList<>();
+
+        for (AnnotationFeature f : listAnnotationFeature(aProject)) {
+            try {
+                featureSupportRegistry.getFeatureSupport(f);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported features
+                continue;
+            }
+
+            // Add supported features to the result
+            supportedFeatures.add(f);
+        }
+
+        return supportedFeatures;
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listSupportedFeatures(AnnotationLayer aLayer)
+    {
+        List<AnnotationFeature> supportedFeatures = new ArrayList<>();
+
+        for (AnnotationFeature f : listAnnotationFeature(aLayer)) {
+            try {
+                featureSupportRegistry.getFeatureSupport(f);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported features
+                continue;
+            }
+
+            // Add supported features to the result
+            supportedFeatures.add(f);
+        }
+
+        return supportedFeatures;
+    }
+
+
+    @Override
     public TypeSystemDescription getCustomProjectTypes(Project aProject)
     {
         // Create a new type system from scratch
         TypeSystemDescription tsd = new TypeSystemDescription_impl();
 
-        List<AnnotationFeature> allFeaturesInProject = listAnnotationFeature(aProject);
+        List<AnnotationFeature> allFeaturesInProject = listSupportedFeatures(aProject);
 
-        listAnnotationLayer(aProject).stream()
+        listSupportedLayers(aProject).stream()
                 .filter(layer -> !layer.isBuiltIn())
                 .forEachOrdered(layer -> layerSupportRegistry.getLayerSupport(layer)
                 .generateTypes(tsd, layer, allFeaturesInProject));
@@ -767,9 +770,8 @@ public class AnnotationSchemaServiceImpl
 
         TypeSystemDescription builtInTypes = createTypeSystemDescription();
 
-        List<AnnotationLayer> allLayersInProject = listAnnotationLayer(aProject);
-        List<AnnotationFeature> allFeaturesInProject = listAnnotationFeature(aProject);
-
+        List<AnnotationLayer> allLayersInProject = listSupportedLayers(aProject);
+        List<AnnotationFeature> allFeaturesInProject = listSupportedFeatures(aProject);
         for (AnnotationLayer layer : allLayersInProject) {
             LayerSupport<?, ?> layerSupport = layerSupportRegistry.getLayerSupport(layer);
 
@@ -860,7 +862,7 @@ public class AnnotationSchemaServiceImpl
         // Types declared within the project
         typeSystems.add(getCustomProjectTypes(aProject));
 
-        return (TypeSystemDescription_impl) mergeTypeSystems(typeSystems);
+        return mergeTypeSystems(typeSystems);
     }
 
     @Override
@@ -1081,7 +1083,8 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public TypeAdapter getAdapter(AnnotationLayer aLayer)
     {
-        return layerSupportRegistry.getLayerSupport(aLayer).createAdapter(aLayer);
+        return layerSupportRegistry.getLayerSupport(aLayer).createAdapter(aLayer,
+            () -> listAnnotationFeature(aLayer));
     }
 
     @Override

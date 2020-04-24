@@ -71,7 +71,6 @@ import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.fit.factory.CasFactory;
-import org.apache.uima.fit.factory.ConfigurationParameterFactory;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
@@ -324,11 +323,11 @@ public class ImportExportServiceImpl
                 new IOException("No reader available for format [" + aFormatId + "]"));
 
         CollectionReaderDescription readerDescription = format.getReaderDescription(tsd);
-        ConfigurationParameterFactory.addConfigurationParameters(readerDescription,
+        addConfigurationParameters(readerDescription,
                 ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION,
                     aFile.getParentFile().getAbsolutePath(),
                 ResourceCollectionReaderBase.PARAM_PATTERNS,
-                new String[] { "[+]" + aFile.getName() });
+                 "[+]" + aFile.getName());
         CollectionReader reader = createReader(readerDescription);
 
         if (!reader.hasNext()) {
@@ -336,6 +335,7 @@ public class ImportExportServiceImpl
                     "Source file [" + aFile.getName() + "] not found in [" + aFile.getPath() + "]");
         }
         reader.getNext(cas);
+
         // Create sentence / token annotations if they are missing
         boolean hasTokens = exists(cas, getType(cas, Token.class));
         boolean hasSentences = exists(cas, getType(cas, Sentence.class));
@@ -356,8 +356,7 @@ public class ImportExportServiceImpl
             tokenize(cas);
         }
 
-        if (!exists(cas, getType(cas, Token.class))
-                || !exists(cas, getType(cas, Sentence.class))) {
+        if (!exists(cas, getType(cas, Token.class)) || !exists(cas, getType(cas, Sentence.class))) {
             throw new IOException("The document appears to be empty. Unable to detect any "
                     + "tokens or sentences. Empty documents cannot be imported.");
         }
