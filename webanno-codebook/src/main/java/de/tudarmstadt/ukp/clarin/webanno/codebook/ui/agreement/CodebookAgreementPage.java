@@ -104,6 +104,7 @@ public class CodebookAgreementPage
     private ProjectSelectionForm projectSelectionForm;
     /* package private by intention */ CodebookAgreementForm agreementForm;
     private WebMarkupContainer resultsContainer;
+    private WebMarkupContainer cbName;
     private AgreementCodebookTreePanel agreementCodebookTreePanel;
 
     public CodebookAgreementPage()
@@ -152,9 +153,17 @@ public class CodebookAgreementPage
         add(agreementForm = new CodebookAgreementForm("agreementForm",
                 Model.of(new CodebookAgreementFormModel())));
 
-        agreementForm.add(resultsContainer = new WebMarkupContainer("resultsContainer"));
+        resultsContainer = new WebMarkupContainer("resultsContainer");
         resultsContainer.setOutputMarkupPlaceholderTag(true);
+
+        cbName = new WebMarkupContainer("codebookName");
+        cbName.setOutputMarkupId(true);
+        cbName.setVisible(false);
+        cbName.add(new Label("codebookNameLabel", "emptyByIntention"));
+        resultsContainer.add(cbName);
+
         resultsContainer.add(new EmptyPanel(MID_RESULTS));
+        agreementForm.add(resultsContainer);
     }
 
     // The CASes cannot be serialized, so we make them transient here. However, it does not matter
@@ -328,7 +337,10 @@ public class CodebookAgreementPage
             this.getModelObject().measure = measureDropDown.getModelObject();
             // update traits editor accordingly
             this.updateTraitsEditor();
-            aTarget.add(measureDropDown, traitsContainer, runCalculationsButton);
+            // clear results
+            resultsContainer.addOrReplace(new EmptyPanel(MID_RESULTS));
+
+            aTarget.add(measureDropDown, traitsContainer, runCalculationsButton, resultsContainer);
         }
 
         void updateTraitsEditor()
@@ -349,7 +361,7 @@ public class CodebookAgreementPage
         }
 
         void actionSelectFeature(AjaxRequestTarget aTarget,
-                AnnotationFeature wrapperAnnotationFeature)
+                AnnotationFeature wrapperAnnotationFeature, CodebookNode selected)
         {
             // set wrapper feature
             this.getModelObject().feature = wrapperAnnotationFeature;
@@ -357,19 +369,27 @@ public class CodebookAgreementPage
             // update measure choices accordingly
             measureDropDown.setChoices(this::listMeasures);
 
+            // update cbName
+            cbName.addOrReplace(
+                    new Label("codebookNameLabel", selected.getUiName()));
+            cbName.setVisible(true);
+
+            // clear results
+            resultsContainer.addOrReplace(new EmptyPanel(MID_RESULTS));
+
             // TODO codebook features can be regarded as always compatible since they're SPANs!?
             // If the currently selected measure is not compatible with the selected feature, then
             // we clear the measure selection.
-//            boolean measureCompatibleWithFeature = measureDropDown.getModel() == null
-//                    || measureDropDown.getModel()
-//                            .map(k -> agreementRegistry.getAgreementMeasureSupport(k.getKey()))
-//                            .map(s -> s.accepts(wrapperAnnotationFeature)).orElse(false)
-//                            .getObject();
-//            if (!measureCompatibleWithFeature) {
-//                measureDropDown.setModelObject(null);
-//            }
+            // boolean measureCompatibleWithFeature = measureDropDown.getModel() == null
+            // || measureDropDown.getModel()
+            // .map(k -> agreementRegistry.getAgreementMeasureSupport(k.getKey()))
+            // .map(s -> s.accepts(wrapperAnnotationFeature)).orElse(false)
+            // .getObject();
+            // if (!measureCompatibleWithFeature) {
+            // measureDropDown.setModelObject(null);
+            // }
 
-            aTarget.add(measureDropDown, runCalculationsButton);
+            aTarget.add(measureDropDown, runCalculationsButton, resultsContainer);
         }
 
         @SuppressWarnings({ "rawtypes", "unchecked" })

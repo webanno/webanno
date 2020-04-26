@@ -35,14 +35,7 @@
 
       <div class="flex-content flex-v-container">
         <form wicket:id="agreementForm" class="flex-v-container flex-gutter">
-
-          <div class="page-header">
-            <h1>
-              <wicket:container wicket:id="name"/>
-            </h1>
-          </div>
-
-            <div class="row">
+          <div class="row">
 
               <div class="col-md-4">
                 <!--            CodebookTree Selection           -->
@@ -95,7 +88,10 @@
               </div>
 
               <!--            Results Container        -->
-              <div wicket:id="resultsContainer" class="col-md-8 flex-content flex-h-container">
+              <div wicket:id="resultsContainer" class="col-md-8 flex-content flex-v-container">
+                <div wicket:id="codebookName" class="alert alert-success text-center">
+                  <i>Selected Codebook:</i><strong><span wicket:id="codebookNameLabel"></span></strong>
+                </div>
                 <div class="flex-content flex-h-container" wicket:id="results"></div>
               </div>
 

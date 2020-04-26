@@ -22,6 +22,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.model.AnchoringMode.TOKENS;
 import static de.tudarmstadt.ukp.clarin.webanno.model.OverlapMode.ANY_OVERLAP;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -184,7 +185,7 @@ public class AgreementCodebookTreePanel
                 // create a wrapper annotation feature from the selected codebook and select the
                 // annotation feature in the agreement form
                 parentPage.agreementForm.actionSelectFeature(_target,
-                        createWrapperAnnotationFeature());
+                        Objects.requireNonNull(createWrapperAnnotationFeature()), selected);
 
                 // TODO for some reason, highlighting the node the way I try won't work..
                 highlightNode(_target, this.getModelObject(), true);
