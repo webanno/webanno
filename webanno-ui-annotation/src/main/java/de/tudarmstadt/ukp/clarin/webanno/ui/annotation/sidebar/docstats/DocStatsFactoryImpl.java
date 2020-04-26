@@ -71,7 +71,7 @@ public class DocStatsFactoryImpl
         for (int i = 0; i < tokens.size(); i++) {
             for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++) {
                 if (i + n < tokens.size()) {
-                    DocStats.NGram nGram = new DocStats.NGram(tokens.subList(i, i+n+1));
+                    DocStats.NGram nGram = new DocStats.NGram(tokens.subList(i, i + n + 1));
                     nGramFrequencies.get(n).computeIfPresent(nGram, (s, count) -> ++count);
                     nGramFrequencies.get(n).putIfAbsent(nGram, 1);
                 }
