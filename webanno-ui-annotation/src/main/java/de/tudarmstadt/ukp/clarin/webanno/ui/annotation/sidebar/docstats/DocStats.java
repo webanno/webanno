@@ -18,10 +18,13 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class DocStats
@@ -30,52 +33,115 @@ public class DocStats
 
     private static final long serialVersionUID = -3719857960844288525L;
 
-    private List<Pair<String, Integer>> sortedTokenFrequencies;
+    private final List<List<Pair<NGram, Integer>>> sortedFrequencies;
 
     // package private by intention
-    DocStats(List<Pair<String, Integer>> sortedTokenFrequencies)
+    DocStats(List<List<Pair<NGram, Integer>>> sortedFrequencies)
     {
-        this.sortedTokenFrequencies = sortedTokenFrequencies;
+        this.sortedFrequencies = sortedFrequencies;
     }
 
-    public List<Pair<String, Integer>> getSortedTokenFrequencies()
+    public List<Pair<NGram, Integer>> getSortedFrequencies(int nGram)
     {
-        return sortedTokenFrequencies;
-    }
-
-    // package private by intention
-    Integer getMaxTokenCount()
-    {
-        return sortedTokenFrequencies.get(0).getRight();
+        return sortedFrequencies.get(nGram);
     }
 
     // package private by intention
-    Integer getTotalTokenCount()
+    Integer getMaxCount(int nGram)
     {
-        return sortedTokenFrequencies.stream().mapToInt(Pair::getRight).sum();
+        return sortedFrequencies.get(nGram).get(0).getRight();
     }
 
     // package private by intention
-    List<Pair<String, Integer>> getTokenFrequency(Integer min, Integer max, String startWith)
+    Integer getTotalCount(int nGram)
     {
-        return this.sortedTokenFrequencies.stream()
-                .filter(e -> StringUtils.startsWithIgnoreCase(e.getKey(), startWith)
+        return sortedFrequencies.get(nGram).stream().mapToInt(Pair::getRight).sum();
+    }
+
+    // package private by intention
+    List<Pair<NGram, Integer>> getFilteredFrequencies(int nGram, Integer min, Integer max,
+            String startWith, String contains)
+    {
+        return this.sortedFrequencies.get(nGram).stream()
+                .filter(e -> StringUtils.startsWithIgnoreCase(e.getKey().get(0), startWith)
+                        && StringUtils.containsIgnoreCase(e.getKey().toString(), contains)
                         && e.getValue() >= min && e.getValue() <= max)
                 .collect(Collectors.toList());
     }
 
     // package private by intention
-    List<Pair<String, Integer>> getTopNTokens(Integer topN)
+    List<Pair<NGram, Integer>> getTopK(int nGram, Integer topK)
     {
-        if (this.sortedTokenFrequencies.size() >= topN)
-            return this.sortedTokenFrequencies.subList(0, topN);
+        if (this.sortedFrequencies.get(nGram).size() >= topK)
+            return this.sortedFrequencies.get(nGram).subList(0, topK);
         else
-            return this.sortedTokenFrequencies;
+            return this.sortedFrequencies.get(nGram);
     }
 
     // package private by intention
-    Integer getDistinctTokenCount()
+    Integer getDistinctNGramCount(int nGram)
     {
-        return this.sortedTokenFrequencies.size();
+        return this.sortedFrequencies.get(nGram).size();
+    }
+
+    public static class NGram
+        implements Serializable
+    {
+        private static final long serialVersionUID = 1222904112393313713L;
+        private final List<String> tokens;
+
+        public NGram(String... tokens)
+        {
+            this.tokens = Arrays.asList(tokens);
+        }
+
+        public NGram(List<String> tokens)
+        {
+            this.tokens = tokens;
+        }
+
+        public List<String> getAll()
+        {
+            return tokens;
+        }
+
+        public String get(int i)
+        {
+            return tokens.get(i);
+        }
+
+        public Integer getN()
+        {
+            return tokens.size();
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o)
+                return true;
+
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            NGram nGram = (NGram) o;
+
+            return new EqualsBuilder().append(tokens, nGram.tokens).isEquals();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return new HashCodeBuilder(17, 37).append(tokens).toHashCode();
+        }
+
+        @Override
+        public String toString()
+        {
+            String s = "";
+            for (String token : tokens)
+                s += token + " "; // no string builder necessary
+            return s.trim();
+        }
     }
 }

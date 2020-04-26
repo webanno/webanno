@@ -29,6 +29,12 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public interface DocStatsFactory
 {
+    public static final Integer DOC_STATS_MAX_N_GRAM = 3;
+    public static final Integer DOC_STATS_CSV_RECORD_SIZE = 2;
+    public static final Character DOC_STATS_CSV_DELIMITER = '\t';
+    public static final String DOC_STATS_PARENT_DIR = "stats";
+    public static final String DOC_STATS_FILE = "stats.tsv";
+
     DocStats create(Collection<Token> tokens);
 
     DocStats load(File csvFile) throws IOException;
@@ -37,5 +43,5 @@ public interface DocStatsFactory
 
     DocStats create(SourceDocument document) throws IOException, CASException;
 
-    DocStats createAndPersist(SourceDocument document) throws IOException, CASException;
+    DocStats createOrLoad(SourceDocument document) throws IOException, CASException;
 }

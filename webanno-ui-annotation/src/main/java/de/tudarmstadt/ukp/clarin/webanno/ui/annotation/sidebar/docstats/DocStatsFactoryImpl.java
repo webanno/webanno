@@ -55,11 +55,6 @@ public class DocStatsFactoryImpl
 {
     private final DocumentService documentService;
 
-    private static final Integer DOC_STATS_CSV_RECORD_SIZE = 2;
-    private static final Character DOC_STATS_CSV_DELIMITER = '\t';
-    private static final String DOC_STATS_PARENT_DIR = "stats";
-    private static final String DOC_STATS_FILE = "stats.tsv";
-
     @Autowired
     public DocStatsFactoryImpl(DocumentService documentService)
     {
@@ -68,19 +63,31 @@ public class DocStatsFactoryImpl
 
     private DocStats create(List<String> tokens)
     {
-        Map<String, Integer> tokenFrequencies = new HashMap<>();
+        List<Map<DocStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
+        // init one map per nGram
+        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
+            nGramFrequencies.add(new HashMap<>());
 
-        for (String token : tokens) {
-            tokenFrequencies.computeIfPresent(token, (s, count) -> ++count);
-            tokenFrequencies.putIfAbsent(token, 1);
+        for (int i = 0; i < tokens.size(); i++) {
+            for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++) {
+                if (i + n < tokens.size()) {
+                    DocStats.NGram nGram = new DocStats.NGram(tokens.subList(i, i+n+1));
+                    nGramFrequencies.get(n).computeIfPresent(nGram, (s, count) -> ++count);
+                    nGramFrequencies.get(n).putIfAbsent(nGram, 1);
+                }
+            }
         }
 
-        List<Pair<String, Integer>> sortedTokenFreqs = tokenFrequencies.entrySet().stream()
-                .map(e -> Pair.of(e.getKey(), e.getValue()))
-                .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
-                .collect(Collectors.toList());
+        // sort the nGrams by frequency and convert them to a single list
+        List<List<Pair<DocStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++) {
+            sortedNGramFreqs.add(nGramFrequencies.get(n).entrySet().stream()
+                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                    .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
+                    .collect(Collectors.toList()));
+        }
 
-        return new DocStats(sortedTokenFreqs);
+        return new DocStats(sortedNGramFreqs);
     }
 
     @Override
@@ -102,30 +109,29 @@ public class DocStatsFactoryImpl
     }
 
     @Override
-    public DocStats createAndPersist(SourceDocument document) throws IOException, CASException
+    public DocStats createOrLoad(SourceDocument document) throws IOException, CASException
     {
         File docRoot = documentService.getDocumentFolder(document).getParentFile();
         File statsRoot = new File(docRoot, DOC_STATS_PARENT_DIR);
         FileUtils.forceMkdir(statsRoot);
         File statsFile = new File(statsRoot, DOC_STATS_FILE);
 
-        if (!statsFile.exists()) {
-
+        if (statsFile.exists()) return load(statsFile);
+        else {
             DocStats stats = this.create(document);
 
             try (FileWriter writer = new FileWriter(statsFile);
                     CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
                             .withDelimiter(DOC_STATS_CSV_DELIMITER).withSkipHeaderRecord())) {
 
-                for (Pair<String, Integer> tokenFreq : stats.getSortedTokenFrequencies())
-                    csvPrinter.printRecord(tokenFreq.getKey(), tokenFreq.getValue());
+                for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
+                    for (Pair<DocStats.NGram, Integer> tokenFreq : stats.getSortedFrequencies(n))
+                        csvPrinter.printRecord(tokenFreq.getKey().toString(), tokenFreq.getValue());
                 csvPrinter.flush();
             }
 
             return stats;
         }
-        else
-            return load(statsFile);
     }
 
     @Override
@@ -136,21 +142,26 @@ public class DocStatsFactoryImpl
                 .withIgnoreEmptyLines().withSkipHeaderRecord()
                 .parse(new InputStreamReader(bis, StandardCharsets.UTF_8));
 
-        List<Pair<String, Integer>> orderedTokenFreqs = new ArrayList<>();
-        for (CSVRecord tokenFreq : records) {
-            if (tokenFreq.size() != DOC_STATS_CSV_RECORD_SIZE)
+        List<List<Pair<DocStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
+            sortedNGramFreqs.add(new ArrayList<>());
+
+        for (CSVRecord nGramFreq : records) {
+            if (nGramFreq.size() != DOC_STATS_CSV_RECORD_SIZE)
                 throw new IOException("Cannot parse ");
-            orderedTokenFreqs.add(Pair.of(tokenFreq.get(0), Integer.parseInt(tokenFreq.get(1))));
+            String[] tokens = nGramFreq.get(0).split(" ");
+            sortedNGramFreqs.get(tokens.length - 1)
+                    .add(Pair.of(new DocStats.NGram(), Integer.parseInt(nGramFreq.get(1))));
         }
 
-        return new DocStats(orderedTokenFreqs);
+        return new DocStats(sortedNGramFreqs);
     }
 
     @EventListener
-    public void onApplicationEvent(AfterDocumentCreatedEvent event)
+    public void onAfterDocumentCreatedEvent(AfterDocumentCreatedEvent event)
     {
         try {
-            this.createAndPersist(event.getDocument());
+            this.createOrLoad(event.getDocument());
         }
         catch (IOException | CASException e) {
             // TODO what to throw or do?!
@@ -159,10 +170,10 @@ public class DocStatsFactoryImpl
     }
 
     @EventListener
-    public void onApplicationEvent(DocumentOpenedEvent event)
+    public void onDocumentOpenedEvent(DocumentOpenedEvent event)
     {
         try {
-            this.createAndPersist(event.getDocument());
+            this.createOrLoad(event.getDocument());
         }
         catch (IOException | CASException e) {
             // TODO what to throw or do?!

@@ -18,24 +18,21 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.uima.cas.CASException;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.BootstrapAjaxTabbedPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebar_ImplBase;
 
@@ -46,10 +43,7 @@ public class DocumentStatsSidebar
 
     private LoadableDetachableModel<DocStats> stats;
 
-    private TextField<String> tokenFilter;
-    private TextField<Integer> minCount;
-    private TextField<Integer> maxCount;
-    private Form<String> filterForm;
+    private AjaxTabbedPanel<ITab> tabPanel;
 
     private @SpringBean DocStatsFactory docStatsFactory;
 
@@ -76,116 +70,51 @@ public class DocumentStatsSidebar
             }
         };
 
-        DocStats s = this.stats.getObject();
-
-        // freq filter form
-        this.filterForm = new Form<>("filterForm");
-        this.filterForm.setOutputMarkupId(true);
-
-        // min count
-        this.filterForm.add(new Label("minCountLabel", "Minimum Count"));
-        this.minCount = new TextField<>("minCount", new Model<>(0), Integer.class);
-        this.minCount.setOutputMarkupId(true);
-        this.minCount
-                .add(new LambdaAjaxFormComponentUpdatingBehavior("update", this::applyFilters));
-        this.minCount.add(new LambdaAjaxFormComponentUpdatingBehavior("blur", this::applyFilters));
-        this.filterForm.add(this.minCount);
-
-        // max count
-        this.filterForm.add(new Label("maxCountLabel", "Maximum Count"));
-        this.maxCount = new TextField<>("maxCount", new Model<>(s.getMaxTokenCount()),
-                Integer.class);
-        this.maxCount.setOutputMarkupId(true);
-        this.maxCount
-                .add(new LambdaAjaxFormComponentUpdatingBehavior("update", this::applyFilters));
-        this.maxCount.add(new LambdaAjaxFormComponentUpdatingBehavior("blur", this::applyFilters));
-        this.filterForm.add(this.maxCount);
-
-        // search for word
-        this.filterForm.add(new Label("tokenFilterLabel", "Filter by word"));
-        this.tokenFilter = new TextField<>("tokenFilter", new Model<>(""));
-        this.tokenFilter.setOutputMarkupId(true);
-        this.tokenFilter
-                .add(new LambdaAjaxFormComponentUpdatingBehavior("update", this::applyFilters));
-        this.tokenFilter
-                .add(new LambdaAjaxFormComponentUpdatingBehavior("blur", this::applyFilters));
-        this.filterForm.add(this.tokenFilter);
-
-        // reset button
-        LambdaAjaxButton<String> resetFilters = new LambdaAjaxButton<>("resetFilters",
-                this::resetFilters);
-        resetFilters.setOutputMarkupId(true);
-        this.filterForm.add(resetFilters);
-
-        // submit button;
-        LambdaAjaxButton<String> applyFilters = new LambdaAjaxButton<>("applyFilters",
-                this::applyFilters);
-        applyFilters.setOutputMarkupId(true);
-        this.filterForm.add(applyFilters);
-        this.filterForm.setDefaultButton(applyFilters);
-
-        this.add(this.filterForm);
-
-        // token counts
-        this.add(new Label("totalTokens", s.getTotalTokenCount()));
-        this.add(new Label("distinctTokens", s.getDistinctTokenCount()));
-        this.updateListView(s.getSortedTokenFrequencies());
+        tabPanel = new BootstrapAjaxTabbedPanel<>("tabPanel", makeTabs());
+        tabPanel.setOutputMarkupPlaceholderTag(true);
+        this.add(tabPanel);
 
         this.stats.detach();
     }
 
-    private void resetFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
+    private List<ITab> makeTabs()
     {
-        Integer max = this.stats.getObject().getMaxTokenCount();
-        this.stats.detach();
+        List<ITab> tabs = new ArrayList<>();
 
-        this.minCount.setModelObject(0);
-        this.maxCount.setModelObject(max);
-        this.tokenFilter.setModelObject("");
-        ajaxRequestTarget.add(this.minCount);
-        ajaxRequestTarget.add(this.tokenFilter);
-        this.applyFilters(ajaxRequestTarget);
-    }
-
-    private void applyFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
-    {
-        this.applyFilters(ajaxRequestTarget);
-    }
-
-    private void applyFilters(AjaxRequestTarget ajaxRequestTarget)
-    {
-        Integer min = this.minCount.getModelObject();
-        Integer max = this.maxCount.getModelObject();
-
-        String startWith = this.tokenFilter.getModelObject();
-        startWith = startWith == null ? "" : startWith;
-
-        this.updateListView(stats.getObject().getTokenFrequency(min, max, startWith));
-        this.stats.detach();
-
-        ajaxRequestTarget.add(this);
-        ajaxRequestTarget.add(this.filterForm);
-    }
-
-    private void updateListView(List<Pair<String, Integer>> list)
-    {
-        // TODO maybe use (Ajax)DataView ?
-        ListView<Pair<String, Integer>> tokenFreqs = new ListView<Pair<String, Integer>>(
-                "tokenFreqs", list)
-        {
-            private static final long serialVersionUID = -4707500638635391896L;
-
-            @Override
-            protected void populateItem(ListItem item)
+        for (int n = 0; n < DocStatsFactory.DOC_STATS_MAX_N_GRAM; n++) {
+            // create 1 tab per n-gram, maybe extend to keywords and other useful statistics
+            // like summaries
+            int finalN = n;
+            String panelName = finalN + "-grams";
+            tabs.add(new AbstractTab(Model.of(panelName))
             {
-                @SuppressWarnings("unchecked")
-                Pair<String, Integer> e = (Pair<String, Integer>) item.getModelObject();
-                item.add(new Label("token", e.getKey()));
-                item.add(new Label("count", e.getValue()));
-            }
-        };
-        tokenFreqs.setOutputMarkupId(true);
-        this.addOrReplace(tokenFreqs);
-    }
+                private static final long serialVersionUID = 2809743572231646654L;
 
+                @Override
+                public WebMarkupContainer getPanel(String panelId)
+                {
+                    return new NGramStatsPanel(panelId, stats, finalN);
+                }
+            });
+        }
+
+        // tabs.add(new AbstractTab(Model.of("Details"))
+        // {
+        // private static final long serialVersionUID = 6703144434578403272L;
+        //
+        // @Override
+        // public Panel getPanel(String panelId)
+        // {
+        // return new ProjectDetailPanel(panelId, selectedProject);
+        // }
+        //
+        // @Override
+        // public boolean isVisible()
+        // {
+        // return selectedProject.getObject() != null;
+        // }
+        // });
+
+        return tabs;
+    }
 }
