@@ -32,6 +32,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStats;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsFactory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.BootstrapAjaxTabbedPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebar_ImplBase;
@@ -41,26 +44,26 @@ public class DocumentStatsSidebar
 {
     private static final long serialVersionUID = -694508827886594987L;
 
-    private LoadableDetachableModel<DocStats> stats;
+    private LoadableDetachableModel<NGramStats> stats;
 
     private AjaxTabbedPanel<ITab> tabPanel;
 
-    private @SpringBean DocStatsFactory docStatsFactory;
+    private @SpringBean NGramStatsFactory nGramStatsFactory;
 
     public DocumentStatsSidebar(String aId, IModel<AnnotatorState> aModel,
             AnnotationPage aAnnotationPage)
     {
         super(aId, aModel, null, null, aAnnotationPage);
 
-        this.stats = new LoadableDetachableModel<DocStats>()
+        this.stats = new LoadableDetachableModel<NGramStats>()
         {
             private static final long serialVersionUID = 4666440621462423520L;
 
             @Override
-            protected DocStats load()
+            protected NGramStats load()
             {
                 try {
-                    return docStatsFactory.create(aModel.getObject().getDocument());
+                    return nGramStatsFactory.create(aModel.getObject().getDocument());
                 }
                 catch (IOException | CASException e) {
                     // TODO what to throw or do?!
@@ -81,11 +84,11 @@ public class DocumentStatsSidebar
     {
         List<ITab> tabs = new ArrayList<>();
 
-        for (int n = 0; n < DocStatsFactory.DOC_STATS_MAX_N_GRAM; n++) {
+        for (int n = 0; n < NGramStatsFactory.MAX_N_GRAM; n++) {
             // create 1 tab per n-gram, maybe extend to keywords and other useful statistics
             // like summaries
             int finalN = n;
-            String panelName = finalN + "-grams";
+            String panelName = (finalN + 1) + "-grams";
             tabs.add(new AbstractTab(Model.of(panelName))
             {
                 private static final long serialVersionUID = 2809743572231646654L;
@@ -97,23 +100,6 @@ public class DocumentStatsSidebar
                 }
             });
         }
-
-        // tabs.add(new AbstractTab(Model.of("Details"))
-        // {
-        // private static final long serialVersionUID = 6703144434578403272L;
-        //
-        // @Override
-        // public Panel getPanel(String panelId)
-        // {
-        // return new ProjectDetailPanel(panelId, selectedProject);
-        // }
-        //
-        // @Override
-        // public boolean isVisible()
-        // {
-        // return selectedProject.getObject() != null;
-        // }
-        // });
 
         return tabs;
     }

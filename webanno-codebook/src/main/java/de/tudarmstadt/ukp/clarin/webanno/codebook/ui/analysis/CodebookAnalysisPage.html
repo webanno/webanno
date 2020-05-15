@@ -19,26 +19,21 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 <wicket:extend>
-    <div class="flex-content flex-h-container flex-gutter row">
-
-
+    <div class="flex-content flex-h-container flex-gutter align-items-stretch scrolling mb-2 mt-1">
         <!--          Left        -->
-        <div class="flex-sidebar flex-v-container flex-gutter">
+        <div class="flex-v-container" style="flex-basis: 20%">
             <!--            Project Selection        -->
-            <span wicket:id="projectSelectionForm"></span>
+            <div wicket:id="projectSelectionForm" class="flex-v-container flex-gutter flex-content"></div>
             <!--            Document Selection        -->
-            <span wicket:id="documentSelectionForm"></span>
+            <div wicket:id="documentSelectionForm" class="flex-v-container flex-gutter flex-content"></div>
         </div>
 
-        <!--          Main statsContainer       -->
-        <div class="row no-gutters">
+        <!--          projectStatsContainer       -->
+        <div wicket:id="projectStatsContainer" class="flex-content flex-h-container">
+        </div>
 
-            <div wicket:id="projectStatsContainer" class="col-md-12">
-            </div>
-
-            <div wicket:id="documentStatsContainer" class="col-md-12">
-            </div>
-
+        <!--          documentStatsContainer       -->
+        <div wicket:id="documentStatsContainer" class="flex-content flex-h-container">
         </div>
 
     </div>

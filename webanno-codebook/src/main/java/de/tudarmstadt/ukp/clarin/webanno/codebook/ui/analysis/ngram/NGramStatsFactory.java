@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -27,21 +28,23 @@ import org.apache.uima.cas.CASException;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
-public interface DocStatsFactory
+public interface NGramStatsFactory
 {
-    public static final Integer DOC_STATS_MAX_N_GRAM = 3;
-    public static final Integer DOC_STATS_CSV_RECORD_SIZE = 2;
-    public static final Character DOC_STATS_CSV_DELIMITER = '\t';
-    public static final String DOC_STATS_PARENT_DIR = "stats";
-    public static final String DOC_STATS_FILE = "stats.tsv";
+    public static final Integer MAX_N_GRAM = 3;
+    public static final Integer TSV_RECORD_SIZE = 2;
+    public static final Character TSV_DELIMITER = '\t';
+    public static final String NGRAM_STATS_PARENT_DIR = "stats";
+    public static final String NGRAM_STATS_FILE = "ngrams.tsv";
 
-    DocStats create(Collection<Token> tokens);
+    NGramStats create(Collection<Token> tokens);
 
-    DocStats load(File csvFile) throws IOException;
+    NGramStats load(File csvFile) throws IOException;
 
-    DocStats create(CAS cas) throws CASException;
+    NGramStats create(CAS cas) throws CASException;
 
-    DocStats create(SourceDocument document) throws IOException, CASException;
+    NGramStats create(SourceDocument document) throws IOException, CASException;
 
-    DocStats createOrLoad(SourceDocument document) throws IOException, CASException;
+    NGramStats createOrLoad(SourceDocument document) throws IOException, CASException;
+
+    NGramStats merge(List<NGramStats> stats);
 }

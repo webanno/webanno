@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
 
 import java.util.List;
 
@@ -45,15 +45,15 @@ public class NGramStatsPanel
     private Form<String> filterForm;
 
     private int nGram;
-    LoadableDetachableModel<DocStats> model;
+    LoadableDetachableModel<NGramStats> model;
 
-    public NGramStatsPanel(String id, LoadableDetachableModel<DocStats> model, int nGram)
+    public NGramStatsPanel(String id, LoadableDetachableModel<NGramStats> model, int nGram)
     {
         super(id, model);
         this.nGram = nGram;
 
         this.model = model;
-        DocStats s = this.model.getObject();
+        NGramStats s = this.model.getObject();
 
         // freq filter form
         this.filterForm = new Form<>("filterForm");
@@ -114,7 +114,7 @@ public class NGramStatsPanel
         this.add(this.filterForm);
 
         // nGram Type
-        this.add(new Label("nGramType", nGram + "-Gram"));
+        this.add(new Label("nGramType", (nGram + 1) + "-Gram"));
         // token counts
         this.add(new Label("total", s.getTotalCount(this.nGram)));
         this.add(new Label("distinct", s.getDistinctNGramCount(this.nGram)));
@@ -160,11 +160,10 @@ public class NGramStatsPanel
         ajaxRequestTarget.add(this.filterForm);
     }
 
-    private void updateListView(List<Pair<DocStats.NGram, Integer>> list)
+    private void updateListView(List<Pair<NGramStats.NGram, Integer>> list)
     {
         // TODO maybe use (Ajax)DataView ?
-        ListView<Pair<DocStats.NGram, Integer>> tokenFreqs = new
-                ListView<Pair<DocStats.NGram, Integer>>(
+        ListView<Pair<NGramStats.NGram, Integer>> tokenFreqs = new ListView<Pair<NGramStats.NGram, Integer>>(
                 "freqs", list)
         {
             private static final long serialVersionUID = -4707500638635391896L;
@@ -173,7 +172,7 @@ public class NGramStatsPanel
             protected void populateItem(ListItem item)
             {
                 @SuppressWarnings("unchecked")
-                Pair<DocStats.NGram, Integer> e = (Pair<DocStats.NGram, Integer>) item
+                Pair<NGramStats.NGram, Integer> e = (Pair<NGramStats.NGram, Integer>) item
                         .getModelObject();
                 item.add(new Label("ngram", e.getKey().toString()));
                 item.add(new Label("count", e.getValue()));

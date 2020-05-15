@@ -1,38 +1,45 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
 
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
+import java.io.IOException;
+import java.nio.file.Files;
 
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.basic.MultiLineLabel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+
+import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
 public class DocumentStatsPanel
-    extends Panel
+    extends StatsPanel<SourceDocument>
 {
     private static final long serialVersionUID = -1736911006985851577L;
 
-    SourceDocument selectedDocument;
+    private @SpringBean DocumentService documentService;
 
     public DocumentStatsPanel(String id)
     {
         super(id);
         this.add(new Label("documentName", "No Document Selected"));
-        this.selectedDocument = null;
+        this.add(new MultiLineLabel("docInfo", "No Document Selected"));
     }
 
-    public void update(SourceDocument selectedDocument)
+    @Override
+    public void update(SourceDocument targetDoc)
     {
-        this.selectedDocument = selectedDocument;
-        if (this.selectedDocument != null)
-            this.addOrReplace(new Label("documentName", selectedDocument.getName()));
-    }
+        this.analysisTarget = targetDoc;
+        if (this.analysisTarget != null) {
+            this.addOrReplace(new Label("documentName", targetDoc.getName()));
 
-    public SourceDocument getSelectedDocument()
-    {
-        return selectedDocument;
-    }
+            try {
+                String docTxt = new String(Files.readAllBytes(
+                        documentService.getSourceDocumentFile(analysisTarget).toPath()));
+                this.addOrReplace(new MultiLineLabel("docInfo", docTxt));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 
-    public void setSelectedDocument(SourceDocument selectedDocument)
-    {
-        this.selectedDocument = selectedDocument;
+        }
     }
 }

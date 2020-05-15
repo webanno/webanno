@@ -36,6 +36,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.api.CodebookAnalysisService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -55,6 +56,7 @@ public class CodebookAnalysisPage
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean UserDao userRepository;
     private @SpringBean AgreementMeasureSupportRegistry agreementRegistry;
+    private @SpringBean CodebookAnalysisService analysisService;
 
     private ProjectSelectionForm projectSelectionForm;
     private DocumentSelectionForm documentSelectionForm;
@@ -116,11 +118,11 @@ public class CodebookAnalysisPage
         // init main
         projectStatsPanel = new ProjectStatsPanel(PROJECT_STATS);
         projectStatsPanel.setOutputMarkupPlaceholderTag(true);
-        projectStatsPanel.add(visibleWhen(() -> projectStatsPanel.getSelectedProject() != null));
+        projectStatsPanel.add(visibleWhen(() -> projectStatsPanel.getAnalysisTarget() != null));
 
         documentStatsPanel = new DocumentStatsPanel(DOCUMENT_STATS);
         documentStatsPanel.setOutputMarkupPlaceholderTag(true);
-        documentStatsPanel.add(visibleWhen(() -> documentStatsPanel.getSelectedDocument() != null));
+        documentStatsPanel.add(visibleWhen(() -> documentStatsPanel.getAnalysisTarget() != null));
 
         this.add(projectSelectionForm, documentSelectionForm, projectStatsPanel,
                 documentStatsPanel);

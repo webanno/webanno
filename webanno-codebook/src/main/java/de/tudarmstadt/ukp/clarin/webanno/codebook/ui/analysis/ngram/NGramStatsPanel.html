@@ -18,8 +18,9 @@
 -->
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-    <div class="flex-content flex-v-container">
-        <form wicket:id="filterForm" class="card mt-1">
+    <div class="flex-v-container">
+        <!-- Filter Form -->
+        <form wicket:id="filterForm" class="card mt-1" style="flex: .3">
             <div class="card-header">Filters</div>
 
             <div class="card-body">
@@ -67,26 +68,31 @@
             </div>
         </form>
 
+        <!-- NGram Freqs-->
+        <div class="card flex-content mt-1">
+            <div class="card-header">
+                <span wicket:id="nGramType">[nGramType]</span> Frequencies
+            </div>
+            <div class="card-body flex-v-container flex-no-gutters scrolling"
+                 style="overflow-x: hidden;">
 
-        <div class="card mt-2">
-            <div class="card-header"><span wicket:id="nGramType">[nGramType]</span> Frequencies</div>
-            <div class="card-body" style="overflow-y: scroll; max-height: 85vh">
-                <div class="row">
-                    <div class="col-md-9 pull-left">Total</div>
-                    <label wicket:id="total" class="col-sm-3 float-right"
-                           style="overflow-wrap: break-word;"/>
+                <div class="flex-content flex-h-container flex-no-gutter justify-content-between">
+                    <div class="flex-content">Total</div>
+                    <label wicket:id="total" class="flex-content text-right"></label>
                 </div>
-                <div class="row">
-                    <div class="col-md-9 pull-left">Distinct</div>
-                    <label wicket:id="distinct" class="col-sm-3 float-right"
-                           style="overflow-wrap: break-word;"/>
+
+                <div class="flex-content flex-h-container flex-no-gutter justify-content-between">
+                    <div class="flex-content">Distinct</div>
+                    <label wicket:id="distinct" class="flex-content text-right"></label>
                 </div>
+
                 <hr/>
-                <div class="row" wicket:id="freqs">
-                    <div wicket:id="ngram" class="col-md-9" style="overflow-wrap: break-word;">
+
+                <div wicket:id="freqs" class="flex-content flex-h-container flex-no-gutter justify-content-between" style="border-bottom : 1px dotted !important;">
+                    <div wicket:id="ngram" class="flex-content" style="overflow-wrap: break-word;">
                         [nGram]
                     </div>
-                    <div wicket:id="count" class="col-md-3 float-right">
+                    <div wicket:id="count" class="flex-content text-right">
                         [Count]
                     </div>
                 </div>

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -50,82 +50,118 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 @Component
-public class DocStatsFactoryImpl
-    implements DocStatsFactory
+public class NGramStatsFactoryImpl
+    implements NGramStatsFactory
 {
     private final DocumentService documentService;
 
     @Autowired
-    public DocStatsFactoryImpl(DocumentService documentService)
+    public NGramStatsFactoryImpl(DocumentService documentService)
     {
         this.documentService = documentService;
     }
 
-    private DocStats create(List<String> tokens)
+    private NGramStats create(List<String> tokens)
     {
-        List<Map<DocStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
+        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = this
+                .createFrequencyMapsFromTokens(tokens);
+        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = createSortedList(
+                nGramFrequencies);
+
+        return new NGramStats(sortedNGramFreqs);
+    }
+
+    private List<Map<NGramStats.NGram, Integer>> createFrequencyMapsFromTokens(List<String> tokens)
+    {
+        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
         // init one map per nGram
-        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
+        for (int n = 0; n < MAX_N_GRAM; n++)
             nGramFrequencies.add(new HashMap<>());
 
         for (int i = 0; i < tokens.size(); i++) {
-            for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++) {
+            for (int n = 0; n < MAX_N_GRAM; n++) {
                 if (i + n < tokens.size()) {
-                    DocStats.NGram nGram = new DocStats.NGram(tokens.subList(i, i + n + 1));
+                    NGramStats.NGram nGram = new NGramStats.NGram(
+                            // wrap in ArrayList to avoid SerializationException
+                            new ArrayList<>(tokens.subList(i, i + n + 1)));
                     nGramFrequencies.get(n).computeIfPresent(nGram, (s, count) -> ++count);
                     nGramFrequencies.get(n).putIfAbsent(nGram, 1);
                 }
             }
         }
+        return nGramFrequencies;
+    }
 
+    private List<Map<NGramStats.NGram, Integer>> createFrequencyMapsFromSortedNGramFrequencies(
+            List<List<Pair<NGramStats.NGram, Integer>>> sortedFreqs)
+    {
+        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
+        // init one map per nGram
+        for (int n = 0; n < MAX_N_GRAM; n++)
+            nGramFrequencies.add(new HashMap<>());
+
+        for (int i = 0; i < sortedFreqs.size(); i++) {
+            for (Pair<NGramStats.NGram, Integer> nGram : sortedFreqs.get(i)) {
+                Map<NGramStats.NGram, Integer> nGramMap = nGramFrequencies.get(i);
+                nGramMap.computeIfPresent(nGram.getLeft(), (ng, num) -> num += nGram.getRight());
+                nGramMap.putIfAbsent(nGram.getLeft(), nGram.getRight());
+            }
+        }
+
+        return nGramFrequencies;
+    }
+
+    private List<List<Pair<NGramStats.NGram, Integer>>> createSortedList(
+            List<Map<NGramStats.NGram, Integer>> nGramFrequencies)
+    {
         // sort the nGrams by frequency and convert them to a single list
-        List<List<Pair<DocStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
-        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++) {
+        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        for (int n = 0; n < MAX_N_GRAM; n++) {
             sortedNGramFreqs.add(nGramFrequencies.get(n).entrySet().stream()
                     .map(e -> Pair.of(e.getKey(), e.getValue()))
                     .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
                     .collect(Collectors.toList()));
         }
-
-        return new DocStats(sortedNGramFreqs);
+        return sortedNGramFreqs;
     }
 
     @Override
-    public DocStats create(Collection<Token> tokens)
+    public NGramStats create(Collection<Token> tokens)
     {
         return this.create(tokens.stream().map(Token::getText).collect(Collectors.toList()));
     }
 
     @Override
-    public DocStats create(CAS cas) throws CASException
+    public NGramStats create(CAS cas) throws CASException
     {
         return this.create(JCasUtil.select(cas.getJCas(), Token.class));
     }
 
     @Override
-    public DocStats create(SourceDocument document) throws IOException, CASException
+    public NGramStats create(SourceDocument document) throws IOException, CASException
     {
         return this.create(this.documentService.createOrReadInitialCas(document));
     }
 
     @Override
-    public DocStats createOrLoad(SourceDocument document) throws IOException, CASException
+    public NGramStats createOrLoad(SourceDocument document) throws IOException, CASException
     {
         File docRoot = documentService.getDocumentFolder(document).getParentFile();
-        File statsRoot = new File(docRoot, DOC_STATS_PARENT_DIR);
+        File statsRoot = new File(docRoot, NGRAM_STATS_PARENT_DIR);
         FileUtils.forceMkdir(statsRoot);
-        File statsFile = new File(statsRoot, DOC_STATS_FILE);
+        File statsFile = new File(statsRoot, NGRAM_STATS_FILE);
 
-        if (statsFile.exists()) return load(statsFile);
+        if (statsFile.exists())
+            return load(statsFile);
         else {
-            DocStats stats = this.create(document);
-
+            NGramStats stats = this.create(document);
+            // persist stats
             try (FileWriter writer = new FileWriter(statsFile);
                     CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                            .withDelimiter(DOC_STATS_CSV_DELIMITER).withSkipHeaderRecord())) {
+                            .withDelimiter(TSV_DELIMITER).withSkipHeaderRecord())) {
 
-                for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
-                    for (Pair<DocStats.NGram, Integer> tokenFreq : stats.getSortedFrequencies(n))
+                for (int n = 0; n < MAX_N_GRAM; n++)
+                    for (Pair<NGramStats.NGram, Integer> tokenFreq : stats.getSortedFrequencies(n))
                         csvPrinter.printRecord(tokenFreq.getKey().toString(), tokenFreq.getValue());
                 csvPrinter.flush();
             }
@@ -135,26 +171,55 @@ public class DocStatsFactoryImpl
     }
 
     @Override
-    public DocStats load(File csvFile) throws IOException
+    public NGramStats merge(List<NGramStats> toMerge)
+    {
+        if (toMerge.size() == 1)
+            return toMerge.get(0);
+
+        List<Map<NGramStats.NGram, Integer>> mergedFrequencies = new ArrayList<>();
+        for (int i = 0; i < MAX_N_GRAM; i++)
+            mergedFrequencies.add(new HashMap<>());
+
+        // merge all input NGramStats
+        for (NGramStats ngStats : toMerge) {
+            // create the freq maps per input
+            List<Map<NGramStats.NGram, Integer>> nGramFreqs = this
+                    .createFrequencyMapsFromSortedNGramFrequencies(ngStats.getSortedFrequencies());
+
+            // join the maps with the mergedFrequencies
+            for (int i = 0; i < MAX_N_GRAM; i++) {
+                int finalI = i;
+                nGramFreqs.get(i).forEach((nG, cnt) -> {
+                    mergedFrequencies.get(finalI).computeIfPresent(nG, (nGram, c) -> c += cnt);
+                    mergedFrequencies.get(finalI).putIfAbsent(nG, cnt);
+                });
+            }
+        }
+
+        return new NGramStats(createSortedList(mergedFrequencies));
+    }
+
+    @Override
+    public NGramStats load(File csvFile) throws IOException
     {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(csvFile));
-        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(DOC_STATS_CSV_DELIMITER)
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(TSV_DELIMITER)
                 .withIgnoreEmptyLines().withSkipHeaderRecord()
                 .parse(new InputStreamReader(bis, StandardCharsets.UTF_8));
 
-        List<List<Pair<DocStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
-        for (int n = 0; n < DOC_STATS_MAX_N_GRAM; n++)
+        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        for (int n = 0; n < MAX_N_GRAM; n++)
             sortedNGramFreqs.add(new ArrayList<>());
 
         for (CSVRecord nGramFreq : records) {
-            if (nGramFreq.size() != DOC_STATS_CSV_RECORD_SIZE)
+            if (nGramFreq.size() != TSV_RECORD_SIZE)
                 throw new IOException("Cannot parse ");
             String[] tokens = nGramFreq.get(0).split(" ");
             sortedNGramFreqs.get(tokens.length - 1)
-                    .add(Pair.of(new DocStats.NGram(), Integer.parseInt(nGramFreq.get(1))));
+                    .add(Pair.of(new NGramStats.NGram(tokens), Integer.parseInt(nGramFreq.get(1))));
         }
 
-        return new DocStats(sortedNGramFreqs);
+        return new NGramStats(sortedNGramFreqs);
     }
 
     @EventListener

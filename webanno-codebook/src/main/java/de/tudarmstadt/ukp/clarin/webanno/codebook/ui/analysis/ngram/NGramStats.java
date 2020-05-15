@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class DocStats
+public class NGramStats
     implements Serializable
 {
 
@@ -36,7 +37,12 @@ public class DocStats
     private final List<List<Pair<NGram, Integer>>> sortedFrequencies;
 
     // package private by intention
-    DocStats(List<List<Pair<NGram, Integer>>> sortedFrequencies)
+    NGramStats() {
+        sortedFrequencies = new ArrayList<>();
+    }
+
+    // package private by intention
+    NGramStats(List<List<Pair<NGram, Integer>>> sortedFrequencies)
     {
         this.sortedFrequencies = sortedFrequencies;
     }
@@ -44,6 +50,10 @@ public class DocStats
     public List<Pair<NGram, Integer>> getSortedFrequencies(int nGram)
     {
         return sortedFrequencies.get(nGram);
+    }
+
+    public List<List<Pair<NGram, Integer>>> getSortedFrequencies() {
+        return sortedFrequencies;
     }
 
     // package private by intention
