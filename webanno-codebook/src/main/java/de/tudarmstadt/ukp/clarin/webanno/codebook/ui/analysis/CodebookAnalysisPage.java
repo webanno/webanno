@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
@@ -58,11 +59,14 @@ public class CodebookAnalysisPage
     private @SpringBean AgreementMeasureSupportRegistry agreementRegistry;
     private @SpringBean CodebookAnalysisService analysisService;
 
+    private WebMarkupContainer statsPlaceholder;
+
     private ProjectSelectionForm projectSelectionForm;
     private DocumentSelectionForm documentSelectionForm;
     private ProjectStatsPanel projectStatsPanel;
     private DocumentStatsPanel documentStatsPanel;
 
+    private static final String STATS_PLACEHOLDER = "statsPlaceholder";
     private static final String PROJECT_STATS = "projectStatsContainer";
     private static final String DOCUMENT_STATS = "documentStatsContainer";
 
@@ -113,19 +117,26 @@ public class CodebookAnalysisPage
         projectSelectionForm = new ProjectSelectionForm("projectSelectionForm", this);
         documentSelectionForm = new DocumentSelectionForm("documentSelectionForm", this);
         documentSelectionForm
-                .add(visibleWhen(() -> projectSelectionForm.getSelectedProject() != null));
+                .add(visibleWhen(() -> projectSelectionForm.getSelectedProject() != null
+                        && documentSelectionForm.getSelectedDocument() == null));
 
         // init main
+        statsPlaceholder = new WebMarkupContainer(STATS_PLACEHOLDER);
+        statsPlaceholder.setOutputMarkupId(true);
+        statsPlaceholder.add(visibleWhen(
+                () -> !projectStatsPanel.isVisible() && !documentStatsPanel.isVisible()));
+
         projectStatsPanel = new ProjectStatsPanel(PROJECT_STATS);
         projectStatsPanel.setOutputMarkupPlaceholderTag(true);
-        projectStatsPanel.add(visibleWhen(() -> projectStatsPanel.getAnalysisTarget() != null));
+        projectStatsPanel.add(visibleWhen(() -> projectStatsPanel.getAnalysisTarget() != null
+                && documentStatsPanel.getAnalysisTarget() == null));
 
         documentStatsPanel = new DocumentStatsPanel(DOCUMENT_STATS);
         documentStatsPanel.setOutputMarkupPlaceholderTag(true);
         documentStatsPanel.add(visibleWhen(() -> documentStatsPanel.getAnalysisTarget() != null));
 
-        this.add(projectSelectionForm, documentSelectionForm, projectStatsPanel,
-                documentStatsPanel);
+        this.add(projectSelectionForm, documentSelectionForm, projectStatsPanel, documentStatsPanel,
+                statsPlaceholder);
 
     }
 
@@ -161,5 +172,10 @@ public class CodebookAnalysisPage
     public DocumentStatsPanel getDocumentStatsPanel()
     {
         return documentStatsPanel;
+    }
+
+    public WebMarkupContainer getStatsPlaceholder()
+    {
+        return statsPlaceholder;
     }
 }

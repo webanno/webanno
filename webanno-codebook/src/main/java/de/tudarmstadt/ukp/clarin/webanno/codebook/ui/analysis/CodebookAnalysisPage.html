@@ -19,13 +19,18 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 <wicket:extend>
-    <div class="flex-content flex-h-container flex-gutter align-items-stretch scrolling mb-2 mt-1">
+    <div class="flex-content flex-h-container flex-gutter align-items-stretch scrolling mb-2 mt-1 pr-1">
         <!--          Left        -->
         <div class="flex-v-container" style="flex-basis: 20%">
             <!--            Project Selection        -->
-            <div wicket:id="projectSelectionForm" class="flex-v-container flex-gutter flex-content"></div>
+            <div wicket:id="projectSelectionForm" class="flex-v-container flex-content"></div>
             <!--            Document Selection        -->
             <div wicket:id="documentSelectionForm" class="flex-v-container flex-gutter flex-content"></div>
+        </div>
+
+        <!--          statsPlaceholder       -->
+        <div wicket:id="statsPlaceholder" class="alert alert-danger flex-content text-center align-self-start">
+            Please select a Project and/or a Document so show analysis insights!
         </div>
 
         <!--          projectStatsContainer       -->

@@ -146,6 +146,10 @@
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
 		</dependency>
@@ -180,6 +184,10 @@
 		<dependency>
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-api-metadata-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-segmentation-asl</artifactId>
 		</dependency>
         <dependency>
             <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>

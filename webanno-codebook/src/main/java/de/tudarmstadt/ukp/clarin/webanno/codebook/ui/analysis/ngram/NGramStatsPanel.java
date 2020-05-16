@@ -27,7 +27,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
@@ -45,9 +45,9 @@ public class NGramStatsPanel
     private Form<String> filterForm;
 
     private int nGram;
-    LoadableDetachableModel<NGramStats> model;
+    IModel<NGramStats> model;
 
-    public NGramStatsPanel(String id, LoadableDetachableModel<NGramStats> model, int nGram)
+    public NGramStatsPanel(String id, IModel<NGramStats> model, int nGram)
     {
         super(id, model);
         this.nGram = nGram;
@@ -120,6 +120,7 @@ public class NGramStatsPanel
         this.add(new Label("distinct", s.getDistinctNGramCount(this.nGram)));
         this.updateListView(s.getSortedFrequencies(this.nGram));
 
+        this.setOutputMarkupId(true);
         this.detachModel();
     }
 

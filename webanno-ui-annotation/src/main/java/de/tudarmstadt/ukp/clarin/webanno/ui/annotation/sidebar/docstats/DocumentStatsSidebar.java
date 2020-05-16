@@ -18,24 +18,16 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.uima.cas.CASException;
-import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStats;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsFactory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsPanel;
-import de.tudarmstadt.ukp.clarin.webanno.support.bootstrap.BootstrapAjaxTabbedPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebar_ImplBase;
 
@@ -44,11 +36,9 @@ public class DocumentStatsSidebar
 {
     private static final long serialVersionUID = -694508827886594987L;
 
-    private LoadableDetachableModel<NGramStats> stats;
-
-    private AjaxTabbedPanel<ITab> tabPanel;
-
     private @SpringBean NGramStatsFactory nGramStatsFactory;
+    private LoadableDetachableModel<NGramStats> stats;
+    private NGramTabsPanel nGramTabPanel;
 
     public DocumentStatsSidebar(String aId, IModel<AnnotatorState> aModel,
             AnnotationPage aAnnotationPage)
@@ -73,34 +63,7 @@ public class DocumentStatsSidebar
             }
         };
 
-        tabPanel = new BootstrapAjaxTabbedPanel<>("tabPanel", makeTabs());
-        tabPanel.setOutputMarkupPlaceholderTag(true);
-        this.add(tabPanel);
-
-        this.stats.detach();
-    }
-
-    private List<ITab> makeTabs()
-    {
-        List<ITab> tabs = new ArrayList<>();
-
-        for (int n = 0; n < NGramStatsFactory.MAX_N_GRAM; n++) {
-            // create 1 tab per n-gram, maybe extend to keywords and other useful statistics
-            // like summaries
-            int finalN = n;
-            String panelName = (finalN + 1) + "-grams";
-            tabs.add(new AbstractTab(Model.of(panelName))
-            {
-                private static final long serialVersionUID = 2809743572231646654L;
-
-                @Override
-                public WebMarkupContainer getPanel(String panelId)
-                {
-                    return new NGramStatsPanel(panelId, stats, finalN);
-                }
-            });
-        }
-
-        return tabs;
+        nGramTabPanel = new NGramTabsPanel("nGramTabsPanel", this.stats);
+        this.add(nGramTabPanel);
     }
 }

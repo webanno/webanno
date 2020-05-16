@@ -18,7 +18,11 @@
 -->
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-    <h1>Document Stats Panel for <span wicket:id="documentName"></span></h1>
-    <div wicket:id="docInfo"></div>
+    <!--          Document Stats Panel -->
+    <div class="flex-content flex-h-container">
+
+        <!-- NGram Stats -->
+        <div wicket:id="nGramTabsPanel" class="flex-v-container" style="flex-basis: 20%"></div>
+    </div>
 </wicket:panel>
 </html>

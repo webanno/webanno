@@ -1,3 +1,20 @@
+/*
+ * Copyright 2020
+ * Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt
+ * and  Language Technology Universität Hamburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
 
 import java.util.ArrayList;
@@ -21,6 +38,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
+import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 
 // TODO make abstract and generalize
@@ -53,15 +71,25 @@ public class DocumentSelectionForm
         this.documentListChoice.add(
                 new LambdaAjaxFormComponentUpdatingBehavior("change", this::onSelectionChanged));
         this.add(documentListChoice);
+
+        this.add(new LambdaAjaxLink("clearButton", this::clearSelection));
         this.setOutputMarkupPlaceholderTag(true);
+    }
+
+    private void clearSelection(AjaxRequestTarget target)
+    {
+        this.documentListChoice.setModelObject(null);
+        this.selectedDocument = null;
+
+        this.onSelectionChanged(target);
     }
 
     private void onSelectionChanged(AjaxRequestTarget aTarget)
     {
         this.analysisPage.getDocumentStatsPanel().update(selectedDocument);
-        this.analysisPage.getProjectStatsPanel().update(null);
 
-        aTarget.add(this.analysisPage);
+        aTarget.add(this.documentListChoice, this.analysisPage.getDocumentStatsPanel(),
+                this.analysisPage.getProjectStatsPanel(), this.analysisPage.getStatsPlaceholder());
     }
 
     private List<SourceDocument> listDocuments()
