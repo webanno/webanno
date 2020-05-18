@@ -20,9 +20,8 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -30,29 +29,38 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ListViewPanelFilterForm;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
 public class CodebookStatsPanel<T>
-    extends StatsPanel
+    extends StatsPanel<T>
 {
     private static final long serialVersionUID = 6969135652333817611L;
-
-    private TextField<String> startsWithFilter;
-    private TextField<String> containsFilter;
-    private Form<String> filterForm;
 
     private @SpringBean CodebookSchemaService codebookSchemaService;
     private @SpringBean CodebookStatsFactory codebookStatsFactory;
 
+    private ListViewPanelFilterForm listViewPanelFilterForm;
+
     public CodebookStatsPanel(String id, T analysisTarget)
     {
         super(id, analysisTarget);
+        this.listViewPanelFilterForm = new ListViewPanelFilterForm("filterFormPanel",
+                this::updateListView);
+        this.add(listViewPanelFilterForm);
+        this.setOutputMarkupId(true);
         this.updateListView();
     }
 
     private void updateListView()
+    {
+        this.updateListView(0, -1, "", "", null);
+    }
+
+    private void updateListView(Integer min, Integer max, String startWith, String contains,
+            AjaxRequestTarget target)
     {
         List<Codebook> cbList = null;
         CodebookStatsFactory.CodebookStats stats = null;
@@ -67,8 +75,15 @@ public class CodebookStatsPanel<T>
 
         }
 
-        // TODO maybe use (Ajax)DataView ?
-        CodebookStatsFactory.CodebookStats finalStats = stats;
+        this.createListView(cbList, stats, min, max, startWith, contains);
+
+        if (target != null)
+            target.add(this);
+    }
+
+    private void createListView(List<Codebook> cbList, CodebookStatsFactory.CodebookStats stats,
+            Integer min, Integer max, String startWith, String contains)
+    {
         ListView<Codebook> codebookListView = new ListView<Codebook>("codebooksListView", cbList)
         {
             private static final long serialVersionUID = -4707500638635391896L;
@@ -81,10 +96,11 @@ public class CodebookStatsPanel<T>
 
                 // TODO factor out for tidier code
 
-                List<Pair<CodebookTag, Integer>> tags = finalStats
-                        .getSortedFrequencies(item.getModelObject());
-                ListView<Pair<CodebookTag, Integer>> tagListView =
-                        new ListView<Pair<CodebookTag, Integer>>("tagsListView", tags)
+                List<Pair<CodebookTag, Integer>> tags = stats.getFilteredFrequencies(
+                        item.getModelObject(), min, max, startWith, contains);
+
+                ListView<Pair<CodebookTag, Integer>> tagListView = new ListView<Pair<CodebookTag, Integer>>(
+                        "tagsListView", tags)
                 {
 
                     private static final long serialVersionUID = 5393976460907614174L;
@@ -92,7 +108,7 @@ public class CodebookStatsPanel<T>
                     @Override
                     protected void populateItem(ListItem<Pair<CodebookTag, Integer>> item)
                     {
-                        String tagName = "<NULL>";
+                        String tagName = "<EMPTY>";
                         if (item.getModelObject().getKey() != null)
                             tagName = item.getModelObject().getKey().getName();
                         item.add(new Label("cbTag", tagName));
@@ -104,12 +120,13 @@ public class CodebookStatsPanel<T>
                 item.addOrReplace(tagListView);
             }
         };
+
         codebookListView.setOutputMarkupPlaceholderTag(true);
         this.addOrReplace(codebookListView);
     }
 
     @Override
-    public void update(Object analysisTarget)
+    public void update(T analysisTarget)
     {
         this.analysisTarget = analysisTarget;
         if (this.analysisTarget != null)

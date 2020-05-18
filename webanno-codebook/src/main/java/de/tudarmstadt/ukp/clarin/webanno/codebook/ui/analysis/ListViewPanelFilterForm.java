@@ -1,7 +1,7 @@
 /*
  * Copyright 2020
- * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
- * Technische Universität Darmstadt
+ * Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt
+ * and  Language Technology Universität Hamburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
 
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxButton;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
 
-public class NGramStatsPanel
+public class ListViewPanelFilterForm
     extends Panel
 {
-    private static final long serialVersionUID = -2579148294422897463L;
+    private static final long serialVersionUID = 5106687522803292607L;
 
-    private TextField<String> startsWithFilter;
-    private TextField<String> containsFilter;
-    private TextField<Integer> minCount;
-    private TextField<Integer> maxCount;
-    private Form<String> filterForm;
+    private final TextField<String> startsWithFilter;
+    private final TextField<String> containsFilter;
+    private final TextField<Integer> minCount;
+    private final TextField<Integer> maxCount;
+    private final Form<String> filterForm;
 
-    private int nGram;
-    IModel<NGramStatsFactory.NGramStats> model;
+    private final UpdateListViewCallback updateListViewCallback;
 
-    public NGramStatsPanel(String id, IModel<NGramStatsFactory.NGramStats> model, int nGram)
+    public ListViewPanelFilterForm(String id, UpdateListViewCallback updateListViewCallBack)
     {
-        super(id, model);
-        this.nGram = nGram;
+        super(id);
 
-        this.model = model;
-        NGramStatsFactory.NGramStats s = this.model.getObject();
+        this.updateListViewCallback = updateListViewCallBack;
 
         // filter form
         this.filterForm = new Form<>("filterForm");
@@ -70,8 +61,7 @@ public class NGramStatsPanel
 
         // max count
         this.filterForm.add(new Label("maxCountLabel", "Maximum Count"));
-        this.maxCount = new TextField<>("maxCount", new Model<>(s.getMax(this.nGram)),
-                Integer.class);
+        this.maxCount = new TextField<>("maxCount", new Model<>(-1), Integer.class);
         this.maxCount.setOutputMarkupId(true);
         this.maxCount
                 .add(new LambdaAjaxFormComponentUpdatingBehavior("update", this::applyFilters));
@@ -99,40 +89,25 @@ public class NGramStatsPanel
         this.filterForm.add(this.containsFilter);
 
         // reset button
-        LambdaAjaxButton<String> resetFilters = new LambdaAjaxButton<>("resetFilters",
+        LambdaAjaxButton<String> resetFiltersButton = new LambdaAjaxButton<>("resetFilters",
                 this::resetFilters);
-        resetFilters.setOutputMarkupId(true);
-        this.filterForm.add(resetFilters);
+        resetFiltersButton.setOutputMarkupId(true);
+        this.filterForm.add(resetFiltersButton);
 
         // submit button;
-        LambdaAjaxButton<String> applyFilters = new LambdaAjaxButton<>("applyFilters",
+        LambdaAjaxButton<String> applyFiltersButton = new LambdaAjaxButton<>("applyFilters",
                 this::applyFilters);
-        applyFilters.setOutputMarkupId(true);
-        this.filterForm.add(applyFilters);
-        this.filterForm.setDefaultButton(applyFilters);
+        applyFiltersButton.setOutputMarkupId(true);
+        this.filterForm.add(applyFiltersButton);
+        this.filterForm.setDefaultButton(applyFiltersButton);
 
-        this.add(this.filterForm);
-
-        // nGram Type
-        this.add(new Label("nGramType", (nGram + 1) + "-Gram"));
-        // token counts
-        this.add(new Label("total", s.getTotal(this.nGram)));
-        this.add(new Label("distinct", s.getDistinct(this.nGram)));
-        this.updateListView();
-
+        this.add(filterForm);
         this.setOutputMarkupId(true);
-        this.detachModel();
     }
 
-    private void updateListView()
+    protected void resetFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
     {
-        Integer max = this.model.getObject().getMax(this.nGram);
-        this.updateListView(0, max, "", "");
-    }
-
-    private void resetFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
-    {
-        Integer max = this.model.getObject().getMax(this.nGram);
+        Integer max = -1;
         this.detachModel();
 
         this.minCount.setModelObject(0);
@@ -143,12 +118,12 @@ public class NGramStatsPanel
         this.applyFilters(ajaxRequestTarget);
     }
 
-    private void applyFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
+    protected void applyFilters(AjaxRequestTarget target, Form<String> component)
     {
-        this.applyFilters(ajaxRequestTarget);
+        this.applyFilters(target);
     }
 
-    private void applyFilters(AjaxRequestTarget ajaxRequestTarget)
+    protected void applyFilters(AjaxRequestTarget target)
     {
         Integer min = this.minCount.getModelObject();
         Integer max = this.maxCount.getModelObject();
@@ -159,32 +134,8 @@ public class NGramStatsPanel
         String contains = this.containsFilter.getModelObject();
         contains = contains == null ? "" : contains;
 
-        this.updateListView(min, max, startWith, contains);
+        updateListViewCallback.accept(min, max, startWith, contains, target);
 
-        ajaxRequestTarget.add(this);
-        ajaxRequestTarget.add(this.filterForm);
-    }
-
-    private void updateListView(Integer min, Integer max, String startWith, String contains)
-    {
-        List<Pair<NGram, Integer>> filteredFrequencies = model.getObject()
-                .getFilteredFrequencies(this.nGram, min, max, startWith, contains);
-        // TODO maybe use (Ajax)DataView ?
-        ListView<Pair<NGram, Integer>> tokenFreqs = new ListView<Pair<NGram, Integer>>("freqs",
-                filteredFrequencies)
-        {
-            private static final long serialVersionUID = -4707500638635391896L;
-
-            @Override
-            protected void populateItem(ListItem item)
-            {
-                @SuppressWarnings("unchecked")
-                Pair<NGram, Integer> e = (Pair<NGram, Integer>) item.getModelObject();
-                item.add(new Label("ngram", e.getKey().toString()));
-                item.add(new Label("count", e.getValue()));
-            }
-        };
-        tokenFreqs.setOutputMarkupId(true);
-        this.addOrReplace(tokenFreqs);
+        target.add(this);
     }
 }

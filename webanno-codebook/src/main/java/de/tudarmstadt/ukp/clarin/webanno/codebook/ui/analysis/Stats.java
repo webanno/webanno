@@ -66,13 +66,31 @@ public class Stats<T, V>
     }
 
     public List<Pair<V, Integer>> getFilteredFrequencies(T of, Integer min, Integer max,
-            String startWith, String contains)
+            String startsWith, String contains)
     {
-        return this.sortedFrequencies.get(of).stream()
-                .filter(e -> StringUtils.startsWithIgnoreCase(e.getKey().toString(), startWith)
-                        && StringUtils.containsIgnoreCase(e.getKey().toString(), contains)
-                        && e.getValue() >= min && e.getValue() <= max)
-                .collect(Collectors.toList());
+        if (max == null)
+            max = this.getMax(of);
+        if (min == null)
+            min = 0;
+        if (startsWith == null)
+            startsWith = "";
+        if (contains == null)
+            contains = "";
+
+        Integer finalMax = max < 0 ? this.getMax(of) : max;
+        Integer finalMin = (min < 0 || min > max) ? 0 : min;
+        String finalStartsWith = startsWith;
+        String finalContains = contains;
+
+        return this.sortedFrequencies.get(of).stream().filter(e -> {
+            if (e.getKey() != null)
+                return StringUtils.startsWithIgnoreCase(e.getKey().toString(), finalStartsWith)
+                        && StringUtils.containsIgnoreCase(e.getKey().toString(), finalContains)
+                        && e.getValue() >= finalMin && e.getValue() <= finalMax;
+            else
+                return finalStartsWith.isEmpty() && finalContains.isEmpty()
+                        && e.getValue() >= finalMin && e.getValue() <= finalMax;
+        }).collect(Collectors.toList());
     }
 
     public List<Pair<V, Integer>> getTopK(T of, Integer topK)
