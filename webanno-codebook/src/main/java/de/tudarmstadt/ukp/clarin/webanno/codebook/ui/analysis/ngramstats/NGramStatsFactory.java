@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.Stats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.Stats;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 

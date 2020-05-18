@@ -17,7 +17,6 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,13 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 public interface CodebookStatsFactory
 {
 
-    public static class CodebookStats
+    CodebookStats create(Project project);
+
+    CodebookStats create(SourceDocument... docs);
+
+    CodebookStats create(List<SourceDocument> docs);
+
+    class CodebookStats
         extends Stats<Codebook, CodebookTag>
     {
 
@@ -43,11 +48,5 @@ public interface CodebookStatsFactory
             super(sortedFrequencies);
         }
     }
-
-    CodebookStats create(Project project);
-
-    CodebookStats create(SourceDocument... docs);
-
-    CodebookStats create(List<SourceDocument> docs);
 
 }

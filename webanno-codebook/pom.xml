@@ -130,10 +130,6 @@
 			<artifactId>wicket-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.adesso.wicked-charts</groupId>
-			<artifactId>wicked-charts-wicket8</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>

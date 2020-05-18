@@ -24,10 +24,6 @@ import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentSelectionForm;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentStatsPanel;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionForm;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectStatsPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -42,6 +38,10 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.api.CodebookAnalysisService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentSelectionForm;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentStatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionForm;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectStatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -54,7 +54,9 @@ public class CodebookAnalysisPage
     private static final long serialVersionUID = 5333662917247971912L;
 
     private static final Logger LOG = LoggerFactory.getLogger(CodebookAnalysisPage.class);
-
+    private static final String STATS_PLACEHOLDER = "statsPlaceholder";
+    private static final String PROJECT_STATS = "projectStatsContainer";
+    private static final String DOCUMENT_STATS = "documentStatsContainer";
     private @SpringBean DocumentService documentService;
     private @SpringBean ProjectService projectService;
     private @SpringBean AnnotationSchemaService annotationService;
@@ -62,17 +64,11 @@ public class CodebookAnalysisPage
     private @SpringBean UserDao userRepository;
     private @SpringBean AgreementMeasureSupportRegistry agreementRegistry;
     private @SpringBean CodebookAnalysisService analysisService;
-
     private WebMarkupContainer statsPlaceholder;
-
     private ProjectSelectionForm projectSelectionForm;
     private DocumentSelectionForm documentSelectionForm;
     private ProjectStatsPanel projectStatsPanel;
     private DocumentStatsPanel documentStatsPanel;
-
-    private static final String STATS_PLACEHOLDER = "statsPlaceholder";
-    private static final String PROJECT_STATS = "projectStatsContainer";
-    private static final String DOCUMENT_STATS = "documentStatsContainer";
 
     public CodebookAnalysisPage()
     {
@@ -128,7 +124,7 @@ public class CodebookAnalysisPage
         statsPlaceholder = new WebMarkupContainer(STATS_PLACEHOLDER);
         statsPlaceholder.setOutputMarkupId(true);
         statsPlaceholder.add(visibleWhen(
-                () -> !projectStatsPanel.isVisible() && !documentStatsPanel.isVisible()));
+            () -> !projectStatsPanel.isVisible() && !documentStatsPanel.isVisible()));
 
         projectStatsPanel = new ProjectStatsPanel(PROJECT_STATS);
         projectStatsPanel.setOutputMarkupPlaceholderTag(true);

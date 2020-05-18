@@ -83,8 +83,8 @@ public class CodebookStatsPanel<T>
 
                 List<Pair<CodebookTag, Integer>> tags = finalStats
                         .getSortedFrequencies(item.getModelObject());
-                ListView<Pair<CodebookTag, Integer>> tagListView = new ListView<Pair<CodebookTag, Integer>>(
-                        "tagsListView", tags)
+                ListView<Pair<CodebookTag, Integer>> tagListView =
+                        new ListView<Pair<CodebookTag, Integer>>("tagsListView", tags)
                 {
 
                     private static final long serialVersionUID = 5393976460907614174L;

@@ -20,8 +20,6 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.CodebookAnalysisPage;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionChangedEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.ListChoice;
@@ -35,6 +33,8 @@ import org.springframework.context.event.EventListener;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.CodebookAnalysisPage;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
@@ -54,8 +54,8 @@ public class DocumentSelectionForm
     private @SpringBean UserDao userRepository;
 
     private IModel<Project> projectModel;
-    private CodebookAnalysisPage analysisPage;
-    private ListChoice<SourceDocument> documentListChoice;
+    private final CodebookAnalysisPage analysisPage;
+    private final ListChoice<SourceDocument> documentListChoice;
 
     private SourceDocument selectedDocument;
 
