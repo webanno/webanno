@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
 
 import java.util.List;
 
@@ -45,17 +45,17 @@ public class NGramStatsPanel
     private Form<String> filterForm;
 
     private int nGram;
-    IModel<NGramStats> model;
+    IModel<NGramStatsFactory.NGramStats> model;
 
-    public NGramStatsPanel(String id, IModel<NGramStats> model, int nGram)
+    public NGramStatsPanel(String id, IModel<NGramStatsFactory.NGramStats> model, int nGram)
     {
         super(id, model);
         this.nGram = nGram;
 
         this.model = model;
-        NGramStats s = this.model.getObject();
+        NGramStatsFactory.NGramStats s = this.model.getObject();
 
-        // freq filter form
+        // filter form
         this.filterForm = new Form<>("filterForm");
         this.filterForm.setOutputMarkupId(true);
 
@@ -70,7 +70,7 @@ public class NGramStatsPanel
 
         // max count
         this.filterForm.add(new Label("maxCountLabel", "Maximum Count"));
-        this.maxCount = new TextField<>("maxCount", new Model<>(s.getMaxCount(this.nGram)),
+        this.maxCount = new TextField<>("maxCount", new Model<>(s.getMax(this.nGram)),
                 Integer.class);
         this.maxCount.setOutputMarkupId(true);
         this.maxCount
@@ -116,17 +116,23 @@ public class NGramStatsPanel
         // nGram Type
         this.add(new Label("nGramType", (nGram + 1) + "-Gram"));
         // token counts
-        this.add(new Label("total", s.getTotalCount(this.nGram)));
-        this.add(new Label("distinct", s.getDistinctNGramCount(this.nGram)));
-        this.updateListView(s.getSortedFrequencies(this.nGram));
+        this.add(new Label("total", s.getTotal(this.nGram)));
+        this.add(new Label("distinct", s.getDistinct(this.nGram)));
+        this.updateListView();
 
         this.setOutputMarkupId(true);
         this.detachModel();
     }
 
+    private void updateListView()
+    {
+        Integer max = this.model.getObject().getMax(this.nGram);
+        this.updateListView(0, max, "", "");
+    }
+
     private void resetFilters(AjaxRequestTarget ajaxRequestTarget, Form<String> components)
     {
-        Integer max = this.model.getObject().getMaxCount(this.nGram);
+        Integer max = this.model.getObject().getMax(this.nGram);
         this.detachModel();
 
         this.minCount.setModelObject(0);
@@ -153,19 +159,20 @@ public class NGramStatsPanel
         String contains = this.containsFilter.getModelObject();
         contains = contains == null ? "" : contains;
 
-        this.updateListView(model.getObject().getFilteredFrequencies(this.nGram, min, max,
-                startWith, contains));
+        this.updateListView(min, max, startWith, contains);
         this.detachModel();
 
         ajaxRequestTarget.add(this);
         ajaxRequestTarget.add(this.filterForm);
     }
 
-    private void updateListView(List<Pair<NGramStats.NGram, Integer>> list)
+    private void updateListView(Integer min, Integer max, String startWith, String contains)
     {
+        List<Pair<NGram, Integer>> filteredFrequencies = model.getObject()
+                .getFilteredFrequencies(this.nGram, min, max, startWith, contains);
         // TODO maybe use (Ajax)DataView ?
-        ListView<Pair<NGramStats.NGram, Integer>> tokenFreqs = new ListView<Pair<NGramStats.NGram, Integer>>(
-                "freqs", list)
+        ListView<Pair<NGram, Integer>> tokenFreqs = new ListView<Pair<NGram, Integer>>("freqs",
+                filteredFrequencies)
         {
             private static final long serialVersionUID = -4707500638635391896L;
 
@@ -173,8 +180,7 @@ public class NGramStatsPanel
             protected void populateItem(ListItem item)
             {
                 @SuppressWarnings("unchecked")
-                Pair<NGramStats.NGram, Integer> e = (Pair<NGramStats.NGram, Integer>) item
-                        .getModelObject();
+                Pair<NGram, Integer> e = (Pair<NGram, Integer>) item.getModelObject();
                 item.add(new Label("ngram", e.getKey().toString()));
                 item.add(new Label("count", e.getValue()));
             }

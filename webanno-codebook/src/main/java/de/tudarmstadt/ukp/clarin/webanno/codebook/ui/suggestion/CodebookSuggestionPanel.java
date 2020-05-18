@@ -82,8 +82,8 @@ public class CodebookSuggestionPanel
 
         cModel = aModel.getObject();
         suggestions = new PageableListView<CodebookSuggestion>("suggestions",
-                (IModel<? extends List<CodebookSuggestion>>) cModel.getCodebooksuggestions(),
-                cModel.getCodebooksuggestions().size())
+                (IModel<? extends List<CodebookSuggestion>>) cModel.getCodebookSuggestions(),
+                cModel.getCodebookSuggestions().size())
         {
 
             private static final long serialVersionUID = -3591948738133097041L;
@@ -165,7 +165,7 @@ public class CodebookSuggestionPanel
 
     private List<CodebookSuggestion> getSuggestions(CodebookFeature feature)
     {
-        Map<String, CAS> jCases = setSuggestionCases();
+        Map<String, CAS> jCases = getSuggestionCases();
         List<Codebook> types = new ArrayList<>();
         types.add(feature.getCodebook());
         CodebookAdapter adapter = new CodebookAdapter(feature.getCodebook());
@@ -190,9 +190,9 @@ public class CodebookSuggestionPanel
         return suggestions;
     }
 
-    private Map<String, CAS> setSuggestionCases()
+    private Map<String, CAS> getSuggestionCases()
     {
-        Map<String, CAS> jCases = new HashMap<>();
+        Map<String, CAS> userCASes = new HashMap<>();
         List<AnnotationDocument> annotationDocuments = documentService
                 .listAnnotationDocuments(cModel.getDocument());
         for (AnnotationDocument annotationDocument : annotationDocuments) {
@@ -202,7 +202,7 @@ public class CodebookSuggestionPanel
                 CAS jCas;
                 try {
                     jCas = documentService.readAnnotationCas(annotationDocument);
-                    jCases.put(username, jCas);
+                    userCASes.put(username, jCas);
                 }
                 catch (IOException e) {
                     error("Unable to load the curation CASes" + e.getMessage());
@@ -211,13 +211,13 @@ public class CodebookSuggestionPanel
             }
         }
         try {
-            jCases.put(WebAnnoConst.CURATION_USER, getCas());
+            userCASes.put(WebAnnoConst.CURATION_USER, getCas());
         }
         catch (IOException e) {
             error("Unable to load the curation CASes" + e.getMessage());
         }
 
-        return jCases;
+        return userCASes;
     }
 
     private boolean isDiffs(Codebook codebook, List<Codebook> types, Map<String, CAS> jCases)

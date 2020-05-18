@@ -15,13 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.Stats;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 
@@ -30,6 +33,18 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public interface NGramStatsFactory
 {
+
+    public static class NGramStats
+        extends Stats<Integer, NGram>
+    {
+        private static final long serialVersionUID = -2851283249817671545L;
+
+        public NGramStats(Map<Integer, List<Pair<NGram, Integer>>> sortedFrequencies)
+        {
+            super(sortedFrequencies);
+        }
+    };
+
     public static final Integer MAX_N_GRAM = 3;
     public static final Integer TSV_RECORD_SIZE = 2;
     public static final Character TSV_DELIMITER = '\t';

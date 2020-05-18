@@ -32,6 +32,12 @@ public abstract class StatsPanel<T>
         analysisTarget = null;
     }
 
+    public StatsPanel(String id, T analysisTarget)
+    {
+        super(id);
+        this.analysisTarget = analysisTarget;
+    }
+
     public abstract void update(T analysisTarget);
 
     public T getAnalysisTarget()

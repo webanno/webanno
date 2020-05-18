@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,8 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.CodebookAnalysisPage;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
@@ -42,6 +44,7 @@ public class ProjectSelectionForm
 {
     private static final long serialVersionUID = -5771056978885429471L;
     private @SpringBean ProjectService projectService;
+    private @SpringBean CodebookSchemaService codebookSchemaService;
     private @SpringBean UserDao userRepository;
     private @SpringBean ApplicationEventPublisherHolder eventPublisherHolder;
 
@@ -79,7 +82,6 @@ public class ProjectSelectionForm
         analysisPage.getProjectStatsPanel().update(this.selectedProject);
         analysisPage.getDocumentStatsPanel().update(null);
 
-
         aTarget.add(analysisPage, analysisPage.getDocumentSelectionForm(),
                 analysisPage.getDocumentStatsPanel(), analysisPage.getProjectStatsPanel());
     }
@@ -90,10 +92,11 @@ public class ProjectSelectionForm
 
         User user = userRepository.getCurrentUser();
 
+        // only list projects with codebooks and the user has access to
         List<Project> allProjects = projectService.listProjects();
         for (Project project : allProjects) {
-            if (projectService.isManager(project, user)
-                    || projectService.isCurator(project, user)) {
+            if ((projectService.isManager(project, user) || projectService.isCurator(project, user))
+                    && !codebookSchemaService.listCodebook(project).isEmpty()) {
                 allowedProject.add(project);
             }
         }

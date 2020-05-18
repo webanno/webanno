@@ -15,11 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.CodebookAnalysisPage;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionChangedEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.ListChoice;

@@ -25,9 +25,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStats;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsFactory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramTabsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory.NGramStats;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebar_ImplBase;
 

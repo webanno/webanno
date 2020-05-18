@@ -24,6 +24,10 @@ import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentSelectionForm;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentStatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionForm;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectStatsPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;

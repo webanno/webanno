@@ -15,21 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.uima.cas.CASException;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStats;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsFactory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramTabsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory.NGramStats;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 public class ProjectStatsPanel
@@ -39,6 +40,7 @@ public class ProjectStatsPanel
 
     private LoadableDetachableModel<NGramStats> mergedNGramStats;
     private NGramTabsPanel nGramTabPanel;
+    private CodebookStatsPanel codebookStatsPanel;
 
     private @SpringBean DocumentService documentService;
     private @SpringBean NGramStatsFactory nGramStatsFactory;
@@ -51,7 +53,6 @@ public class ProjectStatsPanel
 
     private void createMergedNGramStats()
     {
-
         this.mergedNGramStats = new LoadableDetachableModel<NGramStats>()
         {
             private static final long serialVersionUID = 6576995133434217463L;
@@ -79,10 +80,17 @@ public class ProjectStatsPanel
     public void update(Project targetProject)
     {
         this.analysisTarget = targetProject;
-        if (targetProject != null) {
+        if (this.analysisTarget != null) {
             this.createMergedNGramStats();
             this.createNGramTabsPanel();
+            this.createCodebookStatsPanel();
         }
+    }
+
+    private void createCodebookStatsPanel()
+    {
+        this.codebookStatsPanel = new CodebookStatsPanel<>("codebookStatsPanel", analysisTarget);
+        this.addOrReplace(codebookStatsPanel);
     }
 
     private void createNGramTabsPanel()

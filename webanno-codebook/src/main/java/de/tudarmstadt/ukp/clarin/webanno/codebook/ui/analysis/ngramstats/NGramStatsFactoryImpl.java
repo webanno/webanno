@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -53,6 +53,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class NGramStatsFactoryImpl
     implements NGramStatsFactory
 {
+
     private final DocumentService documentService;
 
     @Autowired
@@ -63,25 +64,26 @@ public class NGramStatsFactoryImpl
 
     private NGramStats create(List<String> tokens)
     {
-        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = this
+        Map<Integer, Map<NGram, Integer>> nGramFrequencies = this
                 .createFrequencyMapsFromTokens(tokens);
-        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = createSortedList(
+
+        Map<Integer, List<Pair<NGram, Integer>>> sortedNGramFreqs = createSortedList(
                 nGramFrequencies);
 
         return new NGramStats(sortedNGramFreqs);
     }
 
-    private List<Map<NGramStats.NGram, Integer>> createFrequencyMapsFromTokens(List<String> tokens)
+    private Map<Integer, Map<NGram, Integer>> createFrequencyMapsFromTokens(List<String> tokens)
     {
-        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
+        Map<Integer, Map<NGram, Integer>> nGramFrequencies = new HashMap<>();
         // init one map per nGram
         for (int n = 0; n < MAX_N_GRAM; n++)
-            nGramFrequencies.add(new HashMap<>());
+            nGramFrequencies.put(n, new HashMap<>());
 
         for (int i = 0; i < tokens.size(); i++) {
             for (int n = 0; n < MAX_N_GRAM; n++) {
                 if (i + n < tokens.size()) {
-                    NGramStats.NGram nGram = new NGramStats.NGram(
+                    NGram nGram = new NGram(
                             // wrap in ArrayList to avoid SerializationException
                             new ArrayList<>(tokens.subList(i, i + n + 1)));
                     nGramFrequencies.get(n).computeIfPresent(nGram, (s, count) -> ++count);
@@ -92,17 +94,17 @@ public class NGramStatsFactoryImpl
         return nGramFrequencies;
     }
 
-    private List<Map<NGramStats.NGram, Integer>> createFrequencyMapsFromSortedNGramFrequencies(
-            List<List<Pair<NGramStats.NGram, Integer>>> sortedFreqs)
+    private Map<Integer, Map<NGram, Integer>> createFrequencyMapsFromSortedNGramFrequencies(
+            Map<Integer, List<Pair<NGram, Integer>>> sortedFreqs)
     {
-        List<Map<NGramStats.NGram, Integer>> nGramFrequencies = new ArrayList<>();
+        Map<Integer, Map<NGram, Integer>> nGramFrequencies = new HashMap<>();
         // init one map per nGram
         for (int n = 0; n < MAX_N_GRAM; n++)
-            nGramFrequencies.add(new HashMap<>());
+            nGramFrequencies.put(n, new HashMap<>());
 
         for (int i = 0; i < sortedFreqs.size(); i++) {
-            for (Pair<NGramStats.NGram, Integer> nGram : sortedFreqs.get(i)) {
-                Map<NGramStats.NGram, Integer> nGramMap = nGramFrequencies.get(i);
+            for (Pair<NGram, Integer> nGram : sortedFreqs.get(i)) {
+                Map<NGram, Integer> nGramMap = nGramFrequencies.get(i);
                 nGramMap.computeIfPresent(nGram.getLeft(), (ng, num) -> num += nGram.getRight());
                 nGramMap.putIfAbsent(nGram.getLeft(), nGram.getRight());
             }
@@ -111,16 +113,17 @@ public class NGramStatsFactoryImpl
         return nGramFrequencies;
     }
 
-    private List<List<Pair<NGramStats.NGram, Integer>>> createSortedList(
-            List<Map<NGramStats.NGram, Integer>> nGramFrequencies)
+    private Map<Integer, List<Pair<NGram, Integer>>> createSortedList(
+            Map<Integer, Map<NGram, Integer>> nGramFrequencies)
     {
         // sort the nGrams by frequency and convert them to a single list
-        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        Map<Integer, List<Pair<NGram, Integer>>> sortedNGramFreqs = new HashMap<>();
         for (int n = 0; n < MAX_N_GRAM; n++) {
-            sortedNGramFreqs.add(nGramFrequencies.get(n).entrySet().stream()
-                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                    .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
-                    .collect(Collectors.toList()));
+            sortedNGramFreqs.put(n,
+                    nGramFrequencies.get(n).entrySet().stream()
+                            .map(e -> Pair.of(e.getKey(), e.getValue()))
+                            .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
+                            .collect(Collectors.toList()));
         }
         return sortedNGramFreqs;
     }
@@ -161,7 +164,7 @@ public class NGramStatsFactoryImpl
                             .withDelimiter(TSV_DELIMITER).withSkipHeaderRecord())) {
 
                 for (int n = 0; n < MAX_N_GRAM; n++)
-                    for (Pair<NGramStats.NGram, Integer> tokenFreq : stats.getSortedFrequencies(n))
+                    for (Pair<NGram, Integer> tokenFreq : stats.getSortedFrequencies(n))
                         csvPrinter.printRecord(tokenFreq.getKey().toString(), tokenFreq.getValue());
                 csvPrinter.flush();
             }
@@ -176,14 +179,14 @@ public class NGramStatsFactoryImpl
         if (toMerge.size() == 1)
             return toMerge.get(0);
 
-        List<Map<NGramStats.NGram, Integer>> mergedFrequencies = new ArrayList<>();
-        for (int i = 0; i < MAX_N_GRAM; i++)
-            mergedFrequencies.add(new HashMap<>());
+        Map<Integer, Map<NGram, Integer>> mergedFrequencies = new HashMap<>();
+        for (int n = 0; n < MAX_N_GRAM; n++)
+            mergedFrequencies.put(n, new HashMap<>());
 
         // merge all input NGramStats
         for (NGramStats ngStats : toMerge) {
             // create the freq maps per input
-            List<Map<NGramStats.NGram, Integer>> nGramFreqs = this
+            Map<Integer, Map<NGram, Integer>> nGramFreqs = this
                     .createFrequencyMapsFromSortedNGramFrequencies(ngStats.getSortedFrequencies());
 
             // join the maps with the mergedFrequencies
@@ -207,16 +210,16 @@ public class NGramStatsFactoryImpl
                 .withIgnoreEmptyLines().withSkipHeaderRecord()
                 .parse(new InputStreamReader(bis, StandardCharsets.UTF_8));
 
-        List<List<Pair<NGramStats.NGram, Integer>>> sortedNGramFreqs = new ArrayList<>();
+        Map<Integer, List<Pair<NGram, Integer>>> sortedNGramFreqs = new HashMap<>();
         for (int n = 0; n < MAX_N_GRAM; n++)
-            sortedNGramFreqs.add(new ArrayList<>());
+            sortedNGramFreqs.put(n, new ArrayList<>());
 
         for (CSVRecord nGramFreq : records) {
             if (nGramFreq.size() != TSV_RECORD_SIZE)
                 throw new IOException("Cannot parse ");
             String[] tokens = nGramFreq.get(0).split(" ");
             sortedNGramFreqs.get(tokens.length - 1)
-                    .add(Pair.of(new NGramStats.NGram(tokens), Integer.parseInt(nGramFreq.get(1))));
+                    .add(Pair.of(new NGram(tokens), Integer.parseInt(nGramFreq.get(1))));
         }
 
         return new NGramStats(sortedNGramFreqs);

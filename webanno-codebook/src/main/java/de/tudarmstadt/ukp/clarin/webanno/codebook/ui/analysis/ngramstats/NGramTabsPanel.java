@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class NGramTabsPanel
 
     private AjaxTabbedPanel<ITab> nGramTabPanel;
 
-    public NGramTabsPanel(String id, IModel<NGramStats> statsModel)
+    public NGramTabsPanel(String id, IModel<NGramStatsFactory.NGramStats> statsModel)
     {
         super(id, statsModel);
         this.setOutputMarkupPlaceholderTag(true);
@@ -76,7 +76,9 @@ public class NGramTabsPanel
                 public WebMarkupContainer getPanel(String panelId)
                 {
                     return new NGramStatsPanel(panelId,
-                            (IModel<NGramStats>) NGramTabsPanel.this.getDefaultModel(), finalN);
+                            (IModel<NGramStatsFactory.NGramStats>) NGramTabsPanel.this
+                                    .getDefaultModel(),
+                            finalN);
                 }
             });
         }

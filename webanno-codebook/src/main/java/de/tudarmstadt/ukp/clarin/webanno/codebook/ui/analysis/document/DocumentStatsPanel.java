@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document;
 
 import java.io.IOException;
 
@@ -24,8 +24,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramStatsFactory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngram.NGramTabsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
 public class DocumentStatsPanel
@@ -37,6 +39,7 @@ public class DocumentStatsPanel
     private @SpringBean NGramStatsFactory nGramStatsFactory;
 
     private NGramTabsPanel nGramTabPanel;
+    private CodebookStatsPanel codebookStatsPanel;
 
     public DocumentStatsPanel(String id)
     {
@@ -50,6 +53,7 @@ public class DocumentStatsPanel
         this.analysisTarget = targetDoc;
         if (this.analysisTarget != null) {
             this.createNGramTabsPanel();
+            this.createCodebookStatsPanel();
         }
     }
 
@@ -65,4 +69,11 @@ public class DocumentStatsPanel
             e.printStackTrace();
         }
     }
+
+    private void createCodebookStatsPanel()
+    {
+        this.codebookStatsPanel = new CodebookStatsPanel<>("codebookStatsPanel", analysisTarget);
+        this.addOrReplace(codebookStatsPanel);
+    }
+
 }
