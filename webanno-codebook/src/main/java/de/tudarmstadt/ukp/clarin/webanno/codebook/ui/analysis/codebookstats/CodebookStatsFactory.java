@@ -31,11 +31,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 public interface CodebookStatsFactory
 {
 
-    CodebookStats create(Project project);
+    CodebookStats create(Project project, boolean annotators, boolean curators);
 
-    CodebookStats create(SourceDocument... docs);
-
-    CodebookStats create(List<SourceDocument> docs);
+    CodebookStats create(List<SourceDocument> docs, boolean annotators, boolean curators);
 
     class CodebookStats
         extends Stats<Codebook, CodebookTag>

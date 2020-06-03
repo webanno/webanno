@@ -17,10 +17,12 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -47,7 +49,7 @@ public class CodebookStatsPanel<T>
     public CodebookStatsPanel(String id, T analysisTarget)
     {
         super(id, analysisTarget);
-        this.listViewPanelFilterForm = new ListViewPanelFilterForm("filterFormPanel",
+        this.listViewPanelFilterForm = new CodebookStatsFilterPanel("filterFormPanel",
                 this::updateListView);
         this.add(listViewPanelFilterForm);
         this.setOutputMarkupId(true);
@@ -64,15 +66,21 @@ public class CodebookStatsPanel<T>
     {
         List<Codebook> cbList = null;
         CodebookStatsFactory.CodebookStats stats = null;
+        boolean curators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
+                .showFromCurators();
+        boolean annotators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
+                .showFromAnnotators();
         if (this.analysisTarget instanceof Project) {
             cbList = codebookSchemaService.listCodebook((Project) this.analysisTarget);
-            stats = codebookStatsFactory.create((Project) this.analysisTarget);
+            stats = codebookStatsFactory.create((Project) this.analysisTarget, annotators,
+                    curators);
         }
         else if (this.analysisTarget instanceof SourceDocument) {
             cbList = codebookSchemaService
                     .listCodebook(((SourceDocument) this.analysisTarget).getProject());
-            stats = codebookStatsFactory.create((SourceDocument) this.analysisTarget);
-
+            stats = codebookStatsFactory.create(
+                    Collections.singletonList((SourceDocument) this.analysisTarget), annotators,
+                    curators);
         }
 
         this.createListView(cbList, stats, min, max, startWith, contains);
@@ -94,14 +102,22 @@ public class CodebookStatsPanel<T>
 
                 item.add(new Label("cbName", item.getModelObject().getUiName()));
 
-                // TODO factor out for tidier code
+                // if the stats are empty dont show the list of tags!
+                if (stats.getSortedFrequencies().isEmpty()) {
+                    WebMarkupContainer tagListView = new WebMarkupContainer("tagsListView");
+                    tagListView.add(new WebMarkupContainer("cbTag"),
+                            new WebMarkupContainer("cbTagCnt"));
+                    tagListView.setOutputMarkupPlaceholderTag(true);
+                    tagListView.setVisible(false);
+                    item.addOrReplace(tagListView);
+                    return;
+                }
 
                 List<Pair<CodebookTag, Integer>> tags = stats.getFilteredFrequencies(
                         item.getModelObject(), min, max, startWith, contains);
 
                 ListView<Pair<CodebookTag, Integer>> tagListView =
-                        new ListView<Pair<CodebookTag, Integer>>(
-                        "tagsListView", tags)
+                        new ListView<Pair<CodebookTag, Integer>>("tagsListView", tags)
                 {
 
                     private static final long serialVersionUID = 5393976460907614174L;

@@ -25,38 +25,41 @@
 
         <div class="card-body">
             <div class="form-row">
-                <label wicket:id="maxCountLabel" class="col-md-9 col-form-label pull-left"
+                <label wicket:id="maxCountLabel" class="col-md-7 col-form-label pull-left"
                        style="overflow-wrap: break-word;"></label>
-                <div class="col-sm-3">
+                <div class="col-md-5">
                     <input wicket:id="maxCount" type="text" class="form-control"/>
                 </div>
             </div>
 
             <div class="form-row">
-                <label wicket:id="minCountLabel" class="col-md-9 col-form-label pull-left"
+                <label wicket:id="minCountLabel" class="col-md-7 col-form-label pull-left"
                        style="overflow-wrap: break-word;"></label>
-                <div class="col-sm-3">
+                <div class="col-md-5">
                     <input wicket:id="minCount" type="text" class="form-control"/>
                 </div>
             </div>
 
             <div class="form-row">
                 <label wicket:id="startsWithFilterLabel"
-                       class="col-md-9 col-form-label pull-left"
+                       class="col-md-7 col-form-label pull-left"
                        style="overflow-wrap: break-word;"></label>
-                <div class="col-sm-3">
+                <div class="col-md-5">
                     <input wicket:id="startsWithFilter" type="text" class="form-control"/>
                 </div>
             </div>
 
             <div class="form-row">
                 <label wicket:id="containsFilterLabel"
-                       class="col-md-9 col-form-label pull-left"
+                       class="col-md-7 col-form-label pull-left"
                        style="overflow-wrap: break-word;"></label>
-                <div class="col-sm-3">
+                <div class="col-md-5">
                     <input wicket:id="containsFilter" type="text" class="form-control"/>
                 </div>
             </div>
+
+            <!-- keep this as a possibility to extend the filter form! -->
+            <wicket:child />
 
         </div>
         <div class="card-footer">

@@ -17,13 +17,8 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats;
 
-import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CORRECTION_USER;
-import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.CURATION_USER;
-import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.INITIAL_CAS_PSEUDO_USER;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
+import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
@@ -42,6 +38,8 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
+import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
+import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 
 @Component
 public class CodebookStatsFactoryImpl
@@ -50,23 +48,27 @@ public class CodebookStatsFactoryImpl
 
     private final CodebookSchemaService codebookSchemaService;
     private final DocumentService documentService;
+    private final UserDao userRepository;
+    private final ProjectService projectService;
 
     @Autowired
     public CodebookStatsFactoryImpl(CodebookSchemaService codebookSchemaService,
-            DocumentService documentService)
+            DocumentService documentService, UserDao userRepository, ProjectService projectService)
     {
         this.codebookSchemaService = codebookSchemaService;
         this.documentService = documentService;
+        this.userRepository = userRepository;
+        this.projectService = projectService;
     }
 
     @Override
-    public CodebookStats create(Project project)
+    public CodebookStats create(Project project, boolean annotators, boolean curators)
     {
-        return this.create(documentService.listSourceDocuments(project));
+        return this.create(documentService.listSourceDocuments(project), annotators, curators);
     }
 
     @Override
-    public CodebookStats create(List<SourceDocument> docs)
+    public CodebookStats create(List<SourceDocument> docs, boolean annotators, boolean curators)
     {
         // make sure that each of the provided docs is from the same project (i.e. shares the same
         // codebooks)
@@ -76,7 +78,7 @@ public class CodebookStatsFactoryImpl
         });
 
         // get all cases (of all users) of all SourceDocuments
-        List<CAS> CASes = this.loadCASes(docs);
+        List<CAS> CASes = this.loadCASes(docs, annotators, curators);
 
         // get all codebooks
         List<Codebook> codebooks = codebookSchemaService.listCodebook(project);
@@ -106,12 +108,6 @@ public class CodebookStatsFactoryImpl
         return new CodebookStats(this.sort(suggestions));
     }
 
-    @Override
-    public CodebookStats create(SourceDocument... inputDocs)
-    {
-        return this.create(Arrays.asList(inputDocs));
-    }
-
     private Map<Codebook, List<Pair<CodebookTag, Integer>>> sort(
             Map<Codebook, Map<CodebookTag, Integer>> suggestions)
     {
@@ -126,22 +122,20 @@ public class CodebookStatsFactoryImpl
         return sorted;
     }
 
-    private List<CAS> loadCASes(List<SourceDocument> docs)
+    private List<CAS> loadCASes(List<SourceDocument> docs, boolean annotators, boolean curators)
     {
         List<CAS> CASes = new ArrayList<>();
         for (SourceDocument doc : docs)
             // get all annotation documents of all users of the current doc
             documentService.listAnnotationDocuments(doc).forEach(annotationDocument -> {
                 try {
-                    switch (annotationDocument.getUser()) {
-                    case CURATION_USER:
-                    case CORRECTION_USER:
-                    case INITIAL_CAS_PSEUDO_USER:
-                        break;
-                    default:
-                        CASes.add(documentService.readAnnotationCas(annotationDocument));
-                    }
+                    User user = userRepository.get(annotationDocument.getUser());
+                    Project project = annotationDocument.getProject();
+                    boolean isCurator = projectService.isCurator(project, user);
+                    boolean isAnnotator = projectService.isAnnotator(project, user);
 
+                    if ((curators && isCurator) || (annotators && isAnnotator))
+                        CASes.add(documentService.readAnnotationCas(annotationDocument));
                 }
                 catch (IOException e) {
                     // TODO what to do?!
