@@ -99,7 +99,8 @@ public class CodebookStatsPanel<T>
                 List<Pair<CodebookTag, Integer>> tags = stats.getFilteredFrequencies(
                         item.getModelObject(), min, max, startWith, contains);
 
-                ListView<Pair<CodebookTag, Integer>> tagListView = new ListView<Pair<CodebookTag, Integer>>(
+                ListView<Pair<CodebookTag, Integer>> tagListView =
+                        new ListView<Pair<CodebookTag, Integer>>(
                         "tagsListView", tags)
                 {
 

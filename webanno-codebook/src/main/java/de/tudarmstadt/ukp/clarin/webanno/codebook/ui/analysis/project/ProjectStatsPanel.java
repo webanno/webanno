@@ -17,19 +17,8 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.uima.cas.CASException;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory.NGramStats;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
@@ -38,12 +27,8 @@ public class ProjectStatsPanel
 {
     private static final long serialVersionUID = -347717438611255494L;
 
-    private LoadableDetachableModel<NGramStats> mergedNGramStats;
-    private NGramTabsPanel nGramTabPanel;
-    private CodebookStatsPanel codebookStatsPanel;
-
-    private @SpringBean DocumentService documentService;
-    private @SpringBean NGramStatsFactory nGramStatsFactory;
+    private NGramTabsPanel<Project> nGramTabPanel;
+    private CodebookStatsPanel<Project> codebookStatsPanel;
 
     public ProjectStatsPanel(String id)
     {
@@ -51,37 +36,11 @@ public class ProjectStatsPanel
         this.setOutputMarkupPlaceholderTag(true);
     }
 
-    private void createMergedNGramStats()
-    {
-        this.mergedNGramStats = new LoadableDetachableModel<NGramStats>()
-        {
-            private static final long serialVersionUID = 6576995133434217463L;
-
-            @Override
-            protected NGramStats load()
-            {
-                // get stats from all docs in the project an merge them
-                // TODO do we want to persist this!?
-                List<NGramStats> stats = new ArrayList<>();
-                documentService.listSourceDocuments(analysisTarget).forEach(doc -> {
-                    try {
-                        stats.add(nGramStatsFactory.createOrLoad(doc));
-                    }
-                    catch (IOException | CASException e) {
-                        e.printStackTrace();
-                    }
-                });
-                return nGramStatsFactory.merge(stats);
-            }
-        };
-    }
-
     @Override
     public void update(Project targetProject)
     {
         this.analysisTarget = targetProject;
         if (this.analysisTarget != null) {
-            this.createMergedNGramStats();
             this.createNGramTabsPanel();
             this.createCodebookStatsPanel();
         }
@@ -95,9 +54,7 @@ public class ProjectStatsPanel
 
     private void createNGramTabsPanel()
     {
-        nGramTabPanel = new NGramTabsPanel("nGramTabsPanel", mergedNGramStats);
+        nGramTabPanel = new NGramTabsPanel<>("nGramTabsPanel", analysisTarget);
         this.addOrReplace(nGramTabPanel);
-
-        this.mergedNGramStats.detach();
     }
 }

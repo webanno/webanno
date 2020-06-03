@@ -32,13 +32,13 @@ public class ListViewPanelFilterForm
 {
     private static final long serialVersionUID = 5106687522803292607L;
 
-    private final TextField<String> startsWithFilter;
-    private final TextField<String> containsFilter;
-    private final TextField<Integer> minCount;
-    private final TextField<Integer> maxCount;
-    private final Form<String> filterForm;
+    protected final TextField<String> startsWithFilter;
+    protected final TextField<String> containsFilter;
+    protected final TextField<Integer> minCount;
+    protected final TextField<Integer> maxCount;
+    protected final Form<String> filterForm;
 
-    private final UpdateListViewCallback updateListViewCallback;
+    protected final UpdateListViewCallback updateListViewCallback;
 
     public ListViewPanelFilterForm(String id, UpdateListViewCallback updateListViewCallBack)
     {

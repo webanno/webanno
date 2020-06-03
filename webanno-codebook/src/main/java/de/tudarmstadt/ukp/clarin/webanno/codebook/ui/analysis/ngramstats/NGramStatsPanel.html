@@ -20,53 +20,7 @@
 <wicket:panel>
     <div class="flex-v-container">
         <!-- Filter Form -->
-        <form wicket:id="filterForm" class="card mt-1" style="flex: .3">
-            <div class="card-header">Filters</div>
-
-            <div class="card-body">
-                <div class="form-row">
-                    <label wicket:id="maxCountLabel" class="col-md-9 col-form-label pull-left"
-                           style="overflow-wrap: break-word;"></label>
-                    <div class="col-sm-3">
-                        <input wicket:id="maxCount" type="text" class="form-control"/>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <label wicket:id="minCountLabel" class="col-md-9 col-form-label pull-left"
-                           style="overflow-wrap: break-word;"></label>
-                    <div class="col-sm-3">
-                        <input wicket:id="minCount" type="text" class="form-control"/>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <label wicket:id="startsWithFilterLabel"
-                           class="col-md-9 col-form-label pull-left"
-                           style="overflow-wrap: break-word;"></label>
-                    <div class="col-sm-3">
-                        <input wicket:id="startsWithFilter" type="text" class="form-control"/>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <label wicket:id="containsFilterLabel"
-                           class="col-md-9 col-form-label pull-left"
-                           style="overflow-wrap: break-word;"></label>
-                    <div class="col-sm-3">
-                        <input wicket:id="containsFilter" type="text" class="form-control"/>
-                    </div>
-                </div>
-
-            </div>
-            <div class="card-footer">
-                <input wicket:id="applyFilters" type="submit" class="btn btn-primary btn-sm"
-                       value="Apply filters!"/>
-                <input wicket:id="resetFilters" type="button"
-                       class="btn btn-secondary btn-sm float-right"
-                       value="Reset filters!"/>
-            </div>
-        </form>
+        <div wicket:id="filterFormPanel" style="flex: .2"></div>
 
         <!-- NGram Freqs-->
         <div class="card flex-content mt-1">

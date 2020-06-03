@@ -17,16 +17,8 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document;
 
-import java.io.IOException;
-
-import org.apache.uima.cas.CASException;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-
-import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramStatsFactory;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
@@ -35,11 +27,8 @@ public class DocumentStatsPanel
 {
     private static final long serialVersionUID = -1736911006985851577L;
 
-    private @SpringBean DocumentService documentService;
-    private @SpringBean NGramStatsFactory nGramStatsFactory;
-
-    private NGramTabsPanel nGramTabPanel;
-    private CodebookStatsPanel codebookStatsPanel;
+    private NGramTabsPanel<SourceDocument> nGramTabPanel;
+    private CodebookStatsPanel<SourceDocument> codebookStatsPanel;
 
     public DocumentStatsPanel(String id)
     {
@@ -59,15 +48,8 @@ public class DocumentStatsPanel
 
     private void createNGramTabsPanel()
     {
-
-        try {
-            this.nGramTabPanel = new NGramTabsPanel("nGramTabsPanel",
-                    Model.of(nGramStatsFactory.createOrLoad(analysisTarget)));
-            this.addOrReplace(nGramTabPanel);
-        }
-        catch (IOException | CASException e) {
-            e.printStackTrace();
-        }
+        this.nGramTabPanel = new NGramTabsPanel<>("nGramTabsPanel", analysisTarget);
+        this.addOrReplace(nGramTabPanel);
     }
 
     private void createCodebookStatsPanel()
