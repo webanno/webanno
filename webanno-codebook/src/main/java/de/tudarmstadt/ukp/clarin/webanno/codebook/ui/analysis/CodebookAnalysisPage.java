@@ -20,13 +20,22 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
 import static de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst.PAGE_PARAM_PROJECT_ID;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
+import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.string.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +47,16 @@ import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.api.CodebookAnalysisService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentInsightsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentSelectionForm;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentStatsPanel;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectInsightsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectSelectionForm;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectStatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
+import de.tudarmstadt.ukp.clarin.webanno.support.JSONUtil;
+import de.tudarmstadt.ukp.clarin.webanno.support.wicket.AjaxDownloadLink;
+import de.tudarmstadt.ukp.clarin.webanno.support.wicket.InputStreamResourceStream;
 import de.tudarmstadt.ukp.clarin.webanno.ui.core.page.ApplicationPageBase;
 
 @MountPath("/codebookanalysis.html")
@@ -57,6 +69,7 @@ public class CodebookAnalysisPage
     private static final String STATS_PLACEHOLDER = "statsPlaceholder";
     private static final String PROJECT_STATS = "projectStatsContainer";
     private static final String DOCUMENT_STATS = "documentStatsContainer";
+
     private @SpringBean DocumentService documentService;
     private @SpringBean ProjectService projectService;
     private @SpringBean AnnotationSchemaService annotationService;
@@ -64,11 +77,12 @@ public class CodebookAnalysisPage
     private @SpringBean UserDao userRepository;
     private @SpringBean AgreementMeasureSupportRegistry agreementRegistry;
     private @SpringBean CodebookAnalysisService analysisService;
+
     private WebMarkupContainer statsPlaceholder;
     private ProjectSelectionForm projectSelectionForm;
     private DocumentSelectionForm documentSelectionForm;
-    private ProjectStatsPanel projectStatsPanel;
-    private DocumentStatsPanel documentStatsPanel;
+    private ProjectInsightsPanel projectInsightsPanel;
+    private DocumentInsightsPanel documentInsightsPanel;
 
     public CodebookAnalysisPage()
     {
@@ -124,20 +138,52 @@ public class CodebookAnalysisPage
         statsPlaceholder = new WebMarkupContainer(STATS_PLACEHOLDER);
         statsPlaceholder.setOutputMarkupId(true);
         statsPlaceholder.add(visibleWhen(
-            () -> !projectStatsPanel.isVisible() && !documentStatsPanel.isVisible()));
+            () -> !projectInsightsPanel.isVisible() && !documentInsightsPanel.isVisible()));
 
-        projectStatsPanel = new ProjectStatsPanel(PROJECT_STATS);
-        projectStatsPanel.setOutputMarkupPlaceholderTag(true);
-        projectStatsPanel.add(visibleWhen(() -> projectStatsPanel.getAnalysisTarget() != null
-                && documentStatsPanel.getAnalysisTarget() == null));
+        projectInsightsPanel = new ProjectInsightsPanel(PROJECT_STATS);
+        projectInsightsPanel.setOutputMarkupPlaceholderTag(true);
+        projectInsightsPanel.add(visibleWhen(() -> projectInsightsPanel.getAnalysisTarget() != null
+                && documentInsightsPanel.getAnalysisTarget() == null));
 
-        documentStatsPanel = new DocumentStatsPanel(DOCUMENT_STATS);
-        documentStatsPanel.setOutputMarkupPlaceholderTag(true);
-        documentStatsPanel.add(visibleWhen(() -> documentStatsPanel.getAnalysisTarget() != null));
+        documentInsightsPanel = new DocumentInsightsPanel(DOCUMENT_STATS);
+        documentInsightsPanel.setOutputMarkupPlaceholderTag(true);
+        documentInsightsPanel
+                .add(visibleWhen(() -> documentInsightsPanel.getAnalysisTarget() != null));
 
-        this.add(projectSelectionForm, documentSelectionForm, projectStatsPanel, documentStatsPanel,
-                statsPlaceholder);
+        // export btn
+        AjaxDownloadLink export = new AjaxDownloadLink("export",
+                new StringResourceModel("export.stats.filename", this),
+                LoadableDetachableModel.of(this::exportStats));
+        export.add(visibleWhen(() -> projectInsightsPanel.getAnalysisTarget() != null));
 
+        this.add(projectSelectionForm, documentSelectionForm, export, projectInsightsPanel,
+                documentInsightsPanel, statsPlaceholder);
+
+    }
+
+    private IResourceStream exportStats()
+    {
+        // TODO export the currently selected statistics
+        try {
+            // get current stats
+            ExportedStats exportedStats = null;
+            if (documentInsightsPanel.isVisible()) {
+                exportedStats = documentInsightsPanel.getExportedStats();
+            }
+            else if (projectInsightsPanel.isVisible()) {
+                exportedStats = projectInsightsPanel.getExportedStats();
+            }
+            return new InputStreamResourceStream(new ByteArrayInputStream(
+                    JSONUtil.toPrettyJsonString(exportedStats).getBytes(StandardCharsets.UTF_8)));
+
+        }
+        catch (Exception e) {
+            error("Unable to generate the JSON file: " + ExceptionUtils.getRootCauseMessage(e));
+            LOG.error("Unable to generate the JSON file", e);
+            RequestCycle.get().find(IPartialPageRequestHandler.class)
+                    .ifPresent(handler -> handler.addChildren(getPage(), IFeedback.class));
+            return null;
+        }
     }
 
     private Optional<Project> getProjectFromParameters(StringValue projectParam)
@@ -164,14 +210,14 @@ public class CodebookAnalysisPage
         return documentSelectionForm;
     }
 
-    public ProjectStatsPanel getProjectStatsPanel()
+    public ProjectInsightsPanel getProjectInsightsPanel()
     {
-        return projectStatsPanel;
+        return projectInsightsPanel;
     }
 
-    public DocumentStatsPanel getDocumentStatsPanel()
+    public DocumentInsightsPanel getDocumentInsightsPanel()
     {
-        return documentStatsPanel;
+        return documentInsightsPanel;
     }
 
     public WebMarkupContainer getStatsPlaceholder()

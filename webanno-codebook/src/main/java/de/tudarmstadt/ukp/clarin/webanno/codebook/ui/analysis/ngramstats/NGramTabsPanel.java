@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.uima.cas.CASException;
@@ -47,6 +48,7 @@ public class NGramTabsPanel<T>
     {
         super(id, analysisTarget);
         this.setOutputMarkupPlaceholderTag(true);
+        this.cachedStats = new HashMap<>();
         this.createTabPanel();
     }
 
@@ -82,13 +84,7 @@ public class NGramTabsPanel<T>
                 public WebMarkupContainer getPanel(String panelId)
                 {
                     NGramStatsFactory.NGramStats stats = null;
-                    try {
-                        stats = createStats();
-                    }
-                    catch (IOException | CASException e) {
-                        e.printStackTrace(); // TODO what to throw?!
-                    }
-
+                    stats = createStats();
                     return new NGramStatsPanel(panelId, Model.of(stats), finalN);
                 }
             });
@@ -97,7 +93,8 @@ public class NGramTabsPanel<T>
         return tabs;
     }
 
-    private NGramStatsFactory.NGramStats createStats() throws IOException, CASException
+    @Override
+    public NGramStatsFactory.NGramStats createStats()
     {
         if (this.analysisTarget instanceof Project) {
             // get stats from all docs in the project an merge them
@@ -111,12 +108,28 @@ public class NGramTabsPanel<T>
                     e.printStackTrace();
                 }
             });
-            return nGramStatsFactory.merge(stats);
+            this.cachedStats.put(this.analysisTarget, nGramStatsFactory.merge(stats));
         }
         else if (this.analysisTarget instanceof SourceDocument) {
-            return nGramStatsFactory.createOrLoad((SourceDocument) this.analysisTarget);
+            try {
+                this.cachedStats.put(this.analysisTarget,
+                        nGramStatsFactory.createOrLoad((SourceDocument) this.analysisTarget));
+            }
+            catch (IOException | CASException e) {
+                // TODO throw Exception!
+                e.printStackTrace();
+            }
         }
-        return null; // TODO throw Exception!
+        else {
+            return null; // TODO throw Exception!
+        }
+
+        return (NGramStatsFactory.NGramStats) this.cachedStats.get(this.analysisTarget);
+    }
+
+    public NGramStatsFactory.NGramStats getCurrentStats()
+    {
+        return (NGramStatsFactory.NGramStats) this.cachedStats.get(this.analysisTarget);
     }
 
     @Override

@@ -17,26 +17,28 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
+import org.apache.wicket.markup.html.panel.Panel;
+
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ExportedStats;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
-public class ProjectStatsPanel
-    extends StatsPanel<Project>
+public class ProjectInsightsPanel
+    extends Panel
 {
     private static final long serialVersionUID = -347717438611255494L;
 
     private NGramTabsPanel<Project> nGramTabPanel;
     private CodebookStatsPanel<Project> codebookStatsPanel;
+    private Project analysisTarget;
 
-    public ProjectStatsPanel(String id)
+    public ProjectInsightsPanel(String id)
     {
         super(id);
         this.setOutputMarkupPlaceholderTag(true);
     }
 
-    @Override
     public void update(Project targetProject)
     {
         this.analysisTarget = targetProject;
@@ -56,5 +58,19 @@ public class ProjectStatsPanel
     {
         nGramTabPanel = new NGramTabsPanel<>("nGramTabsPanel", analysisTarget);
         this.addOrReplace(nGramTabPanel);
+    }
+
+    public Project getAnalysisTarget()
+    {
+        return analysisTarget;
+    }
+
+    public ExportedStats getExportedStats()
+    {
+        ExportedStats ex = new ExportedStats();
+        ex.setName(this.analysisTarget.getName());
+        ex.setNGrams(this.nGramTabPanel.getCurrentStats());
+        ex.setCodebooks(this.codebookStatsPanel.getCurrentStats());
+        return ex;
     }
 }

@@ -17,6 +17,9 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.wicket.markup.html.panel.Panel;
 
 public abstract class StatsPanel<T>
@@ -25,20 +28,25 @@ public abstract class StatsPanel<T>
     private static final long serialVersionUID = -6863640617466494681L;
 
     protected T analysisTarget;
+    protected Map<T, Stats> cachedStats;
 
     public StatsPanel(String id)
     {
         super(id);
         analysisTarget = null;
+        cachedStats = new HashMap<>();
     }
 
     public StatsPanel(String id, T analysisTarget)
     {
         super(id);
         this.analysisTarget = analysisTarget;
+        cachedStats = new HashMap<>();
     }
 
     public abstract void update(T analysisTarget);
+
+    public abstract Stats createStats();
 
     public T getAnalysisTarget()
     {
@@ -48,5 +56,10 @@ public abstract class StatsPanel<T>
     public void setAnalysisTarget(T analysisTarget)
     {
         this.analysisTarget = analysisTarget;
+    }
+
+    public Map<T, Stats> getCachedStats()
+    {
+        return cachedStats;
     }
 }

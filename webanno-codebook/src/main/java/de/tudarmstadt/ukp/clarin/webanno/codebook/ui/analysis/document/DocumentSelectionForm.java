@@ -88,10 +88,11 @@ public class DocumentSelectionForm
 
     private void onSelectionChanged(AjaxRequestTarget aTarget)
     {
-        this.analysisPage.getDocumentStatsPanel().update(selectedDocument);
+        this.analysisPage.getDocumentInsightsPanel().update(selectedDocument);
 
-        aTarget.add(this.documentListChoice, this.analysisPage.getDocumentStatsPanel(),
-                this.analysisPage.getProjectStatsPanel(), this.analysisPage.getStatsPlaceholder());
+        aTarget.add(this.documentListChoice, this.analysisPage.getDocumentInsightsPanel(),
+                this.analysisPage.getProjectInsightsPanel(),
+                this.analysisPage.getStatsPlaceholder());
     }
 
     private List<SourceDocument> listDocuments()

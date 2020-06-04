@@ -65,24 +65,14 @@ public class CodebookStatsPanel<T>
             AjaxRequestTarget target)
     {
         List<Codebook> cbList = null;
-        CodebookStatsFactory.CodebookStats stats = null;
-        boolean curators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
-                .showFromCurators();
-        boolean annotators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
-                .showFromAnnotators();
         if (this.analysisTarget instanceof Project) {
             cbList = codebookSchemaService.listCodebook((Project) this.analysisTarget);
-            stats = codebookStatsFactory.create((Project) this.analysisTarget, annotators,
-                    curators);
         }
         else if (this.analysisTarget instanceof SourceDocument) {
             cbList = codebookSchemaService
                     .listCodebook(((SourceDocument) this.analysisTarget).getProject());
-            stats = codebookStatsFactory.create(
-                    Collections.singletonList((SourceDocument) this.analysisTarget), annotators,
-                    curators);
         }
-
+        CodebookStatsFactory.CodebookStats stats = this.createStats();
         this.createListView(cbList, stats, min, max, startWith, contains);
 
         if (target != null)
@@ -148,5 +138,33 @@ public class CodebookStatsPanel<T>
         this.analysisTarget = analysisTarget;
         if (this.analysisTarget != null)
             this.updateListView();
+    }
+
+    @Override
+    public CodebookStatsFactory.CodebookStats createStats()
+    {
+        boolean curators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
+                .showFromCurators();
+        boolean annotators = ((CodebookStatsFilterPanel) this.listViewPanelFilterForm)
+                .showFromAnnotators();
+        if (this.analysisTarget instanceof Project) {
+            this.cachedStats.put(analysisTarget, codebookStatsFactory
+                    .create((Project) this.analysisTarget, annotators, curators));
+            return (CodebookStatsFactory.CodebookStats) this.cachedStats.get(this.analysisTarget);
+        }
+        else if (this.analysisTarget instanceof SourceDocument) {
+            this.cachedStats.put(analysisTarget,
+                    codebookStatsFactory.create(
+                            Collections.singletonList((SourceDocument) this.analysisTarget),
+                            annotators, curators));
+            return (CodebookStatsFactory.CodebookStats) this.cachedStats.get(this.analysisTarget);
+        }
+        else
+            return null; // TODO what to throw?
+    }
+
+    public CodebookStatsFactory.CodebookStats getCurrentStats()
+    {
+        return (CodebookStatsFactory.CodebookStats) this.cachedStats.get(this.analysisTarget);
     }
 }

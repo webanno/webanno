@@ -17,26 +17,28 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document;
 
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.StatsPanel;
+import org.apache.wicket.markup.html.panel.Panel;
+
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ExportedStats;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.codebookstats.CodebookStatsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.ngramstats.NGramTabsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
-public class DocumentStatsPanel
-    extends StatsPanel<SourceDocument>
+public class DocumentInsightsPanel
+    extends Panel
 {
     private static final long serialVersionUID = -1736911006985851577L;
 
     private NGramTabsPanel<SourceDocument> nGramTabPanel;
     private CodebookStatsPanel<SourceDocument> codebookStatsPanel;
+    private SourceDocument analysisTarget;
 
-    public DocumentStatsPanel(String id)
+    public DocumentInsightsPanel(String id)
     {
         super(id);
         this.setOutputMarkupPlaceholderTag(true);
     }
 
-    @Override
     public void update(SourceDocument targetDoc)
     {
         this.analysisTarget = targetDoc;
@@ -58,4 +60,17 @@ public class DocumentStatsPanel
         this.addOrReplace(codebookStatsPanel);
     }
 
+    public ExportedStats getExportedStats()
+    {
+        ExportedStats ex = new ExportedStats();
+        ex.setName(this.analysisTarget.getName());
+        ex.setNGrams(this.nGramTabPanel.getCurrentStats());
+        ex.setCodebooks(this.codebookStatsPanel.getCurrentStats());
+        return ex;
+    }
+
+    public SourceDocument getAnalysisTarget()
+    {
+        return analysisTarget;
+    }
 }

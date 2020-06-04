@@ -38,7 +38,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentU
 import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublisherHolder;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.OverviewListChoice;
 
-// TODO make abstract and generalize
 public class ProjectSelectionForm
     extends Panel
 {
@@ -79,11 +78,11 @@ public class ProjectSelectionForm
         analysisPage.getDocumentSelectionForm().updateChoices(this.selectedProject);
 
         // update project
-        analysisPage.getProjectStatsPanel().update(this.selectedProject);
-        analysisPage.getDocumentStatsPanel().update(null);
+        analysisPage.getProjectInsightsPanel().update(this.selectedProject);
+        analysisPage.getDocumentInsightsPanel().update(null);
 
         aTarget.add(analysisPage, analysisPage.getDocumentSelectionForm(),
-                analysisPage.getDocumentStatsPanel(), analysisPage.getProjectStatsPanel());
+                analysisPage.getDocumentInsightsPanel(), analysisPage.getProjectInsightsPanel());
     }
 
     private List<Project> listAllowedProjects()
