@@ -121,4 +121,9 @@ public class CodebookCurationTreePanel
     {
         return parentPage;
     }
+
+    public void expandNode(CodebookNode n)
+    {
+        tree.expand(n);
+    }
 }

@@ -90,20 +90,21 @@ public class AgreementMeasureTestSuite_ImplBase
         layerBehaviorRegistry.init();
             
         LayerSupportRegistryImpl layerRegistry = new LayerSupportRegistryImpl(asList(
-                new SpanLayerSupport(featureSupportRegistry, null, annotationService,
-                    layerBehaviorRegistry),
-                new RelationLayerSupport(featureSupportRegistry, null, annotationService,
-                    layerBehaviorRegistry),
-                new ChainLayerSupport(featureSupportRegistry, null, annotationService,
-                    layerBehaviorRegistry)));
+                new SpanLayerSupport(featureSupportRegistry, null, layerBehaviorRegistry),
+                new RelationLayerSupport(featureSupportRegistry, null, layerBehaviorRegistry),
+                new ChainLayerSupport(featureSupportRegistry, null, layerBehaviorRegistry)));
         layerRegistry.init();
                 
+        when(annotationService.listSupportedLayers(any())).thenReturn(layers);
         when(annotationService.listAnnotationLayer(any())).thenReturn(layers);
+        when(annotationService.listSupportedFeatures(any(AnnotationLayer.class)))
+            .thenReturn(features);
         when(annotationService.listAnnotationFeature(any(AnnotationLayer.class)))
             .thenReturn(features);
         when(annotationService.getAdapter(any(AnnotationLayer.class))).then(_call -> {
             AnnotationLayer l = _call.getArgument(0);
-            return layerRegistry.getLayerSupport(l).createAdapter(l);
+            return layerRegistry.getLayerSupport(l).createAdapter(l, 
+                () -> annotationService.listAnnotationFeature(l));
         });
     }
     

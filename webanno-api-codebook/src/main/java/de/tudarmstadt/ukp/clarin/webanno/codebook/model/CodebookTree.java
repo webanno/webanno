@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,8 @@ public class CodebookTree
 
     public List<Codebook> getChildren(final Codebook book)
     {
+        if (this.getCodebookNode(book) == null) // This should never be true!
+            return Collections.emptyList();
         return this.getCodebooks(this.getCodebookNode(book).getChildren());
     }
 

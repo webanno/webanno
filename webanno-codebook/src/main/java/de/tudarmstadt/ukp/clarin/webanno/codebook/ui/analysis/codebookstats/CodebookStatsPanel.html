@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+#Copyright 2020
+#Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt
+#and Language Technology Group  Universität Hamburg
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html xmlns:wicket="http://wicket.apache.org">
+<wicket:panel>
+    <!--          Codebook Stats Panel -->
+    <div class="card flex-content flex-v-container">
+        <div class="card-header">
+            <div class="card-title">Codebook Overview</div>
+        </div>
+
+        <div wicket:id="filterFormPanel" style="flex: .2"></div>
+
+        <div class="card flex-content mt-2">
+            <div class="card-header">Codebooks</div>
+            <div class="card-body flex-v-container flex-no-gutter scrolling"
+                 style="overflow-x: hidden;">
+
+                <div class="card flex-content mt-1"
+                     wicket:id="codebooksListView">
+
+                    <div class="card-header text-center" style="overflow-wrap: break-word;"
+                         wicket:id="cbName">
+                        [cbName]
+                    </div>
+
+                    <div class="card-body flex-v-container flex-no-gutter justify-content-between"
+                         style="overflow-x: hidden;">
+
+                        <div class="flex-content flex-h-container align-items-center" wicket:id="tagsListView">
+
+                            <div class="flex-content badge badge-info" style="overflow-wrap: break-word;"
+                                 wicket:id="cbTag">
+                                [cbTag]
+                            </div>
+                            <div class="flex-content text-right" wicket:id="cbTagCnt">
+                                [cbTagCnt]
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</wicket:panel>
+</html>

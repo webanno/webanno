@@ -25,7 +25,7 @@ import java.util.Objects;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookFeatureState;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion.CodebookSuggestions;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.suggestion.CodebookSuggestion;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 
@@ -33,12 +33,12 @@ public class CodebookCurationModel
     implements Serializable
 {
     private static final long serialVersionUID = -7826210722492638188L;
-    private final List<CodebookFeatureState> codebookModels = new ArrayList<>();
+    private final List<CodebookFeatureState> codebookFeatureStates = new ArrayList<>();
     private List<Codebook> codebooks;
     private SourceDocument document;
     private Project project;
     private List<CodebookCurations> codebookCurations = new ArrayList<>();
-    private List<CodebookSuggestions> codebooksuggestions = new ArrayList<>();
+    private List<CodebookSuggestion> codebookSuggestions = new ArrayList<>();
 
     public CodebookCurationModel()
     {
@@ -55,7 +55,7 @@ public class CodebookCurationModel
 
     public CodebookFeatureState getCodebookFeatureState(CodebookFeature aFeature)
     {
-        for (CodebookFeatureState f : codebookModels) {
+        for (CodebookFeatureState f : codebookFeatureStates) {
             if (Objects.equals(f.feature.getId(), aFeature.getId())) {
                 return f;
             }
@@ -93,29 +93,9 @@ public class CodebookCurationModel
         this.project = project;
     }
 
-    public List<CodebookFeatureState> getCodebookFeatureStates()
+    public List<CodebookSuggestion> getCodebookSuggestions()
     {
-        return codebookModels;
-    }
-
-    public List<CodebookCurations> getCodebookCurations()
-    {
-        return codebookCurations;
-    }
-
-    public void setCodebookCurations(List<CodebookCurations> codebookCurations)
-    {
-        this.codebookCurations = codebookCurations;
-    }
-
-    public List<CodebookSuggestions> getCodebooksuggestions()
-    {
-        return codebooksuggestions;
-    }
-
-    public void setCodebooksuggestions(List<CodebookSuggestions> codebooksuggestions)
-    {
-        this.codebooksuggestions = codebooksuggestions;
+        return codebookSuggestions;
     }
 
 }

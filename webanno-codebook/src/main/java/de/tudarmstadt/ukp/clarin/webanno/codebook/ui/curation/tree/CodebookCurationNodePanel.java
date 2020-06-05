@@ -170,6 +170,8 @@ public class CodebookCurationNodePanel
 
         codebookCurationComboBox.add(new AjaxFormComponentUpdatingBehavior("change")
         {
+            private static final long serialVersionUID = -6052685304352686750L;
+
             @Override
             protected void onUpdate(AjaxRequestTarget target)
             {
@@ -192,6 +194,7 @@ public class CodebookCurationNodePanel
                 catch (IOException | AnnotationException e) {
                     error("Unable to update" + e.getMessage());
                 }
+                parentTreePanel.expandNode(node);
             }
         });
 

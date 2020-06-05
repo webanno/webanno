@@ -18,69 +18,11 @@
 -->
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-    <div class="card">
-      <div class="card-header">Document Statistics</div>
-      <div class="card-body">
-
-            <form wicket:id="filterForm" class="card mt-1">
-              <div class="card-header">Filter Token Frequencies</div>
-
-              <div class="card-body">
-                <div class="form-row">
-                  <label wicket:id="maxCountLabel" class="col-md-9 col-form-label pull-left"
-                         style="overflow-wrap: break-word;"></label>
-                  <div class="col-sm-3">
-                    <input wicket:id="maxCount" type="text" class="form-control"/>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <label wicket:id="minCountLabel" class="col-md-9 col-form-label pull-left"
-                         style="overflow-wrap: break-word;"></label>
-                  <div class="col-sm-3">
-                    <input wicket:id="minCount" type="text" class="form-control"/>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <label wicket:id="tokenFilterLabel" class="col-md-9 col-form-label pull-left"
-                         style="overflow-wrap: break-word;"></label>
-                  <div class="col-sm-3">
-                    <input wicket:id="tokenFilter" type="text" class="form-control"/>
-                  </div>
-                </div>
-
-              </div>
-              <div class="card-footer">
-                <input wicket:id="applyFilters" type="submit" class="btn btn-primary btn-sm"
-                       value="Apply filters!"/>
-                <input wicket:id="resetFilters" type="button" class="btn btn-secondary btn-sm float-right"
-                       value="Reset filters!"/>
-              </div>
-            </form>
-
-
-            <div class="card mt-2">
-              <div class="card-header">Token Frequencies</div>
-              <!-- TODO remove hardcoded max height! -->
-              <div class="card-body" style="overflow-y: scroll; max-height: 510px">
-                <div class="row">
-                  <div class="col-md-9 pull-left">Total number of tokens</div>
-                  <label wicket:id="totalTokens" class="col-sm-3 float-right" style="overflow-wrap: break-word;"/>
-                </div>
-                <div class="row">
-                  <div class="col-md-9 pull-left">Number of distinct tokens</div>
-                  <label wicket:id="distinctTokens" class="col-sm-3 float-right" style="overflow-wrap: break-word;"/>
-                </div>
-                <hr />
-                <div class="row" wicket:id="tokenFreqs">
-                  <div wicket:id="token" class="col-md-9" style="overflow-wrap: break-word;">Token</div>
-                  <div wicket:id="count" class="col-md-3 float-right">Count</div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="card">
+    <div class="card-header">Document Statistics</div>
+    <div class="card-body p-0 flex-v-container">
+      <div wicket:id="nGramTabsPanel" class="flex-content flex-v-container"></div>
+    </div>
+  </div>
 </wicket:panel>
 </html>

@@ -17,30 +17,63 @@
 #limitations under the License.
 -->
 <html xmlns:wicket="http://wicket.apache.org">
+<head>
+    <wicket:head>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                function onEnterFocusNextCodebookNode() {
+                    $("[name='codebookCurationComboBox_input']").keyup(function (e) {
+                        if (e.which === 13) {
+                            e.preventDefault();
+
+                            // wait a little bit so the tree can expand if necessary
+                            setTimeout(function () {}, 1000); // TODO not working...
+
+                            console.log("enter key codebookCurationComboBox_input");
+                            console.log($(this).get());
+
+
+                            let inputs = $("[name='codebookCurationComboBox_input']").get();
+                            let thisIdx = inputs.indexOf($(this).get(0));
+
+                            if (inputs.length > thisIdx && inputs[thisIdx + 1] !== undefined)
+                                inputs[thisIdx + 1].focus();
+                        }
+                    });
+                }
+
+                $(document).on("keypress", onEnterFocusNextCodebookNode);
+            });
+        </script>
+    </wicket:head>
+</head>
 <body>
 <wicket:extend>
-    <div class="container-fluid row">
-        <!--        Left Panel          -->
-        <div class="col-md-6" wicket:id="leftPanelContainer">
-            <div wicket:id="codebookCurationTreePanel">[codebookCurationTreePanel]</div>
-        </div>
+    <div class="container-fluid">
+        <div class="row">
+            <!--        Left Panel          -->
+            <div class="col-md-6" wicket:id="leftPanelContainer">
+                <div wicket:id="codebookCurationTreePanel">[codebookCurationTreePanel]</div>
+            </div>
 
-        <div wicket:id="rightPanelContainer" class="scrolling col-md-6">
-            <div class="flex-content flex-v-container flex-gutter">
-                <div class="flex-content card">
-                    <div class="card-header border-bottom-0">
-                        <span wicket:id="documentNamePanel"/>
+            <div wicket:id="rightPanelContainer" class="scrolling col-md-6">
+                <div class="flex-content flex-v-container flex-gutter">
+                    <div class="flex-content card">
+                        <div class="card-header border-bottom-0">
+                            <span wicket:id="documentNamePanel"/>
 
-                        <nav wicket:id="actionBar" class="action-bar float-right">
-                            <span wicket:id="documentNavigator"/>
-                            <span wicket:id="guidelinesDialog"/>
-                            <span wicket:id="workflowActions"/>
-                        </nav>
-                    </div>
+                            <nav wicket:id="actionBar" class="action-bar float-right">
+                                <span wicket:id="documentNavigator"/>
+                                <span wicket:id="guidelinesDialog"/>
+                                <span wicket:id="workflowActions"/>
+                            </nav>
+                        </div>
 
-                    <div class="card-body flex-content flex-v-container"
-                         wicket:id="documentContentContainer" style="max-height: 250px; overflow-y: scroll">
-                        <span class="text-left" wicket:id="documentContent"></span>
+                        <div class="card-body flex-content flex-v-container"
+                             wicket:id="documentContentContainer"
+                             style="max-height: 250px; overflow-y: scroll">
+                            <span class="text-left" wicket:id="documentContent"></span>
+                        </div>
                     </div>
                 </div>
             </div>

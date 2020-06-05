@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+#Copyright 2020
+#Ubiquitous Knowledge Processing (UKP) Lab Technische Universität Darmstadt
+#and  Language Technology Universität Hamburg
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+-->
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <!-- Filter Form -->
+    <form wicket:id="filterForm" class="card mt-1">
+        <div class="card-header">Filters</div>
+
+        <div class="card-body">
+            <div class="form-row">
+                <label wicket:id="maxCountLabel" class="col-md-7 col-form-label pull-left"
+                       style="overflow-wrap: break-word;"></label>
+                <div class="col-md-5">
+                    <input wicket:id="maxCount" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label wicket:id="minCountLabel" class="col-md-7 col-form-label pull-left"
+                       style="overflow-wrap: break-word;"></label>
+                <div class="col-md-5">
+                    <input wicket:id="minCount" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label wicket:id="startsWithFilterLabel"
+                       class="col-md-7 col-form-label pull-left"
+                       style="overflow-wrap: break-word;"></label>
+                <div class="col-md-5">
+                    <input wicket:id="startsWithFilter" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label wicket:id="containsFilterLabel"
+                       class="col-md-7 col-form-label pull-left"
+                       style="overflow-wrap: break-word;"></label>
+                <div class="col-md-5">
+                    <input wicket:id="containsFilter" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <!-- keep this as a possibility to extend the filter form! -->
+            <wicket:child />
+
+        </div>
+        <div class="card-footer">
+            <input wicket:id="applyFilters" type="submit" class="btn btn-primary btn-sm"
+                   value="Apply filters!"/>
+            <input wicket:id="resetFilters" type="button"
+                   class="btn btn-secondary btn-sm float-right"
+                   value="Reset filters!"/>
+        </div>
+    </form>
+</wicket:panel>
+</body>
+</html>

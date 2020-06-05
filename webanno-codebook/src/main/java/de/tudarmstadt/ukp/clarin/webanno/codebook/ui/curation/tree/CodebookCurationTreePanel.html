@@ -19,17 +19,15 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 <wicket:panel>
-    <div class="flex-v-container flex-gutter">
-        <div class="card">
-            <div class="card-header">
-                <span>Codebooks</span>
-                <a class="btn btn-sm btn-default float-right" wicket:id="expandAll">Expand all</a>
-                <a class="btn btn-sm btn-default float-right" wicket:id="collapseAll">Collapse all</a>
-            </div>
+    <div class="card mt-2" style="max-height: 90vh">
+        <div class="card-header">
+            <h4>Codebooks</h4>
+            <a class="btn btn-sm btn-outline-secondary" wicket:id="expandAll">Expand all</a>
+            <a class="btn btn-sm btn-outline-secondary float-right" wicket:id="collapseAll">Collapse all</a>
+        </div>
 
-            <div class="card-body">
-                <div wicket:id="codebookCurationTree"></div>
-            </div>
+        <div class="card-body scrolling">
+            <div wicket:id="codebookCurationTree"></div>
         </div>
     </div>
 </wicket:panel>

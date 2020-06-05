@@ -26,6 +26,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.model.Mode.ANNOTATION;
 import static de.tudarmstadt.ukp.clarin.webanno.model.Mode.CORRECTION;
 import static java.lang.Math.ceil;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -219,7 +220,8 @@ public class AnnotationDocumentExporter
                 format = new WebAnnoTsv3FormatSupport();
             }
             // Export annotations from regular users
-            for (AnnotationDocument annDoc : srcToAnnIdx.get(srcDoc)) {
+            for (AnnotationDocument annDoc : 
+                srcToAnnIdx.computeIfAbsent(srcDoc, key -> emptyList())) {
                 
                 // copy annotation document only for existing users and the state of the 
                 // annotation document is not NEW/IGNORE
@@ -359,27 +361,30 @@ public class AnnotationDocumentExporter
             // Strip leading "/" that we had in ZIP files prior to 2.0.8 (bug #985)
             String entryName = ProjectExporter.normalizeEntryName(entry);
 
-            if (entryName.startsWith(ANNOTATION_AS_SERIALISED_CAS + "/")) {
-                String fileName = entryName.replace(ANNOTATION_AS_SERIALISED_CAS + "/", "");
-
-                if (fileName.trim().isEmpty()) {
-                    continue;
-                }
-
-                // the user annotated the document is file name minus extension (anno1.ser)
-                String username = FilenameUtils.getBaseName(fileName).replace(".ser", "");
-
-                // name of the annotation document
-                fileName = fileName.replace(FilenameUtils.getName(fileName), "").replace("/", "");
-                SourceDocument sourceDocument = aNameToDoc.get(fileName);
-                File annotationFilePath = documentService.getCasFile(sourceDocument, username);
-
-                copyInputStreamToFile(zip.getInputStream(entry), annotationFilePath);
-
-                log.info("Imported annotation document content for user [" + username
-                        + "] for source document [" + sourceDocument.getId() + "] in project ["
-                        + aProject.getName() + "] with id [" + aProject.getId() + "]");
+            if (!entryName.startsWith(ANNOTATION_AS_SERIALISED_CAS + "/") ||
+                !entryName.endsWith(".ser")) {
+                continue;
             }
+
+            String fileName = entryName.replace(ANNOTATION_AS_SERIALISED_CAS + "/", "");
+
+            if (fileName.trim().isEmpty()) {
+                continue;
+            }
+
+            // the user annotated the document is file name minus extension (anno1.ser)
+            String username = FilenameUtils.getBaseName(fileName).replace(".ser", "");
+
+            // name of the annotation document
+            fileName = fileName.replace(FilenameUtils.getName(fileName), "").replace("/", "");
+            SourceDocument sourceDocument = aNameToDoc.get(fileName);
+            File annotationFilePath = documentService.getCasFile(sourceDocument, username);
+
+            copyInputStreamToFile(zip.getInputStream(entry), annotationFilePath);
+
+            log.info("Imported annotation document content for user [" + username
+                    + "] for source document [" + sourceDocument.getId() + "] in project ["
+                    + aProject.getName() + "] with id [" + aProject.getId() + "]");
         }
     }
 }

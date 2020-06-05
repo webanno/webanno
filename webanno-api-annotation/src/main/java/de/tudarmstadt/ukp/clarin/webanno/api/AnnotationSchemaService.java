@@ -29,6 +29,10 @@ import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.adapter.TypeAdapter;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupport;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.feature.FeatureSupportRegistry;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.layer.LayerSupport;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.layer.LayerSupportRegistry;
 import de.tudarmstadt.ukp.clarin.webanno.api.type.CASMetadata;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
@@ -209,17 +213,27 @@ public interface AnnotationSchemaService
     Optional<AnnotationLayer> getLayer(Project aProject, long aLayerId);
 
     /**
-     * Get an {@link AnnotationLayer}
+     * Find the {@link AnnotationLayer} matching the given UIMA type name (if any).
      * 
      * @param aProject
      *            the project.
-     * @param aName
+     * @param aUimaTypeName
      *            the layer name.
      * 
      * @return the layer.
      */
-    AnnotationLayer findLayer(Project aProject, String aName);
+    AnnotationLayer findLayer(Project aProject, String aUimaTypeName);
 
+    /**
+     * Find the {@link AnnotationLayer} matching the type of the given feature structure (if any).
+     * 
+     * @param aProject
+     *            the project.
+     * @param aFS
+     *            a UIMA feature structure.
+     * 
+     * @return the layer.
+     */
     AnnotationLayer findLayer(Project aProject, FeatureStructure aFS);
     
     /**
@@ -254,32 +268,25 @@ public interface AnnotationSchemaService
     boolean existsType(String name, String type);
 
     /**
-     * Initialize the project with default {@link AnnotationLayer}, {@link TagSet}s, and {@link Tag}
-     * s. This is done per Project.
+     * List all annotation types in a project. This includes disabled layers and layers for which
+     * no {@link LayerSupport} can be obtained via the {@link LayerSupportRegistry}.
      * 
      * @param aProject
      *            the project.
-     * @throws IOException
-     *             if an I/O error occurs.
-     */ 
-    void initializeProject(Project aProject)
-            throws IOException;
-    
-    /**
-     * list all {@link AnnotationLayer} in the system
-     *
      * @return the layers.
      */
-    List<AnnotationLayer> listAnnotationType();
-
+    List<AnnotationLayer> listAnnotationLayer(Project aProject);
+    
     /**
-     * List all annotation types in a project
+     * List all supported annotation layers in a project. This includes disabled layers. Supported
+     * layers are such for which a {@link LayerSupport} is available in the
+     * {@link LayerSupportRegistry}.
      * 
-     * @param project
+     * @param aProject
      *            the project.
      * @return the layers.
      */
-    List<AnnotationLayer> listAnnotationLayer(Project project);
+    List<AnnotationLayer> listSupportedLayers(Project aProject);
     
     /**
      * List all relation layers that are attached directly or indirectly (via a attach feature) to
@@ -304,17 +311,18 @@ public interface AnnotationSchemaService
     List<AnnotationFeature> listAttachedLinkFeatures(AnnotationLayer layer);
      
     /**
-     * List all the features in a {@link AnnotationLayer} for this {@link Project}
+     * List all the features in a {@link AnnotationLayer} for this {@link Project}. This includes
+     * disabled features.
      * 
-     * @param type
+     * @param aLayer
      *            the layer.
      * 
      * @return the features.
      */
-    List<AnnotationFeature> listAnnotationFeature(AnnotationLayer type);
+    List<AnnotationFeature> listAnnotationFeature(AnnotationLayer aLayer);
 
     /**
-     * List all features in the project
+     * List all features in the project. This includes disabled features.
      * 
      * @param project
      *            the project.
@@ -322,6 +330,38 @@ public interface AnnotationSchemaService
      */
     List<AnnotationFeature> listAnnotationFeature(Project project);
 
+    /**
+     * List all supported features in the project. This includes disabled features. Supported 
+     * features are features for which a {@link FeatureSupport} is available in the 
+     * {@link FeatureSupportRegistry}.
+     * 
+     * @param aProject
+     *            the project.
+     * @return the features.
+     */
+    List<AnnotationFeature> listSupportedFeatures(Project aProject);
+    
+    /**
+     * List all supported features in the layer. This includes disabled features. Supported 
+     * features are features for which a {@link FeatureSupport} is available in the 
+     * {@link FeatureSupportRegistry}.
+     * 
+     * @param aLayer
+     *            the layer.
+     * @return the features.
+     */
+    List<AnnotationFeature> listSupportedFeatures(AnnotationLayer aLayer);
+
+    /**
+     * List enabled features in a {@link AnnotationLayer} for this {@link Project}.
+     * 
+     * @param aLayer
+     *            the layer.
+     * 
+     * @return the features.
+     */
+    List<AnnotationFeature> listEnabledFeatures(AnnotationLayer aLayer);
+    
     /**
      * list all {@link Tag} in the system
      *

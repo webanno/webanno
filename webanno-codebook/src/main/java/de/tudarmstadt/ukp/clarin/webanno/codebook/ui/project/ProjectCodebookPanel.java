@@ -40,6 +40,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.cas.CAS;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.basic.Label;
@@ -179,10 +180,18 @@ public class ProjectCodebookPanel
         // add and init tree
         projectCodebookTreePanel = new ProjectCodebookTreePanel("projectCodebookTreePanel",
                 aProjectModel, this, codebookDetailForm, tagSelectionPanel, tagEditorPanel);
-        projectCodebookTreePanel.initTree();
+
+        updateTree();
+
         projectCodebookTreePanel.setOutputMarkupId(true);
         // add tree to selection form
         codebookSelectionForm.add(projectCodebookTreePanel);
+    }
+
+    private void updateTree()
+    {
+        projectCodebookTreePanel.initTree();
+        projectCodebookTreePanel.expandAll();
     }
 
     @Override
@@ -255,18 +264,26 @@ public class ProjectCodebookPanel
             super(id, aModel);
 
             // add create button
-            add(new Button("create", new StringResourceModel("label"))
+            add(new AjaxButton("create", new StringResourceModel("label"))
             {
                 private static final long serialVersionUID = -4482428496358679571L;
 
                 @Override
-                public void onSubmit()
+                public void onSubmit(AjaxRequestTarget target)
                 {
                     selectedTag.setObject(null);
                     tagSelectionPanel.setDefaultModelObject(null);
                     tagEditorPanel.setDefaultModelObject(null);
                     CodebookSelectionForm.this.setDefaultModelObject(null);
                     codebookDetailForm.setDefaultModelObject(new Codebook());
+
+                    // Normally, using focusComponent should work, but it doesn't.
+                    // Therefore, we manually add a JavaScript snippet..
+                    // (cf. https://issues.apache.org/jira/browse/WICKET-5858)
+                    //target.focusComponent(codebookDetailForm.uiName);
+                    target.appendJavaScript("setTimeout(function() { document.getElementById('"
+                            + codebookDetailForm.uiName.getMarkupId() + "').focus(); }, 100);");
+                    target.add(ProjectCodebookPanel.this);
                 }
             });
 
@@ -348,12 +365,11 @@ public class ProjectCodebookPanel
                 }
             }
             codebookDetailForm.setVisible(false);
-            aTarget.add(ProjectCodebookPanel.this);
-            aTarget.add(getPage());
-            aTarget.add(ProjectCodebookPanel.this.codebookSelectionForm);
 
-            applicationEventPublisherHolder.get()
-                    .publishEvent(new CodebookConfigurationChangedEvent(this, project));
+            updateTree();
+
+            aTarget.add(ProjectCodebookPanel.this);
+            aTarget.addChildren(getPage(), IFeedback.class);
         }
 
         private void importCodebook(InputStream aIS) throws IOException
@@ -379,13 +395,17 @@ public class ProjectCodebookPanel
 
         private ParentSelectionWrapper<Codebook> codebookParentSelection;
 
+        private TextField<String> uiName;
+
         public CodebookDetailForm(String id, IModel<Codebook> aSelectedCodebook)
         {
             super(id, CompoundPropertyModel.of(aSelectedCodebook));
 
             setOutputMarkupPlaceholderTag(true);
-
-            add(new TextField<String>("uiName").setRequired(true));
+            uiName = new TextField<>("uiName");
+            uiName.setOutputMarkupId(true);
+            uiName.setRequired(true);
+            add(uiName);
             add(new TextArea<String>("description").setOutputMarkupPlaceholderTag(true));
 
             add(new Label("name")
@@ -410,10 +430,10 @@ public class ProjectCodebookPanel
             this.codebookParentSelection = new ParentSelectionWrapper<>("parent", "uiName",
                     possibleParents);
             add(this.codebookParentSelection.getDropdown());
-            add(new Label("parentCodebookLabel", "Parent Codebook"));
 
             // create tag checkbox
-            add(new CheckBox("createTag"));
+            CheckBox createTag = new CheckBox("createTag", Model.of(Boolean.TRUE));
+            add(createTag);
 
             // add save and delete buttons
             add(new LambdaAjaxButton<>("save", this::actionSave));
@@ -430,17 +450,19 @@ public class ProjectCodebookPanel
 
         private void actionSave(AjaxRequestTarget aTarget, Form<?> aForm)
         {
-            aTarget.add(ProjectCodebookPanel.this);
-            aTarget.addChildren(getPage(), IFeedback.class);
-
             Codebook codebook = CodebookDetailForm.this.getModelObject();
             // make the codebook directly available for parent selection
             this.codebookParentSelection.addParent(codebook);
 
             saveCodebook(codebook);
-            // update the tree (if the parent changed)
-            projectCodebookTreePanel.initTree();
-            projectCodebookTreePanel.expandAll();
+
+            updateTree();
+
+            applicationEventPublisherHolder.get().publishEvent(
+                    new CodebookConfigurationChangedEvent(this, codebook.getProject()));
+
+            aTarget.add(ProjectCodebookPanel.this);
+            aTarget.addChildren(getPage(), IFeedback.class);
         }
 
         private void purgeCodebook(Codebook codebook)
@@ -464,7 +486,7 @@ public class ProjectCodebookPanel
             confirmationDialog.setContentModel(model.setParameters(params));
             confirmationDialog.show(aTarget);
 
-            confirmationDialog.setConfirmAction((_target) -> {
+            confirmationDialog.setConfirmAction(_target -> {
                 try {
                     Codebook codebook = codebookDetailForm.getModelObject();
                     this.purgeCodebook(codebook);
@@ -474,10 +496,6 @@ public class ProjectCodebookPanel
                     // due to the limitations of ConfirmationDialog it's not possible to display
                     // a meaningful error of DataIntegrityViolationException
                 }
-
-                // update the tree
-                projectCodebookTreePanel.initTree();
-                projectCodebookTreePanel.expandAll();
 
                 Project project = getModelObject().getProject();
 
@@ -509,9 +527,10 @@ public class ProjectCodebookPanel
                     }
                 });
 
-                applicationEventPublisherHolder.get()
-                        .publishEvent(new CodebookConfigurationChangedEvent(this, project));
-                _target.add(getPage());
+                updateTree();
+
+                _target.add(ProjectCodebookPanel.this);
+                _target.addChildren(getPage(), IFeedback.class);
             });
         }
 
@@ -543,6 +562,10 @@ public class ProjectCodebookPanel
             tagEditorPanel.setDefaultModelObject(null);
             // update parent selections
             this.updateParentChoicesForCodebook(getModelObject());
+        }
+
+        public TextField<String> getUiName() {
+            return uiName;
         }
     }
 
@@ -598,6 +621,7 @@ public class ProjectCodebookPanel
             codebookService.createCodebookFeature(codebookFeature);
             tagSelectionPanel.setDefaultModelObject(codebook);
         }
+
         applicationEventPublisherHolder.get()
                 .publishEvent(new CodebookConfigurationChangedEvent(this, project));
     }

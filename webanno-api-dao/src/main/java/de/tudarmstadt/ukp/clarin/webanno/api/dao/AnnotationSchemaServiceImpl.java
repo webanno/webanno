@@ -29,21 +29,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Feature;
@@ -64,11 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,7 +70,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.annotation.layer.LayerSupportRegist
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.TypeSystemAnalysis;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.TypeSystemAnalysis.RelationDetails;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.api.dao.initializers.ProjectInitializer;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationDocument;
@@ -106,50 +93,25 @@ public class AnnotationSchemaServiceImpl
 
     private @PersistenceContext EntityManager entityManager;
 
-    private @Autowired FeatureSupportRegistry featureSupportRegistry;
-    private @Autowired ApplicationEventPublisher applicationEventPublisher;
-    private @Autowired LayerSupportRegistry layerSupportRegistry;
+    private final LayerSupportRegistry layerSupportRegistry;
 
     private @Autowired CodebookSchemaService codebookService;
 
-    private @Lazy @Autowired(required = false) List<ProjectInitializer> initializerProxy;
+    private final FeatureSupportRegistry featureSupportRegistry;
 
-    private List<ProjectInitializer> initializers;
-
-    public AnnotationSchemaServiceImpl()
+    @Autowired
+    public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
+            FeatureSupportRegistry aFeatureSupportRegistry)
     {
-        // Nothing to do
+        layerSupportRegistry = aLayerSupportRegistry;
+        featureSupportRegistry = aFeatureSupportRegistry;
     }
 
-    @EventListener
-    public void onContextRefreshedEvent(ContextRefreshedEvent aEvent)
+    public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
+            FeatureSupportRegistry aFeatureSupportRegistry, EntityManager aEntityManager)
     {
-        init();
-    }
-
-    /* package private */ void init()
-    {
-        List<ProjectInitializer> inits = new ArrayList<>();
-
-        if (initializerProxy != null) {
-            inits.addAll(initializerProxy);
-            AnnotationAwareOrderComparator.sort(inits);
-
-            Set<Class<? extends ProjectInitializer>> initializerClasses = new HashSet<>();
-            for (ProjectInitializer init : inits) {
-                if (initializerClasses.add(init.getClass())) {
-                    log.info("Found project initializer: {}",
-                            ClassUtils.getAbbreviatedName(init.getClass(), 20));
-                }
-                else {
-                    throw new IllegalStateException("There cannot be more than once instance "
-                            + "of each project initializer class! Duplicate instance of class: "
-                                    + init.getClass());
-                }
-            }
-        }
-
-        initializers = Collections.unmodifiableList(inits);
+        this(aLayerSupportRegistry, aFeatureSupportRegistry);
+        entityManager = aEntityManager;
     }
 
     @Override
@@ -206,8 +168,8 @@ public class AnnotationSchemaServiceImpl
         try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aLayer.getProject().getId()))) {
             Project project = aLayer.getProject();
-            log.info("Created layer [{}]({}) in project [{}]({})", aLayer.getName(),
-                    aLayer.getId(), project.getName(), project.getId());
+            log.info("Created layer [{}]({}) in project [{}]({})", aLayer.getName(), aLayer.getId(),
+                    project.getName(), project.getId());
         }
     }
 
@@ -229,8 +191,7 @@ public class AnnotationSchemaServiceImpl
     {
         try {
             final String query = "FROM Tag WHERE id = :id";
-            return Optional.of(entityManager.createQuery(query, Tag.class)
-                    .setParameter("id", aId)
+            return Optional.of(entityManager.createQuery(query, Tag.class).setParameter("id", aId)
                     .getSingleResult());
         }
         catch (NoResultException e) {
@@ -267,8 +228,9 @@ public class AnnotationSchemaServiceImpl
         try {
             entityManager
                     .createQuery("FROM TagSet WHERE name = :name AND project = :project",
-                            TagSet.class).setParameter("name", aName)
-                    .setParameter("project", aProject).getSingleResult();
+                            TagSet.class)
+                    .setParameter("name", aName).setParameter("project", aProject)
+                    .getSingleResult();
             return true;
         }
         catch (NoResultException e) {
@@ -298,11 +260,9 @@ public class AnnotationSchemaServiceImpl
     {
         try {
             entityManager
-                    .createQuery(
-                            "FROM AnnotationLayer WHERE name = :name AND project = :project",
+                    .createQuery("FROM AnnotationLayer WHERE name = :name AND project = :project",
                             AnnotationLayer.class)
-                    .setParameter("name", aName)
-                    .setParameter("project", aProject)
+                    .setParameter("name", aName).setParameter("project", aProject)
                     .getSingleResult();
             return true;
         }
@@ -316,11 +276,9 @@ public class AnnotationSchemaServiceImpl
     public boolean existsLayer(String aName, String aType, Project aProject)
     {
         try {
-            entityManager
-                    .createQuery(
-                            "FROM AnnotationLayer WHERE name = :name AND type = :type AND project = :project",
-                            AnnotationLayer.class)
-                    .setParameter("name", aName).setParameter("type", aType)
+            entityManager.createQuery(
+                    "FROM AnnotationLayer WHERE name = :name AND type = :type AND project = :project",
+                    AnnotationLayer.class).setParameter("name", aName).setParameter("type", aType)
                     .setParameter("project", aProject).getSingleResult();
             return true;
         }
@@ -337,8 +295,8 @@ public class AnnotationSchemaServiceImpl
         try {
             entityManager
                     .createQuery("FROM AnnotationFeature WHERE name = :name AND layer = :layer",
-                            AnnotationFeature.class).setParameter("name", aName)
-                    .setParameter("layer", aLayer).getSingleResult();
+                            AnnotationFeature.class)
+                    .setParameter("name", aName).setParameter("layer", aLayer).getSingleResult();
             return true;
         }
         catch (NoResultException e) {
@@ -368,12 +326,9 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public AnnotationLayer getLayer(long aId)
     {
-        String query = String.join("\n",
-                "FROM AnnotationLayer",
-                "WHERE id = :id");
+        String query = String.join("\n", "FROM AnnotationLayer", "WHERE id = :id");
 
-        return entityManager.createQuery(query, AnnotationLayer.class)
-                .setParameter("id", aId)
+        return entityManager.createQuery(query, AnnotationLayer.class).setParameter("id", aId)
                 .getSingleResult();
     }
 
@@ -381,15 +336,11 @@ public class AnnotationSchemaServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public Optional<AnnotationLayer> getLayer(Project aProject, long aLayerId)
     {
-        String query = String.join("\n",
-                "FROM AnnotationLayer",
-                "WHERE id = :id",
+        String query = String.join("\n", "FROM AnnotationLayer", "WHERE id = :id",
                 "AND project = :project");
 
-        return entityManager.createQuery(query, AnnotationLayer.class)
-                .setParameter("id", aLayerId)
-                .setParameter("project", aProject)
-                .getResultStream().findFirst();
+        return entityManager.createQuery(query, AnnotationLayer.class).setParameter("id", aLayerId)
+                .setParameter("project", aProject).getResultStream().findFirst();
     }
 
     @Override
@@ -453,14 +404,11 @@ public class AnnotationSchemaServiceImpl
 
     private Optional<AnnotationLayer> getLayerInternal(String aName, Project aProject)
     {
-        String query = String.join("\n",
-                "FROM AnnotationLayer ",
+        String query = String.join("\n", "FROM AnnotationLayer ",
                 "WHERE name = :name AND project = :project");
 
-        return entityManager.createQuery(query, AnnotationLayer.class)
-                .setParameter("name", aName)
-                .setParameter("project", aProject)
-                .getResultStream().findFirst();
+        return entityManager.createQuery(query, AnnotationLayer.class).setParameter("name", aName)
+                .setParameter("project", aProject).getResultStream().findFirst();
     }
 
     @Override
@@ -500,8 +448,8 @@ public class AnnotationSchemaServiceImpl
     {
         return entityManager
                 .createQuery("From AnnotationFeature where name = :name AND layer = :layer",
-                        AnnotationFeature.class).setParameter("name", aName)
-                .setParameter("layer", aLayer).getSingleResult();
+                        AnnotationFeature.class)
+                .setParameter("name", aName).setParameter("layer", aLayer).getSingleResult();
     }
 
     @Override
@@ -511,8 +459,8 @@ public class AnnotationSchemaServiceImpl
         try {
             entityManager
                     .createQuery("From AnnotationLayer where name = :name AND type = :type",
-                            AnnotationLayer.class).setParameter("name", aName)
-                    .setParameter("type", aType).getSingleResult();
+                            AnnotationLayer.class)
+                    .setParameter("name", aName).setParameter("type", aType).getSingleResult();
             return true;
         }
         catch (NoResultException e) {
@@ -524,7 +472,7 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public TagSet createTagSet(String aDescription, String aTagSetName, String aLanguage,
             String[] aTags, String[] aTagDescription, Project aProject)
-                throws IOException
+        throws IOException
     {
         TagSet tagSet = new TagSet();
         tagSet.setDescription(aDescription);
@@ -549,63 +497,12 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     @Transactional
-    public void initializeProject(Project aProject)
-        throws IOException
-    {
-        Deque<ProjectInitializer> deque = new LinkedList<>(initializers);
-        Set<Class<? extends ProjectInitializer>> initsSeen = new HashSet<>();
-        Set<ProjectInitializer> initsDeferred = SetUtils.newIdentityHashSet();
-
-        Set<Class<? extends ProjectInitializer>> allInits = new HashSet<>();
-
-        for (ProjectInitializer initializer : deque) {
-            allInits.add(initializer.getClass());
-        }
-
-        while (!deque.isEmpty()) {
-            ProjectInitializer initializer = deque.pop();
-
-            if (!allInits.containsAll(initializer.getDependencies())) {
-                throw new IllegalStateException(
-                        "Missing dependencies of " + initializer + " initializer from " + deque);
-            }
-
-            if (initsDeferred.contains(initializer)) {
-                throw new IllegalStateException("Circular initializer dependencies in "
-                        + initsDeferred + " via " + initializer);
-            }
-
-            if (initsSeen.containsAll(initializer.getDependencies())) {
-                log.debug("Applying project initializer: {}", initializer);
-                initializer.configure(aProject);
-                initsSeen.add(initializer.getClass());
-                initsDeferred.clear();
-            }
-            else {
-                log.debug(
-                        "Deferring project initializer as dependencies are not yet fulfilled: [{}]",
-                        initializer);
-                deque.add(initializer);
-                initsDeferred.add(initializer);
-            }
-        }
-    }
-
-    @Override
-    @Transactional
-    public List<AnnotationLayer> listAnnotationType()
-    {
-        return entityManager.createQuery("FROM AnnotationLayer ORDER BY name",
-                AnnotationLayer.class).getResultList();
-    }
-
-    @Override
-    @Transactional
     public List<AnnotationLayer> listAnnotationLayer(Project aProject)
     {
         return entityManager
                 .createQuery("FROM AnnotationLayer WHERE project =:project ORDER BY uiName",
-                        AnnotationLayer.class).setParameter("project", aProject).getResultList();
+                        AnnotationLayer.class)
+                .setParameter("project", aProject).getResultList();
     }
 
     @Override
@@ -613,13 +510,11 @@ public class AnnotationSchemaServiceImpl
     public List<AnnotationLayer> listAttachedRelationLayers(AnnotationLayer aLayer)
     {
         return entityManager
-                .createQuery(
-                        "SELECT l FROM AnnotationLayer l LEFT JOIN l.attachFeature f "
+                .createQuery("SELECT l FROM AnnotationLayer l LEFT JOIN l.attachFeature f "
                         + "WHERE l.type = :type AND l.project = :project AND "
                         + "(l.attachType = :attachType OR f.type = :attachTypeName) "
-                        + "ORDER BY l.uiName",
-                        AnnotationLayer.class).setParameter("type", RELATION_TYPE)
-                .setParameter("attachType", aLayer)
+                        + "ORDER BY l.uiName", AnnotationLayer.class)
+                .setParameter("type", RELATION_TYPE).setParameter("attachType", aLayer)
                 .setParameter("attachTypeName", aLayer.getName())
                 // Checking for project is necessary because type match is string-based
                 .setParameter("project", aLayer.getProject()).getResultList();
@@ -629,10 +524,10 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public List<AnnotationFeature> listAttachedLinkFeatures(AnnotationLayer aLayer)
     {
-        return entityManager
-                .createQuery(
-                        "FROM AnnotationFeature WHERE linkMode in (:modes) AND project = :project AND "
-                                + "type in (:attachType) ORDER BY uiName", AnnotationFeature.class)
+        return entityManager.createQuery(
+                "FROM AnnotationFeature WHERE linkMode in (:modes) AND project = :project AND "
+                        + "type in (:attachType) ORDER BY uiName",
+                AnnotationFeature.class)
                 .setParameter("modes", asList(LinkMode.SIMPLE, LinkMode.WITH_ROLE))
                 .setParameter("attachType", asList(aLayer.getName(), CAS.TYPE_NAME_ANNOTATION))
                 // Checking for project is necessary because type match is string-based
@@ -647,19 +542,35 @@ public class AnnotationSchemaServiceImpl
             return new ArrayList<>();
         }
 
-        return entityManager
-                .createQuery("FROM AnnotationFeature  WHERE layer =:layer ORDER BY uiName",
-                        AnnotationFeature.class).setParameter("layer", aLayer).getResultList();
+        String query = String.join("\n", "FROM AnnotationFeature", "WHERE layer = :layer",
+                "ORDER BY uiName");
+
+        return entityManager.createQuery(query, AnnotationFeature.class)
+                .setParameter("layer", aLayer).getResultList();
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listEnabledFeatures(AnnotationLayer aLayer)
+    {
+        if (isNull(aLayer) || isNull(aLayer.getId())) {
+            return new ArrayList<>();
+        }
+
+        String query = String.join("\n", "FROM AnnotationFeature", "WHERE layer = :layer",
+                "AND enabled = true", "ORDER BY uiName");
+
+        return entityManager.createQuery(query, AnnotationFeature.class)
+                .setParameter("layer", aLayer).getResultList();
     }
 
     @Override
     @Transactional
     public List<AnnotationFeature> listAnnotationFeature(Project aProject)
     {
-        return entityManager
-                .createQuery(
-                        "FROM AnnotationFeature f WHERE project =:project ORDER BY f.layer.uiName, f.uiName",
-                        AnnotationFeature.class).setParameter("project", aProject).getResultList();
+        return entityManager.createQuery(
+                "FROM AnnotationFeature f WHERE project =:project ORDER BY f.layer.uiName, f.uiName",
+                AnnotationFeature.class).setParameter("project", aProject).getResultList();
     }
 
     @Override
@@ -738,17 +649,83 @@ public class AnnotationSchemaServiceImpl
     }
 
     @Override
+    @Transactional
+    public List<AnnotationLayer> listSupportedLayers(Project aProject)
+    {
+        List<AnnotationLayer> supportedLayers = new ArrayList<>();
+
+        for (AnnotationLayer l : listAnnotationLayer(aProject)) {
+            try {
+                layerSupportRegistry.getLayerSupport(l);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported layers
+                continue;
+            }
+
+            // Add supported layers to the result
+            supportedLayers.add(l);
+        }
+
+        return supportedLayers;
+
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listSupportedFeatures(Project aProject)
+    {
+        List<AnnotationFeature> supportedFeatures = new ArrayList<>();
+
+        for (AnnotationFeature f : listAnnotationFeature(aProject)) {
+            try {
+                featureSupportRegistry.getFeatureSupport(f);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported features
+                continue;
+            }
+
+            // Add supported features to the result
+            supportedFeatures.add(f);
+        }
+
+        return supportedFeatures;
+    }
+
+    @Override
+    @Transactional
+    public List<AnnotationFeature> listSupportedFeatures(AnnotationLayer aLayer)
+    {
+        List<AnnotationFeature> supportedFeatures = new ArrayList<>();
+
+        for (AnnotationFeature f : listAnnotationFeature(aLayer)) {
+            try {
+                featureSupportRegistry.getFeatureSupport(f);
+            }
+            catch (IllegalArgumentException e) {
+                // Skip unsupported features
+                continue;
+            }
+
+            // Add supported features to the result
+            supportedFeatures.add(f);
+        }
+
+        return supportedFeatures;
+    }
+
+    @Override
     public TypeSystemDescription getCustomProjectTypes(Project aProject)
     {
         // Create a new type system from scratch
         TypeSystemDescription tsd = new TypeSystemDescription_impl();
 
-        List<AnnotationFeature> allFeaturesInProject = listAnnotationFeature(aProject);
+        List<AnnotationFeature> allFeaturesInProject = listSupportedFeatures(aProject);
 
-        listAnnotationLayer(aProject).stream()
-                .filter(layer -> !layer.isBuiltIn())
+        listSupportedLayers(aProject).stream().filter(layer -> !layer.isBuiltIn())
                 .forEachOrdered(layer -> layerSupportRegistry.getLayerSupport(layer)
-                .generateTypes(tsd, layer, allFeaturesInProject));
+                        .generateTypes(tsd, layer, allFeaturesInProject));
 
         for (Codebook codebook : codebookService.listCodebook(aProject)) {
             TypeDescription td = tsd.addType(codebook.getName(), "", CAS.TYPE_NAME_ANNOTATION);
@@ -767,9 +744,8 @@ public class AnnotationSchemaServiceImpl
 
         TypeSystemDescription builtInTypes = createTypeSystemDescription();
 
-        List<AnnotationLayer> allLayersInProject = listAnnotationLayer(aProject);
-        List<AnnotationFeature> allFeaturesInProject = listAnnotationFeature(aProject);
-
+        List<AnnotationLayer> allLayersInProject = listSupportedLayers(aProject);
+        List<AnnotationFeature> allFeaturesInProject = listSupportedFeatures(aProject);
         for (AnnotationLayer layer : allLayersInProject) {
             LayerSupport<?, ?> layerSupport = layerSupportRegistry.getLayerSupport(layer);
 
@@ -815,18 +791,13 @@ public class AnnotationSchemaServiceImpl
                 // Export types referenced by built-in types also as built-in types. Note that
                 // it is conceptually impossible for built-in types to refer to custom types, so
                 // this is cannot lead to a custom type being exported as a built-in type.
-                if (
-                        feature.getElementType() != null &&
-                        !isNativeUimaType(feature.getElementType()) &&
-                        aTarget.getType(feature.getElementType()) == null
-                ) {
+                if (feature.getElementType() != null && !isNativeUimaType(feature.getElementType())
+                        && aTarget.getType(feature.getElementType()) == null) {
                     exportBuiltInTypeDescription(aSource, aTarget, feature.getElementType());
                 }
-                else if (
-                        feature.getRangeTypeName() != null &&
-                        !isNativeUimaType(feature.getRangeTypeName()) &&
-                        aTarget.getType(feature.getRangeTypeName()) == null
-                ) {
+                else if (feature.getRangeTypeName() != null
+                        && !isNativeUimaType(feature.getRangeTypeName())
+                        && aTarget.getType(feature.getRangeTypeName()) == null) {
                     exportBuiltInTypeDescription(aSource, aTarget, feature.getRangeTypeName());
                 }
             }
@@ -860,7 +831,7 @@ public class AnnotationSchemaServiceImpl
         // Types declared within the project
         typeSystems.add(getCustomProjectTypes(aProject));
 
-        return (TypeSystemDescription_impl) mergeTypeSystems(typeSystems);
+        return mergeTypeSystems(typeSystems);
     }
 
     @Override
@@ -905,13 +876,10 @@ public class AnnotationSchemaServiceImpl
     {
         upgradeCas(aCas, aSourceDocument.getProject());
 
-        try (MDC.MDCCloseable closable = MDC.putCloseable(
-                Logging.KEY_PROJECT_ID,
+        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aSourceDocument.getProject().getId()))) {
             Project project = aSourceDocument.getProject();
-            log.info(
-                    "Upgraded CAS of user [{}] for "
-                            + "document [{}]({}) in project [{}]({})",
+            log.info("Upgraded CAS of user [{}] for " + "document [{}]({}) in project [{}]({})",
                     aUser, aSourceDocument.getName(), aSourceDocument.getId(), project.getName(),
                     project.getId());
         }
@@ -962,7 +930,7 @@ public class AnnotationSchemaServiceImpl
     {
         return getFullProjectTypeSystem(aProject, false);
     }
-    
+
     @Override
     public CAS prepareCasForExport(CAS aCas, SourceDocument aSourceDocument,
             TypeSystemDescription aFullProjectTypeSystem)
@@ -972,7 +940,7 @@ public class AnnotationSchemaServiceImpl
         if (tsd == null) {
             tsd = getTypeSystemForExport(aSourceDocument.getProject());
         }
-        
+
         CAS exportCas = WebAnnoCasUtil.createCas();
         upgradeCas(aCas, exportCas, tsd);
         return exportCas;
@@ -1081,7 +1049,8 @@ public class AnnotationSchemaServiceImpl
     @Transactional
     public TypeAdapter getAdapter(AnnotationLayer aLayer)
     {
-        return layerSupportRegistry.getLayerSupport(aLayer).createAdapter(aLayer);
+        return layerSupportRegistry.getLayerSupport(aLayer).createAdapter(aLayer,
+            () -> listAnnotationFeature(aLayer));
     }
 
     @Override
@@ -1109,8 +1078,7 @@ public class AnnotationSchemaServiceImpl
                     AnnotationLayer attachLayer;
                     try {
                         // First check if this type is already in the project
-                        attachLayer = findLayer(aProject,
-                                relDetails.getAttachLayer());
+                        attachLayer = findLayer(aProject, relDetails.getAttachLayer());
                     }
                     catch (NoResultException e) {
                         // If it does not exist in the project yet, then we create it
