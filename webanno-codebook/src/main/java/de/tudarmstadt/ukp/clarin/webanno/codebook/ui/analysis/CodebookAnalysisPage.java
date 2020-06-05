@@ -46,7 +46,6 @@ import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
-import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.api.CodebookAnalysisService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentInsightsPanel;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.document.DocumentSelectionForm;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.analysis.project.ProjectInsightsPanel;
@@ -76,7 +75,6 @@ public class CodebookAnalysisPage
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean UserDao userRepository;
     private @SpringBean AgreementMeasureSupportRegistry agreementRegistry;
-    private @SpringBean CodebookAnalysisService analysisService;
 
     private WebMarkupContainer statsPlaceholder;
     private ProjectSelectionForm projectSelectionForm;
