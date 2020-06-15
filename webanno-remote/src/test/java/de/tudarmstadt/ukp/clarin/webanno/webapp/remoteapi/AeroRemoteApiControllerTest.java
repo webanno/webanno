@@ -94,6 +94,7 @@ import de.tudarmstadt.ukp.clarin.webanno.security.model.User;
 import de.tudarmstadt.ukp.clarin.webanno.support.ApplicationContextProvider;
 import de.tudarmstadt.ukp.clarin.webanno.text.TextFormatSupport;
 import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.AeroRemoteApiController;
+import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model.RProjectMode;
 
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
@@ -143,14 +144,49 @@ public class AeroRemoteApiControllerTest
                 .param("name", "project1")).andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.body.id").value("1"))
-                .andExpect(jsonPath("$.body.name").value("project1"));
+                .andExpect(jsonPath("$.body.name").value("project1"))
+                .andExpect(jsonPath("$.body.mode").value(RProjectMode.annotation.name()));
 
         mvc.perform(get(API_BASE + "/projects").with(csrf().asHeader())
                 .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.body[0].id").value("1"))
                 .andExpect(jsonPath("$.body[0].name").value("project1"));
+
+        /*
+         * FIXME It's not possible to test the creation of projects for different project types
+         * since the ProjectService injected at test time, does not know any project types..
+         * Reproduce this problem by running this test in debug mode, set a breakpoint anywhere in
+         * AeroRemoteApiController::projectCreate and list the available project types by executing
+         * "projectService.listProjectTypes()". This list will be empty, what causes an
+         * IllegalArgumentException when setting the mode because the mode i.e. project type is
+         * unknown Anyways it works by testing manually (e.g. thru SwaggerUI)
+         */
+        /*
+         * createProjectWithModeAndTest(RProjectMode.annotation);
+         * createProjectWithModeAndTest(RProjectMode.correction);
+         * createProjectWithModeAndTest(RProjectMode.automation);
+         */
+
     }
+
+    /*
+     * private void createProjectWithModeAndTest(RProjectMode mode) throws Exception {
+     * mvc.perform(post(API_BASE + "/projects").with(csrf().asHeader())
+     * .with(user("admin").roles("ADMIN")).contentType(MediaType.MULTIPART_FORM_DATA) .param("name",
+     * "project1") .param("mode", mode.name())) .andExpect(status().isCreated())
+     * .andExpect(content().contentType("application/json;charset=UTF-8"))
+     * .andExpect(jsonPath("$.body.id").value("1"))
+     * .andExpect(jsonPath("$.body.name").value("project1"))
+     * .andExpect(jsonPath("$.body.mode").value(mode.name()));
+     * 
+     * mvc.perform(get(API_BASE + "/projects").with(csrf().asHeader())
+     * .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
+     * .andExpect(content().contentType("application/json;charset=UTF-8"))
+     * .andExpect(jsonPath("$.body[0].id").value("1"))
+     * .andExpect(jsonPath("$.body[0].name").value("project1"))
+     * .andExpect(jsonPath("$.body[0].mode").value(mode.name())); }
+     */
 
     @Test
     @Ignore

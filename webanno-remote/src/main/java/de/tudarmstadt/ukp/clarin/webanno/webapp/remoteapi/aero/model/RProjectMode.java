@@ -1,5 +1,5 @@
 /*
- * Copyright 2017
+ * Copyright 2020
  * Ubiquitous Knowledge Processing (UKP) Lab and FG Language Technology
  * Technische Universität Darmstadt
  *
@@ -17,32 +17,18 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model;
 
-import de.tudarmstadt.ukp.clarin.webanno.model.Project;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RProject
+import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
+
+public enum RProjectMode
 {
-    public long id;
-    public String name;
-    public RProjectMode mode;
+    @JsonProperty(WebAnnoConst.PROJECT_TYPE_ANNOTATION)
+    annotation,
 
-    public RProject(Project aProject)
-    {
-        id = aProject.getId();
-        name = aProject.getName();
-        mode = RProjectMode.valueOf(aProject.getMode());
-    }
+    @JsonProperty(WebAnnoConst.PROJECT_TYPE_CORRECTION)
+    correction,
 
-    public RProject(long aId, String aName)
-    {
-        super();
-        id = aId;
-        name = aName;
-    }
-
-    public RProject(long id, String name, RProjectMode mode)
-    {
-        this.id = id;
-        this.name = name;
-        this.mode = mode;
-    }
+    @JsonProperty(WebAnnoConst.PROJECT_TYPE_AUTOMATION)
+    automation
 }
