@@ -18,10 +18,9 @@
 package de.tudarmstadt.ukp.clarin.webanno.ui.correction;
 
 import static de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateUtils.verifyAndUpdateDocumentTimestamp;
-import static de.tudarmstadt.ukp.clarin.webanno.api.dao.CasMetadataUtils.addOrUpdateCasMetadata;
+import static de.tudarmstadt.ukp.clarin.webanno.api.casstorage.CasAccessMode.EXCLUSIVE_WRITE_ACCESS;
 import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.visibleWhen;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,20 +54,16 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.ProjectType;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorBase;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.DocumentNavigator;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.script.ScriptDirectionActionBarItem;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.ActionBar;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.guidelines.GuidelinesActionBarItem;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateUtils;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.AnnotationPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.paging.SentenceOrientedPagingStrategy;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.BratProperties;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.PreferencesActionBarItem;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.preferences.AnnotationEditorProperties;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.event.RenderAnnotationsEvent;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.util.WebAnnoCasUtil;
-import de.tudarmstadt.ukp.clarin.webanno.api.event.AfterDocumentResetEvent;
 import de.tudarmstadt.ukp.clarin.webanno.brat.annotation.BratAnnotationEditor;
 import de.tudarmstadt.ukp.clarin.webanno.brat.util.BratAnnotatorUtility;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
@@ -88,7 +83,6 @@ import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaModel;
 import de.tudarmstadt.ukp.clarin.webanno.support.spring.ApplicationEventPublisherHolder;
 import de.tudarmstadt.ukp.clarin.webanno.support.wicket.DecoratedObject;
-import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotatorWorkflowActionBarItemGroup;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.component.DocumentNamePanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.detail.AnnotationDetailEditorPanel;
 import de.tudarmstadt.ukp.clarin.webanno.ui.curation.component.SuggestionViewPanel;
@@ -120,7 +114,7 @@ public class CorrectionPage
     private @SpringBean CodebookSchemaService codebookService;
     private @SpringBean ProjectService projectService;
     private @SpringBean ConstraintsService constraintsService;
-    private @SpringBean BratProperties defaultPreferences;
+    private @SpringBean AnnotationEditorProperties defaultPreferences;
     private @SpringBean AnnotationSchemaService annotationService;
     private @SpringBean UserDao userRepository;
     private @SpringBean ApplicationEventPublisherHolder applicationEventPublisherHolder;
@@ -144,76 +138,42 @@ public class CorrectionPage
     {
         commonInit();
     }
-
+    
     private void commonInit()
     {
         setVersioned(false);
-
+        
         setModel(Model.of(new AnnotatorStateImpl(Mode.CORRECTION)));
-
+        
         WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
         // Override sidebar width from preferences
         rightSidebar.add(new AttributeModifier("style", LambdaModel.of(() -> String
                 .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
         rightSidebar.setOutputMarkupId(true);
         add(rightSidebar);
-
+        
         rightSidebar.add(detailEditor = createDetailEditor());
 
         centerArea = new WebMarkupContainer("centerArea");
         centerArea.add(visibleWhen(() -> getModelObject().getDocument() != null));
         centerArea.setOutputMarkupPlaceholderTag(true);
         centerArea.add(createDocumentInfoLabel());
-
-        actionBar = new WebMarkupContainer("actionBar");
-        actionBar.add(new DocumentNavigator("documentNavigator", this, getAllowedProjects()));
-        actionBar.add(new GuidelinesActionBarItem("guidelinesDialog", this));
-        actionBar.add(new PreferencesActionBarItem("preferencesDialog", this));
-        actionBar.add(new ScriptDirectionActionBarItem("toggleScriptDirection", this));
-        actionBar.add(new AnnotatorWorkflowActionBarItemGroup("workflowActions", this) {
-            private static final long serialVersionUID = 6295432722700148964L;
-
-            /*
-             * This is overwritten because in addition to the reset logic, we also need to strip
-             * the annotations from the CAS.
-             */
-            @Override
-            protected void actionResetDocument(AjaxRequestTarget aTarget) throws Exception
-            {
-                AnnotatorState state = getModelObject();
-                SourceDocument document = state.getDocument();
-                User user = state.getUser();
-                AnnotationDocument adoc = documentService.getAnnotationDocument(document, user);
-                CAS cas = documentService.createOrReadInitialCas(document);
-                cas = BratAnnotatorUtility.clearAnnotations(cas);
-
-                // Add/update the CAS metadata
-                File casFile = documentService.getCasFile(document, user.getUsername());
-                if (casFile.exists()) {
-                    addOrUpdateCasMetadata(cas, casFile, document, user.getUsername());
-                }
-                documentService.writeAnnotationCas(cas, document, user, false);
-                applicationEventPublisherHolder.get()
-                        .publishEvent(new AfterDocumentResetEvent(this, adoc, cas));
-                actionLoadDocument(aTarget);
-            }
-        });
+        
+        actionBar = new ActionBar("actionBar");
         centerArea.add(actionBar);
-
+        
         annotationEditor = new BratAnnotationEditor("mergeView", getModel(), detailEditor,
                 this::getEditorCas);
         centerArea.add(annotationEditor);
         add(centerArea);
 
         getModelObject().setPagingStrategy(new SentenceOrientedPagingStrategy());
-        actionBar.add(
-                getModelObject().getPagingStrategy().createPageNavigator("pageNavigator", this));
         centerArea.add(getModelObject().getPagingStrategy()
                 .createPositionLabel(MID_NUMBER_OF_PAGES, getModel())
                 .add(visibleWhen(() -> getModelObject().getDocument() != null))
                 .add(LambdaBehavior.onEvent(RenderAnnotationsEvent.class,
                     (c, e) -> e.getRequestHandler().add(c))));
-
+        
         List<UserAnnotationSegment> segments = new LinkedList<>();
         UserAnnotationSegment userAnnotationSegment = new UserAnnotationSegment();
         if (getModelObject().getDocument() != null) {
@@ -222,7 +182,7 @@ public class CorrectionPage
             userAnnotationSegment.setAnnotatorState(getModelObject());
             segments.add(userAnnotationSegment);
         }
-
+        
         suggestionView = new SuggestionViewPanel("correctionView", new ListModel<>(segments))
         {
             private static final long serialVersionUID = 2583509126979792202L;
@@ -231,7 +191,7 @@ public class CorrectionPage
             public void onChange(AjaxRequestTarget aTarget)
             {
                 AnnotatorState state = CorrectionPage.this.getModelObject();
-
+                
                 aTarget.addChildren(getPage(), IFeedback.class);
                 try {
                     // update begin/end of the curation segment based on bratAnnotatorModel changes
@@ -242,7 +202,7 @@ public class CorrectionPage
 
                     suggestionView.updatePanel(aTarget, curationContainer,
                             annotationSelectionByUsernameAndAddress, curationSegment);
-
+                    
                     annotationEditor.requestRender(aTarget);
                     update(aTarget);
                 }
@@ -261,8 +221,9 @@ public class CorrectionPage
         curationContainer = new CurationContainer();
         curationContainer.setState(getModelObject());
     }
-
-    private IModel<List<DecoratedObject<Project>>> getAllowedProjects()
+    
+    @Override
+    public IModel<List<DecoratedObject<Project>>> getAllowedProjects()
     {
         return new LoadableDetachableModel<List<DecoratedObject<Project>>>()
         {
@@ -326,7 +287,7 @@ public class CorrectionPage
             {
                 annotationEditor.requestRender(aTarget);
             }
-
+            
             @Override
             public CAS getEditorCas() throws IOException
             {
@@ -352,11 +313,11 @@ public class CorrectionPage
         if (state.getDocument() == null) {
             throw new IllegalStateException("Please open a document first!");
         }
-
+        
         // If we have a timestamp, then use it to detect if there was a concurrent access
         verifyAndUpdateDocumentTimestamp(state, documentService
                 .getAnnotationCasTimestamp(state.getDocument(), state.getUser().getUsername()));
-
+        
         return documentService.readAnnotationCas(getModelObject().getDocument(),
                 state.getUser().getUsername());
     }
@@ -364,8 +325,8 @@ public class CorrectionPage
     @Override
     public void writeEditorCas(CAS aCas) throws IOException, AnnotationException
     {
-        ensureIsEditable();
-
+        ensureIsEditable(); 
+        
         AnnotatorState state = getModelObject();
         documentService.writeAnnotationCas(aCas, state.getDocument(), state.getUser(), true);
 
@@ -376,7 +337,7 @@ public class CorrectionPage
             state.setAnnotationDocumentTimestamp(diskTimestamp.get());
         }
     }
-
+    
     private void setCurationSegmentBeginEnd(CAS aEditorCas)
         throws UIMAException, ClassNotFoundException, IOException
     {
@@ -391,14 +352,14 @@ public class CorrectionPage
         suggestionView.updatePanel(target, curationContainer,
                 annotationSelectionByUsernameAndAddress, curationSegment);
     }
-
+    
     @Override
     public void actionLoadDocument(AjaxRequestTarget aTarget)
     {
         LOG.info("BEGIN LOAD_DOCUMENT_ACTION");
 
         AnnotatorState state = getModelObject();
-
+        
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.get(username);
 
@@ -425,7 +386,8 @@ public class CorrectionPage
             // annotations
             CAS editorCas;
             if (documentService.existsCas(state.getDocument(), user.getUsername())) {
-                editorCas = documentService.readAnnotationCas(annotationDocument);
+                editorCas = documentService.readAnnotationCas(annotationDocument,
+                        EXCLUSIVE_WRITE_ACCESS);
             }
             else {
                 editorCas = documentService.createOrReadInitialCas(state.getDocument());
@@ -435,8 +397,7 @@ public class CorrectionPage
 
             // Update the CASes
             annotationService.upgradeCas(editorCas, annotationDocument);
-            correctionDocumentService.upgradeCorrectionCas(correctionCas,
-                    state.getDocument());
+            correctionDocumentService.upgradeCorrectionCas(correctionCas, state.getDocument());
 
             // After creating an new CAS or upgrading the CAS, we need to save it
             documentService.writeAnnotationCas(editorCas,
@@ -458,7 +419,7 @@ public class CorrectionPage
 
             // Initialize the visible content
             state.setFirstVisibleUnit(WebAnnoCasUtil.getFirstSentence(editorCas));
-
+            
             // if project is changed, reset some project specific settings
             if (currentprojectId != state.getProject().getId()) {
                 state.clearRememberedFeatures();
@@ -489,8 +450,6 @@ public class CorrectionPage
 
             // Reset the editor
             detailEditor.reset(aTarget);
-            // Populate the layer dropdown box
-            detailEditor.loadFeatureEditorModels(editorCas, aTarget);
         }
         catch (Exception e) {
             handleException(aTarget, e);
@@ -498,7 +457,7 @@ public class CorrectionPage
 
         LOG.info("END LOAD_DOCUMENT_ACTION");
     }
-
+    
     @Override
     public void actionRefreshDocument(AjaxRequestTarget aTarget)
     {

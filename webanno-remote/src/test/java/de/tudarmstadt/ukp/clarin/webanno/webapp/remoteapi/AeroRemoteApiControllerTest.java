@@ -76,6 +76,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.BackupProperties;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.CasStorageServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.DocumentServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.ImportExportServiceImpl;
+import de.tudarmstadt.ukp.clarin.webanno.api.dao.casstorage.OpenCasStorageSessionForRequestFilter;
 import de.tudarmstadt.ukp.clarin.webanno.api.dao.export.ProjectExportServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookExporter;
@@ -98,17 +99,19 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model.RProjectMod
 
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK, properties = {
-        "repository.path=target/AeroRemoteApiControllerTest/repository" })
+@SpringBootTest(
+        webEnvironment = WebEnvironment.MOCK, 
+        properties = { "repository.path=target/AeroRemoteApiControllerTest/repository" })
 @EnableWebSecurity
-@EntityScan({ "de.tudarmstadt.ukp.clarin.webanno.model",
+@EntityScan({
+        "de.tudarmstadt.ukp.clarin.webanno.model",
         "de.tudarmstadt.ukp.clarin.webanno.security.model" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AeroRemoteApiControllerTest
 {
     private @Autowired WebApplicationContext context;
     private @Autowired UserDao userRepository;
-
+    
     private MockMvc mvc;
 
     // If this is not static, for some reason the value is re-set to false before a
@@ -118,15 +121,18 @@ public class AeroRemoteApiControllerTest
     private static boolean initialized = false;
 
     @Before
-    public void setup()
-    {
-        mvc = MockMvcBuilders.webAppContextSetup(context).alwaysDo(print())
-                .apply(SecurityMockMvcConfigurers.springSecurity()).build();
-
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .alwaysDo(print())
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .addFilters(new OpenCasStorageSessionForRequestFilter())
+                .build();
+        
         if (!initialized) {
             userRepository.create(new User("admin", Role.ROLE_ADMIN));
             initialized = true;
-
+            
             FileSystemUtils.deleteRecursively(new File("target/RemoteApiController2Test"));
         }
     }
@@ -179,7 +185,7 @@ public class AeroRemoteApiControllerTest
      * .andExpect(jsonPath("$.body.id").value("1"))
      * .andExpect(jsonPath("$.body.name").value("project1"))
      * .andExpect(jsonPath("$.body.mode").value(mode.name()));
-     * 
+     *
      * mvc.perform(get(API_BASE + "/projects").with(csrf().asHeader())
      * .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
      * .andExpect(content().contentType("application/json;charset=UTF-8"))
@@ -192,124 +198,149 @@ public class AeroRemoteApiControllerTest
     @Ignore
     public void t002_testDocumentCreate() throws Exception
     {
-        mvc.perform(get(API_BASE + "/projects/1/documents").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.messages").isEmpty());
-
+        mvc.perform(get(API_BASE + "/projects/1/documents")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.messages").isEmpty());
+        
         mvc.perform(multipart(API_BASE + "/projects/1/documents")
-                .file("content", "This is a test.".getBytes("UTF-8")).with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN")).param("name", "test.txt")
-                .param("format", "text")).andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body.id").value("1"))
-                .andExpect(jsonPath("$.body.name").value("test.txt"));
-
-        mvc.perform(get(API_BASE + "/projects/1/documents").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body[0].id").value("1"))
-                .andExpect(jsonPath("$.body[0].name").value("test.txt"))
-                .andExpect(jsonPath("$.body[0].state").value("NEW"));
+                .file("content", "This is a test.".getBytes("UTF-8"))
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN"))
+                .param("name", "test.txt")
+                .param("format", "text"))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body.id").value("1"))
+            .andExpect(jsonPath("$.body.name").value("test.txt"));
+     
+        mvc.perform(get(API_BASE + "/projects/1/documents")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body[0].id").value("1"))
+            .andExpect(jsonPath("$.body[0].name").value("test.txt"))
+            .andExpect(jsonPath("$.body[0].state").value("NEW"));
     }
 
     @Test
     @Ignore
     public void t003_testAnnotationCreate() throws Exception
     {
-        mvc.perform(get(API_BASE + "/projects/1/documents/1/annotations").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.messages").isEmpty());
-
+        mvc.perform(get(API_BASE + "/projects/1/documents/1/annotations")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.messages").isEmpty());
+        
         mvc.perform(multipart(API_BASE + "/projects/1/documents/1/annotations/admin")
-                .file("content", "This is a test.".getBytes("UTF-8")).with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN")).param("name", "test.txt")
-                .param("format", "text").param("state", "IN-PROGRESS"))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body.user").value("admin"))
-                .andExpect(jsonPath("$.body.state").value("IN-PROGRESS"))
-                .andExpect(jsonPath("$.body.timestamp").doesNotExist());
-
-        mvc.perform(get(API_BASE + "/projects/1/documents/1/annotations").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body[0].user").value("admin"))
-                .andExpect(jsonPath("$.body[0].state").value("IN-PROGRESS"))
-                .andExpect(jsonPath("$.body[0].timestamp").doesNotExist());
+                .file("content", "This is a test.".getBytes("UTF-8"))
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN"))
+                .param("name", "test.txt")
+                .param("format", "text")
+                .param("state", "IN-PROGRESS"))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body.user").value("admin"))
+            .andExpect(jsonPath("$.body.state").value("IN-PROGRESS"))
+            .andExpect(jsonPath("$.body.timestamp").doesNotExist());
+     
+        mvc.perform(get(API_BASE + "/projects/1/documents/1/annotations")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body[0].user").value("admin"))
+            .andExpect(jsonPath("$.body[0].state").value("IN-PROGRESS"))
+            .andExpect(jsonPath("$.body[0].timestamp").doesNotExist());
     }
 
     @Test
     @Ignore
     public void t004_testCurationCreate() throws Exception
     {
-        mvc.perform(get(API_BASE + "/projects/1/documents").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body[0].id").value("1"))
-                .andExpect(jsonPath("$.body[0].name").value("test.txt"))
-                .andExpect(jsonPath("$.body[0].state").value("NEW"));
-
+        mvc.perform(get(API_BASE + "/projects/1/documents")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body[0].id").value("1"))
+            .andExpect(jsonPath("$.body[0].name").value("test.txt"))
+            .andExpect(jsonPath("$.body[0].state").value("NEW"));
+        
         mvc.perform(multipart(API_BASE + "/projects/1/documents/1/curation")
-                .file("content", "This is a test.".getBytes("UTF-8")).with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN")).param("name", "test.txt")
-                .param("format", "text").param("state", "CURATION-COMPLETE"))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body.user").value("CURATION_USER"))
-                .andExpect(jsonPath("$.body.state").value("COMPLETE"))
-                .andExpect(jsonPath("$.body.timestamp").exists());
-
-        mvc.perform(get(API_BASE + "/projects/1/documents").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body[0].id").value("1"))
-                .andExpect(jsonPath("$.body[0].name").value("test.txt"))
-                .andExpect(jsonPath("$.body[0].state").value("CURATION-COMPLETE"));
+                .file("content", "This is a test.".getBytes("UTF-8"))
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN"))
+                .param("name", "test.txt")
+                .param("format", "text")
+                .param("state", "CURATION-COMPLETE"))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body.user").value("CURATION_USER"))
+            .andExpect(jsonPath("$.body.state").value("COMPLETE"))
+            .andExpect(jsonPath("$.body.timestamp").exists());
+     
+        mvc.perform(get(API_BASE + "/projects/1/documents")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body[0].id").value("1"))
+            .andExpect(jsonPath("$.body[0].name").value("test.txt"))
+            .andExpect(jsonPath("$.body[0].state").value("CURATION-COMPLETE"));
     }
 
     @Test
     @Ignore
     public void t005_testCurationDelete() throws Exception
     {
-        mvc.perform(delete(API_BASE + "/projects/1/documents/1/curation").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN")).param("projectId", "1")
-                .param("documentId", "1")).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"));
-
-        mvc.perform(get(API_BASE + "/projects/1/documents").with(csrf().asHeader())
-                .with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.body[0].id").value("1"))
-                .andExpect(jsonPath("$.body[0].name").value("test.txt"))
-                .andExpect(jsonPath("$.body[0].state").value("ANNOTATION-IN-PROGRESS"));
+        mvc.perform(delete(API_BASE + "/projects/1/documents/1/curation")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN"))
+                .param("projectId", "1")
+                .param("documentId", "1"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"));
+     
+        mvc.perform(get(API_BASE + "/projects/1/documents")
+                .with(csrf().asHeader())
+                .with(user("admin").roles("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.body[0].id").value("1"))
+            .andExpect(jsonPath("$.body[0].name").value("test.txt"))
+            .andExpect(jsonPath("$.body[0].state").value("ANNOTATION-IN-PROGRESS"));
     }
-
+    
     @Configuration
-    public static class TestContext
-    {
+    public static class TestContext {
         private @Autowired ApplicationEventPublisher applicationEventPublisher;
         private @Autowired EntityManager entityManager;
-
+        
         @Bean
         public AeroRemoteApiController remoteApiV2()
         {
             return new AeroRemoteApiController();
         }
-
+        
         @Bean
         public ProjectService projectService()
         {
             return new ProjectServiceImpl();
         }
-
+        
         @Bean
         public UserDao userRepository()
         {
             return new UserDaoImpl();
         }
-
+        
         @Bean
         public DocumentService documentService()
         {
@@ -317,7 +348,7 @@ public class AeroRemoteApiControllerTest
                     casStorageService(), importExportService(), projectService(),
                     applicationEventPublisher, entityManager);
         }
-
+        
         @Bean
         public AnnotationSchemaService annotationService()
         {
@@ -348,14 +379,14 @@ public class AeroRemoteApiControllerTest
         {
             return new FeatureSupportRegistryImpl(Collections.emptyList());
         }
-
+        
         @Bean
         public CasStorageService casStorageService()
         {
             return new CasStorageServiceImpl(null, null, repositoryProperties(),
                     backupProperties());
         }
-
+        
         @Bean
         public ImportExportService importExportService()
         {
@@ -363,7 +394,7 @@ public class AeroRemoteApiControllerTest
                     asList(new TextFormatSupport()), casStorageService(), annotationService(),
                     codebookImportExportService(), codebookSchemaService());
         }
-
+        
         @Bean
         public CurationDocumentService curationDocumentService()
         {
@@ -375,14 +406,14 @@ public class AeroRemoteApiControllerTest
         {
             return new ProjectExportServiceImpl(null, null, projectService());
         }
-
+        
         @Bean
         public RepositoryProperties repositoryProperties()
         {
             return new RepositoryProperties();
         }
 
-        @Bean
+        @Bean 
         public BackupProperties backupProperties()
         {
             return new BackupProperties();
@@ -393,14 +424,14 @@ public class AeroRemoteApiControllerTest
         {
             return new ApplicationContextProvider();
         }
-
+        
         @Bean
         public LayerSupportRegistry layerSupportRegistry()
         {
-            return new LayerSupportRegistryImpl(
-                    asList(new SpanLayerSupport(featureSupportRegistry(), null, null),
-                            new RelationLayerSupport(featureSupportRegistry(), null, null),
-                            new ChainLayerSupport(featureSupportRegistry(), null, null)));
+            return new LayerSupportRegistryImpl(asList(
+                    new SpanLayerSupport(featureSupportRegistry(), null, null),
+                    new RelationLayerSupport(featureSupportRegistry(), null, null),
+                    new ChainLayerSupport(featureSupportRegistry(), null, null)));
         }
     }
 }
