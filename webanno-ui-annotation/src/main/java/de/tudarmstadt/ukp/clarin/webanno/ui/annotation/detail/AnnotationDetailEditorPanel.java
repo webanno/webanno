@@ -1181,7 +1181,7 @@ public abstract class AnnotationDetailEditorPanel
      * Loads the feature states either from the CAS (if an annotation is selected) or from the
      * remembered values (if no annotation is selected).
      */
-    private void loadFeatureEditorModels(AjaxRequestTarget aTarget)
+    public void loadFeatureEditorModels(AjaxRequestTarget aTarget)
         throws IOException, AnnotationException
     {
         LOG.trace("loadFeatureEditorModels()");
