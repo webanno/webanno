@@ -37,7 +37,6 @@ import javax.persistence.EntityManager;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -105,7 +104,8 @@ import de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model.RProjectMod
 @EnableWebSecurity
 @EntityScan({
         "de.tudarmstadt.ukp.clarin.webanno.model",
-        "de.tudarmstadt.ukp.clarin.webanno.security.model" })
+        "de.tudarmstadt.ukp.clarin.webanno.security.model",
+        "de.tudarmstadt.ukp.clarin.webanno.codebook.model"})
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AeroRemoteApiControllerTest
 {
@@ -195,7 +195,6 @@ public class AeroRemoteApiControllerTest
      */
 
     @Test
-    @Ignore
     public void t002_testDocumentCreate() throws Exception
     {
         mvc.perform(get(API_BASE + "/projects/1/documents")
@@ -227,7 +226,6 @@ public class AeroRemoteApiControllerTest
     }
 
     @Test
-    @Ignore
     public void t003_testAnnotationCreate() throws Exception
     {
         mvc.perform(get(API_BASE + "/projects/1/documents/1/annotations")
@@ -261,7 +259,6 @@ public class AeroRemoteApiControllerTest
     }
 
     @Test
-    @Ignore
     public void t004_testCurationCreate() throws Exception
     {
         mvc.perform(get(API_BASE + "/projects/1/documents")
@@ -297,7 +294,6 @@ public class AeroRemoteApiControllerTest
     }
 
     @Test
-    @Ignore
     public void t005_testCurationDelete() throws Exception
     {
         mvc.perform(delete(API_BASE + "/projects/1/documents/1/curation")
