@@ -56,6 +56,7 @@ import de.tudarmstadt.ukp.clarin.webanno.api.dao.casstorage.CasStorageSession;
 import de.tudarmstadt.ukp.clarin.webanno.api.type.CASMetadata;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.export.CodebookImportExportService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaServiceImpl;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.xmi.XmiFormatSupport;
@@ -70,7 +71,7 @@ public class ImportExportServiceImplTest
     private @Spy AnnotationSchemaService schemaService;
 
     private @Spy CodebookImportExportService codebookImportExportService;
-    private @Spy CodebookSchemaService codebookService;
+    private CodebookSchemaService codebookService;
 
     public @Rule TemporaryFolder testFolder = new TemporaryFolder();
     
@@ -83,6 +84,7 @@ public class ImportExportServiceImplTest
         
         //schemaService = mock(AnnotationSchemaServiceImpl.class);
         schemaService = Mockito.spy(new AnnotationSchemaServiceImpl());
+        codebookService = new CodebookSchemaServiceImpl();
         
         backupProperties = new BackupProperties();
 

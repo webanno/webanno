@@ -755,10 +755,12 @@ public class AnnotationSchemaServiceImpl
                 .forEachOrdered(layer -> layerSupportRegistry.getLayerSupport(layer)
                         .generateTypes(tsd, layer, allFeaturesInProject));
 
-        for (Codebook codebook : codebookService.listCodebook(aProject)) {
-            TypeDescription td = tsd.addType(codebook.getName(), "", CAS.TYPE_NAME_ANNOTATION);
-            codebookService.generateFeatures(tsd, td, codebook);
-        }
+        if (codebookService != null) // FIXME check necessary for testing
+            for (Codebook codebook : codebookService.listCodebook(aProject)) {
+                TypeDescription td = tsd.addType(codebook.getName(),
+                        codebook.getDescription(), CAS.TYPE_NAME_ANNOTATION);
+                codebookService.generateFeatures(tsd, td, codebook);
+            }
 
         return tsd;
     }
