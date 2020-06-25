@@ -20,11 +20,14 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
 <body>
 <wicket:panel>
-    <form wicket:id="codebookTagSelectionForm" class="mb-1">
+    <form wicket:id="codebookTagSelectionForm" class="flex-content mb-1">
         <div class="form-row ml-0 mr-0 border rounded border-dark">
-            <label wicket:id="codebookNameLabel" class="col-md-4 col-form-label pull-left font-weight-bold" style="overflow-wrap: break-word;"></label>
+            <label wicket:id="codebookNameLabel"
+                   class="col-md-4 col-form-label pull-left font-weight-bold"
+                   style="font-size: small; overflow-wrap: break-word; word-break: break-all"></label>
             <div class="col-md-8 pr-0">
-                <input type="text" class="form-control" wicket:id="codebookTagBox"/>
+                <input type="text" class="form-control" wicket:id="codebookTagBox"
+                       style="font-size: small"/>
             </div>
         </div>
     </form>

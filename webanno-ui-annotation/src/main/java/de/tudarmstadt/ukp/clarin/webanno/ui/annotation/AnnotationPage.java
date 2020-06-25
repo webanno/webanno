@@ -143,10 +143,8 @@ public class AnnotationPage
     private AnnotationEditorBase annotationEditor;
     private AnnotationDetailEditorPanel detailEditor;    
     private SidebarPanel leftSidebar;
-    private WebMarkupContainer rightSidebar;
 
-    private WebMarkupContainer codebookPanel;
-    private CodebookEditorPanel codebookDetailEditor;
+    private CodebookEditorPanel codebookEditorPanel;
 
     public AnnotationPage()
     {
@@ -218,7 +216,7 @@ public class AnnotationPage
         actionBar = new ActionBar("actionBar");
         centerArea.add(actionBar);
 
-        add(createRightSidebar());
+        createRightSidebar();
 
         createAnnotationEditor(null);
 
@@ -331,13 +329,13 @@ public class AnnotationPage
     }
 
 
-    private CodebookEditorPanel createCodebookDetailEditor()
+    private CodebookEditorPanel createCodebookEditorPanel()
     {
         // initialize with empty model since model depends on project.
         // later on the correct model gets loaded with getCodebookEditorModel()
-        CodebookEditorModel model = null;
+        CodebookEditorModel model = getCodebookEditorModel();
         // model.setp
-        return new CodebookEditorPanel("codebookDetailEditorPanel", Model.of(model))
+        return new CodebookEditorPanel("codebookEditorPanel", Model.of(model))
         {
             private static final long serialVersionUID = 2857345299480098279L;
 
@@ -404,9 +402,6 @@ public class AnnotationPage
 
     private SidebarPanel createLeftSidebar()
     {
-        // instantiate the codebook panel here since it's needed in the left sidebar
-        createCodebookPanel();
-
         SidebarPanel leftSidebar = new SidebarPanel("leftSidebar", getModel(), detailEditor,
                 this::getEditorCas, AnnotationPage.this);
         // Override sidebar width from preferences
@@ -415,18 +410,7 @@ public class AnnotationPage
         return leftSidebar;
     }
 
-    private void createCodebookPanel()
-    {
-        codebookPanel = new WebMarkupContainer("codebookPanel");
-        codebookPanel.setOutputMarkupId(true);
-
-        codebookDetailEditor = createCodebookDetailEditor();
-        codebookDetailEditor.setOutputMarkupId(true);
-
-        codebookPanel.add(codebookDetailEditor);
-    }
-
-    private WebMarkupContainer createRightSidebar()
+    private void createRightSidebar()
     {
         WebMarkupContainer rightSidebar = new WebMarkupContainer("rightSidebar");
         rightSidebar.setOutputMarkupId(true);
@@ -435,7 +419,9 @@ public class AnnotationPage
                 .format("flex-basis: %d%%;", getModelObject().getPreferences().getSidebarSize()))));
         detailEditor = createDetailEditor();
         rightSidebar.add(detailEditor);
-        return rightSidebar;
+        rightSidebar.add(visibleWhen(() -> getModelObject().getPreferences().isShowEditor()));
+
+        add(rightSidebar);
     }
 
     @Override
@@ -585,11 +571,6 @@ public class AnnotationPage
             detailEditor.reset(null);
             // Populate the layer dropdown box
             detailEditor.loadFeatureEditorModels(aTarget);
-            rightSidebar.add(visibleWhen(() -> getModelObject().getPreferences().isShowEditor()));
-
-            // update codebook editor
-            // flo find better way?!
-            codebookDetailEditor.setProjectModel(aTarget, getCodebookEditorModel());
 
             if (aTarget != null) {
                 // Update URL for current document
@@ -939,8 +920,11 @@ public class AnnotationPage
         return model;
     }
 
-    public WebMarkupContainer getCodebookPanel()
+    public WebMarkupContainer getCodebookEditorPanel()
     {
-        return codebookPanel;
+        codebookEditorPanel = createCodebookEditorPanel();
+        codebookEditorPanel.setOutputMarkupId(true);
+
+        return codebookEditorPanel;
     }
 }

@@ -87,8 +87,10 @@ public abstract class CodebookEditorPanel extends Panel {
         // add but don't init the tree
         codebookEditorTreePanel = new CodebookEditorTreePanel("codebookEditorTreePanel", aModel,
                 this);
+        if (aModel.getObject() != null)
+            codebookEditorTreePanel.initTree();
         codebookEditorTreePanel.setOutputMarkupId(true);
-        add(codebookEditorTreePanel);
+        addOrReplace(codebookEditorTreePanel);
     }
 
     public CodebookEditorModel getModelObject() {
@@ -151,14 +153,15 @@ public abstract class CodebookEditorPanel extends Panel {
         };
     }
 
-    public void setProjectModel(AjaxRequestTarget aTarget, CodebookEditorModel aState) {
+    public void setModel(AjaxRequestTarget aTarget, CodebookEditorModel aState) {
         codebookEditorModel = aState;
         setDefaultModelObject(codebookEditorModel);
 
         // initialize the tree with the project's codebooks
         codebookEditorTreePanel.setDefaultModelObject(codebookEditorModel);
         codebookEditorTreePanel.initTree();
-        aTarget.add(codebookEditorTreePanel);
+        if (aTarget != null)
+            aTarget.add(codebookEditorTreePanel);
     }
 
     private void saveCodebookAnnotation(CodebookFeature aCodebookFeature, CAS aJCas)
