@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation;
+package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.actionbar;
 
 import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentState.CURATION_FINISHED;
 import static de.tudarmstadt.ukp.clarin.webanno.model.SourceDocumentStateTransition.CURATION_IN_PROGRESS_TO_CURATION_FINISHED;
@@ -36,26 +36,29 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5I
 import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.AnnotationPageBase;
+import de.tudarmstadt.ukp.clarin.webanno.codebook.ui.curation.CodebookCurationPage;
 import de.tudarmstadt.ukp.clarin.webanno.curation.storage.CurationDocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 import de.tudarmstadt.ukp.clarin.webanno.support.dialog.ConfirmationDialog;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 
-public class CuratorWorkflowActionBarItemGroup
+public class CodebookCuratorWorkflowActionBarItemGroup
     extends Panel
 {
     private static final long serialVersionUID = 8596786586955459711L;
-    protected final ConfirmationDialog finishDocumentDialog;
-    private final AnnotationPageBase page;
-    private final LambdaAjaxLink finishDocumentLink;
+
     private @SpringBean DocumentService documentService;
     private @SpringBean CurationDocumentService curationDocumentService;
     private @SpringBean UserDao userRepository;
+
+    private final AnnotationPageBase page;
+    protected final ConfirmationDialog finishDocumentDialog;
+    private final LambdaAjaxLink finishDocumentLink;
     private MergeDialog resetDocumentDialog;
     private LambdaAjaxLink resetDocumentLink;
 
-    public CuratorWorkflowActionBarItemGroup(String aId, AnnotationPageBase aPage)
+    public CodebookCuratorWorkflowActionBarItemGroup(String aId, AnnotationPageBase aPage)
     {
         super(aId);
 
@@ -107,8 +110,8 @@ public class CuratorWorkflowActionBarItemGroup
 
     protected void actionFinishDocument(AjaxRequestTarget aTarget)
     {
-        finishDocumentDialog.setConfirmAction((aCallbackTarget) -> {
-            page.actionValidateDocument(aCallbackTarget, page.getEditorCas());
+        finishDocumentDialog.setConfirmAction((_target) -> {
+            page.actionValidateDocument(_target, page.getEditorCas());
 
             AnnotatorState state = page.getModelObject();
             SourceDocument sourceDocument = state.getDocument();
@@ -118,9 +121,7 @@ public class CuratorWorkflowActionBarItemGroup
                         CURATION_IN_PROGRESS_TO_CURATION_FINISHED);
             }
 
-            page.actionRefreshDocument(aCallbackTarget);
-            aCallbackTarget.add(finishDocumentLink);
-            aCallbackTarget.add(resetDocumentLink);
+            _target.add(page);
         });
         finishDocumentDialog.show(aTarget);
     }

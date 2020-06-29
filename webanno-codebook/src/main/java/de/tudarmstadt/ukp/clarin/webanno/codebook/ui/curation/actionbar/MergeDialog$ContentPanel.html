@@ -19,7 +19,7 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
   <wicket:panel>
-    <form class="w_flex_container" wicket:id="form">
+    <form wicket:id="form" class="w_flex_container">
       <div class="w_flex_content">
         <div class="fluid-container">
           <div class="row">
@@ -28,7 +28,7 @@
                 <wicket:container wicket:id="challenge" />
               </p>
               <div>
-                <input class="form-control" wicket:id="response"/>
+                <input wicket:id="response" class="form-control"/>
               </div>
               <p>
                 <span wicket:id="feedback"></span>
@@ -38,9 +38,9 @@
           <div class="row">
             <div class="form-group" wicket:enclosure="mergeIncompleteAnnotations">
               <div class="col-sm-12">
-                <div class="checkbox">
-                  <label wicket:for="mergeIncompleteAnnotations">
-                    <input type="checkbox" wicket:id="mergeIncompleteAnnotations">
+                <div class="form-check">
+                  <input wicket:id="mergeIncompleteAnnotations" class="form-check-input" type="checkbox"/>
+                  <label wicket:for="mergeIncompleteAnnotations" class="form-check-label">
                     Merge incomplete annotations
                   </label>
                 </div>
@@ -49,11 +49,17 @@
           </div>
         </div>
       </div>
-      <div class="w_flex_footer panel-footer">
-        <div class="form-group pull-right">
-          <input class="btn btn-danger" type="submit" wicket:id="confirm" wicket:message="value:confirm.label" />
-          <input class="btn btn-default" type="button" wicket:id="cancel" wicket:message="value:cancel.label" />
-        </div>
+      <div class="w_flex_footer card-footer text-right">
+      <div class="form-group text-right">
+        <button wicket:id="confirm" class="btn btn-primary">
+          <i class="fas fa-check"></i>&nbsp;
+          <wicket:message key="confirm.label"/>
+        </button>
+        <button wicket:id="cancel" class="btn btn-secondary">
+          <i class="fas fa-times"></i>&nbsp;
+          <wicket:message key="cancel.label"/>
+        </button>
+      </div>
       </div>
     </form>
   </wicket:panel>
