@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docstats;
+package de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.docinsights;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Url;
@@ -30,19 +30,17 @@ import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebarFactory_ImplBase;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.sidebar.AnnotationSidebar_ImplBase;
 
-@Component("documentStatsSidebar")
-public class DocumentStatsSidebarFactory
+@Component("documentInsightsSidebar")
+public class DocumentInsightsSidebarFactory
     extends AnnotationSidebarFactory_ImplBase
 {
     private static final ResourceReference ICON = new UrlResourceReference(
-            Url.parse("images/document_stats.png")).setContextRelative(true);
-
-    private CasProvider casProvider;
+            Url.parse("images/document_insights.png")).setContextRelative(true);
 
     @Override
     public String getDisplayName()
     {
-        return "Document Statistics";
+        return "Document Insights";
     }
 
     @Override
@@ -56,6 +54,6 @@ public class DocumentStatsSidebarFactory
             AnnotationActionHandler aActionHandler, CasProvider aCasProvider,
             AnnotationPage aAnnotationPage)
     {
-        return new DocumentStatsSidebar(aId, aModel, aAnnotationPage);
+        return new DocumentInsightsSidebar(aId, aModel, aAnnotationPage);
     }
 }

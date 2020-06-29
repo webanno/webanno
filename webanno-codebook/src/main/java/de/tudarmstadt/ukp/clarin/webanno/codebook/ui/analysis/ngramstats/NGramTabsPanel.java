@@ -83,8 +83,7 @@ public class NGramTabsPanel<T>
                 @Override
                 public WebMarkupContainer getPanel(String panelId)
                 {
-                    NGramStatsFactory.NGramStats stats = null;
-                    stats = createStats();
+                    NGramStatsFactory.NGramStats stats = createStats();
                     return new NGramStatsPanel(panelId, Model.of(stats), finalN);
                 }
             });
