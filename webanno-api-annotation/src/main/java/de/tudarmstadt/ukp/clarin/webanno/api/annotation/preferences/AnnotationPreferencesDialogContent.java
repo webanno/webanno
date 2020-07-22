@@ -159,9 +159,7 @@ public class AnnotationPreferencesDialogContent
     }
 
     private void actionSave(AjaxRequestTarget aTarget, Form<Preferences> aForm)
-    {
-        String username = userDao.getCurrentUser().getUsername();
-
+    {        
         try {
             AnnotatorState state = stateModel.getObject();
             Preferences model = form.getModelObject();
@@ -183,7 +181,8 @@ public class AnnotationPreferencesDialogContent
                     .filter(l -> !prefs.getHiddenAnnotationLayerIds().contains(l.getId()))
                     .collect(Collectors.toList()));
 
-            PreferencesUtil.savePreference(userPreferencesService, state, username);
+            PreferencesUtil.savePreference(userPreferencesService, state,
+                    userDao.getCurrentUsername());
         }
         catch (IOException e) {
             error("Preference file not found");
