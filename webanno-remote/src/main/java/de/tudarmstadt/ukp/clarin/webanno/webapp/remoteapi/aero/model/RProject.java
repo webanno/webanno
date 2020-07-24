@@ -23,17 +23,26 @@ public class RProject
 {
     public long id;
     public String name;
-    
+    public RProjectMode mode;
+
     public RProject(Project aProject)
     {
         id = aProject.getId();
         name = aProject.getName();
+        mode = RProjectMode.valueOf(aProject.getMode());
     }
-    
+
     public RProject(long aId, String aName)
     {
         super();
         id = aId;
         name = aName;
+    }
+
+    public RProject(long id, String name, RProjectMode mode)
+    {
+        this.id = id;
+        this.name = name;
+        this.mode = mode;
     }
 }

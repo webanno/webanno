@@ -32,7 +32,7 @@ public class CodebookSidebar
     {
         super(aId, aModel, null, null, aAnnotationPage);
 
-        add(aAnnotationPage.getCodebookPanel());
+        addOrReplace(aAnnotationPage.getCodebookEditorPanel());
     }
 
 }

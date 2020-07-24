@@ -31,6 +31,11 @@ public interface UserDao
     User getCurrentUser();
     
     /**
+     * Return the name of the current user
+     */
+    String getCurrentUsername();
+    
+    /**
      * Create a new {@link User}
      * 
      * @param aUser
@@ -113,4 +118,9 @@ public interface UserDao
     boolean isProjectCreator(User aUser);
 
     Set<String> getRoles(User aUser);
+
+    /**
+     * Retrieve the number of enabled users
+     */
+    long countEnabledUsers();
 }

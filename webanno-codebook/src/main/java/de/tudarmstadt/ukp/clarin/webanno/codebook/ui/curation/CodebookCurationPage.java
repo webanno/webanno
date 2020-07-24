@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.wicketstuff.annotation.mount.MountPath;
+import org.wicketstuff.event.annotation.OnEvent;
 
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasStorageService;
@@ -68,13 +69,13 @@ import de.tudarmstadt.ukp.clarin.webanno.api.ProjectService;
 import de.tudarmstadt.ukp.clarin.webanno.api.SessionMetaData;
 import de.tudarmstadt.ukp.clarin.webanno.api.WebAnnoConst;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.AnnotationEditorExtensionRegistry;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.DocumentNavigator;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.actionbar.ActionBar;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.exception.AnnotationException;
-import de.tudarmstadt.ukp.clarin.webanno.api.annotation.guidelines.GuidelinesActionBarItem;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorState;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.model.AnnotatorStateImpl;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.page.AnnotationPageBase;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.paging.SentenceOrientedPagingStrategy;
+import de.tudarmstadt.ukp.clarin.webanno.api.annotation.rendering.event.SelectionChangedEvent;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.adapter.CodebookAdapter;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.Codebook;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookFeature;
@@ -184,20 +185,7 @@ public class CodebookCurationPage
         rightPanelContainer.add(new DocumentNamePanel("documentNamePanel", getModel()));
 
         // action bar
-        actionBar = new WebMarkupContainer("actionBar");
-        actionBar.add(new DocumentNavigator("documentNavigator", this, getAllowedProjects(),
-                this::listDocuments)
-        {
-            private static final long serialVersionUID = 4342862409722750114L;
-
-            @Override
-            public void onDocumentSelected(AjaxRequestTarget aTarget)
-            {
-                CodebookCurationPage.this.onDocumentSelected(aTarget);
-            }
-        });
-        actionBar.add(new GuidelinesActionBarItem("guidelinesDialog", this));
-        actionBar.add(new CuratorWorkflowActionBarItemGroup("workflowActions", this));
+        actionBar = new ActionBar("actionBar");
         rightPanelContainer.add(actionBar);
 
         // document content
@@ -237,6 +225,15 @@ public class CodebookCurationPage
         getModelObject().setUser(userRepository.getCurrentUser());
 
         add(rightPanelContainer);
+    }
+
+    /**
+     * Re-render the document when the selection has changed.
+     */
+    @OnEvent
+    public void onSelectionChangedEvent(SelectionChangedEvent aEvent)
+    {
+        actionRefreshDocument(aEvent.getRequestHandler());
     }
 
     private void onDocumentSelected(AjaxRequestTarget aTarget)
@@ -371,7 +368,7 @@ public class CodebookCurationPage
         LOG.info("END LOAD_DOCUMENT_ACTION");
     }
 
-    void prepareMergeCAS(boolean aMergeIncompleteAnnotations)
+    public void prepareMergeCAS(boolean aMergeIncompleteAnnotations)
         throws IOException, UIMAException, ClassNotFoundException, AnnotationException
     {
         AnnotatorState state = getModelObject();
@@ -493,18 +490,7 @@ public class CodebookCurationPage
         Validate.notNull(aState, "State must be specified");
         Validate.notNull(aRandomAnnotationDocument, "Annotation document must be specified");
 
-        CAS mergeCas;
-        boolean cacheEnabled = false;
-        try {
-            cacheEnabled = casStorageService.isCacheEnabled();
-            casStorageService.disableCache();
-            mergeCas = documentService.readAnnotationCas(aRandomAnnotationDocument);
-        }
-        finally {
-            if (cacheEnabled) {
-                casStorageService.enableCache();
-            }
-        }
+        CAS mergeCas = documentService.readAnnotationCas(aRandomAnnotationDocument);
 
         try (StopWatch watch = new StopWatch(LOG, "CasMerge (codebook)")) {
             // codebook types
@@ -799,7 +785,7 @@ public class CodebookCurationPage
         }
     }
 
-    private List<DecoratedObject<SourceDocument>> listDocuments(Project aProject, User aUser)
+    public List<DecoratedObject<SourceDocument>> listDocuments(Project aProject, User aUser)
     {
         final List<DecoratedObject<SourceDocument>> allSourceDocuments = new ArrayList<>();
         List<SourceDocument> sdocs = curationDocumentService.listCuratableSourceDocuments(aProject);
@@ -813,7 +799,8 @@ public class CodebookCurationPage
         return allSourceDocuments;
     }
 
-    private IModel<List<DecoratedObject<Project>>> getAllowedProjects()
+    @Override
+    public IModel<List<DecoratedObject<Project>>> getAllowedProjects()
     {
         return new LoadableDetachableModel<List<DecoratedObject<Project>>>()
         {
