@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import java.util.List;
 
+import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -135,5 +136,12 @@ public interface CodebookSchemaService {
     void removeCodebook(Codebook type);
 
     void generateFeatures(TypeSystemDescription aTSD, TypeDescription aTD, Codebook aCodebook);
+
+    /**
+     * Returns a type system with all the codebook types that should be present in an exported CAS. This
+     * means in particular that type internal to the application should <b>not</b> be included.
+     */
+    TypeSystemDescription getCodebookTypeSystemForExport(Project aProject)
+            throws ResourceInitializationException;
 
 }

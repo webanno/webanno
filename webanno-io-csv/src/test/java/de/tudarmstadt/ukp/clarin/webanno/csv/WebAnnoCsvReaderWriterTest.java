@@ -141,10 +141,10 @@ public class WebAnnoCsvReaderWriterTest
                 WebannoCsvWriter.class,
                 WebannoCsvWriter.PARAM_TARGET_LOCATION, targetFolder,
                 WebannoCsvWriter.PARAM_FILENAME, targetFileName,
-                WebannoCsvWriter.WITH_HEADERS, true,
-                WebannoCsvWriter.WITH_TEXT, true,
-                WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
-                WebannoCsvWriter.DOCUMENT_NAME, docName);
+//                WebannoCsvWriter.WITH_HEADERS, true,
+                WebannoCsvWriter.PARAM_WITH_TEXT, true,
+//                WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
+                WebannoCsvWriter.PARAM_DOCUMENT_NAME, docName);
 
         // read the example.csv and write it to writerOutput.csv
         JCas exampleInputCas = executeReader(inputFolder, inputFileName);

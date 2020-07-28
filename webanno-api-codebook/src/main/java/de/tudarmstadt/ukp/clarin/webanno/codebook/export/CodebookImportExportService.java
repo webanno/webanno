@@ -33,9 +33,9 @@ public interface CodebookImportExportService
 {
     String SERVICE_NAME = "codebookImportExportService";
 
-    File exportCodebooks(CAS cas, SourceDocument document, String fileName, File exportDir,
-            boolean withHeaders, boolean withText, List<Codebook> codebooks, String annotator,
-            String documentName)
+    File exportCodebooksToFile(CAS cas, SourceDocument document, String fileName, File exportDir,
+                               boolean withHeaders, boolean withText, List<Codebook> codebooks, String annotator,
+                               String documentName)
         throws IOException, UIMAException;
 
     File exportCodebookDocument(SourceDocument document, String user, String fileName, Mode mode,
@@ -45,5 +45,4 @@ public interface CodebookImportExportService
     List<ExportedCodebook> exportCodebooks(List<Codebook> codebooks);
 
     void importCodebooks(List<ExportedCodebook> exportedCodebooks, Project aProject);
-
 }

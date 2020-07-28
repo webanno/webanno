@@ -63,13 +63,13 @@ public class WebAnnoCsvFormatSupport implements FormatSupport {
     @Override
     public AnalysisEngineDescription getWriterDescription(Project aProject,
             TypeSystemDescription aTSD, CAS aCAS) throws ResourceInitializationException {
-        return createEngineDescription(WebannoCsvWriter.class);
+        return createEngineDescription(WebannoCsvWriter.class, aTSD);
     }
 
     @Override
     public CollectionReaderDescription getReaderDescription(TypeSystemDescription aTSD)
             throws ResourceInitializationException {
 
-        return createReaderDescription(WebAnnoCsvReader.class);
+        return createReaderDescription(WebAnnoCsvReader.class, aTSD);
     }
 }

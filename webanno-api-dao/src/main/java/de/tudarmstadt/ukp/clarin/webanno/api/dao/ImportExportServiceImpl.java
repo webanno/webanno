@@ -218,7 +218,7 @@ public class ImportExportServiceImpl
             FormatSupport aFormat, String aFileName, Mode aMode)
         throws UIMAException, IOException, ClassNotFoundException
     {
-        return exportAnnotationDocument(aDocument, aUser, aFormat, aFileName, aMode, true);
+        return exportAnnotationDocument(aDocument, aUser, aFormat, aFileName, aMode, false);
     }
 
     @Override
@@ -274,24 +274,6 @@ public class ImportExportServiceImpl
         }
 
         return exportFile;
-    }
-
-    @Override
-    public File exportCodebookDocument(SourceDocument document, String username, Project project,
-            Mode mode)
-        throws IOException, UIMAException, ClassNotFoundException
-    {
-        String filename = document.getName();
-        File tmpDir = null;
-        tmpDir = File.createTempFile("webanno", "export");
-        tmpDir.delete();
-        tmpDir.mkdirs();
-        filename = new File(tmpDir,
-                FilenameUtils.getBaseName(filename) + CodebookConst.CODEBOOK_EXT).getAbsolutePath();
-        List<Codebook> codebooks = codebookService.listCodebook(project);
-
-        return codebookImportExportService.exportCodebookDocument(document, username, filename,
-                mode, tmpDir, true, true, codebooks);
     }
 
     @Override
@@ -467,6 +449,7 @@ public class ImportExportServiceImpl
         if (bulkOperationContext == null) {
             bulkOperationContext = new HashMap<>();
         }
+
         
         // Either fetch the type system from the bulk-context or fetch it from the DB and store it
         // in the bulk-context to avoid further lookups in the same bulk operation
@@ -474,7 +457,12 @@ public class ImportExportServiceImpl
         TypeSystemDescription exportTypeSystem = (TypeSystemDescription) bulkOperationContext
                 .get(exportTypeSystemKey);
         if (exportTypeSystem == null) {
-            exportTypeSystem = annotationService.getTypeSystemForExport(project);
+
+            if (aFormat.isDocumentLevel())
+                exportTypeSystem = codebookService.getCodebookTypeSystemForExport(project);
+            else
+                exportTypeSystem = annotationService.getTypeSystemForExport(project);
+
             bulkOperationContext.put(exportTypeSystemKey, exportTypeSystem);
         }
         
@@ -485,35 +473,37 @@ public class ImportExportServiceImpl
             session.add(EXPORT_CAS, CasAccessMode.EXCLUSIVE_WRITE_ACCESS, exportCas);
             annotationService.prepareCasForExport(aCas, exportCas, aDocument, exportTypeSystem);
 
-            // Update the source file name in case it is changed for some reason. This is necessary
-            // for the writers to create the files under the correct names.
-            File currentDocumentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
-                    + PROJECT_FOLDER + "/" + project.getId() + "/" + DOCUMENT_FOLDER + "/"
-                    + aDocument.getId() + "/" + SOURCE_FOLDER);
-            DocumentMetaData documentMetadata = DocumentMetaData.get(exportCas.getJCas());
-            documentMetadata
-                    .setDocumentBaseUri(currentDocumentUri.toURI().toURL().toExternalForm());
-            documentMetadata.setDocumentUri(new File(currentDocumentUri, aFileName).toURI().toURL()
-                    .toExternalForm());
-            documentMetadata.setCollectionId(currentDocumentUri.toURI().toURL().toExternalForm());
-            documentMetadata.setDocumentId(aFileName);
+            if (!aFormat.isDocumentLevel()) { // we don't need to do this for codebooks only
+                // Update the source file name in case it is changed for some reason. This is necessary
+                // for the writers to create the files under the correct names.
+                File currentDocumentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
+                        + PROJECT_FOLDER + "/" + project.getId() + "/" + DOCUMENT_FOLDER + "/"
+                        + aDocument.getId() + "/" + SOURCE_FOLDER);
+                DocumentMetaData documentMetadata = DocumentMetaData.get(exportCas.getJCas());
+                documentMetadata
+                        .setDocumentBaseUri(currentDocumentUri.toURI().toURL().toExternalForm());
+                documentMetadata.setDocumentUri(new File(currentDocumentUri, aFileName).toURI().toURL()
+                        .toExternalForm());
+                documentMetadata.setCollectionId(currentDocumentUri.toURI().toURL().toExternalForm());
+                documentMetadata.setDocumentId(aFileName);
 
-            // update with the correct tagset name
-            Pair<Project, String> annotationFeaturesKey = Pair.of(project, "annotationFeatures");
-            @SuppressWarnings("unchecked")
-            List<AnnotationFeature> features = (List<AnnotationFeature>) bulkOperationContext
-                    .get(annotationFeaturesKey);
-            if (features == null) {
-                features = annotationService.listAnnotationFeature(project);
-                bulkOperationContext.put(annotationFeaturesKey, features);
-            }
-            for (AnnotationFeature feature : features) {
-                TagSet tagSet = feature.getTagset();
-                if (tagSet == null || CHAIN_TYPE.equals(feature.getLayer().getType())) {
-                    continue;
+                // update with the correct tagset name
+                Pair<Project, String> annotationFeaturesKey = Pair.of(project, "annotationFeatures");
+                @SuppressWarnings("unchecked")
+                List<AnnotationFeature> features = (List<AnnotationFeature>) bulkOperationContext
+                        .get(annotationFeaturesKey);
+                if (features == null) {
+                    features = annotationService.listAnnotationFeature(project);
+                    bulkOperationContext.put(annotationFeaturesKey, features);
                 }
+                for (AnnotationFeature feature : features) {
+                    TagSet tagSet = feature.getTagset();
+                    if (tagSet == null || CHAIN_TYPE.equals(feature.getLayer().getType())) {
+                        continue;
+                    }
 
-                updateCasWithTagSet(exportCas, feature.getLayer().getName(), tagSet.getName());
+                    updateCasWithTagSet(exportCas, feature.getLayer().getName(), tagSet.getName());
+                }
             }
 
             File exportTempDir = createTempFile("webanno", "export");

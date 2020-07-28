@@ -120,16 +120,9 @@ public class ExportDocumentDialogContent
 
         String filename = state.getObject().getDocument().getName();
         try {
-            if (formatSuport.isDocumentLevel()) {
-                downloadFile = importExportService.exportCodebookDocument(
-                        state.getObject().getDocument(), username, state.getObject().getProject(),
-                        state.getObject().getMode());
-            }
-            else {
-                downloadFile = importExportService.exportAnnotationDocument(
-                        state.getObject().getDocument(), username, formatSuport, filename,
-                        state.getObject().getMode());
-            }
+            downloadFile = importExportService.exportAnnotationDocument(
+                    state.getObject().getDocument(), username, formatSuport, filename,
+                    state.getObject().getMode());
         }
         catch (Exception e) {
             LOG.error("Export failed", e);

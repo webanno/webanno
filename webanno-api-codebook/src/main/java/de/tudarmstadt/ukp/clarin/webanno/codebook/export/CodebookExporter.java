@@ -83,7 +83,10 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     public void exportData(ProjectExportRequest aRequest, ProjectExportTaskMonitor aMonitor,
             ExportedProject aExProject, File aStage) throws Exception {
 
+        // export the codebooks (w/o values)
         exportCodebooks(aRequest, aExProject);
+
+        // export the codebook annotations (i.e. the values / codes of the codebooks)
         exportCodebookAnnotations(aRequest, aExProject, aStage);
     }
 
@@ -99,12 +102,16 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     public File appendCodebooks(Project project, File codebookDir)
             throws IOException, UIMAException, ClassNotFoundException {
+
         List<SourceDocument> documents = documentService.listSourceDocuments(project);
         List<Codebook> codebooks = codebookService.listCodebook(project);
+
         boolean withHeader = true;
         File codebookFile = new File(codebookDir, project.getName() + CodebookConst.CODEBOOK_EXT);
+
         for (SourceDocument sourceDocument : documents) {
-            boolean withText = true;// do not write the text for each annotation document
+
+            boolean withText = false;// do not write the text for each annotation document
             for (AnnotationDocument annotationDocument : documentService
                     .listAnnotationDocuments(sourceDocument)) {
                 if (userRepository.get(annotationDocument.getUser()) != null
@@ -311,7 +318,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     @Override
     public File exportCodebookDocument(SourceDocument aDocument, String aUser, String aFileName,
             Mode aMode, File aExportDir, boolean aWithHeaders, boolean aWithText,
-            List<Codebook> aCodebooks) throws UIMAException, IOException, ClassNotFoundException {
+            List<Codebook> aCodebooks) throws UIMAException, IOException {
+
+
         File annotationFolder = casStorageService.getAnnotationFolder(aDocument);
         String serializedCasFileName;
         // for Correction, it will export the corrected document (of the logged in user)
@@ -341,17 +350,19 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
         // Update type system the CAS
         annotationService.upgradeCas(cas, aDocument, aUser);
+
+
         String documentName = aDocument.getName();
-        File exportFile = exportCodebooks(cas, aDocument, aFileName, aExportDir, aWithHeaders,
+        File exportFile = exportCodebooksToFile(cas, aDocument, aFileName, aExportDir, aWithHeaders,
                 aWithText, aCodebooks, aUser, documentName);
 
         return exportFile;
     }
 
     @Override
-    public File exportCodebooks(CAS cas, SourceDocument aDocument, String aFileName,
-            File aExportDir, boolean aWithHeaders, boolean aWithText, List<Codebook> aCodebooks,
-            String aAnnotator, String documentName) throws IOException, UIMAException {
+    public File exportCodebooksToFile(CAS cas, SourceDocument aDocument, String aFileName,
+                                      File aExportDir, boolean aWithHeaders, boolean aWithText, List<Codebook> aCodebooks,
+                                      String aAnnotator, String documentName) throws IOException, UIMAException {
 
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,
