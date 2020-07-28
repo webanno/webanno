@@ -18,8 +18,6 @@
 package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import static java.util.Objects.isNull;
-import static org.apache.uima.fit.factory.TypeSystemDescriptionFactory.createTypeSystemDescription;
-import static org.apache.uima.util.CasCreationUtils.mergeTypeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -295,14 +293,16 @@ public class CodebookSchemaServiceImpl
     }
 
     @Override
-    public TypeSystemDescription getCodebookTypeSystemForExport(Project aProject) throws ResourceInitializationException {
+    public TypeSystemDescription getCodebookTypeSystemForExport(Project aProject)
+        throws ResourceInitializationException
+    {
 
         // Codebook Types declared within the project
         TypeSystemDescription tsd = new TypeSystemDescription_impl();
 
         for (Codebook codebook : this.listCodebook(aProject)) {
-            TypeDescription td = tsd.addType(codebook.getName(),
-                    codebook.getDescription(), CAS.TYPE_NAME_ANNOTATION);
+            TypeDescription td = tsd.addType(codebook.getName(), codebook.getDescription(),
+                    CAS.TYPE_NAME_ANNOTATION);
             this.generateFeatures(tsd, td, codebook);
         }
 

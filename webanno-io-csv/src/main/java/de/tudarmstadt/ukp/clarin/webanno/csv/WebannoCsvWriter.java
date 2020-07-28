@@ -48,32 +48,23 @@ public class WebannoCsvWriter
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
-    // public static final String WITH_HEADERS = "withHeaders";
-    // @ConfigurationParameter(name = WITH_HEADERS, mandatory = true, defaultValue = "true")
-    // private boolean withHeaders;
+    public static final String WITH_HEADERS = "withHeaders";
+    @ConfigurationParameter(name = WITH_HEADERS, mandatory = true, defaultValue = "true")
+    private boolean withHeaders;
 
     public static final String PARAM_WITH_TEXT = "withText";
     @ConfigurationParameter(name = PARAM_WITH_TEXT, mandatory = true, defaultValue = "true")
     private boolean withText;
 
-    public static final String PARAM_FILENAME_SUFFIX = "filenameSuffix";
-    @ConfigurationParameter(name = PARAM_FILENAME_SUFFIX, mandatory = true, defaultValue = ".csv")
-    private String filenameSuffix;
-
     public static final String PARAM_FILENAME = "filename";
     @ConfigurationParameter(name = PARAM_FILENAME, mandatory = true, defaultValue = "codebooks")
     private String filename;
 
-    // public static final String PARAM_ANNOTATOR = "annotator";
-    // @ConfigurationParameter(name = PARAM_ANNOTATOR, mandatory = false, defaultValue = "<annotator
-    // not set>")
-    // private String annotator;
-
-    private static final String NEW_LINE_SEPARATOR = "\n";
-
-    public static final String PARAM_DOCUMENT_NAME = "documentName";
+    public static final String PARAM_DOCUMENT_NAME = "DocumentName";
     @ConfigurationParameter(name = PARAM_DOCUMENT_NAME, mandatory = true, defaultValue = "testDocument.txt")
     private String documentName;
+
+    private static final String NEW_LINE_SEPARATOR = "\n";
 
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException
@@ -82,8 +73,8 @@ public class WebannoCsvWriter
         CSVPrinter csvFileWriter = null;
         try {
             CSVFormat csvFileFormat = CSVFormat.RFC4180.withRecordSeparator(NEW_LINE_SEPARATOR);
-            File file = new File(this.getTargetLocation() + File.separator
-                    + new File(filename + filenameSuffix).getName());
+            File file = new File(
+                    this.getTargetLocation() + File.separator + new File(filename).getName());
             // smy: No We do not delete it here, the caller should take care of cleaning tmp
             // files,or we do not need at all.
             // Files.deleteIfExists(file.toPath()); // TODO delete the file if its already
@@ -130,14 +121,15 @@ public class WebannoCsvWriter
         if (codebookTypes.isEmpty()) {
             return;
         }
-        headers.add("Text");
+        if (withText) {
+            headers.add("Text");
+        }
 
         // write headers
         aCsvFilePrinter.printRecord(headers.toArray());
 
         List<String> cellValues = new ArrayList<>();
         cellValues.add(documentName);
-        // codebookValue.add(annotator);
 
         for (Type codebookType : codebookTypes) {
             for (Feature feature : codebookType.getFeatures()) {
@@ -150,8 +142,8 @@ public class WebannoCsvWriter
                     cellValues.add("");
                 }
                 else {
-                    cellValues.add(CasUtil.select(aJCas.getCas(), codebookType).iterator()
-                            .next().getFeatureValueAsString(feature));
+                    cellValues.add(CasUtil.select(aJCas.getCas(), codebookType).iterator().next()
+                            .getFeatureValueAsString(feature));
                 }
             }
         }

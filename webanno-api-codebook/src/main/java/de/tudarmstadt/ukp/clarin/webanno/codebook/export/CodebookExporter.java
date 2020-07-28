@@ -67,7 +67,9 @@ import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.security.UserDao;
 
 @Component
-public class CodebookExporter implements ProjectExporter, CodebookImportExportService {
+public class CodebookExporter
+    implements ProjectExporter, CodebookImportExportService
+{
     private @Autowired AnnotationSchemaService annotationService;
     private @Autowired CodebookSchemaService codebookService;
     private @Autowired @Lazy DocumentService documentService;
@@ -81,7 +83,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     @Override
     public void exportData(ProjectExportRequest aRequest, ProjectExportTaskMonitor aMonitor,
-            ExportedProject aExProject, File aStage) throws Exception {
+            ExportedProject aExProject, File aStage)
+        throws Exception
+    {
 
         // export the codebooks (w/o values)
         exportCodebooks(aRequest, aExProject);
@@ -91,7 +95,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     public void exportCodebookAnnotations(ProjectExportRequest aRequest, ExportedProject aExProject,
-            File aStage) throws IOException, UIMAException, ClassNotFoundException {
+            File aStage)
+        throws IOException, UIMAException, ClassNotFoundException
+    {
         Project project = aRequest.getProject();
 
         File codebookDir = new File(aStage.getAbsolutePath() + CODEBOOKS_FOLDER);
@@ -101,7 +107,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     public File appendCodebooks(Project project, File codebookDir)
-            throws IOException, UIMAException, ClassNotFoundException {
+        throws IOException, UIMAException, ClassNotFoundException
+    {
 
         List<SourceDocument> documents = documentService.listSourceDocuments(project);
         List<Codebook> codebooks = codebookService.listCodebook(project);
@@ -139,7 +146,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         return codebookFile;
     }
 
-    private ExportedCodebook createExportedCodebook(Codebook cb, ExportedCodebook parent) {
+    private ExportedCodebook createExportedCodebook(Codebook cb, ExportedCodebook parent)
+    {
         ExportedCodebook exCB = new ExportedCodebook();
 
         // basic attributes
@@ -183,7 +191,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         return exCB;
     }
 
-    private List<ExportedCodebook> createExportedCodebooks(CodebookTree tree) {
+    private List<ExportedCodebook> createExportedCodebooks(CodebookTree tree)
+    {
         List<ExportedCodebook> exportedCodebooks = new ArrayList<>();
 
         // create root ExCBs
@@ -200,7 +209,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     private void createExportedCodebookRecursively(Codebook child, ExportedCodebook parent,
-            List<ExportedCodebook> exCBs, CodebookTree tree) {
+            List<ExportedCodebook> exCBs, CodebookTree tree)
+    {
 
         ExportedCodebook childExCB = createExportedCodebook(child, parent);
         if (tree.getCodebookNode(child).isLeaf())
@@ -211,7 +221,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
             createExportedCodebookRecursively(childrenChild, childExCB, exCBs, tree);
     }
 
-    private void exportCodebooks(ProjectExportRequest aRequest, ExportedProject aExProject) {
+    private void exportCodebooks(ProjectExportRequest aRequest, ExportedProject aExProject)
+    {
         List<ExportedCodebook> exportedCodebooks = this
                 .exportCodebooks(codebookService.listCodebook(aRequest.getProject()));
 
@@ -219,13 +230,15 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     @Override
-    public List<ExportedCodebook> exportCodebooks(List<Codebook> codebooks) {
+    public List<ExportedCodebook> exportCodebooks(List<Codebook> codebooks)
+    {
         CodebookTree tree = new CodebookTree(codebooks);
         return createExportedCodebooks(tree);
     }
 
     private Codebook createCodebooksRecursively(ExportedCodebook exCB, Project project,
-            List<Codebook> importedCodebooks) {
+            List<Codebook> importedCodebooks)
+    {
         Codebook cb = new Codebook();
 
         cb.setName(exCB.getName());
@@ -237,7 +250,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         if (exCB.getParent() != null) {
             if (codebookService.existsCodebook(exCB.getParent().getName(), project)) {
                 cb.setParent(codebookService.getCodeBook(exCB.getParent().getName(), project));
-            } else {
+            }
+            else {
                 cb.setParent(
                         createCodebooksRecursively(exCB.getParent(), project, importedCodebooks));
             }
@@ -257,7 +271,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         return cb;
     }
 
-    private void importExportedCodebookTagsRecursively(ExportedCodebookTag exTag, Codebook cb) {
+    private void importExportedCodebookTagsRecursively(ExportedCodebookTag exTag, Codebook cb)
+    {
         CodebookTag tag = new CodebookTag();
         tag.setDescription(exTag.getDescription());
         tag.setName(exTag.getName());
@@ -267,7 +282,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
             for (CodebookTag pTag : codebookService.listTags(cb.getParent()))
                 if (exTag.getParent().getName().equals(pTag.getName()))
                     tag.setParent(pTag);
-        } else
+        }
+        else
             tag.setParent(null); // TODO
 
         CodebookFeature feature = codebookService.listCodebookFeature(cb).get(0);
@@ -278,7 +294,8 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         codebookService.createCodebookTag(tag);
     }
 
-    private void importExportedCodebookFeature(ExportedCodebookFeature exFeature, Codebook cb) {
+    private void importExportedCodebookFeature(ExportedCodebookFeature exFeature, Codebook cb)
+    {
         CodebookFeature feature = new CodebookFeature();
         feature.setUiName(exFeature.getUiName());
         feature.setName(exFeature.getName());
@@ -291,10 +308,11 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     }
 
     @Override
-    public void importCodebooks(List<ExportedCodebook> exportedCodebooks, Project aProject) {
+    public void importCodebooks(List<ExportedCodebook> exportedCodebooks, Project aProject)
+    {
         /*
-         * all of the ExportedCodebook in the list should be leafs (if they were
-         * exported with the exportCodebooks() function!
+         * all of the ExportedCodebook in the list should be leafs (if they were exported with the
+         * exportCodebooks() function!
          */
         List<Codebook> importedCodebooks = new ArrayList<>();
 
@@ -306,7 +324,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     @Override
     public void importData(ProjectImportRequest aRequest, Project aProject,
-            ExportedProject aExProject, ZipFile aZip) throws Exception {
+            ExportedProject aExProject, ZipFile aZip)
+        throws Exception
+    {
         Optional<ExportedCodebook[]> exportedCodebooksArray = aExProject.getProperty(CODEBOOKS,
                 ExportedCodebook[].class);
         if (exportedCodebooksArray.isPresent()) {
@@ -318,8 +338,9 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
     @Override
     public File exportCodebookDocument(SourceDocument aDocument, String aUser, String aFileName,
             Mode aMode, File aExportDir, boolean aWithHeaders, boolean aWithText,
-            List<Codebook> aCodebooks) throws UIMAException, IOException {
-
+            List<Codebook> aCodebooks)
+        throws UIMAException, IOException
+    {
 
         File annotationFolder = casStorageService.getAnnotationFolder(aDocument);
         String serializedCasFileName;
@@ -351,7 +372,6 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
         // Update type system the CAS
         annotationService.upgradeCas(cas, aDocument, aUser);
 
-
         String documentName = aDocument.getName();
         File exportFile = exportCodebooksToFile(cas, aDocument, aFileName, aExportDir, aWithHeaders,
                 aWithText, aCodebooks, aUser, documentName);
@@ -361,8 +381,10 @@ public class CodebookExporter implements ProjectExporter, CodebookImportExportSe
 
     @Override
     public File exportCodebooksToFile(CAS cas, SourceDocument aDocument, String aFileName,
-                                      File aExportDir, boolean aWithHeaders, boolean aWithText, List<Codebook> aCodebooks,
-                                      String aAnnotator, String documentName) throws IOException, UIMAException {
+            File aExportDir, boolean aWithHeaders, boolean aWithText, List<Codebook> aCodebooks,
+            String aAnnotator, String documentName)
+        throws IOException, UIMAException
+    {
 
         AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 JCasFileWriter_ImplBase.PARAM_TARGET_LOCATION, aExportDir, "filename", aFileName,

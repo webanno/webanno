@@ -1,5 +1,5 @@
-DocumentName,Annotator,webanno.codebook.TestingCodebook1,webanno.codebook.TestingCodebook2,Text
-sampleCsvDoc.txt,testUser,CB1_testTag2,CB2_testTag1,"This is a sample test document. It will be used for testing Csv import and export functionallity for Codebook Annotations!
+DocumentName,webanno.codebook.TestingCodebook1,webanno.codebook.TestingCodebook2,Text
+sampleCsvDoc.txt,CB1_testTag2,CB2_testTag1,"This is a sample test document. It will be used for testing Csv import and export functionallity for Codebook Annotations!
 There is a critical part. Commata have to be escaped, let's see if it works or not.
 Bye,
 Florian

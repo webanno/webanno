@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +48,7 @@ import org.junit.Test;
 
 public class WebAnnoCsvReaderWriterTest
 {
+
     /**
      * @return A JCas that has a TypeSystem with necessary types for testing (i.e. Codebooks).
      */
@@ -124,6 +126,7 @@ public class WebAnnoCsvReaderWriterTest
     @Test
     public void readerWriterTest() throws Exception
     {
+
         String targetFolder = "target/test-output/" + testContext.getTestOutputFolderName();
         String targetFileName = "writerOutput.csv";
 
@@ -136,15 +139,13 @@ public class WebAnnoCsvReaderWriterTest
                 "webanno.codebook.TestingCodebook2");
         String docName = "sampleCsvDoc.txt";
         String annotator = "testUser";
+
         // setup the CSVWriter
-        AnalysisEngineDescription writer = createEngineDescription(
-                WebannoCsvWriter.class,
+        AnalysisEngineDescription writer = createEngineDescription(WebannoCsvWriter.class,
                 WebannoCsvWriter.PARAM_TARGET_LOCATION, targetFolder,
-                WebannoCsvWriter.PARAM_FILENAME, targetFileName,
-//                WebannoCsvWriter.WITH_HEADERS, true,
-                WebannoCsvWriter.PARAM_WITH_TEXT, true,
-//                WebannoCsvWriter.PARAM_ANNOTATOR, annotator,
-                WebannoCsvWriter.PARAM_DOCUMENT_NAME, docName);
+                WebannoCsvWriter.PARAM_FILENAME, targetFileName, WebannoCsvWriter.WITH_HEADERS,
+                true, WebannoCsvWriter.PARAM_WITH_TEXT, true, WebannoCsvWriter.PARAM_DOCUMENT_NAME,
+                docName);
 
         // read the example.csv and write it to writerOutput.csv
         JCas exampleInputCas = executeReader(inputFolder, inputFileName);
@@ -159,6 +160,9 @@ public class WebAnnoCsvReaderWriterTest
         // assert that the input and output files are identical
         assertEquals(FileUtils.readFileToString(new File(inputFolder, inputFileName), "utf-8"),
                 FileUtils.readFileToString(new File(targetFolder, targetFileName), "utf-8"));
+
+        // delete the output file
+        Files.deleteIfExists(new File(targetFolder + "/" + targetFileName).toPath());
 
     }
 
