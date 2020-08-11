@@ -19,6 +19,7 @@ package de.tudarmstadt.ukp.clarin.webanno.codebook.service;
 
 import java.util.List;
 
+import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,10 +30,11 @@ import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookTag;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 
 /**
- * This interface contains methods which are related to Codebook,
- * CodebookTag and Type for the annotation project.
+ * This interface contains methods which are related to Codebook, CodebookTag and Type for the
+ * annotation project.
  */
-public interface CodebookSchemaService {
+public interface CodebookSchemaService
+{
     String SERVICE_NAME = "codebookService";
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
@@ -41,8 +43,8 @@ public interface CodebookSchemaService {
     void createCodebookFeature(CodebookFeature aFeature);
 
     /**
-     * creates a {@link CodebookTag} for a given {@link Codebook}.
-     * Combination of {@code tag name} and {@code codebook name} should be unique
+     * creates a {@link CodebookTag} for a given {@link Codebook}. Combination of {@code tag name}
+     * and {@code codebook name} should be unique
      *
      * @param aTag
      *            the tag.
@@ -135,5 +137,12 @@ public interface CodebookSchemaService {
     void removeCodebook(Codebook type);
 
     void generateFeatures(TypeSystemDescription aTSD, TypeDescription aTD, Codebook aCodebook);
+
+    /**
+     * Returns a type system with all the codebook types that should be present in an exported CAS.
+     * This means in particular that type internal to the application should <b>not</b> be included.
+     */
+    TypeSystemDescription getCodebookTypeSystemForExport(Project aProject)
+        throws ResourceInitializationException;
 
 }

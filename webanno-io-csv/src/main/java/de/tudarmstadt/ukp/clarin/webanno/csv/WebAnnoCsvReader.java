@@ -49,11 +49,9 @@ public class WebAnnoCsvReader
             for (CSVRecord record : records) {
                 if (headers.isEmpty()) {
                     String documentName = record.get(0);
-                    String annotator = record.get(1);
 
                     headers.add(documentName);
-                    headers.add(annotator);
-                    for (int c = 2; c < record.size(); c++) {
+                    for (int c = 1; c < record.size(); c++) {
                         headers.add(record.get(c));
                     }
                 }
@@ -81,10 +79,9 @@ public class WebAnnoCsvReader
         throws IOException
     {
         AnnotationFS codebookAnnotation;
-        // start with 2 since the first and second header entries are the document name and
-        // annotator name respectively. Also the last header entry (text of the document) is
-        // ignored.
-        for (int i = 2; i < record.size() - 1; i++) {
+        // start with 1 since the 1st header is the document name.
+        // Also the last header entry (text of the document) is ignored.
+        for (int i = 1; i < record.size() - 1; i++) {
             String[] splits =  headers.get(i).split("\\.");
             String cbName = splits[0] + "." + splits[1] + "." + splits[splits.length - 1];
             Type codebook = aJCas.getTypeSystem().getType(cbName);

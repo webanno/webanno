@@ -26,8 +26,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import org.apache.uima.cas.CAS;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.TypeDescription;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.resource.metadata.impl.TypeSystemDescription_impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -289,4 +292,20 @@ public class CodebookSchemaServiceImpl
 
     }
 
+    @Override
+    public TypeSystemDescription getCodebookTypeSystemForExport(Project aProject)
+        throws ResourceInitializationException
+    {
+
+        // Codebook Types declared within the project
+        TypeSystemDescription tsd = new TypeSystemDescription_impl();
+
+        for (Codebook codebook : this.listCodebook(aProject)) {
+            TypeDescription td = tsd.addType(codebook.getName(), codebook.getDescription(),
+                    CAS.TYPE_NAME_ANNOTATION);
+            this.generateFeatures(tsd, td, codebook);
+        }
+
+        return tsd;
+    }
 }

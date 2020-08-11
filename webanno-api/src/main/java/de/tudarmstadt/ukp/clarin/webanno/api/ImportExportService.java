@@ -183,8 +183,6 @@ public interface ImportExportService
             String fileName, Mode mode, boolean stripExtension)
         throws UIMAException, IOException, ClassNotFoundException;
 
-    File exportCodebookDocument(SourceDocument document, String user, Project project, Mode mode)
-        throws IOException, UIMAException, ClassNotFoundException;
     File exportAnnotationDocument(SourceDocument document, String user, FormatSupport aFormat,
             String fileName, Mode mode, boolean stripExtension,
             Map<Pair<Project, String>, Object> aBulkOperationContext)

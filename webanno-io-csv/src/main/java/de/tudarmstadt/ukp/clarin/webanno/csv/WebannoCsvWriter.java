@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,6 @@ import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.CASRuntimeException;
 import org.apache.uima.cas.Feature;
 import org.apache.uima.cas.Type;
@@ -40,43 +38,37 @@ import org.apache.uima.cas.TypeSystem;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.CasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.dkpro.core.api.parameter.ComponentParameters;
 
-public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
+public class WebannoCsvWriter
+    extends JCasFileWriter_ImplBase
+{
     public static final String PARAM_ENCODING = ComponentParameters.PARAM_TARGET_ENCODING;
     @ConfigurationParameter(name = PARAM_ENCODING, mandatory = true, defaultValue = "UTF-8")
     private String encoding;
 
     public static final String WITH_HEADERS = "withHeaders";
-    @ConfigurationParameter(name = WITH_HEADERS, mandatory = true, defaultValue = "false")
+    @ConfigurationParameter(name = WITH_HEADERS, mandatory = true, defaultValue = "true")
     private boolean withHeaders;
 
-    public static final String WITH_TEXT = "withText";
-    @ConfigurationParameter(name = WITH_TEXT, mandatory = true, defaultValue = "false")
+    public static final String PARAM_WITH_TEXT = "withText";
+    @ConfigurationParameter(name = PARAM_WITH_TEXT, mandatory = true, defaultValue = "true")
     private boolean withText;
-
-    public static final String PARAM_FILENAME_SUFFIX = "filenameSuffix";
-    @ConfigurationParameter(name = PARAM_FILENAME_SUFFIX, mandatory = true, defaultValue = ".csv")
-    private String filenameSuffix;
 
     public static final String PARAM_FILENAME = "filename";
     @ConfigurationParameter(name = PARAM_FILENAME, mandatory = true, defaultValue = "codebooks")
     private String filename;
 
-    public static final String PARAM_ANNOTATOR = "annotator";
-    @ConfigurationParameter(name = PARAM_ANNOTATOR, mandatory = true, defaultValue = "adminuser")
-    private String annotator;
+    public static final String PARAM_DOCUMENT_NAME = "DocumentName";
+    @ConfigurationParameter(name = PARAM_DOCUMENT_NAME, mandatory = true, defaultValue = "testDocument.txt")
+    private String documentName;
 
     private static final String NEW_LINE_SEPARATOR = "\n";
 
-    public static final String DOCUMENT_NAME = "documentName";
-    @ConfigurationParameter(name = DOCUMENT_NAME, mandatory = true, defaultValue = "testDocument.txt")
-    private String documentName;
-
     @Override
-    public void process(JCas aJCas) throws AnalysisEngineProcessException {
+    public void process(JCas aJCas) throws AnalysisEngineProcessException
+    {
         OutputStreamWriter writer = null;
         CSVPrinter csvFileWriter = null;
         try {
@@ -91,13 +83,16 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
             writer = new OutputStreamWriter(new FileOutputStream(file, true), encoding);
             csvFileWriter = new CSVPrinter(writer, csvFileFormat);
             writeCsv(aJCas, csvFileWriter);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new AnalysisEngineProcessException(e);
-        } finally {
+        }
+        finally {
             try {
                 csvFileWriter.flush();
                 csvFileWriter.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new AnalysisEngineProcessException(e);
             }
             closeQuietly(writer);
@@ -106,49 +101,35 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
     }
 
     private void writeCsv(JCas aJCas, CSVPrinter aCsvFilePrinter)
-            throws IOException, ResourceInitializationException, CASRuntimeException, CASException {
+        throws IOException, CASRuntimeException
+    {
 
         Set<Type> codebookTypes = new LinkedHashSet<>();
         List<String> headers = new ArrayList<>();
 
-        headers.add("DocumentName");
-        headers.add("Annotator");
+        headers.add(PARAM_DOCUMENT_NAME);
 
-        TypeSystem cbooks = aJCas.getTypeSystem();
-        Iterator<Type> it = cbooks.iterator();
-        Set<String> cbks = new LinkedHashSet<String>();
-        while (it.hasNext()) {
-            String cbit = it.next().getName();
-            if (cbit.startsWith("webanno.codebook")) {
-                cbks.add(cbit);
-            }
-        }
         // find codebook types
-        // for (String cbName : codebooks) {
-        for (String cbName : cbks) {
-            // always the first two splits (= webanno.codebook.) + the last split (= actual
-            // name)
-            // String[] splits = cbName.split("\\.");
-            // String codebookTypeName = splits[0] + "." + splits[1] + "." +
-            // splits[splits.length - 1];
-            // codebookTypes.add(aJCas.getTypeSystem().getType(codebookTypeName));
-
-            codebookTypes.add(aJCas.getTypeSystem().getType(cbName));
-
-            headers.add(cbName);
-        }
+        TypeSystem cbooks = aJCas.getTypeSystem();
+        aJCas.getTypeSystem().getTypeIterator().forEachRemaining(type -> {
+            if (type.getName().startsWith("webanno.codebook")) {
+                codebookTypes.add(type);
+                headers.add(type.getName());
+            }
+        });
 
         if (codebookTypes.isEmpty()) {
-            // Nothing to write
             return;
         }
-        headers.add("Text");
-        if (withHeaders) {
-            aCsvFilePrinter.printRecord(headers.toArray(new Object[headers.size()]));
+        if (withText) {
+            headers.add("Text");
         }
-        List<String> codebookValue = new ArrayList<>();
-        codebookValue.add(documentName);
-        codebookValue.add(annotator);
+
+        // write headers
+        aCsvFilePrinter.printRecord(headers.toArray());
+
+        List<String> cellValues = new ArrayList<>();
+        cellValues.add(documentName);
 
         for (Type codebookType : codebookTypes) {
             for (Feature feature : codebookType.getFeatures()) {
@@ -158,19 +139,18 @@ public class WebannoCsvWriter extends JCasFileWriter_ImplBase {
                     continue;
                 }
                 if (CasUtil.select(aJCas.getCas(), codebookType).isEmpty()) {
-                    codebookValue.add(new String());
-                } else {
-                    codebookValue.add(CasUtil.select(aJCas.getCas(), codebookType).iterator().next()
+                    cellValues.add("");
+                }
+                else {
+                    cellValues.add(CasUtil.select(aJCas.getCas(), codebookType).iterator().next()
                             .getFeatureValueAsString(feature));
                 }
             }
         }
-        // String someText = aJCas.getDocumentText().substring(0, Math.min(50,
-        // aJCas.getDocumentText().length()));
         if (withText) {
-            codebookValue.add(aJCas.getDocumentText());
+            cellValues.add(aJCas.getDocumentText());
         }
-        aCsvFilePrinter.printRecord(codebookValue);
+        aCsvFilePrinter.printRecord(cellValues);
     }
 
 }
