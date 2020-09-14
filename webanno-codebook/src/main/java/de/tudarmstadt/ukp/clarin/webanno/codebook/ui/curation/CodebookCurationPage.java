@@ -815,7 +815,8 @@ public class CodebookCurationPage
                 List<Project> projectsWithFinishedAnnos = projectService
                         .listProjectsWithFinishedAnnos();
                 for (Project project : projectService.listProjects()) {
-                    if (projectService.isCurator(project, user)) {
+                    if (!codebookService.listCodebook(project).isEmpty()
+                            && projectService.isCurator(project, user)) {
                         DecoratedObject<Project> dp = DecoratedObject.of(project);
                         if (projectsWithFinishedAnnos.contains(project)) {
                             dp.setColor("green");
