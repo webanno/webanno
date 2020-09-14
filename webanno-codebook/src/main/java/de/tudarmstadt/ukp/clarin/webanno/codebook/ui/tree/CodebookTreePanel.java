@@ -30,6 +30,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import de.tudarmstadt.ukp.clarin.webanno.api.DocumentService;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.model.CodebookNode;
 import de.tudarmstadt.ukp.clarin.webanno.codebook.service.CodebookSchemaService;
 
@@ -45,6 +46,7 @@ public abstract class CodebookTreePanel
     protected CodebookTreeProvider provider;
 
     protected @SpringBean CodebookSchemaService codebookService;
+    protected @SpringBean DocumentService documentService;
 
     public CodebookTreePanel(String aId, IModel<?> aModel)
     {
