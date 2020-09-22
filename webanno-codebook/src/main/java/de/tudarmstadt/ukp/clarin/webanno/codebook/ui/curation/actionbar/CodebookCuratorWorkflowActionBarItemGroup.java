@@ -132,8 +132,7 @@ public class CodebookCuratorWorkflowActionBarItemGroup
         AnnotatorState state = page.getModelObject();
 
         // Remove the current curation CAS
-        curationDocumentService.removeCurationDocumentContent(state.getDocument(),
-                state.getUser().getUsername());
+        curationDocumentService.deleteCurationCas(state.getDocument());
 
         // Initialize a new one ...
         ((CodebookCurationPage) page)

@@ -17,6 +17,8 @@
  */
 package de.tudarmstadt.ukp.clarin.webanno.codebook.ui.annotation;
 
+import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.enabledWhen;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ public class CodebookEditorTreePanel
                 CodebookNodeExpansion.get().expandAll();
             }
         });
+
         this.add(new Link<Void>("collapseAll")
         {
             private static final long serialVersionUID = -4576757597732733009L;
@@ -105,6 +108,12 @@ public class CodebookEditorTreePanel
         this.applyTheme();
 
         tree.setOutputMarkupId(true);
+
+        tree.add(enabledWhen(() ->
+                parentEditor.getModelObject() != null && !documentService.isAnnotationFinished(
+                parentEditor.getModelObject().getDocument(),
+                parentEditor.getModelObject().getUser())));
+
         this.addOrReplace(tree);
     }
 

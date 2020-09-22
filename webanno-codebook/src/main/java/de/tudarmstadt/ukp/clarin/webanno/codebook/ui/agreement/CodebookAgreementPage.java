@@ -483,8 +483,9 @@ public class CodebookAgreementPage
 
             List<Project> allProjects = projectService.listProjects();
             for (Project project : allProjects) {
-                if (projectService.isManager(project, user)
-                        || projectService.isCurator(project, user)) {
+                if (!codebookService.listCodebook(project).isEmpty()
+                        && (projectService.isManager(project, user)
+                        || projectService.isCurator(project, user))) {
                     allowedProject.add(project);
                 }
             }

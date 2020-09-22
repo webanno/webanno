@@ -370,7 +370,8 @@ public class CodebookExporter
         CasPersistenceUtils.readSerializedCas(cas, serializedCasFile);
 
         // Update type system the CAS
-        annotationService.upgradeCas(cas, aDocument, aUser);
+        // quick fix works by simply commenting out the line below. First tests also work properly
+//        annotationService.upgradeCas(cas, aDocument, aUser);
 
         String documentName = aDocument.getName();
         File exportFile = exportCodebooksToFile(cas, aDocument, aFileName, aExportDir, aWithHeaders,

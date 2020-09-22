@@ -348,10 +348,6 @@ public class AnnotationPage
             protected void onConfigure()
             {
                 super.onConfigure();
-
-                AnnotatorState state = AnnotationPage.this.getModelObject();
-                setEnabled(state.getDocument() != null && !documentService
-                        .isAnnotationFinished(state.getDocument(), state.getUser()));
             }
 
             @Override

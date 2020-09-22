@@ -202,6 +202,7 @@ public class ProjectCodebookPanel
         codebookDetailForm.setModelObject(null);
         tagSelectionPanel.setDefaultModelObject(null);
         tagEditorPanel.setDefaultModelObject(null);
+        this.updateTree();
     }
 
     private List<Codebook> getConnectedCodebooks(Codebook codebook)
