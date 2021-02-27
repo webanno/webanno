@@ -119,6 +119,8 @@ public class RelationRenderer
         // Index mapping annotations to the corresponding rendered arcs
         Map<AnnotationFS, VArc> annoToArcIdx = new HashMap<>();
 
+        List<String> warnings = new ArrayList<>();
+
         for (AnnotationFS fs : selectCovered(aCas, type, aWindowBegin, aWindowEnd)) {
             if (typeAdapter.getAttachFeatureName() != null) {
                 dependentFs = fs.getFeatureValue(dependentFeature).getFeatureValue(arcSpanFeature);
@@ -136,8 +138,11 @@ public class RelationRenderer
             if (dependentFs == null || governorFs == null) {
                 StringBuilder message = new StringBuilder();
 
-                message.append("Relation [" + typeAdapter.getLayer().getName() + "] with id ["
-                        + getAddr(fs) + "] has loose ends - cannot render.");
+                message.append("Unable to render relation on layer ["
+                        + typeAdapter.getLayer().getName() + "] with id [" + getAddr(fs)
+                        + "] because no [" + typeAdapter.getLayer().getAttachType()
+                        + "] annotations could be found at the source and target.");
+
                 if (typeAdapter.getAttachFeatureName() != null) {
                     message.append("\nRelation [" + typeAdapter.getLayer().getName()
                             + "] attached to feature [" + typeAdapter.getAttachFeatureName()
@@ -146,12 +151,7 @@ public class RelationRenderer
                 message.append("\nDependent: " + dependentFs);
                 message.append("\nGovernor: " + governorFs);
 
-                RequestCycle requestCycle = RequestCycle.get();
-                IPageRequestHandler handler = PageRequestHandlerTracker
-                        .getLastHandler(requestCycle);
-                Page page = (Page) handler.getPage();
-                page.warn(message.toString());
-
+                warnings.add(message.toString());
                 continue;
             }
 
@@ -177,6 +177,26 @@ public class RelationRenderer
                 String cm = getYieldMessage(aCas, sortedDepFs);
                 aResponse.add(new VComment(governorFs, VCommentType.YIELD, cm));
             }
+        }
+
+        RequestCycle requestCycle = RequestCycle.get();
+        IPageRequestHandler handler = PageRequestHandlerTracker.getLastHandler(requestCycle);
+        Page page = (Page) handler.getPage();
+        if (warnings.size() > 10) {
+            warnings.forEach(page::warn);
+        }
+        else if (!warnings.isEmpty()) {
+            StringBuilder message = new StringBuilder();
+            message.append("Could not render [");
+            message.append(warnings.size());
+            message.append("] relations because of missing [");
+            message.append(getTypeAdapter().getAttachTypeName());
+            message.append("] spans.");
+            if (typeAdapter.getAttachFeatureName() != null) {
+                message.append("\nRelation [" + typeAdapter.getLayer().getName()
+                        + "] attached to feature [" + typeAdapter.getAttachFeatureName() + "].");
+            }
+            page.warn(message.toString());
         }
 
         for (RelationLayerBehavior behavior : behaviors) {
