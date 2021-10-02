@@ -117,7 +117,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var clearSelection = function() {
         window.getSelection().removeAllRanges();
         if (selRect != null) {
-          for(var s=0; s != selRect.length; s++) {
+          for(var s=0; s < selRect.length; s++) {
             selRect[s].parentNode.removeChild(selRect[s]);
           }
           selRect = null;
