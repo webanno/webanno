@@ -211,8 +211,7 @@ public class ProjectServiceImpl
         // .getSingleResult();
 
         // @formatter:off
-        @SuppressWarnings("deprecation")
-		String query = 
+        String query = 
                 "SELECT new " + SourceDocumentStateStats.class.getName() + "(" +
                 "COUNT(*), " +
                 "SUM(CASE WHEN state = '" + NEW.getId() + "'  THEN 1 ELSE 0 END), " +
@@ -525,9 +524,10 @@ public class ProjectServiceImpl
         String guidelinePath = repositoryProperties.getPath().getAbsolutePath() + "/"
                 + PROJECT_FOLDER + "/" + aProject.getId() + "/" + GUIDELINES_FOLDER + "/";
         FileUtils.forceMkdir(new File(guidelinePath));
-        copyLarge(aIS, new FileOutputStream(new File(guidelinePath + aFileName)));
-
-        try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+        try (FileOutputStream output = new FileOutputStream(new File(guidelinePath + aFileName))) {
+			copyLarge(aIS, output);
+		}
+		try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
                 String.valueOf(aProject.getId()))) {
             log.info("Created guidelines file [{}] in project [{}]({})", aFileName,
                     aProject.getName(), aProject.getId());
