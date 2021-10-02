@@ -211,7 +211,8 @@ public class ProjectServiceImpl
         // .getSingleResult();
 
         // @formatter:off
-        String query = 
+        @SuppressWarnings("deprecation")
+		String query = 
                 "SELECT new " + SourceDocumentStateStats.class.getName() + "(" +
                 "COUNT(*), " +
                 "SUM(CASE WHEN state = '" + NEW.getId() + "'  THEN 1 ELSE 0 END), " +
