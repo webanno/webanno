@@ -363,7 +363,7 @@ public class AeroRemoteApiController
             value = ("/" + PROJECTS + "/" + IMPORT), //
             method = RequestMethod.POST, //
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectImport(
             @RequestPart(PARAM_FILE) MultipartFile aFile)
         throws Exception
