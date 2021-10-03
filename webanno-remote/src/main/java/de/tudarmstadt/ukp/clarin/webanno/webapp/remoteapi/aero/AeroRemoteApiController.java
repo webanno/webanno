@@ -345,7 +345,7 @@ public class AeroRemoteApiController
 
     @ApiOperation(value = "Delete an existing project")
     @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
-            + "}"), method = RequestMethod.DELETE, produces = APPLICATION_JSON_UTF8_VALUE)
+            + "}"), method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<Void>> projectDelete(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
