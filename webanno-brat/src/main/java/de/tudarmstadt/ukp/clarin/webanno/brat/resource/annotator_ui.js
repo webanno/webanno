@@ -636,7 +636,7 @@ var AnnotatorUI = (function($, window, undefined) {
                   selRect = selRect.slice(ss);
                 }
                 if (es > -1) {
-                  for (var s2 = selRect.length - 1; s2 != es; s2--) {
+                  for (var s2 = selRect.length - 1; s2 > es; s2--) {
                     selRect[s2].parentNode.removeChild(selRect[s2]);
                     trunc = true;
                   }
