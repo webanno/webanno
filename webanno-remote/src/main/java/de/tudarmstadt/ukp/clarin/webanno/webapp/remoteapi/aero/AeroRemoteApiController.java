@@ -332,7 +332,7 @@ public class AeroRemoteApiController
 
     @ApiOperation(value = "Get information about a project")
     @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
-            + "}"), method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+            + "}"), method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectRead(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
