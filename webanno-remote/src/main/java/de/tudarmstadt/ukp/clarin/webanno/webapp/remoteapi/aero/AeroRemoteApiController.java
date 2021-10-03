@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -394,7 +395,7 @@ public class AeroRemoteApiController
             importedProject = exportService.importProject(request, new ZipFile(tempFile));
         }
         finally {
-            tempFile.delete();
+            Files.delete(tempFile);
         }
 
         return ResponseEntity.ok(new RResponse<>(new RProject(importedProject)));
