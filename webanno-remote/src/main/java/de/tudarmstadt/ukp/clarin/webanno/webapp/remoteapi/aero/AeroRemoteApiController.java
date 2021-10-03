@@ -403,7 +403,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Export a project to a ZIP file")
     @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/"
             + EXPORT), method = RequestMethod.GET, produces = { "application/zip",
-                    APPLICATION_JSON_UTF8_VALUE })
+                    APPLICATION_JSON_VALUE })
     public ResponseEntity<InputStreamResource> projectExport(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat)
