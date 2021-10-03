@@ -140,7 +140,7 @@ public class AeroRemoteApiController
     private static final String PARAM_PROJECT_ID = "projectId";
     private static final String PARAM_ANNOTATOR_ID = "userId";
     private static final String PARAM_DOCUMENT_ID = "documentId";
-
+    private static final String DUPLI_CD = "Content-Disposition";
     private static final String VAL_ORIGINAL = "ORIGINAL";
 
     private static final String PROP_ID = "id";
@@ -443,7 +443,7 @@ public class AeroRemoteApiController
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.valueOf("application/zip"));
         httpHeaders.setContentLength(exportedFile.length());
-        httpHeaders.set("Content-Disposition",
+        httpHeaders.set(DUPLI_CD,
                 "attachment; filename=\"" + exportedFile.getName() + "\"");
 
         return new ResponseEntity<>(result, httpHeaders, HttpStatus.OK);
@@ -576,7 +576,7 @@ public class AeroRemoteApiController
             FileSystemResource resource = new FileSystemResource(docFile);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentLength(resource.contentLength());
-            httpHeaders.set("Content-Disposition",
+            httpHeaders.set(DUPLI_CD,
                     "attachment; filename=\"" + doc.getName() + "\"");
             return new ResponseEntity<org.springframework.core.io.Resource>(resource, httpHeaders,
                     OK);
@@ -606,7 +606,7 @@ public class AeroRemoteApiController
                 // Send it back to the client
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentLength(resource.length);
-                httpHeaders.set("Content-Disposition",
+                httpHeaders.set(DUPLI_CD,
                         "attachment; filename=\"" + exportedFile.getName() + "\"");
 
                 return new ResponseEntity<>(resource, httpHeaders, OK);
@@ -911,7 +911,7 @@ public class AeroRemoteApiController
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentLength(resource.length);
-        httpHeaders.set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        httpHeaders.set(DUPLI_CD, "attachment; filename=\"" + filename + "\"");
 
         return new ResponseEntity<>(resource, httpHeaders, OK);
     }
