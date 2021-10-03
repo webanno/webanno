@@ -23,7 +23,7 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var AnnotatorUI = (function($, window, undefined) {
-    var AnnotatorUI = function(dispatcher, svg) {
+    var UI = function(dispatcher, svg) {
       var that = this;
       var arcDragOrigin = null;
       var arcDragOriginBox = null;
@@ -3135,5 +3135,5 @@ var AnnotatorUI = (function($, window, undefined) {
 // WEBANNO EXTENSION END - #1388 Support context menu
     };
 
-    return AnnotatorUI;
+    return UI;
 })(jQuery, window);
