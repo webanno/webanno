@@ -541,7 +541,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Get a document from a project", response = byte[].class)
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}", method = RequestMethod.GET, produces = {
-                    APPLICATION_OCTET_STREAM_VALUE, APPLICATION_JSON_UTF8_VALUE })
+                    APPLICATION_OCTET_STREAM_VALUE, APPLICATION_JSON_VALUE })
     public ResponseEntity documentRead(@PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat)
