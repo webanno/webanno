@@ -26,8 +26,6 @@
  * @author Igor Vaynberg
  * @author Matej Knopp
  */
-
-
 Wicket.Focus.requestFocus = function() {
   // if the focused component is replaced by the ajax response, a re-focus might be needed
   // (if focus was not changed from server) but if not, and the focus component should
