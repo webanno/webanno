@@ -451,7 +451,7 @@ public class AeroRemoteApiController
 
     @ApiOperation(value = "List documents in a project")
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/"
-            + DOCUMENTS, method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+            + DOCUMENTS, method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<List<RDocument>>> documentList(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
