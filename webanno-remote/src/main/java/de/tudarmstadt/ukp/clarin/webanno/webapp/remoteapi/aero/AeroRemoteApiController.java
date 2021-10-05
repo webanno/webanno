@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import javax.persistence.NoResultException;
-
+import javax.net.ssl.SSLContext
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

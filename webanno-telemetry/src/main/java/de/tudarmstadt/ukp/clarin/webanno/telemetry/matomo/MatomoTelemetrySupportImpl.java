@@ -135,7 +135,7 @@ public class MatomoTelemetrySupportImpl
         scheduler.scheduleAtFixedRate(() -> sendAlive(), 24, 24, TimeUnit.HOURS);
 
         try {
-            SSLContext trustAllSslContext = SSLContext.getInstance("SSL");
+            SSLContext trustAllSslContext = SSLContext.getInstance("TLSv1.2");
             trustAllSslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
             OkHttpClient client = new OkHttpClient.Builder()
