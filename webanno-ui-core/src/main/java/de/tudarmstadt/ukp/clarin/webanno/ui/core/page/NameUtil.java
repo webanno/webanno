@@ -19,6 +19,10 @@ package de.tudarmstadt.ukp.clarin.webanno.ui.core.page;
 
 public class NameUtil
 {
+    private NameUtil()
+    {
+    throw new IllegalStateException("Utility class");
+    }
     /**
      * Check if the name is valid, SPecial characters are not allowed as a project/user name as it
      * will conflict with file naming system
@@ -34,9 +38,9 @@ public class NameUtil
                 || aName.contains("+") || aName.contains("$") || aName.contains("!")
                 || aName.contains("[") || aName.contains("]")) {
             return false;
-        }
+             }
         else {
             return true;
-        }
+            }
     }
 }
