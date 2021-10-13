@@ -87,7 +87,8 @@ public class LoginPage
         setStatelessHint(true);
         setVersioned(false);
 
-        add(form = new LoginForm("loginForm"));
+        form = new LoginForm("loginForm");
+        add(form);
         signInBtn = new Button("signInBtn");
         signInBtn.add(LambdaBehavior.enabledWhen(() -> !isTooManyUsers()));
         tooManyUsersLabel = new WebMarkupContainer("usersLabel");
