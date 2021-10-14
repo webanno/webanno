@@ -160,7 +160,7 @@ public class AeroRemoteApiController
         throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_VALUE)
                 .body(new RResponse<>(ERROR, aException.getMessage()));
     }
 
