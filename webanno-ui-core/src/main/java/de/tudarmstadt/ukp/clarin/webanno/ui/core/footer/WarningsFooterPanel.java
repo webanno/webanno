@@ -45,7 +45,7 @@ public class WarningsFooterPanel
 {
     private static final long serialVersionUID = 2586844743503672765L;
 
-    private final static Logger LOG = LoggerFactory.getLogger(WarningsFooterPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WarningsFooterPanel.class);
 
     private @SpringBean DatabaseDriverService dbDriverService;
 
