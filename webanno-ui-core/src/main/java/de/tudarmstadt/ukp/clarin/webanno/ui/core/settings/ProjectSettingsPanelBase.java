@@ -27,12 +27,12 @@ public abstract class ProjectSettingsPanelBase
 {
     private static final long serialVersionUID = -6844742938608503193L;
 
-    public ProjectSettingsPanelBase(String id)
+    protected ProjectSettingsPanelBase(String id)
     {
         super(id);
     }
 
-    public ProjectSettingsPanelBase(String id, IModel<Project> aProjectModel)
+    protected ProjectSettingsPanelBase(String id, IModel<Project> aProjectModel)
     {
         super(id, aProjectModel);
     }
