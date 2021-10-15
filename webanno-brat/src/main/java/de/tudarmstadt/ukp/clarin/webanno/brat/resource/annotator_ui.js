@@ -613,7 +613,7 @@ var AnnotatorUI = (function($, window, undefined) {
               if (((endRec.y != lastEndRec.y)) || ((startRec.y != lastStartRec.y))) {
                 // First check if we have to remove the first highlights because we are moving towards the end on a different line
                 var ss = 0;
-                for (; ss != selRect.length; ss++) {
+                for (; ss < selRect.length; ss++) {
                   if (startRec.y <= parseFloat(selRect[ss].getAttributeNS(null, "y"))) {
                     break;
                   }
