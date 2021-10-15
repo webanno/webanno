@@ -360,9 +360,9 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "Import a previously exported project")
-    @RequestMapping(//
+    @PostMapping(//
             value = ("/" + PROJECTS + "/" + IMPORT), //
-            method = RequestMethod.POST, //
+            
             consumes = MULTIPART_FORM_DATA_VALUE, //
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RResponse<RProject>> projectImport(
