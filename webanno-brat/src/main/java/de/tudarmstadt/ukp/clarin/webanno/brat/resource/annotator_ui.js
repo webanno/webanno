@@ -374,7 +374,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         
         svgElement.addClass('unselectable');
-        svgPosition = svgElement.offset();
+        let svgPosition = svgElement.offset();
         arcDragOrigin = originId;
         arcDragArc = svg.path(svg.createPath(), {
           markerEnd: 'url(#drag_arrow)',
@@ -566,9 +566,9 @@ var AnnotatorUI = (function($, window, undefined) {
             chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
 
             // Now take the start and end character rectangles
-            startRec = startsAt.getExtentOfChar(anchorOffset);
+            let startRec = startsAt.getExtentOfChar(anchorOffset);
             startRec.y += 2;
-            endRec = endsAt.getExtentOfChar(focusOffset);
+            let endRec = endsAt.getExtentOfChar(focusOffset);
             endRec.y += 2;
 
             // If nothing has changed then stop here
@@ -1767,7 +1767,7 @@ var AnnotatorUI = (function($, window, undefined) {
         	catch (err) {
         	  // Ignore - could be spurious TypeError: null is not an object (evaluating 'a.parentNode.removeChild')
         	}
-            arcDrag = null;
+            let arcDrag = null;
           }
           arcDragOrigin = null;
           if (arcOptions) {
@@ -2440,7 +2440,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // clear possible existing
         $norm_select.empty();
         // fill in new
-        html = [];
+        let html = [];
         $.each(norm_resources, function(normNo, norm) {
           var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
           var serverDb = norm[3];
@@ -2490,7 +2490,7 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('messages', [[['Base URL "'+base+'" for '+normDb+' does not contain "%s"', 'error']]]);
           } else {
             // TODO: protect against strange chars in ID
-            link = base.replace('%s', normId);
+            let link = base.replace('%s', normId);
             $normLink.attr('href', link);
             $normLink.show();
           }
