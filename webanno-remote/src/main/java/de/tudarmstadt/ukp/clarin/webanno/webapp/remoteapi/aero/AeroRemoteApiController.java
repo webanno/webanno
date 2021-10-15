@@ -483,7 +483,7 @@ public class AeroRemoteApiController
             value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS, //
           
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RDocument>> documentCreate(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @RequestParam(PARAM_CONTENT) MultipartFile aFile,
