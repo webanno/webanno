@@ -628,7 +628,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 // TODO put this in loops above, for efficiency the array slicing could be done separate still in single call
                 var trunc = false;
                 if (ss < selRect.length) {
-                  for (var s2 = 0; s2 != ss; s2++) {
+                  for (var s2 = 0; s2 <ss; s2++) {
                     selRect[s2].parentNode.removeChild(selRect[s2]);
                     es--;
                     trunc = true;
