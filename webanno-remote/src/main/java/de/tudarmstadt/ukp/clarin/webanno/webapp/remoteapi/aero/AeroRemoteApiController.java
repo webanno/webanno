@@ -278,7 +278,7 @@ public class AeroRemoteApiController
             value = ("/" + PROJECTS), //
             
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectCreate(@RequestParam(PARAM_NAME) String aName,
             @RequestParam(PARAM_CREATOR) Optional<String> aCreator, UriComponentsBuilder aUcb)
         throws Exception
