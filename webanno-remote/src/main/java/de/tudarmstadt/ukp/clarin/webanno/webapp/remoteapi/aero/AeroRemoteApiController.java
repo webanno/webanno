@@ -143,12 +143,6 @@ public class AeroRemoteApiController
 
     private static final String VAL_ORIGINAL = "ORIGINAL";
 
-    private static final String PROP_ID = "id";
-    private static final String PROP_NAME = "name";
-    private static final String PROP_STATE = "state";
-    private static final String PROP_USER = "user";
-    private static final String PROP_TIMESTAMP = "user";
-
     private static final String FORMAT_DEFAULT = "text";
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
@@ -166,7 +160,7 @@ public class AeroRemoteApiController
         throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_VALUE)
                 .body(new RResponse<>(ERROR, aException.getMessage()));
     }
 
@@ -174,7 +168,7 @@ public class AeroRemoteApiController
     public ResponseEntity<RResponse<Void>> handleException(Exception aException) throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON_VALUE)
                 .body(new RResponse<>(ERROR, "Internal server error: " + aException.getMessage()));
     }
 
@@ -257,8 +251,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "List the projects accessible by the authenticated user")
-    @RequestMapping(value = ("/"
-            + PROJECTS), method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+
+    @GetMapping(value = ("/"
+            + PROJECTS),produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<List<RProject>>> projectList() throws Exception
     {
         // Get current user - this will throw an exception if the current user does not exit
@@ -278,11 +274,11 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Create a new project")
     @ApiImplicitParams({ @ApiImplicitParam(name = PARAM_NAME, paramType = "form", required = true),
             @ApiImplicitParam(name = PARAM_CREATOR, paramType = "form") })
-    @RequestMapping(//
+    @PostMapping(//
             value = ("/" + PROJECTS), //
-            method = RequestMethod.POST, //
+            
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectCreate(@RequestParam(PARAM_NAME) String aName,
             @RequestParam(PARAM_CREATOR) Optional<String> aCreator, UriComponentsBuilder aUcb)
         throws Exception
@@ -331,8 +327,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "Get information about a project")
-    @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
-            + "}"), method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+
+    @GetMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
+            + "}"), produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<RProject>> projectRead(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
