@@ -390,7 +390,7 @@ public class AeroRemoteApiController
                 throw new UnsupportedFormatException("Incompatible to webanno ZIP file");
             }
 
-            // importedProject = importService.importProject(tempFile, false);
+           
             ProjectImportRequest request = new ProjectImportRequest(false);
             importedProject = exportService.importProject(request, new ZipFile(tempFile));
         }
