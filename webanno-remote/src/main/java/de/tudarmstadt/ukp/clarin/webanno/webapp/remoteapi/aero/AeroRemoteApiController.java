@@ -274,9 +274,9 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Create a new project")
     @ApiImplicitParams({ @ApiImplicitParam(name = PARAM_NAME, paramType = "form", required = true),
             @ApiImplicitParam(name = PARAM_CREATOR, paramType = "form") })
-    @RequestMapping(//
+    @PostMapping(//
             value = ("/" + PROJECTS), //
-            method = RequestMethod.POST, //
+            
             consumes = MULTIPART_FORM_DATA_VALUE, //
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RResponse<RProject>> projectCreate(@RequestParam(PARAM_NAME) String aName,
