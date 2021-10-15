@@ -48,7 +48,7 @@ public class MenuBar
 
         add(new LogoutPanel("logoutPanel"));
 
-        helpLink = new ExternalLink("helpLink", new ResourceModel("page.help.link", "");
+        helpLink = new ExternalLink("helpLink", new ResourceModel("page.help.link", ""));
         add(helpLink)
         {
             private static final long serialVersionUID = -2510064191732926764L;
