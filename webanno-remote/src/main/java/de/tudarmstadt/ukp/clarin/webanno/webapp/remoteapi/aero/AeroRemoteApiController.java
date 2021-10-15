@@ -477,9 +477,9 @@ public class AeroRemoteApiController
     @ApiImplicitParams({ @ApiImplicitParam(name = PARAM_NAME, paramType = "form", required = true),
             @ApiImplicitParam(name = PARAM_FORMAT, paramType = "form", required = true),
             @ApiImplicitParam(name = PARAM_STATE, paramType = "form", required = true), })
-    @RequestMapping(//
+    @PostMapping(//
             value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS, //
-            method = RequestMethod.POST, //
+          
             consumes = MULTIPART_FORM_DATA_VALUE, //
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RResponse<RDocument>> documentCreate(
