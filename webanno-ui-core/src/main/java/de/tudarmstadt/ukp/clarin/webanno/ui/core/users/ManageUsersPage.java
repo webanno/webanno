@@ -78,7 +78,7 @@ public class ManageUsersPage
         private PasswordTextField passwordField;
         private PasswordTextField repeatPasswordField;
 
-        public transient String password;
+        private transient String password;
 
         @SuppressWarnings("unused")
         public transient String repeatPassword;
