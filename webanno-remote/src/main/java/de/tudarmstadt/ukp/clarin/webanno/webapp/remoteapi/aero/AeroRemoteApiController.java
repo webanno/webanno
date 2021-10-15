@@ -251,8 +251,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "List the projects accessible by the authenticated user")
+
     @GetMapping(value = ("/"
-            + PROJECTS),produces = APPLICATION_JSON_UTF8_VALUE)
+            + PROJECTS),produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<List<RProject>>> projectList() throws Exception
     {
         // Get current user - this will throw an exception if the current user does not exit
