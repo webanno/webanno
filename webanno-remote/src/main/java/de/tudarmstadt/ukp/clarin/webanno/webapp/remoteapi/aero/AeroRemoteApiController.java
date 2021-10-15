@@ -33,8 +33,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.*;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -143,12 +145,6 @@ public class AeroRemoteApiController
 
     private static final String VAL_ORIGINAL = "ORIGINAL";
 
-    private static final String PROP_ID = "id";
-    private static final String PROP_NAME = "name";
-    private static final String PROP_STATE = "state";
-    private static final String PROP_USER = "user";
-    private static final String PROP_TIMESTAMP = "user";
-
     private static final String FORMAT_DEFAULT = "text";
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
@@ -166,7 +162,7 @@ public class AeroRemoteApiController
         throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_VALUE)
                 .body(new RResponse<>(ERROR, aException.getMessage()));
     }
 
@@ -174,7 +170,7 @@ public class AeroRemoteApiController
     public ResponseEntity<RResponse<Void>> handleException(Exception aException) throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON_VALUE)
                 .body(new RResponse<>(ERROR, "Internal server error: " + aException.getMessage()));
     }
 
@@ -257,8 +253,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "List the projects accessible by the authenticated user")
-    @RequestMapping(value = ("/"
-            + PROJECTS), method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+
+    @GetMapping(value = ("/"
+            + PROJECTS),produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<List<RProject>>> projectList() throws Exception
     {
         // Get current user - this will throw an exception if the current user does not exit
@@ -278,11 +276,11 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Create a new project")
     @ApiImplicitParams({ @ApiImplicitParam(name = PARAM_NAME, paramType = "form", required = true),
             @ApiImplicitParam(name = PARAM_CREATOR, paramType = "form") })
-    @RequestMapping(//
+    @PostMapping(//
             value = ("/" + PROJECTS), //
-            method = RequestMethod.POST, //
+            
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectCreate(@RequestParam(PARAM_NAME) String aName,
             @RequestParam(PARAM_CREATOR) Optional<String> aCreator, UriComponentsBuilder aUcb)
         throws Exception
@@ -331,8 +329,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "Get information about a project")
-    @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
-            + "}"), method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+
+    @GetMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
+            + "}"), produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<RProject>> projectRead(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
@@ -344,8 +344,10 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "Delete an existing project")
-    @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
-            + "}"), method = RequestMethod.DELETE, produces = APPLICATION_JSON_UTF8_VALUE)
+
+    @DeleteMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID
+            + "}"), produces = APPLICATION_JSON_VALUE)
+
     public ResponseEntity<RResponse<Void>> projectDelete(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId)
         throws Exception
@@ -359,11 +361,11 @@ public class AeroRemoteApiController
     }
 
     @ApiOperation(value = "Import a previously exported project")
-    @RequestMapping(//
+    @PostMapping(//
             value = ("/" + PROJECTS + "/" + IMPORT), //
-            method = RequestMethod.POST, //
+            
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RProject>> projectImport(
             @RequestPart(PARAM_FILE) MultipartFile aFile)
         throws Exception
@@ -389,21 +391,23 @@ public class AeroRemoteApiController
                 throw new UnsupportedFormatException("Incompatible to webanno ZIP file");
             }
 
-            // importedProject = importService.importProject(tempFile, false);
+           
             ProjectImportRequest request = new ProjectImportRequest(false);
             importedProject = exportService.importProject(request, new ZipFile(tempFile));
         }
         finally {
-            tempFile.delete();
+            Files.delete(tempFile);
         }
 
         return ResponseEntity.ok(new RResponse<>(new RProject(importedProject)));
     }
 
     @ApiOperation(value = "Export a project to a ZIP file")
-    @RequestMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/"
-            + EXPORT), method = RequestMethod.GET, produces = { "application/zip",
+
+    @GetMapping(value = ("/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/"
+            + EXPORT),  produces = { "application/zip",
                     APPLICATION_JSON_VALUE })
+
     public ResponseEntity<InputStreamResource> projectExport(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat)
