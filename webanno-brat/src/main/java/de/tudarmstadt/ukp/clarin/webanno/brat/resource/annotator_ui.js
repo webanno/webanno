@@ -620,7 +620,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 }
                 // Next check for any end highlights if we are moving towards the start on a different line
                 var es = selRect.length - 1;
-                for (; es != -1; es--) {
+                for (; es > -1; es--) {
                   if (endRec.y >= parseFloat(selRect[es].getAttributeNS(null, "y"))) {
                     break;
                   }
