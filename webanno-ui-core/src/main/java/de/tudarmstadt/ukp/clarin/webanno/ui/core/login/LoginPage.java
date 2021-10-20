@@ -101,14 +101,29 @@ public class LoginPage
         // Create admin user if there is no user yet
         if (userRepository.list().isEmpty()) {
             User admin = new User();
-            admin.setUsername(ADMIN_DEFAULT_USERNAME);
-            admin.setPassword(ADMIN_DEFAULT_PASSWORD);
+            //Checking for any env variable with the "WEBANNO_ENV_ADMIN_NAME" name, this variable is used for setting username.
+            //If the variable does not exist the default name "admin" is set.
+            if(System.getenv("WEBANNO_ENV_ADMIN_NAME")!=null){
+                admin.setUsername(System.getenv("WEBANNO_ENV_ADMIN_NAME"));
+            }
+            else {
+                admin.setUsername(ADMIN_DEFAULT_USERNAME);
+            }
+            //Checking for any env variable with the "WEBANNO_ENV_ADMIN_PASS" name, this variable is used for setting password
+            if(System.getenv("WEBANNO_ENV_ADMIN_PASS") != null){
+                admin.setPassword(System.getenv("WEBANNO_ENV_ADMIN_PASS"));
+            }else{
+                admin.setPassword(ADMIN_DEFAULT_PASSWORD);
+            }
             admin.setEnabled(true);
             admin.setRoles(EnumSet.of(Role.ROLE_ADMIN, Role.ROLE_USER));
             userRepository.create(admin);
-
             String msg = "No user accounts have been found. An admin account has been created: "
                     + ADMIN_DEFAULT_USERNAME + "/" + ADMIN_DEFAULT_PASSWORD;
+            if(System.getenv("WEBANNO_ENV_ADMIN_PASS") != null&&System.getenv("WEBANNO_ENV_ADMIN_NAME") != null){
+                msg = "No user accounts have been found. An admin account has been created: "
+                        +  System.getenv("WEBANNO_ENV_ADMIN_NAME") + "/" + System.getenv("WEBANNO_ENV_ADMIN_PASS");
+            }
             // We log this as a warning so the message sticks on the screen. Success and info
             // messages are set to auto-close after a short time.
             warn(msg);
