@@ -33,6 +33,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior.vi
 import static java.util.Arrays.asList;
 import static org.apache.uima.fit.util.CasUtil.selectAt;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -146,6 +147,22 @@ public abstract class AnnotationDetailEditorPanel
 
     private TextField<String> forwardAnnotationTextField;
     private String forwardAnnotationKeySequence = "";
+    private AjaxRequestTarget delTarget=null;
+    
+    //Method When A key is pressed 
+    @Override
+    public void keyPressed(KeyEvent e)
+    {
+      if (e.getKeyChar() == '\u007F')
+      {
+    	  try {
+        actionDelete(this.delTarget);
+        } catch(Exception exp){
+        	System.out.println(exp);
+        	
+        }
+      }
+    }
 
     public AnnotationDetailEditorPanel(String id, AnnotationPageBase aPage,
             IModel<AnnotatorState> aModel)
@@ -336,7 +353,8 @@ public abstract class AnnotationDetailEditorPanel
         }
         return bindTag2Key;
     }
-
+    
+    
     /**
      * Part of <i>forward annotation</i> mode: returns the tag associated with the given key
      * sequence.
@@ -547,6 +565,9 @@ public abstract class AnnotationDetailEditorPanel
     @Override
     public void actionSelect(AjaxRequestTarget aTarget) throws IOException, AnnotationException
     {
+    	//setting Target for Delete key to work
+    	this.delTarget=aTarget;
+    	
         // Edit existing annotation
         loadFeatureEditorModels(aTarget);
 
@@ -559,6 +580,8 @@ public abstract class AnnotationDetailEditorPanel
         // Ensure we re-render and update the highlight
         onChange(aTarget);
     }
+    
+   
 
     @Override
     public void actionSelect(AjaxRequestTarget aTarget, AnnotationFS annoFs)
@@ -988,7 +1011,6 @@ public abstract class AnnotationDetailEditorPanel
     public void actionDelete(AjaxRequestTarget aTarget) throws IOException, AnnotationException
     {
         CAS cas = getEditorCas();
-
         AnnotatorState state = getModelObject();
 
         int addr = state.getSelection().getAnnotation().getId();
