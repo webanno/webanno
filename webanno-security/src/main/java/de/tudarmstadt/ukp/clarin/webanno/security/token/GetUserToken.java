@@ -16,11 +16,6 @@ import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.stereotype.Component;
 
-/**
- * Listens to HTTP sessions being created and destroyed and (un)registers accordingly in the
- * {@link SessionRegistry}. This is mainly required when using pre-authentication since the login
- * page usually takes care of registering the session.
- */
 @Component
 public class GetUserToken
 {
