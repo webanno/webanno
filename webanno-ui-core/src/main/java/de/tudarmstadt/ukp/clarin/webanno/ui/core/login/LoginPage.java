@@ -119,13 +119,15 @@ public class LoginPage
             admin.setEnabled(true);
             admin.setRoles(EnumSet.of(Role.ROLE_ADMIN, Role.ROLE_USER));
             userRepository.create(admin);
+            String admn=System.getenv("WEBANNO_ENV_ADMIN_NAME");
+            String pwd=System.getenv("WEBANNO_ENV_ADMIN_PASS");
             String msg = "No user accounts have been found. An admin account has been created: "
                     + ADMIN_DEFAULT_USERNAME + "/" + ADMIN_DEFAULT_PASSWORD;
-            if (System.getenv("WEBANNO_ENV_ADMIN_PASS") != null &&
-                    System.getenv("WEBANNO_ENV_ADMIN_NAME") != null) {
+            if (pwd != null &&
+                    admn != null) {
                 msg = "No user accounts have been found. An admin account has been created: "
-                        +  System.getenv("WEBANNO_ENV_ADMIN_NAME") +
-                        "/" + System.getenv("WEBANNO_ENV_ADMIN_PASS");
+                        +  admn +
+                        "/" + pwd;
             }
             // We log this as a warning so the message sticks on the screen. Success and info
             // messages are set to auto-close after a short time.
