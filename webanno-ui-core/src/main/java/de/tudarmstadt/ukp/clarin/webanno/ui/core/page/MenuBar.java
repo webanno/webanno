@@ -48,8 +48,7 @@ public class MenuBar
 
         add(new LogoutPanel("logoutPanel"));
 
-        helpLink = new ExternalLink("helpLink", new ResourceModel("page.help.link", ""));
-        add(helpLink)
+        helpLink = new ExternalLink("helpLink", new ResourceModel("page.help.link", ""))
         {
             private static final long serialVersionUID = -2510064191732926764L;
 
@@ -69,7 +68,9 @@ public class MenuBar
                     helpLink.setVisible(false);
                 }
             }
-        });
+        };
+        add(helpLink);
+        
         helpLink.setContextRelative(true);
         helpLink.setPopupSettings(new PopupSettings("_blank"));
 

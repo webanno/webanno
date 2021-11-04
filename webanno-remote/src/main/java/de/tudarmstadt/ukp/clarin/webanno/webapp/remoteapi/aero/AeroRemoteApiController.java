@@ -23,8 +23,8 @@ import static de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model.RMes
 import static de.tudarmstadt.ukp.clarin.webanno.webapp.remoteapi.aero.model.RMessageLevel.INFO;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
@@ -33,12 +33,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.*;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -49,7 +48,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import javax.persistence.NoResultException;
-import javax.net.ssl.SSLContext
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -71,8 +70,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -162,7 +164,7 @@ public class AeroRemoteApiController
         throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON_VALUE)
+        return ResponseEntity.status(aException.getStatus()).contentType(APPLICATION_JSON)
                 .body(new RResponse<>(ERROR, aException.getMessage()));
     }
 
@@ -170,7 +172,7 @@ public class AeroRemoteApiController
     public ResponseEntity<RResponse<Void>> handleException(Exception aException) throws IOException
     {
         LOG.error(aException.getMessage(), aException);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON_VALUE)
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON)
                 .body(new RResponse<>(ERROR, "Internal server error: " + aException.getMessage()));
     }
 
@@ -396,7 +398,7 @@ public class AeroRemoteApiController
             importedProject = exportService.importProject(request, new ZipFile(tempFile));
         }
         finally {
-            Files.delete(tempFile);
+            Files.delete(tempFile.toPath());
         }
 
         return ResponseEntity.ok(new RResponse<>(new RProject(importedProject)));
@@ -630,7 +632,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Delete a document from a project")
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID
-            + "}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_UTF8_VALUE)
+            + "}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<Void>> documentDelete(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId)
@@ -649,7 +651,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "List annotations of a document in a project")
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}/"
-            + ANNOTATIONS, method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+            + ANNOTATIONS, method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<List<RAnnotation>>> annotationsList(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId)
@@ -679,7 +681,7 @@ public class AeroRemoteApiController
                     + PARAM_DOCUMENT_ID + "}/" + ANNOTATIONS + "/{" + PARAM_ANNOTATOR_ID + "}", //
             method = RequestMethod.POST, //
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RAnnotation>> annotationsCreate(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
@@ -723,7 +725,7 @@ public class AeroRemoteApiController
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}/" + ANNOTATIONS + "/{" + PARAM_ANNOTATOR_ID
             + "}", method = RequestMethod.GET, produces = { APPLICATION_OCTET_STREAM_VALUE,
-                    APPLICATION_JSON_UTF8_VALUE })
+                    APPLICATION_JSON_VALUE })
     public ResponseEntity<byte[]> annotationsRead(@PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
             @PathVariable(PARAM_ANNOTATOR_ID) String aAnnotatorId,
@@ -737,7 +739,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Delete a user's annotations of one document from a project")
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}/" + ANNOTATIONS + "/{" + PARAM_ANNOTATOR_ID
-            + "}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_UTF8_VALUE)
+            + "}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<Void>> annotationsDelete(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
@@ -766,7 +768,7 @@ public class AeroRemoteApiController
                     "/{" + PARAM_DOCUMENT_ID + "}/" + CURATION, //
             method = RequestMethod.POST, //
             consumes = MULTIPART_FORM_DATA_VALUE, //
-            produces = APPLICATION_JSON_UTF8_VALUE)
+            produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<RAnnotation>> curationCreate(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
@@ -821,7 +823,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Get curated annotations of a document in a project", response = byte[].class)
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}/" + CURATION, method = RequestMethod.GET, produces = {
-                    APPLICATION_OCTET_STREAM_VALUE, APPLICATION_JSON_UTF8_VALUE })
+                    APPLICATION_OCTET_STREAM_VALUE, APPLICATION_JSON_VALUE })
     public ResponseEntity<byte[]> curationRead(@PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId,
             @RequestParam(value = PARAM_FORMAT) Optional<String> aFormat)
@@ -834,7 +836,7 @@ public class AeroRemoteApiController
     @ApiOperation(value = "Delete a user's annotations of one document from a project")
     @RequestMapping(value = "/" + PROJECTS + "/{" + PARAM_PROJECT_ID + "}/" + DOCUMENTS + "/{"
             + PARAM_DOCUMENT_ID + "}/"
-            + CURATION, method = RequestMethod.DELETE, produces = APPLICATION_JSON_UTF8_VALUE)
+            + CURATION, method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RResponse<Void>> curationDelete(
             @PathVariable(PARAM_PROJECT_ID) long aProjectId,
             @PathVariable(PARAM_DOCUMENT_ID) long aDocumentId)

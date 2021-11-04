@@ -118,7 +118,7 @@ public abstract class ApplicationPageBase
 
         // Override locale to be used by application
         String locale = settings.getProperty(SettingsUtil.CFG_LOCALE, "en");
-        if(locale == auto)
+        if(locale == "auto")
         {// Do nothing - locale is picked up from browser
         }
         else
