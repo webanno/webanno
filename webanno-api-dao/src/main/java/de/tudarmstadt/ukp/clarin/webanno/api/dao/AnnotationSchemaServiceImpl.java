@@ -2,13 +2,13 @@
  * Licensed to the Technische Universität Darmstadt under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The Technische Universität Darmstadt 
+ * regarding copyright ownership.  The Technische Universität Darmstadt
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.
- *  
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -116,7 +116,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  */
 @Component(AnnotationSchemaService.SERVICE_NAME)
 public class AnnotationSchemaServiceImpl
-    implements AnnotationSchemaService
+        implements AnnotationSchemaService
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -130,15 +130,15 @@ public class AnnotationSchemaServiceImpl
 
     @Autowired
     public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
-            FeatureSupportRegistry aFeatureSupportRegistry,
-            ApplicationEventPublisher aApplicationEventPublisher)
+                                       FeatureSupportRegistry aFeatureSupportRegistry,
+                                       ApplicationEventPublisher aApplicationEventPublisher)
     {
         layerSupportRegistry = aLayerSupportRegistry;
         featureSupportRegistry = aFeatureSupportRegistry;
         applicationEventPublisher = aApplicationEventPublisher;
 
         immutableTagsCache = Caffeine.newBuilder().expireAfterAccess(5, MINUTES)
-                .maximumSize(10 * 1024).build(this::loadImmutableTags);
+                .maximumSize(10240).build(this::loadImmutableTags);
 
         try {
             builtInTypes = createTypeSystemDescription();
@@ -154,7 +154,7 @@ public class AnnotationSchemaServiceImpl
     }
 
     public AnnotationSchemaServiceImpl(LayerSupportRegistry aLayerSupportRegistry,
-            FeatureSupportRegistry aFeatureSupportRegistry, EntityManager aEntityManager)
+                                       FeatureSupportRegistry aFeatureSupportRegistry, EntityManager aEntityManager)
     {
         this(aLayerSupportRegistry, aFeatureSupportRegistry, (ApplicationEventPublisher) null);
         entityManager = aEntityManager;
@@ -573,8 +573,8 @@ public class AnnotationSchemaServiceImpl
     @Override
     @Transactional
     public TagSet createTagSet(String aDescription, String aTagSetName, String aLanguage,
-            String[] aTags, String[] aTagDescription, Project aProject)
-        throws IOException
+                               String[] aTags, String[] aTagDescription, Project aProject)
+            throws IOException
     {
         TagSet tagSet = new TagSet();
         tagSet.setDescription(aDescription);
@@ -960,7 +960,7 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public TypeSystemDescription getAllProjectTypes(Project aProject)
-        throws ResourceInitializationException
+            throws ResourceInitializationException
     {
         List<AnnotationLayer> allLayersInProject = listSupportedLayers(aProject);
         List<AnnotationFeature> allFeaturesInProject = listSupportedFeatures(aProject);
@@ -1003,7 +1003,7 @@ public class AnnotationSchemaServiceImpl
     }
 
     private void exportBuiltInTypeDescription(TypeSystemDescription aSource,
-            TypeSystemDescription aTarget, String aType)
+                                              TypeSystemDescription aTarget, String aType)
     {
         TypeDescription builtInType = aSource.getType(aType);
 
@@ -1039,15 +1039,15 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public TypeSystemDescription getFullProjectTypeSystem(Project aProject)
-        throws ResourceInitializationException
+            throws ResourceInitializationException
     {
         return getFullProjectTypeSystem(aProject, true);
     }
 
     @Override
     public TypeSystemDescription getFullProjectTypeSystem(Project aProject,
-            boolean aIncludeInternalTypes)
-        throws ResourceInitializationException
+                                                          boolean aIncludeInternalTypes)
+            throws ResourceInitializationException
     {
         List<TypeSystemDescription> typeSystems = new ArrayList<>();
 
@@ -1069,43 +1069,43 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public void upgradeCas(CAS aCas, AnnotationDocument aAnnotationDocument)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         upgradeCas(aCas, aAnnotationDocument.getDocument(), aAnnotationDocument.getUser());
     }
 
     @Override
     public void upgradeCas(CAS aCas, SourceDocument aSourceDocument, String aUser,
-            CasUpgradeMode aMode)
-        throws UIMAException, IOException
+                           CasUpgradeMode aMode)
+            throws UIMAException, IOException
     {
         switch (aMode) {
-        case NO_CAS_UPGRADE:
-            return;
-        case AUTO_CAS_UPGRADE: {
-            boolean upgraded = upgradeCasIfRequired(aCas, aSourceDocument);
-            if (!upgraded) {
-                try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
-                        String.valueOf(aSourceDocument.getProject().getId()))) {
-                    log.debug(
-                            "CAS of user [{}] for document [{}]({}) in project [{}]({}) is already "
-                                    + "compatible with project type system - skipping upgrade",
-                            aUser, aSourceDocument.getName(), aSourceDocument.getId(),
-                            aSourceDocument.getProject().getName(),
-                            aSourceDocument.getProject().getId());
+            case NO_CAS_UPGRADE:
+                return;
+            case AUTO_CAS_UPGRADE: {
+                boolean upgraded = upgradeCasIfRequired(aCas, aSourceDocument);
+                if (!upgraded) {
+                    try (MDC.MDCCloseable closable = MDC.putCloseable(Logging.KEY_PROJECT_ID,
+                            String.valueOf(aSourceDocument.getProject().getId()))) {
+                        log.debug(
+                                "CAS of user [{}] for document [{}]({}) in project [{}]({}) is already "
+                                        + "compatible with project type system - skipping upgrade",
+                                aUser, aSourceDocument.getName(), aSourceDocument.getId(),
+                                aSourceDocument.getProject().getName(),
+                                aSourceDocument.getProject().getId());
+                    }
                 }
+                return;
             }
-            return;
-        }
-        case FORCE_CAS_UPGRADE:
-            upgradeCas(aCas, aSourceDocument, aUser);
-            return;
+            case FORCE_CAS_UPGRADE:
+                upgradeCas(aCas, aSourceDocument, aUser);
+                return;
         }
     }
 
     @Override
     public void upgradeCas(CAS aCas, SourceDocument aSourceDocument, String aUser)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         upgradeCas(aCas, aSourceDocument.getProject());
 
@@ -1127,21 +1127,21 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public boolean upgradeCasIfRequired(CAS aCas, AnnotationDocument aAnnotationDocument)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         return upgradeCasIfRequired(asList(aCas), aAnnotationDocument.getProject());
     }
 
     @Override
     public boolean upgradeCasIfRequired(CAS aCas, SourceDocument aSourceDocument)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         return upgradeCasIfRequired(asList(aCas), aSourceDocument.getProject());
     }
 
     @Override
     public boolean upgradeCasIfRequired(Iterable<CAS> aCasIter, Project aProject)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         TypeSystemDescription ts = getFullProjectTypeSystem(aProject);
 
@@ -1167,15 +1167,15 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public TypeSystemDescription getTypeSystemForExport(Project aProject)
-        throws ResourceInitializationException
+            throws ResourceInitializationException
     {
         return getFullProjectTypeSystem(aProject, false);
     }
 
     @Override
     public void prepareCasForExport(CAS aSourceCas, CAS aTargetCas, SourceDocument aSourceDocument,
-            TypeSystemDescription aFullProjectTypeSystem)
-        throws ResourceInitializationException, UIMAException, IOException
+                                    TypeSystemDescription aFullProjectTypeSystem)
+            throws ResourceInitializationException, UIMAException, IOException
     {
         TypeSystemDescription tsd = aFullProjectTypeSystem;
         if (tsd == null) {
@@ -1187,7 +1187,7 @@ public class AnnotationSchemaServiceImpl
 
     @Override
     public void upgradeCas(CAS aCas, TypeSystemDescription aTargetTypeSystem)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         upgradeCas(aCas, aCas, aTargetTypeSystem);
     }
@@ -1199,7 +1199,7 @@ public class AnnotationSchemaServiceImpl
      */
     @Override
     public void upgradeCas(CAS aSourceCas, CAS aTargetCas, TypeSystemDescription aTargetTypeSystem)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         CasStorageSession.get().assertWritingPermitted(aTargetCas);
 
@@ -1317,7 +1317,7 @@ public class AnnotationSchemaServiceImpl
     @Override
     @Transactional
     public void importUimaTypeSystem(Project aProject, TypeSystemDescription aTSD)
-        throws ResourceInitializationException
+            throws ResourceInitializationException
     {
         TypeSystemAnalysis analysis = TypeSystemAnalysis.of(aTSD);
         for (AnnotationLayer l : analysis.getLayers()) {
