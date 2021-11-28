@@ -109,6 +109,16 @@ public class DocumentServiceImpl
     private final ProjectService projectService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RepositoryProperties repositoryProperties;
+    static String paramSource="Source document must be specified";
+    static String paramUser="User must be specified";
+    static String paramProject="project";
+    static String paramDocument="document";
+    static String paramSELECT="SELECT COUNT(*)";
+    static String paramAnnotation="Annotation document must be specified";
+    static String ProjectMustBeSpecified="Project must be specified";
+    static String paramFrom="FROM AnnotationDocument ";
+    static String paramState="state";
+    static String paramLevel="level";
 
     @Autowired
     public DocumentServiceImpl(RepositoryProperties aRepositoryProperties,
@@ -147,7 +157,7 @@ public class DocumentServiceImpl
     @Override
     public File getDocumentFolder(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         File sourceDocFolder = new File(repositoryProperties.getPath(),
                 "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
@@ -160,7 +170,7 @@ public class DocumentServiceImpl
     @Transactional
     public void createSourceDocument(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         if (isNull(aDocument.getId())) {
             entityManager.persist(aDocument);
@@ -174,7 +184,7 @@ public class DocumentServiceImpl
     @Transactional
     public boolean existsAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aUser, paramUser);
 
         return existsAnnotationDocument(aDocument, aUser.getUsername());
     }
@@ -183,7 +193,7 @@ public class DocumentServiceImpl
     @Transactional
     public boolean existsAnnotationDocument(SourceDocument aDocument, String aUsername)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aUsername, "Username must be specified");
 
         try {
@@ -192,8 +202,8 @@ public class DocumentServiceImpl
                             "FROM AnnotationDocument WHERE project = :project "
                                     + " AND document = :document AND user = :user",
                             AnnotationDocument.class)
-                    .setParameter("project", aDocument.getProject())
-                    .setParameter("document", aDocument).setParameter("user", aUsername)
+                    .setParameter(paramProject, aDocument.getProject())
+                    .setParameter(paramDocument, aDocument).setParameter("user", aUsername)
                     .getSingleResult();
             return true;
         }
@@ -206,7 +216,7 @@ public class DocumentServiceImpl
     @Transactional
     public void createAnnotationDocument(AnnotationDocument aAnnotationDocument)
     {
-        Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
+        Validate.notNull(aAnnotationDocument, paramAnnotation);
 
         if (isNull(aAnnotationDocument.getId())) {
             entityManager.persist(aAnnotationDocument);
@@ -241,7 +251,7 @@ public class DocumentServiceImpl
     @Override
     public boolean existsAnnotationCas(AnnotationDocument aAnnotationDocument) throws IOException
     {
-        Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
+        Validate.notNull(aAnnotationDocument, paramAnnotation);
 
         return existsCas(aAnnotationDocument.getDocument(), aAnnotationDocument.getUser());
     }
@@ -250,13 +260,13 @@ public class DocumentServiceImpl
     @Transactional
     public boolean existsSourceDocument(Project aProject, String aFileName)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
         Validate.notBlank(aFileName, "File name must be specified");
 
-        String query = String.join("\n", "SELECT COUNT(*)", "FROM SourceDocument",
+        String query = String.join("\n", paramSELECT, "FROM SourceDocument",
                 "WHERE project = :project AND name =:name ");
 
-        long count = entityManager.createQuery(query, Long.class).setParameter("project", aProject)
+        long count = entityManager.createQuery(query, Long.class).setParameter(paramProject, aProject)
                 .setParameter("name", aFileName).getSingleResult();
 
         return count > 0;
@@ -267,7 +277,7 @@ public class DocumentServiceImpl
     @Override
     public File getSourceDocumentFile(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
                 + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
@@ -288,8 +298,8 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument createOrGetAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aDocument, paramSource);
+        Validate.notNull(aUser, paramUser);
 
         // Check if there is an annotation document entry in the database. If there is none,
         // create one.
@@ -313,7 +323,7 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument getAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aUser, paramUser);
 
         return getAnnotationDocument(aDocument, aUser.getUsername());
     }
@@ -322,27 +332,27 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument getAnnotationDocument(SourceDocument aDocument, String aUser)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
-        Validate.notBlank(aUser, "User must be specified");
+        Validate.notNull(aDocument, paramSource);
+        Validate.notBlank(aUser, paramUser);
 
         return entityManager
                 .createQuery("FROM AnnotationDocument WHERE document = :document AND "
                         + "user =:user" + " AND project = :project", AnnotationDocument.class)
-                .setParameter("document", aDocument).setParameter("user", aUser)
-                .setParameter("project", aDocument.getProject()).getSingleResult();
+                .setParameter(paramDocument, aDocument).setParameter("user", aUser)
+                .setParameter(paramProject, aDocument.getProject()).getSingleResult();
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public SourceDocument getSourceDocument(Project aProject, String aDocumentName)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
         Validate.notBlank(aDocumentName, "Document name must be specified");
 
         return entityManager
                 .createQuery("FROM SourceDocument WHERE name = :name AND project =:project",
                         SourceDocument.class)
-                .setParameter("name", aDocumentName).setParameter("project", aProject)
+                .setParameter("name", aDocumentName).setParameter(paramProject, aProject)
                 .getSingleResult();
     }
 
@@ -358,10 +368,10 @@ public class DocumentServiceImpl
     }
 
     @Transactional
-    private SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
+    public SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
             SourceDocumentState aState)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aState, "State must be specified");
 
         SourceDocumentState oldState = aDocument.getState();
@@ -384,7 +394,7 @@ public class DocumentServiceImpl
     public SourceDocumentState transitionSourceDocumentState(SourceDocument aDocument,
             SourceDocumentStateTransition aTransition)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aTransition, "Transition must be specified");
 
         return setSourceDocumentState(aDocument,
@@ -395,14 +405,14 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public boolean existsFinishedAnnotation(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
-        String query = "SELECT COUNT(*) " + "FROM AnnotationDocument "
+        String query = "SELECT COUNT(*) " + paramFrom
                 + "WHERE document = :document AND state = :state";
 
         long count = entityManager.createQuery(query, Long.class)
-                .setParameter("document", aDocument)
-                .setParameter("state", AnnotationDocumentState.FINISHED).getSingleResult();
+                .setParameter(paramDocument, aDocument)
+                .setParameter(paramState, AnnotationDocumentState.FINISHED).getSingleResult();
 
         return count > 0;
     }
@@ -411,13 +421,13 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public boolean existsFinishedAnnotation(Project aProject)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
 
-        String query = "SELECT COUNT(*) " + "FROM AnnotationDocument "
+        String query = "SELECT COUNT(*) " + paramFrom
                 + "WHERE document.project = :project AND state = :state";
 
-        long count = entityManager.createQuery(query, Long.class).setParameter("project", aProject)
-                .setParameter("state", AnnotationDocumentState.FINISHED).getSingleResult();
+        long count = entityManager.createQuery(query, Long.class).setParameter(paramProject, aProject)
+                .setParameter(paramState, AnnotationDocumentState.FINISHED).getSingleResult();
 
         return count > 0;
     }
@@ -425,7 +435,7 @@ public class DocumentServiceImpl
     @Override
     public List<AnnotationDocument> listFinishedAnnotationDocuments(Project aProject)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
 
         // Get all annotators in the project
         List<String> users = getAllAnnotators(aProject);
@@ -438,20 +448,20 @@ public class DocumentServiceImpl
         return entityManager
                 .createQuery("FROM AnnotationDocument WHERE project = :project AND state = :state"
                         + " AND user in (:users)", AnnotationDocument.class)
-                .setParameter("project", aProject).setParameter("users", users)
-                .setParameter("state", AnnotationDocumentState.FINISHED).getResultList();
+                .setParameter(paramProject, aProject).setParameter("users", users)
+                .setParameter(paramState, AnnotationDocumentState.FINISHED).getResultList();
     }
 
     @Override
     @Transactional(noRollbackFor = NoResultException.class)
     public List<SourceDocument> listSourceDocuments(Project aProject)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
 
         List<SourceDocument> sourceDocuments = entityManager
                 .createQuery("FROM SourceDocument where project =:project ORDER BY name ASC",
                         SourceDocument.class)
-                .setParameter("project", aProject).getResultList();
+                .setParameter(paramProject, aProject).getResultList();
         List<SourceDocument> tabSepDocuments = new ArrayList<>();
         for (SourceDocument sourceDocument : sourceDocuments) {
             if (sourceDocument.getFormat().equals(WebAnnoConst.TAB_SEP)) {
@@ -466,7 +476,7 @@ public class DocumentServiceImpl
     @Transactional
     public void removeSourceDocument(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         // BeforeDocumentRemovedEvent is triggered first, since methods that rely
         // on it might need to have access to the associated annotation documents
@@ -499,7 +509,7 @@ public class DocumentServiceImpl
     @Transactional
     public void removeAnnotationDocument(AnnotationDocument aAnnotationDocument)
     {
-        Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
+        Validate.notNull(aAnnotationDocument, paramAnnotation);
 
         entityManager.remove(aAnnotationDocument);
     }
@@ -600,7 +610,7 @@ public class DocumentServiceImpl
             CasAccessMode aAccessMode, TypeSystemDescription aFullProjectTypeSystem)
         throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         log.debug("Loading initial CAS for source document [{}]({}) in project [{}]({})",
                 aDocument.getName(), aDocument.getId(), aDocument.getProject().getName(),
@@ -627,7 +637,7 @@ public class DocumentServiceImpl
     @Override
     public boolean existsInitialCas(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         return casStorageService.existsCas(aDocument, INITIAL_CAS_PSEUDO_USER);
     }
@@ -702,7 +712,7 @@ public class DocumentServiceImpl
             CasUpgradeMode aUpgradeMode)
         throws IOException
     {
-        Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
+        Validate.notNull(aAnnotationDocument, paramAnnotation);
 
         SourceDocument aDocument = aAnnotationDocument.getDocument();
         String userName = aAnnotationDocument.getUser();
@@ -716,7 +726,7 @@ public class DocumentServiceImpl
     public Optional<Long> getAnnotationCasTimestamp(SourceDocument aDocument, String aUsername)
         throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aUsername, "Username must be specified");
 
         return casStorageService.getCasTimestamp(aDocument, aUsername);
@@ -815,9 +825,9 @@ public class DocumentServiceImpl
                 "WHERE document = :document", "  AND user     = :user", "  AND state    = :state");
 
         return entityManager.createQuery(query, Long.class) //
-                .setParameter("document", aDocument) //
+                .setParameter(paramDocument, aDocument) //
                 .setParameter("user", aUsername) //
-                .setParameter("state", AnnotationDocumentState.FINISHED).getSingleResult() > 0;
+                .setParameter(paramState, AnnotationDocumentState.FINISHED).getSingleResult() > 0;
     }
 
     @Override
@@ -830,7 +840,7 @@ public class DocumentServiceImpl
                 "  AND perm.level = :level");
 
         return entityManager.createQuery(query, AnnotationDocument.class)
-                .setParameter("project", aProject).setParameter("level", ANNOTATOR).getResultList();
+                .setParameter(paramProject, aProject).setParameter(paramLevel, ANNOTATOR).getResultList();
     }
 
     @Override
@@ -844,9 +854,9 @@ public class DocumentServiceImpl
                 "  AND doc.document = :document", "  AND perm.level = :level");
 
         return entityManager.createQuery(query, AnnotationDocument.class) //
-                .setParameter("project", aDocument.getProject()) //
-                .setParameter("document", aDocument) //
-                .setParameter("level", ANNOTATOR) //
+                .setParameter(paramProject, aDocument.getProject()) //
+                .setParameter(paramDocument, aDocument) //
+                .setParameter(paramLevel, ANNOTATOR) //
                 .getResultList();
     }
 
@@ -856,7 +866,7 @@ public class DocumentServiceImpl
         return entityManager
                 .createQuery("FROM AnnotationDocument WHERE project = :project AND user = :user",
                         AnnotationDocument.class)
-                .setParameter("project", aProject) //
+                .setParameter(paramProject, aProject) //
                 .setParameter("user", aUser.getUsername()) //
                 .getResultList();
     }
@@ -865,14 +875,14 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public List<AnnotationDocument> listAllAnnotationDocuments(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         return entityManager
                 .createQuery(
                         "FROM AnnotationDocument WHERE project = :project AND document = :document",
                         AnnotationDocument.class)
-                .setParameter("project", aDocument.getProject()) //
-                .setParameter("document", aDocument) //
+                .setParameter(paramProject, aDocument.getProject()) //
+                .setParameter(paramDocument, aDocument) //
                 .getResultList();
     }
 
@@ -900,16 +910,16 @@ public class DocumentServiceImpl
         List<SourceDocument> sourceDocuments = entityManager
                 .createQuery("FROM SourceDocument " + "WHERE project = (:project)",
                         SourceDocument.class)
-                .setParameter("project", aProject).getResultList();
+                .setParameter(paramProject, aProject).getResultList();
 
         // Next we get all the annotation document records. We can use these to filter out
         // documents which are IGNOREed for given users.
         List<AnnotationDocument> annotationDocuments = entityManager
                 .createQuery(
-                        "FROM AnnotationDocument "
+                        paramFrom
                                 + "WHERE user = (:username) AND project = (:project)",
                         AnnotationDocument.class)
-                .setParameter("username", aUser.getUsername()).setParameter("project", aProject)
+                .setParameter("username", aUser.getUsername()).setParameter(paramProject, aProject)
                 .getResultList();
 
         // First we add all the source documents
@@ -943,7 +953,7 @@ public class DocumentServiceImpl
                 .createQuery(
                         "FROM AnnotationDocument WHERE project = :project AND user in (:users)",
                         AnnotationDocument.class)
-                .setParameter("project", aProject).setParameter("users", users).getResultList();
+                .setParameter(paramProject, aProject).setParameter("users", users).getResultList();
         for (AnnotationDocument annotationDocument : annotationDocuments) {
             if (annotationDocument.getState().equals(AnnotationDocumentState.IGNORE)) {
                 ignored++;
@@ -955,7 +965,7 @@ public class DocumentServiceImpl
     @Override
     public boolean existsCurationDocument(Project aProject)
     {
-        Validate.notNull(aProject, "Project must be specified");
+        Validate.notNull(aProject, ProjectMustBeSpecified);
 
         boolean curationDocumentExist = false;
         List<SourceDocument> documents = listSourceDocuments(aProject);
@@ -978,7 +988,7 @@ public class DocumentServiceImpl
 
         // Get all annotators in the project
         List<String> users = entityManager.createQuery(query, String.class)
-                .setParameter("project", aProject).setParameter("level", ANNOTATOR).getResultList();
+                .setParameter(paramProject, aProject).setParameter(paramLevel, ANNOTATOR).getResultList();
 
         return users;
     }
@@ -1035,7 +1045,7 @@ public class DocumentServiceImpl
     {
         Project project = aEvent.getProject();
 
-        Validate.notNull(project, "Project must be specified");
+        Validate.notNull(project, ProjectMustBeSpecified);
 
         // Since the project is being deleted anyway, we don't bother sending around
         // BeforeDocumentRemovedEvent anymore. If we did, we would likely trigger a
@@ -1050,13 +1060,13 @@ public class DocumentServiceImpl
         // source document is deleted, but that is not there at the moment...
         String deleteAnnotationDocumentsQuery = String.join("\n", "DELETE FROM AnnotationDocument",
                 "WHERE project = :project");
-        entityManager.createQuery(deleteAnnotationDocumentsQuery).setParameter("project", project)
+        entityManager.createQuery(deleteAnnotationDocumentsQuery).setParameter(paramProject, project)
                 .executeUpdate();
 
         // Delete all the source documents for the given project
         String deleteSourceDocumentsQuery = String.join("\n", "DELETE FROM SourceDocument",
                 "WHERE project = :project");
-        entityManager.createQuery(deleteSourceDocumentsQuery).setParameter("project", project)
+        entityManager.createQuery(deleteSourceDocumentsQuery).setParameter(paramProject, project)
                 .executeUpdate();
 
         // Delete all the source documents files for the given project
@@ -1076,14 +1086,14 @@ public class DocumentServiceImpl
     @Override
     public long countSourceDocuments()
     {
-        String query = String.join("\n", "SELECT COUNT(*)", "FROM SourceDocument");
+        String query = String.join("\n", paramSELECT, "FROM SourceDocument");
         return entityManager.createQuery(query, Long.class).getSingleResult();
     }
 
     @Override
     public long countAnnotationDocuments()
     {
-        String query = String.join("\n", "SELECT COUNT(*)", "FROM AnnotationDocument");
+        String query = String.join("\n", paramSELECT, "FROM AnnotationDocument");
         return entityManager.createQuery(query, Long.class).getSingleResult();
     }
 
