@@ -109,6 +109,9 @@ public class DocumentServiceImpl
     private final ProjectService projectService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RepositoryProperties repositoryProperties;
+    static String paramSource="Source document must be specified";
+    static String paramUser="User must be specified";
+    static String paramProject="project";
 
     @Autowired
     public DocumentServiceImpl(RepositoryProperties aRepositoryProperties,
@@ -147,7 +150,7 @@ public class DocumentServiceImpl
     @Override
     public File getDocumentFolder(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         File sourceDocFolder = new File(repositoryProperties.getPath(),
                 "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
@@ -160,7 +163,7 @@ public class DocumentServiceImpl
     @Transactional
     public void createSourceDocument(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         if (isNull(aDocument.getId())) {
             entityManager.persist(aDocument);
@@ -174,7 +177,7 @@ public class DocumentServiceImpl
     @Transactional
     public boolean existsAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aUser, paramUser);
 
         return existsAnnotationDocument(aDocument, aUser.getUsername());
     }
@@ -183,7 +186,7 @@ public class DocumentServiceImpl
     @Transactional
     public boolean existsAnnotationDocument(SourceDocument aDocument, String aUsername)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aUsername, "Username must be specified");
 
         try {
@@ -192,7 +195,7 @@ public class DocumentServiceImpl
                             "FROM AnnotationDocument WHERE project = :project "
                                     + " AND document = :document AND user = :user",
                             AnnotationDocument.class)
-                    .setParameter("project", aDocument.getProject())
+                    .setParameter(paramProject, aDocument.getProject())
                     .setParameter("document", aDocument).setParameter("user", aUsername)
                     .getSingleResult();
             return true;
@@ -256,7 +259,7 @@ public class DocumentServiceImpl
         String query = String.join("\n", "SELECT COUNT(*)", "FROM SourceDocument",
                 "WHERE project = :project AND name =:name ");
 
-        long count = entityManager.createQuery(query, Long.class).setParameter("project", aProject)
+        long count = entityManager.createQuery(query, Long.class).setParameter(paramProject, aProject)
                 .setParameter("name", aFileName).getSingleResult();
 
         return count > 0;
@@ -267,7 +270,7 @@ public class DocumentServiceImpl
     @Override
     public File getSourceDocumentFile(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
                 + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
@@ -288,8 +291,8 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument createOrGetAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aDocument, paramSource);
+        Validate.notNull(aUser, paramUser);
 
         // Check if there is an annotation document entry in the database. If there is none,
         // create one.
@@ -310,10 +313,10 @@ public class DocumentServiceImpl
     }
 
     @Override
-    @Transactional(noRollbackFor = NoResultException.class)
+    
     public AnnotationDocument getAnnotationDocument(SourceDocument aDocument, User aUser)
     {
-        Validate.notNull(aUser, "User must be specified");
+        Validate.notNull(aUser, paramUser);
 
         return getAnnotationDocument(aDocument, aUser.getUsername());
     }
@@ -322,14 +325,14 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public AnnotationDocument getAnnotationDocument(SourceDocument aDocument, String aUser)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
-        Validate.notBlank(aUser, "User must be specified");
+        Validate.notNull(aDocument, paramSource);
+        Validate.notBlank(aUser, paramUser);
 
         return entityManager
                 .createQuery("FROM AnnotationDocument WHERE document = :document AND "
                         + "user =:user" + " AND project = :project", AnnotationDocument.class)
                 .setParameter("document", aDocument).setParameter("user", aUser)
-                .setParameter("project", aDocument.getProject()).getSingleResult();
+                .setParameter(paramProject, aDocument.getProject()).getSingleResult();
     }
 
     @Override
@@ -358,10 +361,10 @@ public class DocumentServiceImpl
     }
 
     @Transactional
-    private SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
+    public SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
             SourceDocumentState aState)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aState, "State must be specified");
 
         SourceDocumentState oldState = aDocument.getState();
@@ -384,7 +387,7 @@ public class DocumentServiceImpl
     public SourceDocumentState transitionSourceDocumentState(SourceDocument aDocument,
             SourceDocumentStateTransition aTransition)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aTransition, "Transition must be specified");
 
         return setSourceDocumentState(aDocument,
@@ -395,7 +398,7 @@ public class DocumentServiceImpl
     @Transactional(noRollbackFor = NoResultException.class)
     public boolean existsFinishedAnnotation(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         String query = "SELECT COUNT(*) " + "FROM AnnotationDocument "
                 + "WHERE document = :document AND state = :state";
@@ -443,7 +446,7 @@ public class DocumentServiceImpl
     }
 
     @Override
-    @Transactional(noRollbackFor = NoResultException.class)
+    
     public List<SourceDocument> listSourceDocuments(Project aProject)
     {
         Validate.notNull(aProject, "Project must be specified");
@@ -466,7 +469,7 @@ public class DocumentServiceImpl
     @Transactional
     public void removeSourceDocument(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         // BeforeDocumentRemovedEvent is triggered first, since methods that rely
         // on it might need to have access to the associated annotation documents
@@ -600,7 +603,7 @@ public class DocumentServiceImpl
             CasAccessMode aAccessMode, TypeSystemDescription aFullProjectTypeSystem)
         throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         log.debug("Loading initial CAS for source document [{}]({}) in project [{}]({})",
                 aDocument.getName(), aDocument.getId(), aDocument.getProject().getName(),
@@ -627,7 +630,7 @@ public class DocumentServiceImpl
     @Override
     public boolean existsInitialCas(SourceDocument aDocument) throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         return casStorageService.existsCas(aDocument, INITIAL_CAS_PSEUDO_USER);
     }
@@ -716,7 +719,7 @@ public class DocumentServiceImpl
     public Optional<Long> getAnnotationCasTimestamp(SourceDocument aDocument, String aUsername)
         throws IOException
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
         Validate.notNull(aUsername, "Username must be specified");
 
         return casStorageService.getCasTimestamp(aDocument, aUsername);
@@ -862,10 +865,10 @@ public class DocumentServiceImpl
     }
 
     @Override
-    @Transactional(noRollbackFor = NoResultException.class)
+    
     public List<AnnotationDocument> listAllAnnotationDocuments(SourceDocument aDocument)
     {
-        Validate.notNull(aDocument, "Source document must be specified");
+        Validate.notNull(aDocument, paramSource);
 
         return entityManager
                 .createQuery(
