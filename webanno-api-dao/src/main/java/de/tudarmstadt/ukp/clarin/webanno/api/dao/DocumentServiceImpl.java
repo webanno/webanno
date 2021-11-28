@@ -150,8 +150,8 @@ public class DocumentServiceImpl
         Validate.notNull(aDocument, "Source document must be specified");
 
         File sourceDocFolder = new File(repositoryProperties.getPath(),
-                "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
-                        + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
+                PROJECT_FOLDER + aDocument.getProject().getId() + DOCUMENT_FOLDER
+                        + aDocument.getId() + SOURCE_FOLDER);
         FileUtils.forceMkdir(sourceDocFolder);
         return sourceDocFolder;
     }
@@ -269,9 +269,8 @@ public class DocumentServiceImpl
     {
         Validate.notNull(aDocument, "Source document must be specified");
 
-        File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
-                + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
-                + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
+        File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + PROJECT_FOLDER + aDocument.getProject().getId() + DOCUMENT_FOLDER
+                + aDocument.getId() + SOURCE_FOLDER);
 
         return new File(documentUri, aDocument.getName());
     }
@@ -479,8 +478,7 @@ public class DocumentServiceImpl
         entityManager.remove(
                 entityManager.contains(aDocument) ? aDocument : entityManager.merge(aDocument));
 
-        String path = repositoryProperties.getPath().getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
-                + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER + "/" + aDocument.getId();
+        String path = repositoryProperties.getPath().getAbsolutePath() +  PROJECT_FOLDER + aDocument.getProject().getId() + DOCUMENT_FOLDER + aDocument.getId();
 
         // remove from file both source and related annotation file
         if (new File(path).exists()) {
@@ -1060,8 +1058,7 @@ public class DocumentServiceImpl
                 .executeUpdate();
 
         // Delete all the source documents files for the given project
-        File docFolder = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
-                + PROJECT_FOLDER + "/" + project.getId() + "/" + DOCUMENT_FOLDER + "/");
+        File docFolder = new File(repositoryProperties.getPath().getAbsolutePath() + PROJECT_FOLDER + project.getId() + DOCUMENT_FOLDER);
         if (docFolder.exists()) {
             FastIOUtils.delete(docFolder);
         }
