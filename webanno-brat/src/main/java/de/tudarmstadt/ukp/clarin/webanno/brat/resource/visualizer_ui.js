@@ -292,6 +292,19 @@ var VisualizerUI = (function($, window, undefined) {
                     if (y < 0) y = 0;
                     if (x < 0) x = 0;
         			element.css({ top: y, left: x });
+                    if (y > 210 && y < 270) {
+                        y=y-80;
+                    }
+                if (y > 270 && y < 300) {
+                     y=y-160;
+                }
+                else if ( y > 300 && y < 360) {
+                      y=y-200;
+                }
+                else if ( y > 360) {
+                       y=y-200;
+                }
+                $('.annotationpannel').css({ top: y, left: x });
                 };
 
             var commentPopup = $('#commentpopup');
@@ -324,7 +337,7 @@ var VisualizerUI = (function($, window, undefined) {
 /*
                         commentPopup.stop(true, true).fadeIn(0);
 */
-                        commentPopup.show();
+                       // commentPopup.show();
 // END WEBANNO EXTENSION - #1610 - Improve brat visualization interaction performance
                         commentDisplayed = true;
                     }, immediately ? 0 : 500);
@@ -345,7 +358,7 @@ var VisualizerUI = (function($, window, undefined) {
             var displaySpanComment = function(
                 evt, target, spanId, spanType, mods, spanText, hoverText, commentText, commentType, normalizations) {
 // WEBANNO EXTENSION END - #587 Customize mouse hover text
-
+                    $('.annotationpannel').css( 'display' ,'block' )
                     var immediately = false;
                     var comment = ('<div><span class="comment_type_id_wrapper">' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>' + ' ' + '<span class="comment_id">' + 'ID:' + Util.escapeHTML(spanId) + '</span></span>');
                     if (mods.length) {
@@ -538,7 +551,7 @@ var VisualizerUI = (function($, window, undefined) {
                         commentPopup.stop(true, true).fadeOut(0, function() {
                             commentDisplayed = false;
                         });
-*/
+*/                      $('.annotationpannel').css( 'display', 'none' )
                         commentPopup.hide();
                         commentDisplayed = false;
 // END WEBANNO EXTENSION - #1610 - Improve brat visualization interaction performance

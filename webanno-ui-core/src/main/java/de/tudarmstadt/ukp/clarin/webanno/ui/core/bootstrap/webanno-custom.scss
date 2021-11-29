@@ -441,3 +441,24 @@ div.left-tabpanel div.tab-row a:hover {
   border-bottom-left-radius:  0px;
   border-left: none;
 }
+
+.annotationpannel{
+  display: none;
+  position: absolute;
+}
+.editorpannel{
+  display: flex;
+}
+.layercard{
+  width: fit-content;
+  z-index: 10;
+}
+.layercard label{
+  min-width: min-content;
+}
+.layercard .col-sm-9{
+  max-width: max-content;
+}
+.annotationcard{
+  max-width: fit-content;
+}

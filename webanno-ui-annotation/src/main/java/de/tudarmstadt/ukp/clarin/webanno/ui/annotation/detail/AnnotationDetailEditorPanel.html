@@ -66,19 +66,20 @@
 </head>
 <body>
   <wicket:panel>
-    <div id="annotationDetailEditorPanel" class="flex-content flex-v-container">
+    <div id="annotationDetailEditorPanel" class="editorpannel">
       <!-- 
         Style the form such that it is actionable by keyboard events but does not take up space
         on the screen.
        -->
-      <form wicket:id="forwardForm" style="width: 1px; height: 1px; overflow: hidden; opacity: 0; margin-top: -1px;">
-        <!-- 
-          The user should never tab into this field accidentally. Focus is set explicitly by the
-          forward annotation mode.
-         -->
-        <input wicket:id=forwardAnno tabindex="-1"></input>
-      </form>
       <div id="annotationFeatureForm" class="annotatation-detail-panel flex-content flex-v-container flex-gutter">
+        <form wicket:id="forwardForm" style="width: 1px; height: 1px; overflow: hidden; opacity: 0; margin-top: -1px;">
+          <!--
+            The user should never tab into this field accidentally. Focus is set explicitly by the
+            forward annotation mode.
+           -->
+          <input wicket:id=forwardAnno tabindex="-1"></input>
+        </form>
+
         <div wicket:id=deleteAnnotationDialog/>
         <div wicket:id=replaceAnnotationDialog/>
         <div wicket:id="layerContainer" class="card"/>
@@ -100,7 +101,7 @@
               </button>
             </div>
           </div>
-          <div class="scrolling card-body flex-v-container">
+          <div class=" card-body flex-v-container">
             <div wicket:id="infoContainer"/>
             <div wicket:id="relationListContainer"/>
             <div wicket:id="featureEditorContainer"/>
