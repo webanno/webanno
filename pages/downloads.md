@@ -6,6 +6,29 @@ permalink: "/downloads/"
 
 {% assign stable = site.data.releases | where: "status", "stable" | first %}
 
+<table width="100%">
+<tr>
+<td style="vertical-align: middle;">
+<a href="https://inception-project.github.io"><img src="{{ site.url }}/images/logos/inception-banner.png"/></a>
+</td>
+<td>
+<p style="text-align: center  ;">You like WebAnno?</p>
+<p style="text-align: center  ;">
+<b style="font-size: 150%;"><a href="https://inception-project.github.io">Use INCEpTION!</a></b>
+</p>
+<div>
+INCEpTION is the new open source text annotation platform that has all the flexibility and many more exciting features including a completely new human-in-the-loop annotation assistance
+support, the ability to search texts and annotations, support for RDF/SPARQL knowledge bases for
+entity linking, and much more. <br/>
+And best: it can import your WebAnno annotation<sup>1</sup> projects. <br/>
+<span style="font-size: 75%">
+<sup>1</sup> <i>Projects of type 'automation' or 'correction' are not supported.</i>
+</span>
+</div>
+</td>
+</tr>
+</table>
+
 ## WebAnno {{ stable.version }}
 
 [Release notes](https://github.com/webanno/webanno/releases/tag/webanno-{{ stable.version }})
