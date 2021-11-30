@@ -4,7 +4,16 @@ title: "About Us"
 permalink: "/info/"
 ---
 
-# WebAnno 3 III (2018-now)
+# WebAnno 3 IV (since 2021)
+
+The active development of WebAnno has stopped in favor of the new [INCEpTION](https://inception-project.github.io) project. All WebAnno users should consider switching to INCEpTION for their text
+annotation needs.
+
+### Maintainer
+
+   * Richard Eckart de Castilho
+
+# WebAnno 3 III (2018-2021)
 
 In this phase, the development of WebAnno is mainly driven by the requirements of the 
 [INCEpTION](https://inception-project.github.io) project. The principal goal is the modularization
