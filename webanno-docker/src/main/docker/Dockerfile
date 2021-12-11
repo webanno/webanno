@@ -1,6 +1,6 @@
 ############################################################
 #
-# Dockerfile to build webanno container images
+# Dockerfile to build WebAnno container images
 #
 ############################################################
 
@@ -31,4 +31,4 @@ EXPOSE 8080
 
 ENV JAVA_OPTS="-Xmx750m"
 
-CMD java ${JAVA_OPTS} -Djava.awt.headless=true -XX:+UseConcMarkSweepGC -Dwebanno.home=/export -jar webanno-standalone.jar
+CMD java ${JAVA_OPTS} -Djava.awt.headless=true -Dwebanno.home=/export -jar webanno-standalone.jar
