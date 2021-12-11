@@ -22,6 +22,10 @@
 ###
 ### RELEASE VERSIONS
 ###
+- version: 3.6.8
+  date: 2021-12-11
+  status: stable
+  
 - version: 3.6.7
   date: 2021-02-27
   status: stable
