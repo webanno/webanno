@@ -1,0 +1,2987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.15">
+<meta name="author" content="The WebAnno Team">
+<title>WebAnno Administrator Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment @import statement to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details>summary:first-of-type{cursor:pointer;display:list-item;outline:none;margin-bottom:.75em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;padding-right:.5em}
+pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
+pre.pygments .lineno::before{content:"";margin-right:-.125em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:50%;border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>WebAnno Administrator Guide</h1>
+<div class="details">
+<span id="author" class="author">The WebAnno Team</span><br>
+<span id="revnumber">version 3.6.10</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel0">
+<li><a href="#sect_installation">Installation</a>
+<ul class="sectlevel1">
+<li><a href="#_system_requirements">System Requirements</a></li>
+<li><a href="#_install_java">Install Java</a></li>
+<li><a href="#_application_home_folder">Application home folder</a></li>
+<li><a href="#sect_database">Database</a>
+<ul class="sectlevel2">
+<li><a href="#_mysql">MySQL</a>
+<ul class="sectlevel3">
+<li><a href="#_prepare_database">Prepare database</a></li>
+<li><a href="#_configuration_options">Configuration options</a></li>
+</ul>
+</li>
+<li><a href="#_hsqldb_embedded">HSQLDB (embedded)</a></li>
+</ul>
+</li>
+<li><a href="#_running_via_embedded_tomcat_jar">Running via embedded Tomcat (JAR)</a>
+<ul class="sectlevel2">
+<li><a href="#_installing_as_a_service">Installing as a service</a></li>
+<li><a href="#_running_the_standalone_behind_httpd">Running the standalone behind HTTPD</a></li>
+</ul>
+</li>
+<li><a href="#_running_via_separate_tomcat_war">Running via separate Tomcat (WAR)</a>
+<ul class="sectlevel2">
+<li><a href="#_installing_tomcat">Installing Tomcat</a></li>
+<li><a href="#_deploying_the_war_file">Deploying the WAR file</a></li>
+<li><a href="#_running_the_war_behind_apache_httpd">Running the WAR behind Apache HTTPD</a></li>
+</ul>
+</li>
+<li><a href="#sect_ssl">Securing with SSL</a>
+<ul class="sectlevel2">
+<li><a href="#_obtaining_a_lets_encrypt_certificate">Obtaining a Let&#8217;s Encrypt certificate</a></li>
+<li><a href="#_installing_nginx">Installing NGINX</a></li>
+<li><a href="#_putting_it_all_together">Putting it all together</a></li>
+<li><a href="#_tell_webanno_that_it_is_running_behind_a_proxy">Tell WebAnno that it is running behind a proxy</a></li>
+<li><a href="#_csrf_protection">CSRF protection</a></li>
+</ul>
+</li>
+<li><a href="#_running_via_docker">Running via Docker</a>
+<ul class="sectlevel2">
+<li><a href="#_quick_start">Quick start</a></li>
+<li><a href="#_storing_data_on_the_host">Storing data on the host</a></li>
+<li><a href="#_settings_file">Settings file</a></li>
+<li><a href="#_connecting_to_a_mysql_database">Connecting to a MySQL database</a></li>
+<li><a href="#_docker_compose">Docker Compose</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sect_upgrade">Upgrading</a>
+<ul class="sectlevel1">
+<li><a href="#_backup_your_data">Backup your data</a></li>
+<li><a href="#_upgrading_with_embedded_tomcat">Upgrading with embedded Tomcat</a></li>
+<li><a href="#_upgrading_with_separate_tomcat">Upgrading with separate Tomcat</a>
+<ul class="sectlevel2">
+<li><a href="#_upgrading_tomcat_7_to_tomcat_8">Upgrading Tomcat 7 to Tomcat 8</a></li>
+</ul>
+</li>
+<li><a href="#_upgrading_via_exportimport">Upgrading via export/import</a></li>
+<li><a href="#_migration_notes">Migration notes</a>
+<ul class="sectlevel2">
+<li><a href="#_version_3_2_x_to_3_3_0">Version 3.2.x to 3.3.0</a></li>
+<li><a href="#_version_2_3_1_to_3_0_0">Version 2.3.1 to 3.0.0</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sect_remote_api">Remote API</a>
+<ul class="sectlevel1">
+<li><a href="#sect_remote_api_webhooks">Webhooks</a></li>
+</ul>
+</li>
+<li><a href="#sect_settings">Settings</a>
+<ul class="sectlevel1">
+<li><a href="#_general_settings">General Settings</a></li>
+<li><a href="#_database_connection">Database connection</a></li>
+<li><a href="#_server_settings">Server Settings</a></li>
+<li><a href="#_internal_backup">Internal backup</a></li>
+<li><a href="#_custom_header_icons">Custom header icons</a></li>
+<li><a href="#_annotation_editor">Annotation editor</a></li>
+<li><a href="#sect_security_preauth">External pre-authentication</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This guide covers handling WebAnno from an administrator&#8217;s perspective.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<strong>Switch to the new annotation tool <a href="https://inception-project.github.io">INCEpTION</a>!</strong> It is like WebAnno but way more modern and with a ton of additional features and improvements. WebAnno has grown old and does not even run anymore on Java versions 16 and higher. In most cases you can simply export your projects from WebAnno, import them into INCEpTION and continue to work. So, don&#8217;t hesitate and give it a try!
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<h1 id="sect_installation" class="sect0"><a class="anchor" href="#sect_installation"></a>Installation</h1>
+<div class="openblock partintro">
+<div class="content">
+<div class="paragraph">
+<p>You can run WebAnno on any major platform supporting Java, i.e. Linux, macOS or Windows.
+However, we do not provide explicit for setting up a production-ready instance of each of these
+platforms.</p>
+</div>
+<div class="paragraph">
+<p>This guide assumes Debian 9.1 (Stretch). It may also work on Ubuntu with some modifications, but we
+do not test this. Instructions for other Linux distributions and other platforms (i.e. macOS and
+Windows) likely deviate significantly.</p>
+</div>
+<div class="paragraph">
+<p>It is further assumed that the user <strong>www-data</strong> already exists on the system and that it shall be used to run the application.</p>
+</div>
+<div class="paragraph">
+<p>All commands assume that you are logged in as the <strong>root</strong> user.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you cannot log in as root but have to use <code>sudo</code> to become root, then the recommended way
+      to do that is using the command <code>sudo su -</code>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_system_requirements"><a class="anchor" href="#_system_requirements"></a>System Requirements</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Requirements for users</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Browser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Chrome or Safari</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Requirements to run the standalone version</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Java Runtime Environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version 8 (up to 15)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Requirements run a WebAnno server</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Java Runtime Environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version 8 (up to 15)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apache Tomcat</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version 8.5 or higher (Servlet API 3.1.0)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MySQL Server</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version 5 or higher</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Java 15 is the last version on which WebAnno runs. To run on a later version of
+      Java, please switch to <a href="https://inception-project.github.io">INCEpTION</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_java"><a class="anchor" href="#_install_java"></a>Install Java</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can install an Oracle Java 8 JDK using the following commands.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ apt-get update
+$ apt-get install dirmngr
+$ echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list
+$ echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list
+$ apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+$ apt-get update
+$ apt-get install oracle-java8-installer
+$ apt-get install oracle-java8-set-default</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_application_home_folder"><a class="anchor" href="#_application_home_folder"></a>Application home folder</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The WebAnno home folder is the place where WebAnno&#8217;s configuration file <code>settings.properties</code>
+resides and where WebAnno stores its data. Mind that if you are using a MySQL database server
+(recommended), then WebAnno also stores some data in the MySQL database. This is important when
+you plan to perform a backup, as both the home folder and the database content need to be
+included in the backup.</p>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s go through the steps of setting up a home folder for WebAnno and creating a
+configuration file instructing WebAnno to access the previously prepared MySQL database.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create WebAnno home folder. This is the directory where WebAnno settings files and projects (documents, annotations, etc.) are stored</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ mkdir /srv/webanno</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Edit <code>/srv/webanno/settings.properties</code> to define the database connection as well as internal backup properties:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">database.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
+database.driver=com.mysql.jdbc.Driver
+database.url=jdbc:mysql://localhost:3306/webanno?useSSL=false&amp;serverTimezone=UTC
+database.username=webanno
+database.password=t0t4llYSecreT
+
+# 60 * 60 * 24 * 30 = 30 days
+backup.keep.time=2592000
+
+# 60 * 5 = 5 minutes
+backup.interval=300
+
+backup.keep.number=10</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Fix permissions in WebAnno home folder</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ chown -R www-data /srv/webanno</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sect_database"><a class="anchor" href="#sect_database"></a>Database</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>WebAnno uses an SQL database to store project and user data.</p>
+</div>
+<div class="paragraph">
+<p>WebAnno uses by default an embedded HSQLDB database. However, we recommend using the embedded
+database only for testing purposes. For production use, we recommend using a MySQL server. The reason
+for this is, that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>some users have reported that HSQLDB databases may become corrupt when the computer crashes
+(note that this could probably also happen with MySQL, but we did so far not have any reports
+about this);</p>
+</li>
+<li>
+<p>most WebAnno developers use MySQL when running WebAnno on their servers;</p>
+</li>
+<li>
+<p>in the past, we had cases where we described in-place upgrade procedures that required performing
+SQL commands to change the data model as part of the upgrade. We promise to try avoiding this in
+the future. However, in case we offer advice on fixing anything directly in the database, this
+advice will refer to a MySQL database.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We try to keep the data model simple, so there should be no significant requirements to the database
+being used. Theoretically, it should be possible to use any JDBC-compatible database after adding a
+corresponding driver to the classpath and configuring WebAnno to use the driver in the
+<code>settings.properties</code> file.</p>
+</div>
+<div class="sect2">
+<h3 id="_mysql"><a class="anchor" href="#_mysql"></a>MySQL</h3>
+<div class="paragraph">
+<p>For production use of WebAnno, it is highly recommended to use a MySQL database. In this
+section, we briefly describe how to install a MySQL server and how to prepare it for use with
+the application.</p>
+</div>
+<div class="sect3">
+<h4 id="_prepare_database"><a class="anchor" href="#_prepare_database"></a>Prepare database</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Install MySQL</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ apt-get install mysql-server</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>make sure your MySQL server is configured for UTF-8. Check the following line is present in <code>/etc/mysql/mariadb.conf.d/50-server.cnf</code> (this is specific to Debian 9; on other systems the relevant file
+may be <code>/etc/mysql/my.cnf</code>):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">character-set-server = utf8
+collation-server     = utf8_bin</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>also ensure the default settings for client connections to are UTF-8 in <code>/etc/mysql/mariadb.conf.d/50-server.cnf</code> (again Debian 9; likely in <code>/etc/mysql/my.cnf</code> on other systems)</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">default-character-set = utf8</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>login to MySQL</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ mysql -u root -p</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>create a database</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-mysql" data-lang="mysql">mysql&gt; CREATE DATABASE webanno DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>create a database user called <code>webanno</code> with the password <code>t0t4llYSecreT</code> which is later used by the application to access the database (instructions for <code>settings.properties</code> file below).</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-mysql" data-lang="mysql">mysql&gt; CREATE USER 'webanno'@'localhost' IDENTIFIED BY 't0t4llYSecreT';
+mysql&gt; GRANT ALL PRIVILEGES ON webanno.* TO 'webanno'@'localhost';
+mysql&gt; FLUSH PRIVILEGES;</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+For production use, make sure you choose a different, secret, and secure password.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_configuration_options"><a class="anchor" href="#_configuration_options"></a>Configuration options</h4>
+<div class="paragraph">
+<p>This section explains some settings that can be added to the <code>database.url</code> in the
+<code>settings.properties</code> file when using MySQL. Settings are separated from the host name and database
+name with a <code>?</code> character and multiple settings are separated using the <code>&amp;</code> character, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>database.url=jdbc:mysql://localhost:3306/webanno?useSSL=false&amp;serverTimezone=UTC</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To suppress the warning about non-SSL database connections with recent MySQL databases, append the
+following setting to the <code>database.url</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>useSSL=false</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Recent MySQL drivers may refuse to work unless a database server timezone has been specified. The
+easiest way to do this is to add the following setting to the <code>database.url</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>serverTimezone=UTC</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you plan to use UTF-8 encoding for project name and tagset/tag name, make sure either of the following settings for MySQL database</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>in the <code>settings.properties</code> file, make sure that <code>database.url</code> includes</p>
+<div class="listingblock">
+<div class="content">
+<pre>useUnicode=true&amp;characterEncoding=UTF-8</pre>
+</div>
+</div>
+</li>
+<li>
+<p>change the <code>my.conf</code> MySQL databse configuration file to include the following line</p>
+<div class="listingblock">
+<div class="content">
+<pre>character-set-server = utf8</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hsqldb_embedded"><a class="anchor" href="#_hsqldb_embedded"></a>HSQLDB (embedded)</h3>
+<div class="paragraph">
+<p>WebAnno displays a warning in the user interface when an embedded database is being used.
+It is not recommended to used an embedded database for various reasons:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>HSQLDB databases are known to run a risk of becoming corrupt in case of power failures which may
+render the application inaccessible and your data difficult to recover.</p>
+</li>
+<li>
+<p>In very rare cases it may be necessary to fix the database content which is more inconvenient
+for embedded databases.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In case that you really want to run WebAnno with an embedded database in production,
+you probably want to disable this warning. To do so, please add the following entry to
+the <code>settings.properties</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>warnings.embeddedDatabase=false</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_via_embedded_tomcat_jar"><a class="anchor" href="#_running_via_embedded_tomcat_jar"></a>Running via embedded Tomcat (JAR)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The WebAnno standalone JAR with an embedded Tomcat server and can be easily set up as a
+UNIX service. This is the recommended way of running WebAnno on a server.</p>
+</div>
+<div class="paragraph">
+<p>The instructions below expect a Debian Linux system. Details may vary on other OSes and Linux
+distributions.</p>
+</div>
+<div class="sect2">
+<h3 id="_installing_as_a_service"><a class="anchor" href="#_installing_as_a_service"></a>Installing as a service</h3>
+<div class="paragraph">
+<p>To set it up as a service, you can do the following steps. For the following
+example, we assume that you install WebAnno in <code>/srv/webanno</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Copy the standalone JAR file <code>webanno-standalone-3.6.10.jar</code> to <code>/srv/webanno/webanno.jar</code>.
+Note the change of the filename to <code>webanno.jar</code>.</p>
+</li>
+<li>
+<p>Create the file <code>/srv/webanno/webanno.conf</code> with the following content</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">JAVA_OPTS="-Djava.awt.headless=true -Dwebanno.home=/srv/webanno"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>In the previous step, you have already created the <code>/srv/webanno/settings.properties</code> file.
+You <strong>may optionally</strong> configure the Tomcat port using the following line</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">server.port=18080</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you need to do additional configurations of the embedded Tomcat, best refer to the
+documentation of Spring Boot itself.</p>
+</div>
+</li>
+<li>
+<p>Make sure that the file <code>/srv/webanno/webanno.conf</code> is owned by the root user. If this is
+not the case, WebAnno will ignore it and any settings made there will not have any effect. If
+you start WebAnno and instead of using the MySQL database, it is using an embedded database,
+then you should double-check that <code>/srv/webanno/webanno.conf</code> is owned by the root user.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ chown root:root /srv/webanno/webanno.conf</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>We will run WebAnno as the user <code>www-data</code>. Change the owner/group of <code>/srv/webanno/webanno.jar</code> to <code>www-data</code>. When the service is started,
+<strong>Do NOT run WebAnno as root.</strong></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ chown www-data:www-data /srv/webanno/webanno.jar</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Make the JAR file executable:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ chmod +x /srv/webanno/webanno.jar</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a file in <code>/etc/systemd/system/webanno.service</code> with the following content:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">[Unit]
+Description=WebAnno
+
+[Service]
+ExecStart=/srv/webanno/webanno.jar
+User=www-data
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Enable the WebAnno service using</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ systemctl enable webanno</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Start WebAnno using</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ systemctl start webanno</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the log output</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ journalctl -u webanno</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Stop WebAnno using</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ systemctl stop webanno</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_the_standalone_behind_httpd"><a class="anchor" href="#_running_the_standalone_behind_httpd"></a>Running the standalone behind HTTPD</h3>
+<div class="paragraph">
+<p>These are <strong>optional</strong> instructions if you want to run WebAnno behind an Apache web-server instead
+of accessing it directly. This assumes that you already have the following packages installed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Apache Web Server</p>
+</li>
+<li>
+<p>mod_proxy</p>
+</li>
+<li>
+<p>mod_proxy_ajp</p>
+</li>
+<li>
+<p>Add the following lines to <code>/srv/webanno/settings.properties</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">server.ajp.port=18009
+server.ajp.secret=SECRET_STRING_YOU_CHOOSE
+server.ajp.address=127.0.0.1
+server.contextPath=/webanno
+server.use-forward-headers=true</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Edit <code>/etc/apache2/conf.d/webanno.local.conf</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">ProxyPreserveHost On
+
+&lt;Proxy ajp://localhost/webanno &gt;
+  Order Deny,Allow
+  Deny from none
+  Allow from all
+&lt;/Proxy&gt;
+
+&lt;Location /webanno &gt;
+  ProxyPass ajp://localhost:18009/webanno timeout=1200 secret="SECRET_STRING_YOU_CHOOSE"
+  ProxyPassReverse http://localhost/webanno
+&lt;/Location&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Restart Apache web server</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ service apache2 restart</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>secret</code> option is supported e.g. in link:https://httpd.apache.org/docs/trunk/mod/
+       mod_proxy_ajp.html[Apache HTTP 2.5 mod_proxy_ajp]. If you are using reverse proxy which does not
+       support passing along a secret, you may set <code>server.ajp.secret-required=false</code> in the
+       <code>settings.properties</code> file.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_via_separate_tomcat_war"><a class="anchor" href="#_running_via_separate_tomcat_war"></a>Running via separate Tomcat (WAR)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can also  deploy the WebAnno WAR archive into a separately installed Tomcat instance.</p>
+</div>
+<div class="sect2">
+<h3 id="_installing_tomcat"><a class="anchor" href="#_installing_tomcat"></a>Installing Tomcat</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Install package to install user-instances of Tomcat.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ apt-get install tomcat8-user authbind</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create new instance</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cd /opt
+$ tomcat8-instance-create -p 18080 -c 18005 webanno
+$ chown -R www-data /opt/webanno</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If WebAnno is the only application you install on your server, then you can also have WebAnno running on port 80 or port 443. In that case, substitute all instances of port <code>18080</code> in these
+guidelines with the respective port. Mind that running via SSL on port 443 requires additional steps that we have not yet documented. Ports lower than 1024 are privileged and the WebAnno init script will automatically use a tool called <strong>authbind</strong> to allow WebAnno to operate on these ports as the unprivileged www-data user.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Configure the startup script. Edit <code>/etc/init.d/webanno</code> and add the following contents or just download the file from <a href="admin-guide/scripts/webanno">here</a> and place it in <code>/etc/init.d</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/sh
+
+# Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
+
+# kFreeBSD do not accept scripts as interpreters, using #!/bin/sh and sourcing.
+if [ true != "$INIT_D_SCRIPT_SOURCED" ] ; then
+    set "$0" "$@"; INIT_D_SCRIPT_SOURCED=true . /lib/init/init-d-script
+fi
+### BEGIN INIT INFO
+# Provides:          webanno
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: WebAnno init script
+# Description:       This file should be placed in /etc/init.d. It
+#                    allows starting/stopping WebAnno using the 
+#                    "service" command and ensures that WebAnno starts
+#                    when the system is booted.
+### END INIT INFO
+
+# Author: Richard Eckart de Castilho
+
+NAME="WebAnno"
+DAEMON=none
+WEBANNO_HOME="/srv/webanno"
+WEBANNO_PORT="18080"
+WEBANNO_USER="www-data"
+CATALINA_BASE="/opt/webanno"
+AUTHBIND=""
+JAVA_OPTS="-Djava.awt.headless=true -Xmx750m -XX:+UseConcMarkSweepGC -Dwebanno.home=$WEBANNO_HOME"
+
+setup_authbind() {
+  # log_action_msg "Setting up authbind configuration for $DESC on port $WEBANNO_PORT"
+  touch /etc/authbind/byport/$WEBANNO_PORT
+  chmod 500 /etc/authbind/byport/$WEBANNO_PORT
+  chown $WEBANNO_USER /etc/authbind/byport/$WEBANNO_PORT
+  AUTHBIND="authbind --deep"
+}
+
+tomcat_pid() {
+  echo `ps -fe | grep -- "-Dcatalina.base=$CATALINA_BASE" | grep -v grep | tr -s " "|cut -d" " -f2`
+}
+
+do_start_cmd_override() {
+  if [ $WEBANNO_PORT -lt 1024 ]
+  then
+    setup_authbind
+  fi
+
+  su - www-data -s "/bin/bash" -c "JAVA_OPTS=\"$JAVA_OPTS\" $AUTHBIND $CATALINA_BASE/bin/startup.sh" &gt; /dev/null 2&gt;&amp;1
+}
+
+do_stop_cmd_override() {
+  su - www-data -s "/bin/bash" -c "$CATALINA_BASE/bin/shutdown.sh" &gt; /dev/null 2&gt;&amp;1
+}
+
+do_status() {
+  local pid
+  pid=$(tomcat_pid)
+  if [ -n "$pid" ]
+  then
+    log_action_msg "Status $DESC: running"
+    return 0
+  else
+    log_action_msg "Status $DESC: stopped"
+    return 1
+  fi
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Make the script executable and register it to run during system start:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ chmod +x /etc/init.d/webanno
+$ update-rc.d webanno defaults</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you deploy WebAnno on a Linux machine that is short on entropy, you can significantly
+      decrease startup time by adding <code>-Djava.security.egd=file:/dev/urandom</code> to the <code>JAVA_OPTS</code>
+      variable in the init script.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Now we have a dedicated Apache Tomcat instance for WebAnno installed at <code>/opt/webanno/</code> that automatically starts when the system boots and that can be managed through the usual <code>service</code> commands.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deploying_the_war_file"><a class="anchor" href="#_deploying_the_war_file"></a>Deploying the WAR file</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Place the WebAnno WAR into the Tomcat <code>webapps</code> folder:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cp webanno-webapp-3.6.10.war /opt/webanno/webapps/webanno.war</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mind that the copy command above renames the WAR file to <code>webanno.war</code>! This is important so that WebAnno is accessible at the URL noted later in the present guidelines.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Start WebAnno</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ service webanno start</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open it with your browser at <code><a href="http://localhost:18080/webanno" class="bare">http://localhost:18080/webanno</a></code>. If you chose to run WebAnno behind the Apache web-server use <code><a href="http://localhost/webanno" class="bare">http://localhost/webanno</a></code>.
+The first time, it will create a username <code>admin</code> with password <code>admin</code>. Log in with this username and proceed.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_the_war_behind_apache_httpd"><a class="anchor" href="#_running_the_war_behind_apache_httpd"></a>Running the WAR behind Apache HTTPD</h3>
+<div class="paragraph">
+<p>These are <strong>optional</strong> instructions if you want to run WebAnno behind an Apache web-server instead
+of accessing it directly. This assumes that you already have the following packages installed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Apache Web Server</p>
+</li>
+<li>
+<p>mod_proxy</p>
+</li>
+<li>
+<p>mod_proxy_ajp</p>
+</li>
+<li>
+<p>Edit <code>/opt/webanno/conf/server.xml</code> and enable AJP Connector on localhost (comment in, add address, and change port</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;Connector port="18009" protocol="AJP/1.3" redirectPort="8443" address="127.0.0.1"/&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Disable HTTP Connector (just comment it out)</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;!--Connector port="8080" protocol="HTTP/1.1".
+           connectionTimeout="20000".
+           URIEncoding="UTF-8"
+           redirectPort="8443" /--&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Edit <code>/etc/apache2/conf.d/webanno.local.conf</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">ProxyPreserveHost On
+
+&lt;Proxy ajp://localhost/webanno &gt;
+  Order Deny,Allow
+  Deny from none
+  Allow from all
+&lt;/Proxy&gt;
+
+&lt;Location /webanno &gt;
+  ProxyPass ajp://localhost:18009/webanno timeout=1200
+  ProxyPassReverse http://localhost/webanno
+&lt;/Location&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Restart Apache web server</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ service apache2 restart</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sect_ssl"><a class="anchor" href="#sect_ssl"></a>Securing with SSL</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section assumes Debian 9.1 (Stretch) as the operating system using <a href="https://www.nginx.com/">NGINX</a> as a web server.</p>
+</div>
+<div class="paragraph">
+<p>It further assumes that you want to use <a href="https://letsencrypt.org/">Let&#8217;s Encrypt</a> as a CA for obtaining valid SSL
+certificates.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In addition, you will need a fully registered domain name. This tutorial uses <code>example.com</code>. Replace it accordingly.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+We strongly encourage securing your production system with a firewall like UFW.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_obtaining_a_lets_encrypt_certificate"><a class="anchor" href="#_obtaining_a_lets_encrypt_certificate"></a>Obtaining a Let&#8217;s Encrypt certificate</h3>
+<div class="paragraph">
+<p>The Certification Authority (CA) <em>Let&#8217;s Encrypt</em> provides free TLS/SSL certificates. These certificates allow for secure HTTPS connections on web servers. <em>Let&#8217;s Encrypt</em> provides the software Certbot which automates the obtaining process for NGINX.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://backports.debian.org/Instructions/">Enable the Stretch backports repo</a> if needed</p>
+</li>
+<li>
+<p>Install Certbot preconfigured for NGINX</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ apt-get install python-certbot-nginx -t stretch-backports</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Obtain the certificates for your domain <code>example.com</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ certbot --nginx certonly -d example.com</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You will be prompted to enter your e-mail address and asked to agree to the terms of service. Certificate renewal information will be sent to this e-mail. If the certification process is successful it will yield the information where your certificates can be found.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at
+   /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will
+   expire on 2019-04-22. To obtain a new or tweaked version of this
+   certificate in the future, simply run certbot again with the
+   "certonly" option. To non-interactively renew *all* of your
+   certificates, run "certbot renew"
+ - Your account credentials have been saved in your Certbot
+   configuration directory at /etc/letsencrypt. You should make a
+   secure backup of this folder now. This configuration directory will
+   also contain certificates and private keys obtained by Certbot so
+   making regular backups of this folder is ideal.
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Certificates issued by <em>Let&#8217;s Encrypt</em> are valid for 90 days. You will receive an expiry notification to the e-mail address you provided during the certification process.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Run Certbot with the command <code>renew</code> to renew all certificates that are due. You can also create a cron job for this purpose. The command for renewal is</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ certbot --nginx renew</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You can simulate the certificate renewal process with the command</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ certbot --nginx renew --dry-run</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The directory <code>/etc/letsencrypt/live/example.com/</code> now contains the necessary certificates to proceed</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ls /etc/letsencrypt/live/example.com
+Output:
+cert.pem  chain.pem  fullchain.pem  privkey.pem</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_nginx"><a class="anchor" href="#_installing_nginx"></a>Installing NGINX</h3>
+<div class="paragraph">
+<p>This section assumes Debian 9.1 (Stretch) as the operating system using <a href="https://www.nginx.com/">NGINX</a> as a web server.
+It further assumes that you want to use <a href="https://letsencrypt.org/">Let&#8217;s Encrypt</a> as a CA for obtaining valid SSL
+certificates.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You can install NGINX by typing</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ apt-get update
+$ apt-get install nginx</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Verify the installation with</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ systemctl status nginx
+Output:
+● nginx.service - A high-performance web server and a reverse proxy server
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2019-01-21 14:42:01 CET; 20h ago
+     Docs: man:nginx(8)
+  Process: 7947 ExecStop=/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx.pid (code=exited, status=0/SUCCESS)
+  Process: 7953 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+  Process: 7950 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+ Main PID: 7955 (nginx)
+    Tasks: 9 (limit: 4915)
+   CGroup: /system.slice/nginx.service
+           ├─7955 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+           ├─7956 nginx: worker process</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You can stop, start or restart NGINX with</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ systemctl stop nginx
+
+$ systemctl start nginx
+
+$ systemctl restart nginx</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_putting_it_all_together"><a class="anchor" href="#_putting_it_all_together"></a>Putting it all together</h3>
+<div class="paragraph">
+<p>By now you should have</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>WebAnno running on port 8080</p>
+</li>
+<li>
+<p>NGINX running with default configurations on port 80</p>
+</li>
+<li>
+<p>your issued SSL certificates</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you are running WebAnno on a different port than 8080, please make sure to adjust the configurations below accordingly!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>We will now configure NGINX to proxy pass all traffic received at <code>example.com/webanno</code> to our WebAnno instance.</p>
+</div>
+<div class="paragraph">
+<p>Create a new virtual host for your domain. Inside of <code>/etc/nginx-sites-available/</code> create a new file for your domain (e.g. <code>example.com</code>). Paste the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># Server block for insecure http connections on port 80. Redirect to https on port 443
+server {
+        listen          80;
+        listen          [::]:80;
+        server_name     example.com;
+        return          301 https://$server_name$request_uri;
+}
+
+# Server block for secure https connections
+server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+        server_name webanno.lingterm.net;
+
+        ssl on;
+
+        # Replace certificate paths
+        ssl_certificate         /etc/letsencrypt/live/example.com/fullchain.pem;
+        ssl_certificate_key     /etc/letsencrypt/live/example.com/privkey.pem;
+        ssl_trusted_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+
+        # Modern SSL Config from
+        # https://mozilla.github.io/server-side-tls/ssl-config-generator/
+        ssl_protocols TLSv1.2;
+        ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+        ssl_prefer_server_ciphers on;
+        ssl_session_timeout 1d;
+        ssl_session_tickets off;
+        add_header Strict-Transport-Security max-age=15768000;
+        ssl_stapling on;
+        ssl_stapling_verify on;
+
+        ignore_invalid_headers off; #pass through headers from WebAnno which are considered invalid by NGINX server.
+
+        # Change body size if needed. This defines the maximum upload size for files.
+        client_max_body_size    10M;
+
+        # Uncommend this for a redirect from example.com to example.com/webanno
+        #location / {
+        #    return 301 https://$host/webanno;
+        #}
+
+        location ^~ /webanno/ {
+            proxy_pass http://127.0.0.1:8080/webanno/;
+            proxy_redirect default;
+            proxy_http_version 1.1;
+
+            proxy_set_header   Host             $host;
+            proxy_set_header   X-Real-IP        $remote_addr;
+            proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Proto $scheme;
+            proxy_max_temp_file_size 0;
+
+            proxy_connect_timeout      180;
+            proxy_send_timeout         180;
+            proxy_read_timeout         180;
+
+            proxy_temp_file_write_size 64k;
+
+            # Required for new HTTP-based CLI
+            proxy_request_buffering off;
+            proxy_buffering off; # Required for HTTP-based CLI to work over SSL
+            proxy_set_header Connection ""; # Clear for keepalive
+    }
+
+    # Deny access to Apache .htaccess files. They have no special meaning for NGINX and might leak sensitive information
+    location ~ /\.ht {
+            deny all;
+    }
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create a symlink for the new configuration file to the folder for accessible websites:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/example.com</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Test if the NGINX configuration file works without restarting (and possibly breaking) the webserver:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ nginx -t
+Output:
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the config works restart the webserver to enable the new site</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ service nginx restart</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tell_webanno_that_it_is_running_behind_a_proxy"><a class="anchor" href="#_tell_webanno_that_it_is_running_behind_a_proxy"></a>Tell WebAnno that it is running behind a proxy</h3>
+<div class="paragraph">
+<p>If you are running WebAnno via the JAR file, edit the <code>settings.properties</code> file to add these
+settings:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>server.tomcat.internal-proxies=127\.0\.[0-1]\.1
+server.tomcat.remote-ip-header=x-forwarded-for
+server.tomcat.accesslog.request-attributes-enabled=true
+server.tomcat.protocol-header=x-forwarded-proto
+server.tomcat.protocol-header-https-value=https</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you are running WebAnno as a WAR using a separate Tomcat instance, edit <code>server.xml</code> file at <code>/opt/webanno/conf/server.xml</code> and insert the following <code>&lt;Valve&gt;</code> property into the <code>&lt;Host&gt;</code> block:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;Server&gt;
+  &lt;Service&gt;
+    &lt;Engine&gt;
+      &lt;Host&gt;
+        ...
+        &lt;!-- Announce NGINX proxy header fields to WebAnno
+        &lt;Valve className="org.apache.catalina.valves.RemoteIpValve"
+                internalProxies="127\.0\.[0-1]\.1"
+                remoteIpHeader="x-forwarded-for"
+                requestAttributesEnabled="true"
+                protocolHeader="x-forwarded-proto"
+                protocolHeaderHttpsValue="https"/&gt;
+        &lt;!-- --&gt;
+
+        ...
+      &lt;/Host&gt;
+    &lt;/Engine&gt;
+  &lt;/Service&gt;
+&lt;/Server&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Restart WebAnno</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ service webanno restart</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>WebAnno now knows how to interpret the proxy header fields from NGINX. With this step, everything is now set up to access WebAnno trough a secure https connection.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_csrf_protection"><a class="anchor" href="#_csrf_protection"></a>CSRF protection</h3>
+<div class="paragraph">
+<p>Depending on your situation, you may get an error message such as this when trying to use
+WebAnno.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>
+</div>
+<div class="paragraph">
+<p>Fri Nov 29 14:01:15 BRT 2019
+There was an unexpected error (type=Bad Request, status=400).
+Origin does not correspond to request</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If this is the case, then CSRF protection is kicking in. What seems to work in this case is to turn
+off CSRF entirely by adding the following lines to your <code>settings.properties</code> file (see <a href="#sect_settings">Settings</a>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>wicket.core.csrf.enabled=false
+wicket.core.csrf.no-origin-action=allow
+wicket.core.csrf.conflicting-origin-action=allow</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<strong>Turning off a security feature is obviously not a great solution.</strong> Better check out the documentation for the <a href="https://github.com/MarcGiffing/wicket-spring-boot/blob/master/README.adoc#core---prevention-of-csrf-attacks">Wicket Spring Boot CSRF settings</a> and if you figure out a better solution than the above, please get in touch with use via our <a href="https://github.com/webanno/webanno/issues">issue tracker</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_via_docker"><a class="anchor" href="#_running_via_docker"></a>Running via Docker</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_quick_start"><a class="anchor" href="#_quick_start"></a>Quick start</h3>
+<div class="paragraph">
+<p>If you have Docker installed, you can run WebAnno using</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker run -it --name webanno -p8080:8080 webanno/webanno:3.6.10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The command download WebAnno from Dockerhub and starts it on port 8080. If this port is not
+available on your machine, you should provide another port to the <code>-p</code> parameter.</p>
+</div>
+<div class="paragraph">
+<p>The logs will be printed to the console. To stop the container, press <code>CTRL-C</code>.</p>
+</div>
+<div class="paragraph">
+<p>To run the WebAnno docker in the background use</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker run -d --name webanno -p8080:8080 webanno/webanno:3.6.10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Logs are accessible by typing</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker logs webanno</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Use <code>docker run</code> only the first time that you run WebAnno. If you try it a second time, Docker
+      will complain about the name <code>webanno</code> already being in use. If you follow Docker`s suggestion
+      to delete the container, you will loose all your WebAnno data. Further below, we explain how
+      you can store your data outside the container in a folder on your host.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When you want to run WebAnno again later, use the command</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker start -ai webanno</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or for the background mode</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker start webanno</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_storing_data_on_the_host"><a class="anchor" href="#_storing_data_on_the_host"></a>Storing data on the host</h3>
+<div class="paragraph">
+<p>If you follow the quick start instructions above, WebAnno will store all its data inside the docker
+container. This is normally not what you want because as soon as you delete the container, all data
+is gone. That means for example that you cannot easily upgrade to a new version of the WebAnno
+docker image when one is released.</p>
+</div>
+<div class="paragraph">
+<p>To store your data on your host computer, first create a folder where you want to store your data.
+For example, if you are on Linux, you could create a folder <code>/srv/webanno</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ mkdir /srv/webanno</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you run WebAnno via Docker, you then mount this folder into the container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker run -it --name webanno -v /srv/webanno:/export -p8080:8080 webanno/webanno:3.6.10</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_settings_file"><a class="anchor" href="#_settings_file"></a>Settings file</h3>
+<div class="paragraph">
+<p>The dockerized WebAnno expects the <code>settings.properties</code> file in the <code>/export</code> folder. Instead of
+injecting a custom <code>settings.properties</code> file into the container, it is strongly recommender to
+use the instructions above (Storing data on the host) to mount a folder from the host system to
+<code>/export</code> then to place the into the mounted folder <code>settings.properties</code>. Thus, if you follow
+the instructions above, the settings file would go to <code>/srv/webanno/settings.properties</code> on the host
+system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_connecting_to_a_mysql_database"><a class="anchor" href="#_connecting_to_a_mysql_database"></a>Connecting to a MySQL database</h3>
+<div class="paragraph">
+<p>By default, WebAnno uses an embedded SQL database to store its metadata (not the texts and
+annotations, these are stored in files on disk). For production use, it is highly recommended to
+use a separate MySQL database instead of the embedded SQL database.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_docker_compose"><a class="anchor" href="#_docker_compose"></a>Docker Compose</h3>
+<div class="paragraph">
+<p>Using Docker Compose, you can manage multiple related containers. This section illustrates how to use
+Docker Compose to jointly set up a WebAnno container as well as a database container (i.e.
+<a href="https://hub.docker.com/_/mysql/">this one</a>).</p>
+</div>
+<div class="paragraph">
+<p>The following Compose script sets these containers up.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The script contains example usernames and passwords used by the WebAnno container to
+       connect to the database container, namely <code>DBUSER</code> and <code>DBPASSWORD</code>. It is highly recommended that you
+       change these!
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Docker Compose script</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">##
+# docker-compose up [-d]
+# docker-compose down
+##
+version: '2.1'
+
+networks:
+  webanno-net:
+
+services:
+  mysqlserver:
+    image: "mysql:5"
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=webanno
+      - MYSQL_USER=DBUSER
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=DBPASSWORD
+    volumes:
+      - ${WEBANNO_HOME}/mysql-data:/var/lib/mysql
+    command: ["--character-set-server=utf8", "--collation-server=utf8_bin"]
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-pDBPASSWORD", "-uDBUSER"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    networks:
+      webanno-net:
+
+  webserver:
+    image: "${WEBANNO_IMAGE:-webanno/webanno}:${WEBANNO_VERSION:-3.6.10}"
+    ports:
+      - "${WEBANNO_PORT}:8080"
+    environment:
+      - WEBANNO_DB_DIALECT=org.hibernate.dialect.MySQL5InnoDBDialect
+      - WEBANNO_DB_DRIVER=com.mysql.jdbc.Driver
+      - WEBANNO_DB_URL=jdbc:mysql://mysqlserver:3306/webanno?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8
+      - WEBANNO_DB_USERNAME=DBUSER
+      - WEBANNO_DB_PASSWORD=DBPASSWORD
+    volumes:
+      - ${WEBANNO_HOME}/server-data:/export
+    depends_on:
+      mysqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      webanno-net:</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Place the script into any folder, change to that folder, and issue the commands</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">export WEBANNO_HOME=/srv/webanno
+export WEBANNO_PORT=8080
+docker-compose -p webanno up -d</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will start two docker containers: <code>webanno_mysqlserver_1</code>, and <code>webanno_webserver_1</code>. You can check the logs of each by running</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker logs webanno_mysqlserver_1
+docker logs webanno_webserver_1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Two directories in your WebAnno home folder will be created: <code>mysql-data</code> and <code>webserver-data</code>. No data is stored in the containers themselves, you are safe to delete them with</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">docker-compose -p webanno down</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also just stop or pause them, please see the <a href="https://docs.docker.com/compose/">docker-compose reference</a> for details.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The settings within the docker-compose.yml file are just examples. Adjust the database URL, username, and password accordingly.
+</td>
+</tr>
+</table>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<h1 id="sect_upgrade" class="sect0"><a class="anchor" href="#sect_upgrade"></a>Upgrading</h1>
+<div class="openblock partintro">
+<div class="content">
+In general, it is possible to perform an in-place upgrade of the application. However, before doing
+an upgrade, it is recommender to create a backup of the application and data to allow coming back
+to a working system if case of a problem during the upgrade. Mind that the upgrade is only completed
+once the new version has successfully started because during startup, the application may make
+changes to the database schema or to the data on disk.
+</div>
+</div>
+<div class="sect1">
+<h2 id="_backup_your_data"><a class="anchor" href="#_backup_your_data"></a>Backup your data</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Make a copy of your WebAnno home folder</p>
+</li>
+<li>
+<p>If you are using MySQL, make a backup of your WebAnno database, e.g. using the <a href="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html">mysqldump</a> command.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upgrading_with_embedded_tomcat"><a class="anchor" href="#_upgrading_with_embedded_tomcat"></a>Upgrading with embedded Tomcat</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Stop the WebAnno service</p>
+</li>
+<li>
+<p>Replace the <code>webanno.jar</code> file with the new version</p>
+</li>
+<li>
+<p>Ensure that the file has the right owner/group (usually <code>www-data</code>)</p>
+</li>
+<li>
+<p>Start the WebAnno service again</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upgrading_with_separate_tomcat"><a class="anchor" href="#_upgrading_with_separate_tomcat"></a>Upgrading with separate Tomcat</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>While Tomcat is running, delete the old WAR from your <code>webapps</code> folder</p>
+</li>
+<li>
+<p>Wait until Tomcat has automatically deleted the WebAnno folder</p>
+</li>
+<li>
+<p>Stop Tomcat</p>
+</li>
+<li>
+<p>Place the new WAR file into your <code>webapps</code> folder</p>
+</li>
+<li>
+<p>Start Tomcat</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_upgrading_tomcat_7_to_tomcat_8"><a class="anchor" href="#_upgrading_tomcat_7_to_tomcat_8"></a>Upgrading Tomcat 7 to Tomcat 8</h3>
+<div class="paragraph">
+<p>If you have been using our installation instructions to install WebAnno on Linux, you are probably
+running an instance of Tomcat 6. WebAnno 3.3.0 is no longer compatible with Tomcat 6 and requires
+at least Tomcat 8.</p>
+</div>
+<div class="paragraph">
+<p>To upgrade your existing instance, you can try the following procedure (adapt the procedure as
+necessary if you have deviated from our installation instructions):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Stop the current WebAnno Tomcat 7 instance</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ service webanno stop</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Move your old Tomcat instance out of the way</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ mv /opt/webanno /opt/webanno-tomcat7</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install <code>tomcat8-user</code> package (this will automatically uninstall Tomcat 7)</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ apt-get install tomcat8-user</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create new instance</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ cd /opt
+$ tomcat8-instance-create -p 18080 -c 18005 webanno
+$ chown -R www-data /opt/webanno</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Copy the WAR file over to the new instance</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ mv /opt/webanno-tomcat7/webapps/webanno.war /opt/webanno/webapps/webanno.war</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Stop the new WebAnno Tomcat 8 instance</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ service webanno start</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you have made additional changes to the Tomcat 7 configuration files, e.g. changed
+      <code>conf/server.xml</code>, please make sure to redo them in the new Tomcat 8 instance.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upgrading_via_exportimport"><a class="anchor" href="#_upgrading_via_exportimport"></a>Upgrading via export/import</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This option can be used when performing an upgrade by exporting all data from once instance of
+the application into another instance which may potentially reside on a different machine. It
+is a very tedious approach because there is no option to bulk-export all projects.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Log into WebAnno and export all the projects that you wish to migrate using the <strong>Export</strong> pane in the project settings</p>
+</li>
+<li>
+<p>Move your WebAnno home folder to a safe location so that WebAnno and create a new home folder in the old location</p>
+</li>
+<li>
+<p>Copy the <strong>settings.properties</strong> back from your moved folder</p>
+</li>
+<li>
+<p>Start the new WebAnno version to initialize the database</p>
+</li>
+<li>
+<p>Recreate the users</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If you are using MySQL</p>
+<div class="ulist">
+<ul>
+<li>
+<p>create a new database for the new WebAnno version and update the <strong>settings.properties</strong> accordingly</p>
+</li>
+<li>
+<p>use <a href="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html">mysqldump</a> to dump the tables <code>users</code> and <code>authorities</code> from the old database and load it back into the new database</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If you are not using MySQL, you have to recreate the users manually</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>When upgrading to WebAnno 2.x from a pre 2.x version, remove the <strong>format.properties</strong> file from the WebAnno home folder</p>
+</li>
+<li>
+<p>Restart WebAnno and import the previously exported projects</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_migration_notes"><a class="anchor" href="#_migration_notes"></a>Migration notes</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_version_3_2_x_to_3_3_0"><a class="anchor" href="#_version_3_2_x_to_3_3_0"></a>Version 3.2.x to 3.3.0</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>When upgrading from 3.2.x or earlier to 3.3.0 or later, Automation projects break.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_2_3_1_to_3_0_0"><a class="anchor" href="#_version_2_3_1_to_3_0_0"></a>Version 2.3.1 to 3.0.0</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The access permissions of administrators have changed. Administrators can no longer access
+annotation, curation, and monitoring pages for all projects. They can only access them if they
+are annotators, managers, or curators in the respective projects. However, they still have full
+access to the project settings of all projects and can simply give themselves the missing
+permissions. <strong>After an upgrade to 3.0.0, all administrators who require project permissions on
+existing projects should assign these permissions to themselves. This also applies when importing
+old projects.</strong> For new projects, the creator of the project always starts with annotator, curator,
+and manager permissions. If these permissions are not required by the project creator,
+they should be removed after project creation.</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<h1 id="sect_remote_api" class="sect0"><a class="anchor" href="#sect_remote_api"></a>Remote API</h1>
+<div class="openblock partintro">
+<div class="content">
+<div class="paragraph">
+<p>In order to programmatically manage annotation project, a REST-like remote API is offered. This API
+is disabled by default. In order to enable it, add the setting <code>remote-api.enabled=true</code> to the
+<code>settings.properties</code> file.</p>
+</div>
+<div class="paragraph">
+<p>Once the remote API is enabled, it becomes possible to assign the role <code>ROLE_REMOTE</code> to a user. Create a new user, e.g. <code>remote-api</code> via the user management page and assign at least the roles <code>ROLE_USER</code> and <code>ROLE_REMOTE</code>. Most of the actions accessible through the remote API require administrator access, so adding the <code>ROLE_ADMIN</code> is usually necessary as well.</p>
+</div>
+<div class="paragraph">
+<p>Once the remote API has been enabled, it offers a convenient and self-explanatory web-based user interface under <code>&lt;APPLICATION_URL&gt;/swagger-ui.html</code> which can be accessed by any user with the role <code>ROLE_REMOTE</code>. Here, you can browse the different operations, their parameters, and even try them out directly via a web browser. The actual AERO remote API uses <code>&lt;APPLICATION_URL/api/aero/v1</code> as the
+base URL for its operations.</p>
+</div>
+<div class="paragraph">
+<p>The API follows the <a href="https://openminted.github.io/releases/aero-spec/1.0.0/omtd-aero/">Annotation Editor Remote Operations (AERO) protocol</a>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Remote API settings</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remote-api.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable remote API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sect_remote_api_webhooks"><a class="anchor" href="#sect_remote_api_webhooks"></a>Webhooks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Webhooks allow WebAnno to notify external services about certain events. For example, an
+external service can be triggered when an annotator marks a document as finished or when all
+documents in a project have been completely curated.</p>
+</div>
+<div class="paragraph">
+<p>Webhooks are declared in the <code>settings.properties</code> file. For every webhook, it is necessary to
+specify an URL (<code>url</code>) and a set of topics (<code>topics</code>) about with the remote service listening at the
+given URL is notified. If the remote service is accessible via https and the certificate is not
+known to the JVM running WebAnno, the certificate verification can be disabled
+(<code>verify-certificates</code>).</p>
+</div>
+<div class="paragraph">
+<p>The following topics are supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DOCUMENT_STATE</code> - events related to the change of a document state such as when any user starts
+annotating or curating the document.</p>
+</li>
+<li>
+<p><code>ANNOTATION_STATE</code> - events related to the change of an annotation state such as when a user
+starts or completes the annotation of a document.</p>
+</li>
+<li>
+<p><code>PROJECT_STATE</code> - events related to the change of an entire project such as when all documents
+have been curated.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Example webhook configuration</div>
+<div class="content">
+<pre>webhooks.globalHooks[0].url=http://localhost:3333/
+webhooks.globalHooks[0].topics[0]=DOCUMENT_STATE
+webhooks.globalHooks[0].topics[1]=ANNOTATION_STATE
+webhooks.globalHooks[0].topics[2]=PROJECT_STATE
+webhooks.globalHooks[0].verify-certificates=false</pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<h1 id="sect_settings" class="sect0"><a class="anchor" href="#sect_settings"></a>Settings</h1>
+<div class="openblock partintro">
+<div class="content">
+Application settings are managed via a file called <code>settings.properties</code> which must reside in the
+application home folder. The file is optional. If it does not exist, default values are assumed.
+</div>
+</div>
+<div class="sect1">
+<h2 id="_general_settings"><a class="anchor" href="#_general_settings"></a>General Settings</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. General settings</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warnings.unsupportedBrowser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Warn about unsupported browser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">debug.showExceptionPage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Show a page with a stack trace instead of an "Internal error" page. Do not use in production!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">login.message</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom message to appear on the login page, such as project web-site, annotation guideline link, &#8230;&#8203; The message can be an HTML content.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;span style="color:red; font-size: 200%;"&gt;Use are your own risk.&lt;/span&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user.profile.accessible</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether regular users can access their own profile to change their password and other profile information. This setting has no effect when running in pre-authentication mode.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userSelection.hideUsers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether the list of users show in the users tab of the project settings is restricted. If this setting is enable, the full name of a user has to be entered into the input field before the user can be added. If this setting is disabled, it is possible to see all enabled users and to add any of them to the project.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_database_connection"><a class="anchor" href="#_database_connection"></a>Database connection</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Database settings in the <code>settings.properties</code> file</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.dialect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database dialect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hibernate.dialect.HSQLDialect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hibernate.dialect.MySQL5InnoDBDialect</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.driver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database driver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hsqldb.jdbc.JDBCDriver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">com.mysql.jdbc.Driver</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JDBC connection string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>location in application home</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jdbc:mysql://localhost:3306/weblab?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sa</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pass</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.initial-pool-size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Initial database connection pool size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.min-pool-size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimum database connection pool size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database.max-pool-size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum database connection pool size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warnings.embeddedDatabase</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Warn about using an embedded database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The basic database connection details can also be configured via environment variables. When these
+environment variables are present, they are preferred over the <code>settings.properties</code> file.
+The following environment variables can be used:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 7. Database configuration via environment variables</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>WEBANNO_DB_DIALECT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database dialect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hibernate.dialect.HSQLDialect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hibernate.dialect.MySQL5InnoDBDialect</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>WEBANNO_DB_DRIVER</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database driver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.hsqldb.jdbc.JDBCDriver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">com.mysql.jdbc.Driver</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>WEBANNO_DB_URL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JDBC connection string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>location in application home</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jdbc:mysql://localhost:3306/webanno?useUnicode=true&amp;characterEncoding=UTF-8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>WEBANNO_DB_USERNAME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sa</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>WEBANNO_DB_PASSWORD</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Database password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pass</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_server_settings"><a class="anchor" href="#_server_settings"></a>Server Settings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These settings relate to the embedded web server in the JAR version of WebAnno.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 8. Server settings</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.port</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Port on which the server listens</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8080</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18080</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IP address on which the server listens</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.0.0.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">127.0.0.1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.ajp.port</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Port for AJP connector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1 <em>(disabled)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8009</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.ajp.address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IP address on which the AJP connector listens</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">127.0.0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.0.0.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.ajp.secret-required</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether AJP connections require a shared secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">server.ajp.secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared secret for AJP connections</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>some secret string of your choice</em></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The application is based on Spring Boot and using an embedded Tomcat server. You can configure
+      additional aspects of the embedded web server using default <a href="https://docs.spring.io/spring-boot/docs/1.5.22.RELEASE/reference/html/common-application-properties.html">Spring Boot configuration settings</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_internal_backup"><a class="anchor" href="#_internal_backup"></a>Internal backup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>WebAnno stores its annotations internally in files. Whenever a user performs an action on a
+document, the file is updated. It is possible to configure WebAnno to keep internal backups
+of these files, e.g. to safeguard against crashes or bugs.</p>
+</div>
+<div class="paragraph">
+<p>The internal backups are controlled through three properties:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 9. Database settings in the <code>settings.properties</code> file</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backup.interval</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time between backups (seconds)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 <em>(disabled)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">300 <em>(60 * 5 = 5 minutes)</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backup.keep.number</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of backups to keep</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 <em>(unlimited)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backup.keep.time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum age of backups to keep (seconds)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 <em>(unlimited)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2592000 <em>(60 * 60 * 24 * 30 = 30 days)</em></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>By default, backups are disabled (<strong>backup.interval</strong> is set to <code>0</code>). Changing this properties to
+any positive number enables internal backups. The interval controls the minimum time between changes
+to a document that needs to have elapsed in order for a new backup to be created.</p>
+</div>
+<div class="paragraph">
+<p>When backups are enabled, either or both of the properties <strong>backup.keep.number</strong> and
+<strong>backup.keep.time</strong> should be changed as well, because their default values will cause the
+backups to be stored indefinitely and they will eventually fill up the disk.</p>
+</div>
+<div class="paragraph">
+<p>The properties <strong>backup.keep.number</strong> and <strong>backup.keep.time</strong> control how long backups are keep
+and the maximal number of backups to keep. These settings are effective simultaneously.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Make backups every 5 minutes and keep 10 backups irrespective of age</div>
+<div class="content">
+<pre>backup.interval    = 300
+backup.keep.number = 10
+backup.keep.time   = 0</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example: Make backups every 5 minutes and all not older than 7 days (60 * 60 * 24 * 7 seconds)</div>
+<div class="content">
+<pre>backup.interval    = 300
+backup.keep.number = 0
+backup.keep.time   = 604800</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example: Make backups every 5 minutes and keep at most 10 backups that are not older than 7 days</div>
+<div class="content">
+<pre>backup.interval    = 300
+backup.keep.number = 10
+backup.keep.time   = 604800</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_header_icons"><a class="anchor" href="#_custom_header_icons"></a>Custom header icons</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>WebAnno allows adding custom icons to the page header. You can declare such custom icons in the  <code>settings.properties</code> file as shown in the example below. Each declaration begins with the prefix <code>style.header.icon.</code> followed by an identifier (here <code>myOrganization</code> and <code>mySupport</code>). The suffixes <code>.linkUrl</code> and <code>.imageUrl</code> indicate the URL of the target page and of the icon image respectively. Images are automatically resized via CSS. However, to keep loading times low, you should point to a reasonably small image.</p>
+</div>
+<div class="paragraph">
+<p>The order of the icons is controlled by the ID, not by the order in the configuration file!</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Custom header icon</div>
+<div class="content">
+<pre>style.header.icon.myOrganization.linkUrl=http://my.org
+style.header.icon.myOrganization.imageUrl=http://my.org/logo.png
+style.header.icon.mySupport.linkUrl=http://my.org/support
+style.header.icon.mySupport.imageUrl=http://my.org/help.png</pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">style.logo</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Logo image displayed in the upper-right corner</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>path to an image file</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">style.header.icon&#8230;&#8203;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Icons/links to display in the page header. For details, see below.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>unset</em></p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_annotation_editor"><a class="anchor" href="#_annotation_editor"></a>Annotation editor</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ui.brat.autoScroll</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether to scroll the annotation being edited into the center of the page</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ui.brat.pageSize</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of sentences to display per page</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ui.brat.singleClickSelection</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether to select annotations with a single click</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ui.brat.rememberLayer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether "remember layer" is activated by default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">annotation.feature-support.string.autoCompleteThreshold</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If the tagset is larger than the threshold, an auto-complete field is used instead of a standard combobox.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">75</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">annotation.feature-support.string.autoCompleteMaxResults</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When an auto-complete field is used, this determines the maximum number of items shown in the dropdown menu.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sect_security_preauth"><a class="anchor" href="#sect_security_preauth"></a>External pre-authentication</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>WebAnno can be used in conjunction with header-based external per-authentication. In this mode,
+the application looks for a special HTTP header (by default <code>remote_user</code>) and if that header exists,
+it is taken for granted that this user has been authenticated. The application will check its internal
+database if a user by the given name exists, otherwise it will create the user.</p>
+</div>
+<div class="paragraph">
+<p>Pre-authentication can be enabled by setting the property <code>auth.mode</code> to <code>preauth</code>. When enabling
+pre-authentication mode, the default roles for new users can be controlled using the
+<code>auth.preauth.newuser.roles</code> property. The <code>ROLE_USER</code> is always added, even if not specified
+explicitly. Adding also the role <code>ROLE_PROEJCT_CREATOR</code> allows all auto-created users also to
+create their own projects.</p>
+</div>
+<div class="paragraph">
+<p>Since the default administrator user is not created in pre-authentication, it is useful to also
+declare at least one user as an administrator. This is done through the property
+<code>auth.user.&lt;username&gt;.roles</code> where <code>&lt;username&gt;</code> must be replaced with the name of the user.
+The example below shows how the user <strong>Franz</strong> is given administrator permissions.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Authenticate using the <code>remote_user</code> header, new users can create projects, user <strong>Franz</strong> is always admin.</div>
+<div class="content">
+<pre>auth.mode                     = preauth
+auth.preauth.header.principal = remote_user
+auth.preauth.newuser.roles    = ROLE_PROJECT_CREATOR
+auth.user.Franz.roles         = ROLE_ADMIN</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The roles specified through <code>auth.preauth.newuser.roles</code> are saved in the database when a
+      user logs in for the first time and can be changed after creation through the user interface.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The roles added through <code>auth.user.&lt;username&gt;.roles</code> properties are <strong>not</strong> saved in the
+      database and <strong>cannot</strong> be edited through the user interface.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">auth.mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">database</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">preauth</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">auth.preauth.header.principal</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Principal header</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remote_user</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>some other header</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">auth.preauth.newuser.roles</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Default roles for new users (comma separated)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;none&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ROLE_PROJECT_CREATOR</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">auth.user.<em>&lt;username&gt;</em>.roles</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extra roles for user (comma separated)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;none&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ROLE_ADMIN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 3.6.10<br>
+Last updated 2021-12-16 18:18:34 +0100
+</div>
+</div>
+</body>
+</html>
