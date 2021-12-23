@@ -2,26 +2,30 @@
 ### LATEST BLEEDING EDGE VERSION
 ###
 
-- version: 4.0.0-SNAPSHOT
-  status: unstable
-  user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
-  admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
-  developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
+# - version: 4.0.0-SNAPSHOT
+#   status: unstable
+#   user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
+#   admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
+#   developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
 
 ###
 ### LATEST BETA
 ###
 
-- version: 4.0.0-beta-23
-  date: 2021-02-27
-  status: beta
-  user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
-  admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
-  developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
+# - version: 4.0.0-beta-23
+#   date: 2021-02-27
+#   status: beta
+#   user_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/1/
+#   admin_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/2/
+#   developer_guide_url: https://zoidberg.ukp.informatik.tu-darmstadt.de/jenkins/job/WebAnno%20(GitHub)%20(master)/de.tudarmstadt.ukp.clarin.webanno$webanno-webapp/doclinks/3/
 
 ###
 ### RELEASE VERSIONS
 ###
+- version: 3.6.11
+  date: 2021-12-23
+  status: stable
+  
 - version: 3.6.10
   date: 2021-12-17
   status: stable
