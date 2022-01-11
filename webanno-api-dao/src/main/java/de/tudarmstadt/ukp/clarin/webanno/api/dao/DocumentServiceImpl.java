@@ -2,13 +2,13 @@
  * Licensed to the Technische Universität Darmstadt under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The Technische Universität Darmstadt 
+ * regarding copyright ownership.  The Technische Universität Darmstadt
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.
- *  
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,7 +97,7 @@ import de.tudarmstadt.ukp.clarin.webanno.support.logging.Logging;
 
 @Component(DocumentService.SERVICE_NAME)
 public class DocumentServiceImpl
-    implements DocumentService
+        implements DocumentService
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -112,8 +112,8 @@ public class DocumentServiceImpl
 
     @Autowired
     public DocumentServiceImpl(RepositoryProperties aRepositoryProperties,
-            CasStorageService aCasStorageService, ImportExportService aImportExportService,
-            ProjectService aProjectService, ApplicationEventPublisher aApplicationEventPublisher)
+                               CasStorageService aCasStorageService, ImportExportService aImportExportService,
+                               ProjectService aProjectService, ApplicationEventPublisher aApplicationEventPublisher)
     {
         repositoryProperties = aRepositoryProperties;
         log.info("Document repository path: " + repositoryProperties.getPath());
@@ -125,9 +125,9 @@ public class DocumentServiceImpl
     }
 
     public DocumentServiceImpl(RepositoryProperties aRepositoryProperties,
-            CasStorageService aCasStorageService, ImportExportService aImportExportService,
-            ProjectService aProjectService, ApplicationEventPublisher aApplicationEventPublisher,
-            EntityManager aEntityManager)
+                               CasStorageService aCasStorageService, ImportExportService aImportExportService,
+                               ProjectService aProjectService, ApplicationEventPublisher aApplicationEventPublisher,
+                               EntityManager aEntityManager)
     {
         this(aRepositoryProperties, aCasStorageService, aImportExportService, aProjectService,
                 aApplicationEventPublisher);
@@ -150,8 +150,8 @@ public class DocumentServiceImpl
         Validate.notNull(aDocument, "Source document must be specified");
 
         File sourceDocFolder = new File(repositoryProperties.getPath(),
-                "/" + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
-                        + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
+                File.separator + PROJECT_FOLDER + File.separator + aDocument.getProject().getId() + File.separator + DOCUMENT_FOLDER
+                        + File.separator + aDocument.getId() + File.separator + SOURCE_FOLDER);
         FileUtils.forceMkdir(sourceDocFolder);
         return sourceDocFolder;
     }
@@ -269,9 +269,9 @@ public class DocumentServiceImpl
     {
         Validate.notNull(aDocument, "Source document must be specified");
 
-        File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
-                + PROJECT_FOLDER + "/" + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER
-                + "/" + aDocument.getId() + "/" + SOURCE_FOLDER);
+        File documentUri = new File(repositoryProperties.getPath().getAbsolutePath() + File.separator
+                + PROJECT_FOLDER + File.separator + aDocument.getProject().getId() + File.separator + DOCUMENT_FOLDER
+                + File.separator + aDocument.getId() + File.separator + SOURCE_FOLDER);
 
         return new File(documentUri, aDocument.getName());
     }
@@ -359,7 +359,7 @@ public class DocumentServiceImpl
 
     @Transactional
     private SourceDocumentState setSourceDocumentState(SourceDocument aDocument,
-            SourceDocumentState aState)
+                                                       SourceDocumentState aState)
     {
         Validate.notNull(aDocument, "Source document must be specified");
         Validate.notNull(aState, "State must be specified");
@@ -382,7 +382,7 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public SourceDocumentState transitionSourceDocumentState(SourceDocument aDocument,
-            SourceDocumentStateTransition aTransition)
+                                                             SourceDocumentStateTransition aTransition)
     {
         Validate.notNull(aDocument, "Source document must be specified");
         Validate.notNull(aTransition, "Transition must be specified");
@@ -479,8 +479,8 @@ public class DocumentServiceImpl
         entityManager.remove(
                 entityManager.contains(aDocument) ? aDocument : entityManager.merge(aDocument));
 
-        String path = repositoryProperties.getPath().getAbsolutePath() + "/" + PROJECT_FOLDER + "/"
-                + aDocument.getProject().getId() + "/" + DOCUMENT_FOLDER + "/" + aDocument.getId();
+        String path = repositoryProperties.getPath().getAbsolutePath() + File.separator + PROJECT_FOLDER + File.separator
+                + aDocument.getProject().getId() + File.separator + DOCUMENT_FOLDER + File.separator + aDocument.getId();
 
         // remove from file both source and related annotation file
         if (new File(path).exists()) {
@@ -514,8 +514,8 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public void uploadSourceDocument(InputStream aIs, SourceDocument aDocument,
-            TypeSystemDescription aFullProjectTypeSystem)
-        throws IOException
+                                     TypeSystemDescription aFullProjectTypeSystem)
+            throws IOException
     {
         // Create the metadata record - this also assigns the ID to the document
         createSourceDocument(aDocument);
@@ -568,7 +568,7 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS createOrReadInitialCas(SourceDocument aDocument, CasUpgradeMode aUpgradeMode)
-        throws IOException
+            throws IOException
     {
         return createOrReadInitialCas(aDocument, aUpgradeMode, EXCLUSIVE_WRITE_ACCESS, null);
     }
@@ -577,8 +577,8 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS createOrReadInitialCas(SourceDocument aDocument, CasUpgradeMode aUpgradeMode,
-            CasAccessMode aAccessMode)
-        throws IOException
+                                      CasAccessMode aAccessMode)
+            throws IOException
     {
         return createOrReadInitialCas(aDocument, aUpgradeMode, aAccessMode, null);
     }
@@ -587,8 +587,8 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS createOrReadInitialCas(SourceDocument aDocument, CasUpgradeMode aUpgradeMode,
-            TypeSystemDescription aFullProjectTypeSystem)
-        throws IOException
+                                      TypeSystemDescription aFullProjectTypeSystem)
+            throws IOException
     {
         return createOrReadInitialCas(aDocument, aUpgradeMode, EXCLUSIVE_WRITE_ACCESS,
                 aFullProjectTypeSystem);
@@ -597,8 +597,8 @@ public class DocumentServiceImpl
     // NO TRANSACTION REQUIRED - This does not do any should not do a database access, so we do not
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     private CAS createOrReadInitialCas(SourceDocument aDocument, CasUpgradeMode aUpgradeMode,
-            CasAccessMode aAccessMode, TypeSystemDescription aFullProjectTypeSystem)
-        throws IOException
+                                       CasAccessMode aAccessMode, TypeSystemDescription aFullProjectTypeSystem)
+            throws IOException
     {
         Validate.notNull(aDocument, "Source document must be specified");
 
@@ -644,7 +644,7 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS readAnnotationCas(SourceDocument aDocument, String aUserName, CasAccessMode aMode)
-        throws IOException
+            throws IOException
     {
         return readAnnotationCas(aDocument, aUserName, NO_CAS_UPGRADE, aMode);
     }
@@ -653,7 +653,7 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS readAnnotationCas(AnnotationDocument aAnnotationDocument, CasAccessMode aMode)
-        throws IOException
+            throws IOException
     {
         return readAnnotationCas(aAnnotationDocument.getDocument(), aAnnotationDocument.getUser(),
                 NO_CAS_UPGRADE, aMode);
@@ -663,8 +663,8 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS readAnnotationCas(SourceDocument aDocument, String aUserName,
-            CasUpgradeMode aUpgradeMode)
-        throws IOException
+                                 CasUpgradeMode aUpgradeMode)
+            throws IOException
     {
         return readAnnotationCas(aDocument, aUserName, aUpgradeMode, EXCLUSIVE_WRITE_ACCESS);
     }
@@ -673,8 +673,8 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS readAnnotationCas(SourceDocument aDocument, String aUserName,
-            CasUpgradeMode aUpgradeMode, CasAccessMode aMode)
-        throws IOException
+                                 CasUpgradeMode aUpgradeMode, CasAccessMode aMode)
+            throws IOException
     {
         // If there is no CAS yet for the source document, create one.
         CAS cas = casStorageService.readOrCreateCas(aDocument, aUserName, aUpgradeMode,
@@ -699,8 +699,8 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public CAS readAnnotationCas(AnnotationDocument aAnnotationDocument,
-            CasUpgradeMode aUpgradeMode)
-        throws IOException
+                                 CasUpgradeMode aUpgradeMode)
+            throws IOException
     {
         Validate.notNull(aAnnotationDocument, "Annotation document must be specified");
 
@@ -714,7 +714,7 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public Optional<Long> getAnnotationCasTimestamp(SourceDocument aDocument, String aUsername)
-        throws IOException
+            throws IOException
     {
         Validate.notNull(aDocument, "Source document must be specified");
         Validate.notNull(aUsername, "Username must be specified");
@@ -725,8 +725,8 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public void writeAnnotationCas(CAS aCas, AnnotationDocument aAnnotationDocument,
-            boolean aUpdateTimestamp)
-        throws IOException
+                                   boolean aUpdateTimestamp)
+            throws IOException
     {
         casStorageService.writeCas(aAnnotationDocument.getDocument(), aCas,
                 aAnnotationDocument.getUser());
@@ -746,7 +746,7 @@ public class DocumentServiceImpl
 
     @Override
     public void deleteAnnotationCas(SourceDocument aSourceDocument, String aUsername)
-        throws IOException
+            throws IOException
     {
         casStorageService.deleteCas(aSourceDocument, aUsername);
     }
@@ -761,8 +761,8 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public void writeAnnotationCas(CAS aCas, SourceDocument aDocument, String aUser,
-            boolean aUpdateTimestamp)
-        throws IOException
+                                   boolean aUpdateTimestamp)
+            throws IOException
     {
         AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, aUser);
         writeAnnotationCas(aCas, annotationDocument, aUpdateTimestamp);
@@ -771,8 +771,8 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public void writeAnnotationCas(CAS aCas, SourceDocument aDocument, User aUser,
-            boolean aUpdateTimestamp)
-        throws IOException
+                                   boolean aUpdateTimestamp)
+            throws IOException
     {
         AnnotationDocument annotationDocument = getAnnotationDocument(aDocument, aUser);
         writeAnnotationCas(aCas, annotationDocument, aUpdateTimestamp);
@@ -782,7 +782,7 @@ public class DocumentServiceImpl
     // need to be in a transaction here. Avoiding the transaction speeds up the call.
     @Override
     public void resetAnnotationCas(SourceDocument aDocument, User aUser)
-        throws UIMAException, IOException
+            throws UIMAException, IOException
     {
         AnnotationDocument adoc = getAnnotationDocument(aDocument, aUser);
 
@@ -878,7 +878,7 @@ public class DocumentServiceImpl
 
     @Override
     public Map<SourceDocument, AnnotationDocument> listAnnotatableDocuments(Project aProject,
-            User aUser)
+                                                                            User aUser)
     {
         Map<SourceDocument, AnnotationDocument> map = listAllDocuments(aProject, aUser);
 
@@ -986,7 +986,7 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public AnnotationDocumentState setAnnotationDocumentState(AnnotationDocument aDocument,
-            AnnotationDocumentState aState)
+                                                              AnnotationDocumentState aState)
     {
         AnnotationDocumentState oldState = aDocument.getState();
 
@@ -1005,7 +1005,7 @@ public class DocumentServiceImpl
     @Override
     @Transactional
     public AnnotationDocumentState transitionAnnotationDocumentState(AnnotationDocument aDocument,
-            AnnotationDocumentStateTransition aTransition)
+                                                                     AnnotationDocumentStateTransition aTransition)
     {
         return setAnnotationDocumentState(aDocument,
                 AnnotationDocumentStateTransition.transition(aTransition));
@@ -1060,8 +1060,8 @@ public class DocumentServiceImpl
                 .executeUpdate();
 
         // Delete all the source documents files for the given project
-        File docFolder = new File(repositoryProperties.getPath().getAbsolutePath() + "/"
-                + PROJECT_FOLDER + "/" + project.getId() + "/" + DOCUMENT_FOLDER + "/");
+        File docFolder = new File(repositoryProperties.getPath().getAbsolutePath() + File.separator
+                + PROJECT_FOLDER + File.separator + project.getId() + File.separator + DOCUMENT_FOLDER + File.separator);
         if (docFolder.exists()) {
             FastIOUtils.delete(docFolder);
         }
