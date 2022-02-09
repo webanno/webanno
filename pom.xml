@@ -78,7 +78,7 @@
     <slf4j.version>1.7.32</slf4j.version>
     <log4j.version>2.17.0</log4j.version>
     <jboss.logging.version>3.4.1.Final</jboss.logging.version>
-    <hibernate.version>5.4.15.Final</hibernate.version>
+    <hibernate.version>5.4.24.Final</hibernate.version>
     <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
     <springfox.version>2.9.2</springfox.version>
     <batik.version>1.12</batik.version>
