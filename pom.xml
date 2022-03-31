@@ -76,12 +76,12 @@
     <uima.version>3.2.0</uima.version>
     <uimafit.version>3.2.0</uimafit.version>
     <slf4j.version>1.7.32</slf4j.version>
-    <log4j.version>2.17.0</log4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <jboss.logging.version>3.4.1.Final</jboss.logging.version>
-    <hibernate.version>5.4.15.Final</hibernate.version>
+    <hibernate.version>5.4.24.Final</hibernate.version>
     <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
     <springfox.version>2.9.2</springfox.version>
-    <batik.version>1.12</batik.version>
+    <batik.version>1.14</batik.version>
     <json.version>20180813</json.version>
     <pf4j.version>2.6.0</pf4j.version>
     <jackson.version>2.13.2.1</jackson.version>
