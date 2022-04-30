@@ -84,7 +84,7 @@
     <batik.version>1.14</batik.version>
     <json.version>20180813</json.version>
     <pf4j.version>2.6.0</pf4j.version>
-    <jackson.version>2.13.0</jackson.version>
+    <jackson.version>2.13.2</jackson.version>
     <tomcat.version>9.0.56</tomcat.version>
     <servlet-api.version>4.0.1</servlet-api.version>
     <mysql-driver.version>8.0.27</mysql-driver.version>
