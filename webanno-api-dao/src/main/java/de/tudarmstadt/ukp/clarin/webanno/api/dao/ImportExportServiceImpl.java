@@ -47,6 +47,7 @@ import static org.apache.uima.fit.util.LifeCycleUtil.destroy;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -494,10 +495,8 @@ public class ImportExportServiceImpl
                 updateCasWithTagSet(exportCas, feature.getLayer().getName(), tagSet.getName());
             }
 
-            File exportTempDir = createTempFile("webanno", "export");
+            File exportTempDir = Files.createTempDirectory("webanno" + "export").toFile();
             try {
-                exportTempDir.delete();
-                exportTempDir.mkdirs();
 
                 AnalysisEngineDescription writer = aFormat
                         .getWriterDescription(aDocument.getProject(), exportTypeSystem, exportCas);
