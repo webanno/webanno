@@ -87,7 +87,7 @@
     <jackson.version>2.13.2</jackson.version>
     <tomcat.version>9.0.56</tomcat.version>
     <servlet-api.version>4.0.1</servlet-api.version>
-    <mysql-driver.version>8.0.27</mysql-driver.version>
+    <mysql-driver.version>8.0.28</mysql-driver.version>
   </properties>
   <repositories>
     <!--

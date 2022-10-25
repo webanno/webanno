@@ -21,6 +21,7 @@ import static de.tudarmstadt.ukp.clarin.webanno.api.export.ProjectExportRequest.
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -66,9 +67,7 @@ public class ProjectExportCuratedDocumentsTask
         File exportFile = null;
         File exportTempDir = null;
         try {
-            exportTempDir = File.createTempFile("webanno", "export");
-            exportTempDir.delete();
-            exportTempDir.mkdirs();
+            exportTempDir = Files.createTempDirectory("webanno" + "export").toFile();
 
             boolean curationDocumentExist = documentService.existsCurationDocument(project);
 
