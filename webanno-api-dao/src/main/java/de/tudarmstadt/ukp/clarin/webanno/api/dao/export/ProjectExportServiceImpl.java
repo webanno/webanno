@@ -26,6 +26,7 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.formatDurationWo
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -158,9 +159,7 @@ public class ProjectExportServiceImpl
         File exportTempDir = null;
         try {
             // Directory to store source documents and annotation documents
-            exportTempDir = File.createTempFile("webanno-project", "export");
-            exportTempDir.delete();
-            exportTempDir.mkdirs();
+            exportTempDir = Files.createTempDirectory("webanno-project" + "export").toFile();
 
             // Target file
             File projectZipFile = new File(exportTempDir.getAbsolutePath() + ".zip");

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.dkpro</groupId>
     <artifactId>dkpro-parent-pom</artifactId>
-    <version>25</version>
+    <version>26</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
@@ -60,34 +60,34 @@
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
   
     <mockito.version>3.7.0</mockito.version>
-    <assertj.version>3.18.1</assertj.version>
-    <spring.version>5.3.3</spring.version>
+    <assertj.version>3.21.0</assertj.version>
+    <spring.version>5.3.19</spring.version>
     <spring.boot.version>2.4.2</spring.boot.version>
-    <spring.security.version>5.4.2</spring.security.version>
-    <wicket.version>9.2.0</wicket.version>
-    <wicketstuff.version>9.2.0</wicketstuff.version>
-    <wicket-jquery-ui.version>9.2.0</wicket-jquery-ui.version>
+    <spring.security.version>5.4.7</spring.security.version>
+    <wicket.version>9.5.0</wicket.version>
+    <wicketstuff.version>${wicket.version}</wicketstuff.version>
+    <wicket-jquery-ui.version>${wicket.version}</wicket-jquery-ui.version>
     <wicket-bootstrap.version>5.0.3</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>3.0.2</wicket-jquery-selectors.version>
     <wicket-webjars.version>3.0.2</wicket-webjars.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
     <bootstrap.version>4.5.3</bootstrap.version>
     <dkpro.version>2.2.0</dkpro.version>
-    <uima.version>3.1.1</uima.version>
-    <uimafit.version>3.1.0</uimafit.version>
-    <slf4j.version>1.7.30</slf4j.version>
-    <log4j.version>2.14.0</log4j.version>
+    <uima.version>3.2.0</uima.version>
+    <uimafit.version>3.2.0</uimafit.version>
+    <slf4j.version>1.7.32</slf4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <jboss.logging.version>3.4.1.Final</jboss.logging.version>
-    <hibernate.version>5.4.15.Final</hibernate.version>
-    <hibernate.validator.version>6.1.4.Final</hibernate.validator.version>
+    <hibernate.version>5.4.24.Final</hibernate.version>
+    <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
     <springfox.version>2.9.2</springfox.version>
-    <batik.version>1.12</batik.version>
+    <batik.version>1.14</batik.version>
     <json.version>20180813</json.version>
     <pf4j.version>2.6.0</pf4j.version>
-    <jackson.version>2.12.1</jackson.version>
-    <tomcat.version>9.0.41</tomcat.version>
+    <jackson.version>2.13.2</jackson.version>
+    <tomcat.version>9.0.56</tomcat.version>
     <servlet-api.version>4.0.1</servlet-api.version>
-    <mysql-driver.version>8.0.20</mysql-driver.version>
+    <mysql-driver.version>8.0.28</mysql-driver.version>
   </properties>
   <repositories>
     <!--
@@ -184,7 +184,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.13.1</version>
+        <version>4.13.2</version>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
@@ -374,6 +374,11 @@
       <dependency>
         <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
         <artifactId>webanno-automation-model</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.tudarmstadt.ukp.clarin.webanno</groupId>
+        <artifactId>webanno-docker</artifactId>
         <version>4.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -571,7 +576,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.6</version>
+        <version>2.11.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -581,7 +586,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
-        <version>1.8</version>
+        <version>1.9.0</version>
       </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
@@ -702,7 +707,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.11</version>
+        <version>3.12.0</version>
       </dependency>
 
       <dependency>
@@ -831,12 +836,12 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.26.0-GA</version>
+        <version>3.28.0-GA</version>
       </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.10.2</version>
+        <version>1.12.3</version>
       </dependency>
 
       <!-- SPRING -->
@@ -968,7 +973,7 @@
       <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
-        <version>2.5.0</version>
+        <version>2.6.1</version>
       </dependency>
 
       <dependency>
@@ -976,7 +981,7 @@
         <artifactId>dkpro-statistics-agreement</artifactId>
         <version>2.2.1</version>
       </dependency>
-      
+
       <dependency>
         <!-- Import dependency management from DKPro Core -->
         <groupId>org.dkpro.core</groupId>
@@ -1057,6 +1062,7 @@
     <!-- Documentation -->
     <module>webanno-doc</module>
     <module>webanno-automation</module>
+    <module>webanno-docker</module>
   </modules>
   <build>
     <plugins>

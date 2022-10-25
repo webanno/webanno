@@ -48,3 +48,6 @@
 | MySQL Server (or compatible)
 | version 5 or higher 
 |===
+
+NOTE: Java 15 is the last version on which WebAnno runs. To run on a later version of 
+      Java, please switch to link:https://inception-project.github.io[INCEpTION].

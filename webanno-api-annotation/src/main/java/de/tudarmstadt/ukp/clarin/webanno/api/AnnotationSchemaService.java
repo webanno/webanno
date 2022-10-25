@@ -556,6 +556,8 @@ public interface AnnotationSchemaService
 
     TypeAdapter getAdapter(AnnotationLayer aLayer);
 
+    TypeAdapter findAdapter(Project aProject, FeatureStructure aFS);
+
     /**
      * Performs a CAS upgrade and removes all internal feature structures from the CAS. The
      * resulting CAS should be <b>only</b> used for export and never be persisted within the
