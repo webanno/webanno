@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -376,7 +377,7 @@ public class AeroRemoteApiController
                 userRepository.isAdministrator(user));
 
         Project importedProject;
-        File tempFile = File.createTempFile("webanno-training", null);
+        File tempFile = Files.createTempFile("webanno-training", null).toFile();
         try (InputStream is = new BufferedInputStream(aFile.getInputStream());
                 OutputStream os = new FileOutputStream(tempFile);) {
             if (!ZipUtils.isZipStream(is)) {
@@ -936,7 +937,7 @@ public class AeroRemoteApiController
         File tmpFile = null;
         CAS annotationCas;
         try {
-            tmpFile = File.createTempFile("upload", ".bin");
+            tmpFile = Files.createTempFile("upload", ".bin").toFile();
             aFile.transferTo(tmpFile);
             annotationCas = importExportService.importCasFromFile(tmpFile, project, format);
         }

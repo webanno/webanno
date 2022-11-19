@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -92,7 +93,7 @@ public class ImportGuidelinesPanel
         for (FileUpload guidelineFile : uploadedFiles) {
             try {
                 // Workaround for WICKET-6425
-                File tempFile = File.createTempFile("webanno-guidelines", null);
+                File tempFile = Files.createTempFile("webanno-guidelines", null).toFile();
                 try (InputStream is = guidelineFile.getInputStream();
                         OutputStream os = new FileOutputStream(tempFile);) {
                     IOUtils.copyLarge(is, os);
