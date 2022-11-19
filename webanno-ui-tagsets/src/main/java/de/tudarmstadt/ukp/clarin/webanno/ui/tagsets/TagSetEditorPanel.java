@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -185,7 +186,7 @@ public class TagSetEditorPanel
         File exportFile = null;
         if (exportFormat.getObject().equals(JSON_FORMAT)) {
             try {
-                exportFile = File.createTempFile("exportedtagsets", ".json");
+                exportFile = Files.createTempFile("exportedtagsets", ".json").toFile();
             }
             catch (IOException e1) {
                 error("Unable to create temporary File!!");
@@ -225,7 +226,7 @@ public class TagSetEditorPanel
         else if (exportFormat.getObject().equals(TAB_FORMAT)) {
             TagSet tagSet = selectedTagSet.getObject();
             try {
-                exportFile = File.createTempFile("exportedtagsets", ".txt");
+                exportFile = Files.createTempFile("exportedtagsets", ".txt").toFile();
             }
             catch (IOException e1) {
                 error("Unable to create temporary File!!");

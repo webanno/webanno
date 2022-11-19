@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.List;
@@ -172,7 +173,7 @@ public class LegacyRemoteApiController
 
         // If the current filename does not start with "." and is in the root folder of the ZIP,
         // import it as a source document
-        File zipFile = File.createTempFile(aFile.getOriginalFilename(), ".zip");
+        File zipFile = Files.createTempFile(aFile.getOriginalFilename(), ".zip").toFile();
         aFile.transferTo(zipFile);
         ZipFile zip = new ZipFile(zipFile);
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.resource.AbstractResourceStream;
@@ -56,7 +57,7 @@ public class TempFileResource
     {
         // Write the data to the temporary file
         try {
-            tempFile = File.createTempFile("inception-temp", "");
+            tempFile = Files.createTempFile("inception-temp", "").toFile();
             tempFile.deleteOnExit();
 
             try (FileOutputStream os = new FileOutputStream(tempFile)) {

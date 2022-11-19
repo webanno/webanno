@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipFile;
@@ -160,7 +161,7 @@ public class ProjectImportPanel
         for (FileUpload exportedProject : exportedProjects) {
             try {
                 // Workaround for WICKET-6425
-                File tempFile = File.createTempFile("webanno-training", null);
+                File tempFile = Files.createTempFile("webanno-training", null).toFile();
                 try (InputStream is = new BufferedInputStream(exportedProject.getInputStream());
                         OutputStream os = new FileOutputStream(tempFile);) {
                     if (!ZipUtils.isZipStream(is)) {
