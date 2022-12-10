@@ -61,7 +61,7 @@
   
     <mockito.version>3.7.0</mockito.version>
     <assertj.version>3.21.0</assertj.version>
-    <spring.version>5.3.19</spring.version>
+    <spring.version>6.0.0</spring.version>
     <spring.boot.version>2.4.2</spring.boot.version>
     <spring.security.version>5.4.7</spring.security.version>
     <wicket.version>9.5.0</wicket.version>
