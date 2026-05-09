@@ -2,7 +2,25 @@
 layout: page-fullwidth
 title: "Privacy Policy"
 ---
+<h2>Hosting on GitHub Pages</h2>
 
+<p>This website is hosted on <a href="https://docs.github.com/en/pages">GitHub
+Pages</a>, a static site hosting service provided by GitHub, Inc. (88 Colin P.
+Kelly Jr. Street, San Francisco, CA 94107, USA), a subsidiary of Microsoft
+Corporation. When you visit this website, GitHub automatically processes
+technical information about your request, including your IP address, the
+requested URL, the date and time of access, your browser type and version,
+your operating system, and the referrer URL. This data is logged on GitHub's
+infrastructure and may be used by GitHub for security, abuse prevention, and
+aggregated usage analysis. Data may be transferred to and stored on servers
+in the United States.</p>
+
+<p>The maintainers of this website do not have direct access to these
+GitHub-side logs. For further information about how GitHub handles personal
+data, please refer to the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub
+General Privacy Statement</a>.</p>
+
+{% if site.google_analytics_tracking_id %}
 <p>
 This website uses Google Analytics, a web analytics service provided by Google, Inc. ("Google"). 
 Google Analytics uses "cookies", which are text files placed on your computer, to help the website
@@ -75,3 +93,7 @@ before, this action is not logged.</p>
 <p>Further information concerning the terms and conditions of use and data privacy can be found at <a href="http://www.google.com/analytics/terms/gb.html">http://www.google.com/analytics/terms/gb.html</a> or at <a href="https://www.google.de/intl/en_uk/policies/">https://www.google.de/intl/en_uk/policies/</a>. Please note that on this website, Google Analytics code is supplemented by "anonymizeIp" to ensure an anonymized collection of IP addresses (so called IP-masking).</p>
 
 <p><i>Source: <a href="https://www.datenschutzbeauftragter-info.de/fachbeitraege/google-analytics-datenschutzkonform-einsetzen">https://www.datenschutzbeauftragter-info.de/fachbeitraege/google-analytics-datenschutzkonform-einsetzen/</a></i></p>
+{% else %}
+<p>Beyond the GitHub-side request logging described above, this website does
+not use Google Analytics or any other web analytics service.</p>
+{% endif %}
